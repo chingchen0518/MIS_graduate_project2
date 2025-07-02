@@ -1,4 +1,4 @@
-import * as models from './models/index.js';
+import * as models from './index.js';
 import { sequelize } from './db_settings.js';
 
 

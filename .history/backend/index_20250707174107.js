@@ -1,3 +1,7 @@
+import Teacher from './models/teacher.js';
+import Student from './models/students.js';
+import Abcd from './models/abcd.js';
+
 import Attraction from './models/attraction.js';
 import Business from './models/business.js';
 import Evaluate from './models/evaluate.js';
@@ -23,8 +27,8 @@ User.hasMany(Attraction, { foreignKey: 'u_id' });
 Attraction.belongsTo(User, { foreignKey: 'u_id' });
 
 // User 與 Schedule（一對多）
-User.hasMany(Schedule, { foreignKey: 'u_id' });
-Schedule.belongsTo(User, { foreignKey: 'u_id' });
+User.hasMany(Attraction, { foreignKey: 'u_id' });
+Attraction.belongsTo(User, { foreignKey: 'u_id' });
 
 // Attraction 與 Weekday 透過 Business (多對多)
 Attraction.belongsToMany(Weekday, { through: Business, foreignKey: 'a_id', otherKey: 'w_day' });
@@ -33,6 +37,10 @@ Weekday.belongsToMany(Attraction, { through: Business, foreignKey: 'w_day', othe
 // Schedule 與 Trip（一對多）
 Trip.hasMany(Schedule, { foreignKey: 't_id' });
 Schedule.belongsTo(Trip, { foreignKey: 't_id' });
+
+// Schedule 與 User（一對多）
+User.hasMany(Schedule, { foreignKey: 'u_id' });
+Schedule.belongsTo(User, { foreignKey: 'u_id' });
 
 // Schedule 與 Attraction 透過 Include2 (多對多)
 Schedule.belongsToMany(Attraction, { through: Include2, foreignKey: 's_id', otherKey: 'a_id' });
@@ -46,12 +54,21 @@ Trip.belongsToMany(User, { through: Join, foreignKey: 't_id', otherKey: 'u_id' }
 User.belongsToMany(Attraction, { through: Support, foreignKey: 'u_id', otherKey: 'a_id' });
 Attraction.belongsToMany(User, { through: Support, foreignKey: 'a_id', otherKey: 'u_id' });
 
-// User 與 Schedule 透過 Evaluate（多對多）
-User.belongsToMany(Schedule, { through: Evaluate, foreignKey: 'u_id', otherKey: 's_id' });
-Schedule.belongsToMany(User, { through: Evaluate, foreignKey: 's_id', otherKey: 'u_id' });
+// User 與 Schedule 與 Trip 透過 Evaluate (複合關聯，需自訂關聯設定)
+Evaluate.belongsTo(User, { foreignKey: 'u_id' });
+Evaluate.belongsTo(Schedule, { foreignKey: 's_id' });
+Evaluate.belongsTo(Trip, { foreignKey: 't_id' });
+
+User.hasMany(Evaluate, { foreignKey: 'u_id' });
+Schedule.hasMany(Evaluate, { foreignKey: 's_id' });
+Trip.hasMany(Evaluate, { foreignKey: 't_id' });
 
 
 export {
+  Teacher,
+  Student,
+  Abcd,
+
   Attraction,
   Business,
   Evaluate,

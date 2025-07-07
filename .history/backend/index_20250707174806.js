@@ -51,6 +51,8 @@ User.belongsToMany(Schedule, { through: Evaluate, foreignKey: 'u_id', otherKey: 
 Schedule.belongsToMany(User, { through: Evaluate, foreignKey: 's_id', otherKey: 'u_id' });
 
 
+
+
 export {
   Attraction,
   Business,

@@ -46,9 +46,9 @@ Trip.belongsToMany(User, { through: Join, foreignKey: 't_id', otherKey: 'u_id' }
 User.belongsToMany(Attraction, { through: Support, foreignKey: 'u_id', otherKey: 'a_id' });
 Attraction.belongsToMany(User, { through: Support, foreignKey: 'a_id', otherKey: 'u_id' });
 
-// User 與 Schedule 透過 Evaluate（多對多）
-User.belongsToMany(Schedule, { through: Evaluate, foreignKey: 'u_id', otherKey: 's_id' });
-Schedule.belongsToMany(User, { through: Evaluate, foreignKey: 's_id', otherKey: 'u_id' });
+// User 與 Schedule 透過 Evaluate (複合關聯，需自訂關聯設定)
+Evaluate.belongsTo(User, { foreignKey: 'u_id' });
+Evaluate.belongsTo(Schedule, { foreignKey: 's_id' });
 
 
 export {

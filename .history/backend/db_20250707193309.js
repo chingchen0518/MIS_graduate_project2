@@ -58,20 +58,20 @@ app.get('/api/travel', (req, res) => {
         return res.status(500).json({ error: `查詢 ${key} 失敗：${err.message}` });
       }
 
-    if (key === 'trips') {
-      rows = rows.map(row => ({
-        ...row,
-        s_date: formatDate(row.s_date),
-        e_date: formatDate(row.e_date)
-      }));
-    }
+if (key === 'trips') {
+  rows = rows.map(row => ({
+    ...row,
+    s_date: formatDate(row.s_date),
+    e_date: formatDate(row.e_date)
+  }));
+}
 
-    if (key === 'schedules') {
-      rows = rows.map(row => ({
-        ...row,
-        date: formatDate(row.date)
-      }));
-    }
+if (key === 'schedules') {
+  rows = rows.map(row => ({
+    ...row,
+    date: formatDate(row.date)
+  }));
+}
 
 
       results[key] = rows;

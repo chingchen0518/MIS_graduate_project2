@@ -62,7 +62,7 @@ app.get('/api/travel', (req, res) => {
       rows = rows.map(row => ({
         ...row,
         s_date: formatDate(row.s_date),
-        e_date: formatDate(row.e_date),
+        e_date: formatDate(row.e_date)
         stage_date: formatDate(row.stage_date)
       }));
     }

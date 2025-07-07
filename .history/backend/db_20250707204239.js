@@ -34,16 +34,23 @@ function formatDate(dateStr) {
   return `${year}-${month}-${day}`;
 }
 
-function formatFullDateTime(dateTimeStr) {
-  if (!dateTimeStr) return null;
-  const d = new Date(dateTimeStr);
+function formatDateTime(dateStr, timeStr) {
+  if (!dateStr || !timeStr) return null;
 
-  const year = d.getFullYear();
-  const month = `${d.getMonth() + 1}`.padStart(2, '0');
-  const day = `${d.getDate()}`.padStart(2, '0');
-  const hours = `${d.getHours()}`.padStart(2, '0');
-  const minutes = `${d.getMinutes()}`.padStart(2, '0');
-  const seconds = `${d.getSeconds()}`.padStart(2, '0');
+  const date = new Date(dateStr);
+  const [h, m, s] = timeStr.split(':');
+
+  // 組合成 JS 時間物件
+  date.setHours(h);
+  date.setMinutes(m);
+  date.setSeconds(s);
+
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  const hours = `${date.getHours()}`.padStart(2, '0');
+  const minutes = `${date.getMinutes()}`.padStart(2, '0');
+  const seconds = `${date.getSeconds()}`.padStart(2, '0');
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
@@ -76,14 +83,14 @@ app.get('/api/travel', (req, res) => {
         return res.status(500).json({ error: `查詢 ${key} 失敗：${err.message}` });
       }
 
-  if (key === 'trips') {
-    rows = rows.map(row => ({
-      ...row,
-      s_date: formatDate(row.s_date),
-      e_date: formatDate(row.e_date),
-      stage_date: formatFullDateTime(row.stage_date)
-    }));
-  }
+    if (key === 'trips') {
+      rows = rows.map(row => ({
+        ...row,
+        s_date: formatDate(row.s_date),
+        e_date: formatDate(row.e_date),
+        stage_date: formatDate(row.stage_date)
+      }));
+    }
 
     if (key === 'schedules') {
       rows = rows.map(row => ({

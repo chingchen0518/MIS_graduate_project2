@@ -9,7 +9,7 @@ const Trip = sequelize.define('Trip', {
     s_time:  { type: DataTypes.TIME, allowNull: false },
     e_time:  { type: DataTypes.TIME, allowNull: false },
     country: { type: DataTypes.STRING, allowNull: false },
-    stage_date:  { type: DataTypes.DATE, allowNull: false },
+    stage_date:  { type: DataTypes., allowNull: false },
     time: { type: DataTypes.TIME, allowNull: false },
     title:   { type: DataTypes.STRING, allowNull: false },
     stage: { type: DataTypes.STRING, allowNull: true },

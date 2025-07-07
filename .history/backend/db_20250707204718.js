@@ -81,7 +81,7 @@ app.get('/api/travel', (req, res) => {
       ...row,
       s_date: formatDate(row.s_date),
       e_date: formatDate(row.e_date),
-      stage_date: formatFullDateTime(row.stage_date)
+      stage_date: formatFullDateTime(row.stage_date) // 注意：這是 DATETIME 欄位
     }));
   }
 

@@ -25,6 +25,7 @@ connection.connect(err => {
 });
 
 // API endpoint
+
 app.get('/api/students/:id', (req, res) => {
   const studentId = req.params.id; // 取得 URL 上的 id
 

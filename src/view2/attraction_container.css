@@ -1,0 +1,14 @@
+.attraction_container {
+    width: 20%;
+    height: fit-content;
+    max-height: 90vh;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 8px;
+    box-sizing: border-box;
+    justify-content: flex-start;
+    align-content: flex-start;
+    border: 2px solid black;
+    overflow: hidden;
+}

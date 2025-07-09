@@ -1,5 +1,5 @@
 import React from 'react';
-import './attraction_details.css';
+import './attraction_details_new.css';
 
 const AttractionDetails = ({ attraction }) => {
   if (!attraction) {
@@ -14,48 +14,55 @@ const AttractionDetails = ({ attraction }) => {
 
   return (
     <div className="attraction_details">
-      <div className="details_header">
-        <h1 className="details_title">{attraction.name}</h1>
-        <div className="details_meta">
-          <span className="details_category" style={{backgroundColor: attraction.color}}>
-            {attraction.category}
-          </span>
-          <span className="details_votes">👍 {attraction.votes} 票</span>
-        </div>
-      </div>
-      
-      <div className="details_content">
-        <div className="details_section">
-          <h3>景點介紹</h3>
-          <p>這是 {attraction.name} 的詳細介紹。{attraction.name} 是一個{attraction.category}類型的景點，深受遊客喜愛。</p>
+      <div className="attraction_card_layout">
+        <div className="attraction_image">
+          <img src="https://via.placeholder.com/80x60/4A90E2/white?text=IMG" alt={attraction.name} />
         </div>
         
-        <div className="details_section">
-          <h3>基本資訊</h3>
-          <div className="info_grid">
-            <div className="info_item">
-              <span className="info_label">類型：</span>
-              <span className="info_value">{attraction.category}</span>
-            </div>
-            <div className="info_item">
-              <span className="info_label">人氣：</span>
-              <span className="info_value">{attraction.votes} 票</span>
-            </div>
-            <div className="info_item">
-              <span className="info_label">地點：</span>
-              <span className="info_value">台灣</span>
+        <div className="attraction_info">
+          <div className="attraction_header">
+            <h2 className="attraction_title">{attraction.name}</h2>
+            <div className="action_icon">
+              <span>📝</span>
             </div>
           </div>
-        </div>
-        
-        <div className="details_section">
-          <h3>特色</h3>
-          <ul>
-            <li>優美的自然環境</li>
-            <li>豐富的文化內涵</li>
-            <li>便利的交通設施</li>
-            <li>完善的遊客服務</li>
-          </ul>
+          
+          <div className="week_schedule">
+            <div className="week_days">
+              <span className="day">Su</span>
+              <span className="day">Mo</span>
+              <span className="day active">Tu</span>
+              <span className="day">We</span>
+              <span className="day">Th</span>
+              <span className="day">Fr</span>
+              <span className="day">Sa</span>
+            </div>
+          </div>
+          
+          <div className="location_info">
+            <div className="location">
+              <span className="location_icon">📍</span>
+              <span className="address">700台南市中西區大同街35號</span>
+            </div>
+            <div className="hours">
+              <span className="time_icon">🕐</span>
+              <span className="time">Monday: 12 - 2 AM, 8 - 2 AM</span>
+            </div>
+            <div className="phone">
+              <span className="phone_icon">📞</span>
+              <span className="number">06 222 2327</span>
+            </div>
+          </div>
+          
+          <div className="price_section">
+            <span className="price_label">預算：</span>
+            <input 
+              type="text" 
+              className="price_input" 
+              placeholder="$50" 
+              defaultValue="$50"
+            />
+          </div>
         </div>
       </div>
     </div>

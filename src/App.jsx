@@ -14,8 +14,6 @@ function App() {
         <Route path="/attraction" element={<Attraction_container />} />
       </Routes>
     </Router>
-
-
   )
 }
 

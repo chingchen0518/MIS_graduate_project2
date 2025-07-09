@@ -4,8 +4,15 @@ import './schedule_container.css';
 
 const Schedule_container = () => {
   const [schedules, setSchedules] = useState([
-    { id: 1, title: '2025-01-01', day: 1, attractions: [] },
-    { id: 2, title: '2025-01-02', day: 2, attractions: [] },
+    { 
+      id: 2, 
+      title: '2025-01-02', 
+      day: 2, 
+      attractions: [
+        { name: '兩晉豆花', time: '13:00' },
+        { name: '孔子廟', time: '14:00' }
+      ]
+    },
     { id: 3, title: '2025-01-03', day: 3, attractions: [] },
     { id: 4, title: '2025-01-04', day: 4, attractions: [] },
     { id: 5, title: '2025-01-05', day: 5, attractions: [] }
@@ -18,24 +25,37 @@ const Schedule_container = () => {
       day: schedules.length + 1,
       attractions: []
     };
-    setSchedules([...schedules, newSchedule]);
+    // 在 index 1 位置插入新的 schedule，其他 schedule 往右移
+    const newSchedules = [...schedules];
+    newSchedules.splice(1, 0, newSchedule);
+    setSchedules(newSchedules);
   };
+
+  const timeSlots = [
+    '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'
+  ];
 
   return (
     <div className="schedule_container">
       <div className="schedule_container_header">
         <h2 className="schedule_container_title">旅遊行程</h2>
-        <button className="add_schedule_btn" onClick={addSchedule}>
-          新增天數
-        </button>
       </div>
       <div className="schedule_list">
-        {schedules.map((schedule) => (
+        <div className="time_column">
+          {timeSlots.map((time) => (
+            <div key={time} className="time_slot">
+              {time}
+            </div>
+          ))}
+        </div>
+        {schedules.map((schedule, index) => (
           <Schedule
             key={schedule.id}
             title={schedule.title}
             day={schedule.day}
             attractions={schedule.attractions}
+            isFirst={index === 0}
+            onAddSchedule={addSchedule}
           />
         ))}
       </div>

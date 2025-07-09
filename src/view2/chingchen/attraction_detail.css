@@ -1,9 +1,17 @@
+/* 景點詳情外層容器 */
+.attraction_details {
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+}
 
 /* 餐廳卡片樣式 */
 .attraction_card_layout {
   display: flex;
   gap: 12px;
-  height: 100%;
+  height:fit-content;
+  /* min-height: 120px; */
+  max-height: 160px;
   background: white;
   border-radius: 8px;
   padding: 8px;
@@ -112,7 +120,7 @@
 
 .price_section {
   position: absolute;
-  bottom: 6px;
+  bottom: 20px;
   right: 6px;
   display: flex;
   align-items: center;

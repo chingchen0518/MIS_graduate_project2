@@ -5,29 +5,57 @@ import './schedule_container.css';
 const Schedule_container = () => {
   const [schedules, setSchedules] = useState([
     { 
-      id: 2, 
-      title: '2025-01-02', 
-      day: 2, 
+      id: 1, 
+      title: '行程3', 
+      day: 1, 
       attractions: [
         { name: '兩晉豆花', time: '13:00' },
         { name: '孔子廟', time: '14:00' }
       ]
     },
-    { id: 3, title: '2025-01-03', day: 3, attractions: [] },
-    { id: 4, title: '2025-01-04', day: 4, attractions: [] },
-    { id: 5, title: '2025-01-05', day: 5, attractions: [] }
+    { id: 2, title: '行程2', day: 2, attractions: [] },
+    { id: 3, title: '行程1', day: 3, attractions: [] }
   ]);
 
   const addSchedule = () => {
+    const newScheduleNumber = schedules.length + 1;
     const newSchedule = {
       id: schedules.length + 1,
-      title: `2025-01-0${schedules.length + 1}`,
+      title: `行程${newScheduleNumber}`,
       day: schedules.length + 1,
       attractions: []
     };
     // 在 index 1 位置插入新的 schedule，其他 schedule 往右移
     const newSchedules = [...schedules];
     newSchedules.splice(1, 0, newSchedule);
+    setSchedules(newSchedules);
+  };
+
+  const handleDropAttraction = (attractionData, dayId, insertIndex = -1) => {
+    const newSchedules = schedules.map(schedule => {
+      if (schedule.day === dayId) {
+        const newAttraction = {
+          name: attractionData.name,
+          time: '13:00', // 預設時間，可以後續調整
+          category: attractionData.category
+        };
+        
+        const newAttractions = [...schedule.attractions];
+        if (insertIndex >= 0 && insertIndex <= newAttractions.length) {
+          // 插入到指定位置
+          newAttractions.splice(insertIndex, 0, newAttraction);
+        } else {
+          // 加到最後
+          newAttractions.push(newAttraction);
+        }
+        
+        return {
+          ...schedule,
+          attractions: newAttractions
+        };
+      }
+      return schedule;
+    });
     setSchedules(newSchedules);
   };
 
@@ -56,6 +84,7 @@ const Schedule_container = () => {
             attractions={schedule.attractions}
             isFirst={index === 0}
             onAddSchedule={addSchedule}
+            onDropAttraction={handleDropAttraction}
           />
         ))}
       </div>

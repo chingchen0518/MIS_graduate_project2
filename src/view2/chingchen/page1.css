@@ -1,41 +1,51 @@
 .page1 {
-  width: 100%;
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  max-width: 1366px;
+  max-height: 766px;
   background-color: #f5f7fa;
-  padding: 20px;
+  padding: 8px;
   box-sizing: border-box;
+  margin: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .page1_header {
   text-align: center;
-  margin-bottom: 30px;
-  padding: 20px;
+  margin-bottom: 20px;
+  padding: 15px;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 80px;
+  box-sizing: border-box;
 }
 
 .page1_title {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: bold;
   color: #333;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
 }
 
 .page1_subtitle {
-  font-size: 16px;
+  font-size: 14px;
   color: #666;
   margin: 0;
 }
 
 .page1_content {
   display: flex;
-  gap: 20px;
-  height: calc(100vh - 200px);
-  min-height: 600px;
+  gap: 10px;
+  height: calc(100vh - 16px);
+  max-height: calc(766px - 16px);
+  width: 100%;
+  box-sizing: border-box;
 }
 
-@media (max-width: 1200px) {
+/* 移除響應式設計，固定大小 */
+/* @media (max-width: 1200px) {
   .page1_content {
     flex-direction: column;
     height: auto;
@@ -60,4 +70,4 @@
   .page1_subtitle {
     font-size: 14px;
   }
-}
+} */

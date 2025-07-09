@@ -1,0 +1,79 @@
+.attraction_card {
+    cursor: pointer;
+    width: calc(50% - 5px);
+    margin: 0;
+    padding: 6px;
+    background-color: #e8f4f8;
+    border: 1px solid #9C27B0;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    min-height: 50px;
+    max-height: 65px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.attraction_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.attraction_card.selected {
+    border-color: #ff9500;
+    background-color: #fff3e0;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(255, 152, 0, 0.3);
+}
+
+.attraction_name {
+    margin: 0;
+    font-size: 10px;
+    color: #333;
+    font-weight: 600;
+    line-height: 1.1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: calc(100% - 22px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.vote_badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: #ff9500;
+    color: white;
+    padding: 1px 4px;
+    border-radius: 5px;
+    font-size: 8px;
+    font-weight: bold;
+    min-width: 12px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.category_tag {
+    color: white;
+    padding: 1px 4px;
+    border-radius: 5px;
+    font-size: 8px;
+    display: inline-block;
+    width: fit-content;
+    margin-bottom: 3px;
+    font-weight: 500;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 22px);
+}

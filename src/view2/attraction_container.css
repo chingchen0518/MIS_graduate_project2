@@ -1,0 +1,81 @@
+.attraction_container {
+    width: 30%;
+    height: calc(100vh - 16px);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border: 2px solid #4A90E2;
+    background-color: #f8f9fa;
+    position: relative;
+}
+
+.attraction_cards_wrapper {
+    flex: 1;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: flex-start;
+    align-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* .attraction_card {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    
+    transition: transform 0.2s;
+} */
+
+.attraction_card:hover {
+    transform: scale(1.05);
+}
+
+/* .attraction_details {
+    width: 70%;
+    padding: 20px;
+    box-sizing: border-box;
+    border-left: 2px solid #4A90E2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+} */
+
+.attraction_details {
+    width: calc(100% - 16px);
+    /* width: 100%; */
+    height: 25%;
+    padding: 15px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border: 2px solid #FF9800;
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 8px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+
+.attraction_details h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.attraction_details p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.attraction_details .category {
+    font-weight: bold;
+    color: #4A90E2;
+}
+
+.attraction_details .votes {
+    color: #FF9800;
+}

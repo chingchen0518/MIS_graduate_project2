@@ -1,0 +1,84 @@
+.schedule {
+  width: 70px;
+  height: calc(100% - 10px);
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin: 2px;
+  padding: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.schedule_header {
+  text-align: center;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+}
+
+.schedule_title {
+  font-size: 10px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 2px 0;
+}
+
+.schedule_date {
+  font-size: 8px;
+  color: #666;
+}
+
+.schedule_content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.schedule_item {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 4px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.schedule_item:hover {
+  background-color: #f0f0f0;
+  border-color: #4A90E2;
+}
+
+.schedule_time {
+  font-size: 7px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.schedule_attraction_name {
+  font-size: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.schedule_empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #ccc;
+  border-radius: 3px;
+  color: #999;
+  font-size: 7px;
+  text-align: center;
+  padding: 3px;
+}
+
+.schedule_empty:hover {
+  border-color: #4A90E2;
+  background-color: #f5f8ff;
+}

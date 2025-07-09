@@ -1,0 +1,76 @@
+.schedule_container {
+  width: 60%;
+  max-width: 820px;
+  height: 100%;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.schedule_container_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.schedule_container_title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.add_schedule_btn {
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add_schedule_btn:hover {
+  background-color: #357abd;
+}
+
+.schedule_list {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 0;
+  height: calc(100% - 70px);
+  min-height: 0;
+}
+
+.schedule_list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.schedule_list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.schedule_list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.schedule_list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

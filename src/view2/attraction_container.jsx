@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import AttractionCard from './attraction_card.jsx';
+import AttractionDetails from './attraction_details.jsx';
+
 import './attraction_container.css';
 
 const Attraction_container = () => {
   const [selectedTab, setSelectedTab] = useState('選擇文化村');
+  const [selectedAttraction, setSelectedAttraction] = useState(null);
   const [attractions, setAttractions] = useState([
     {
       id: 1,
@@ -77,17 +80,26 @@ const Attraction_container = () => {
     }
   ]);
 
+  const handleCardClick = (attraction) => {
+    setSelectedAttraction(attraction);
+  };
+
   return (
       <div className="attraction_container">
-        {attractions.map(attraction => (
-          <AttractionCard 
-            key={attraction.id}
-            name={attraction.name}
-            category={attraction.category}
-            votes={attraction.votes}
-            color={attraction.color}
-          />
-        ))}
+        <div className="attraction_cards_wrapper">
+          {attractions.map(attraction => (
+            <AttractionCard 
+              key={attraction.id}
+              name={attraction.name}
+              category={attraction.category}
+              votes={attraction.votes}
+              color={attraction.color}
+              isSelected={selectedAttraction?.id === attraction.id}
+              onClick={() => handleCardClick(attraction)}
+            />
+          ))}
+        </div>
+        <AttractionDetails attraction={selectedAttraction} />
       </div>
   );
 };

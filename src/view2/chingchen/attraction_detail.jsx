@@ -1,7 +1,7 @@
 import React from 'react';
-import './attraction_details_new.css';
+import './attraction_detail.css';
 
-const AttractionDetails = ({ attraction }) => {
+const AttractionDetail = ({ attraction }) => {
   if (!attraction) {
     return (
       <div className="attraction_details">
@@ -69,4 +69,4 @@ const AttractionDetails = ({ attraction }) => {
   );
 };
 
-export default AttractionDetails;
+export default AttractionDetail;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AttractionCard from './attraction_card.jsx';
-import AttractionDetails from './attraction_details.jsx';
+import AttractionDetail from './attraction_detail.jsx';
 
 import './attraction_container.css';
 
@@ -99,7 +99,7 @@ const Attraction_container = () => {
             />
           ))}
         </div>
-        <AttractionDetails attraction={selectedAttraction} />
+        <AttractionDetail attraction={selectedAttraction} />
       </div>
   );
 };

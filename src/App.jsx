@@ -12,6 +12,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/attraction" element={<Attraction_container />} />
+        {/* <Route path="/attraction" element={<Attraction_container />} /> */}
+
       </Routes>
     </Router>
   )

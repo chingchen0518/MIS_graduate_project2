@@ -24,6 +24,7 @@ connection.connect(err => {
   console.log('✅ 成功連線到 MySQL 資料庫！');
 });
 
+
 // 處理日期（只要 YYYY-MM-DD）
 function formatDate(dateStr) {
   if (!dateStr) return null;
@@ -33,6 +34,12 @@ function formatDate(dateStr) {
   const day = d.getDate().toString().padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
+
+// API endpoint
+
+app.get('/api/students/:id', (req, res) => {
+  const studentId = req.params.id; // 取得 URL 上的 id
+
 
 function formatFullDateTime(dateTimeStr) {
   if (!dateTimeStr) return null;

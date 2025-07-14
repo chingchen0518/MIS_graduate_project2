@@ -1,7 +1,7 @@
 import React from 'react';
-import './attraction_details_new.css';
+import './attraction_detail.css';
 
-const AttractionDetails = ({ attraction }) => {
+const AttractionDetail = ({ attraction }) => {
   if (!attraction) {
     return (
       <div className="attraction_details">
@@ -16,7 +16,7 @@ const AttractionDetails = ({ attraction }) => {
     <div className="attraction_details">
       <div className="attraction_card_layout">
         <div className="attraction_image">
-          <img src="https://via.placeholder.com/80x60/4A90E2/white?text=IMG" alt={attraction.name} />
+          <img src="https://image.cdn-eztravel.com.tw/ZiZ-FgvBm0Mo6ci3xqfLwvVwwicmC4AUZM2K1Zeg0zQ/g:ce/aHR0cHM6Ly92YWNhdGlvbi5jZG4tZXp0cmF2ZWwuY29tLnR3L2ltZy9WRFIvVFAxXzU2MjUxMjU2NS5qcGc.jpg" alt={attraction.name} />
         </div>
         
         <div className="attraction_info">
@@ -69,4 +69,4 @@ const AttractionDetails = ({ attraction }) => {
   );
 };
 
-export default AttractionDetails;
+export default AttractionDetail;

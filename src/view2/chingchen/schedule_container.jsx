@@ -1,0 +1,95 @@
+import React, { useState } from 'react';
+import Schedule from './schedule.jsx';
+import './schedule_container.css';
+
+const Schedule_container = () => {
+  const [schedules, setSchedules] = useState([
+    { 
+      id: 1, 
+      title: '行程3', 
+      day: 1, 
+      attractions: [
+        { name: '兩晉豆花', time: '13:00' },
+        { name: '孔子廟', time: '14:00' }
+      ]
+    },
+    { id: 2, title: '行程2', day: 2, attractions: [] },
+    { id: 3, title: '行程1', day: 3, attractions: [] }
+  ]);
+
+  const addSchedule = () => {
+    const newScheduleNumber = schedules.length + 1;
+    const newSchedule = {
+      id: schedules.length + 1,
+      title: `行程${newScheduleNumber}`,
+      day: schedules.length + 1,
+      attractions: []
+    };
+    // 在 index 1 位置插入新的 schedule，其他 schedule 往右移
+    const newSchedules = [...schedules];
+    newSchedules.splice(1, 0, newSchedule);
+    setSchedules(newSchedules);
+  };
+
+  const handleDropAttraction = (attractionData, dayId, insertIndex = -1) => {
+    const newSchedules = schedules.map(schedule => {
+      if (schedule.day === dayId) {
+        const newAttraction = {
+          name: attractionData.name,
+          time: '13:00', // 預設時間，可以後續調整
+          category: attractionData.category
+        };
+        
+        const newAttractions = [...schedule.attractions];
+        if (insertIndex >= 0 && insertIndex <= newAttractions.length) {
+          // 插入到指定位置
+          newAttractions.splice(insertIndex, 0, newAttraction);
+        } else {
+          // 加到最後
+          newAttractions.push(newAttraction);
+        }
+        
+        return {
+          ...schedule,
+          attractions: newAttractions
+        };
+      }
+      return schedule;
+    });
+    setSchedules(newSchedules);
+  };
+
+  const timeSlots = [
+    '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'
+  ];
+
+  return (
+    <div className="schedule_container">
+      <div className="schedule_container_header">
+        <h2 className="schedule_container_title">旅遊行程</h2>
+      </div>
+      <div className="schedule_list">
+        <div className="time_column">
+          {timeSlots.map((time) => (
+            <div key={time} className="time_slot">
+              {time}
+            </div>
+          ))}
+        </div>
+        {schedules.map((schedule, index) => (
+          <Schedule
+            key={schedule.id}
+            title={schedule.title}
+            day={schedule.day}
+            attractions={schedule.attractions}
+            isFirst={index === 0}
+            onAddSchedule={addSchedule}
+            onDropAttraction={handleDropAttraction}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Schedule_container;

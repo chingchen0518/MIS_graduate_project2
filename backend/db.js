@@ -37,23 +37,23 @@ function formatDate(dateStr) {
 
 // API endpoint
 
-app.get('/api/students/:id', (req, res) => {
-  const studentId = req.params.id; // 取得 URL 上的 id
+// app.get('/api/students/:id', (req, res) => {
+//   const studentId = req.params.id; // 取得 URL 上的 id
 
 
-function formatFullDateTime(dateTimeStr) {
-  if (!dateTimeStr) return null;
-  const d = new Date(dateTimeStr);
+// function formatFullDateTime(dateTimeStr) {
+//   if (!dateTimeStr) return null;
+//   const d = new Date(dateTimeStr);
 
-  const year = d.getFullYear();
-  const month = `${d.getMonth() + 1}`.padStart(2, '0');
-  const day = `${d.getDate()}`.padStart(2, '0');
-  const hours = `${d.getHours()}`.padStart(2, '0');
-  const minutes = `${d.getMinutes()}`.padStart(2, '0');
-  const seconds = `${d.getSeconds()}`.padStart(2, '0');
+//   const year = d.getFullYear();
+//   const month = `${d.getMonth() + 1}`.padStart(2, '0');
+//   const day = `${d.getDate()}`.padStart(2, '0');
+//   const hours = `${d.getHours()}`.padStart(2, '0');
+//   const minutes = `${d.getMinutes()}`.padStart(2, '0');
+//   const seconds = `${d.getSeconds()}`.padStart(2, '0');
 
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
+//   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+// }
 
 app.get('/api/travel', (req, res) => {
   const results = {};

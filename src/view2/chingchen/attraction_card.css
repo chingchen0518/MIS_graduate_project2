@@ -1,15 +1,15 @@
 .attraction_card {
     cursor: pointer;
-    width: calc(50% - 5px);
+    width: calc(50% - 3px);
     margin: 0;
-    padding: 6px;
+    padding: 4px;
     background-color: #e8f4f8;
     border: 1px solid #9C27B0;
-    border-radius: 6px;
+    border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     position: relative;
-    min-height: 50px;
-    max-height: 65px;
+    min-height: 38px;
+    max-height: 50px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -30,15 +30,29 @@
     box-shadow: 0 3px 6px rgba(255, 152, 0, 0.3);
 }
 
+.attraction_card.dragged {
+    opacity: 0.5;
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+.attraction_card.dragged .attraction_name {
+    color: #999;
+}
+
+.attraction_card.dragged .vote_badge {
+    background-color: #ccc;
+}
+
 .attraction_name {
     margin: 0;
-    font-size: 10px;
+    font-size: 8px;
     color: #333;
     font-weight: 600;
     line-height: 1.1;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    max-width: calc(100% - 22px);
+    max-width: calc(100% - 18px);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -49,31 +63,31 @@
 
 .vote_badge {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    top: 3px;
+    right: 3px;
     background-color: #ff9500;
     color: white;
-    padding: 1px 4px;
-    border-radius: 5px;
-    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 4px;
+    font-size: 7px;
     font-weight: bold;
-    min-width: 12px;
+    min-width: 10px;
     text-align: center;
     box-sizing: border-box;
 }
 
 .category_tag {
     color: white;
-    padding: 1px 4px;
-    border-radius: 5px;
-    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 4px;
+    font-size: 7px;
     display: inline-block;
     width: fit-content;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
     font-weight: 500;
     box-sizing: border-box;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: calc(100% - 22px);
+    max-width: calc(100% - 18px);
 }

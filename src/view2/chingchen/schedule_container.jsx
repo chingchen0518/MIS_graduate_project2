@@ -31,36 +31,11 @@ const Schedule_container = () => {
     setSchedules(newSchedules);
   };
 
-  const handleDropAttraction = (attractionData, dayId, insertIndex = -1) => {
-    const newSchedules = schedules.map(schedule => {
-      if (schedule.day === dayId) {
-        const newAttraction = {
-          name: attractionData.name,
-          time: '13:00', // 預設時間，可以後續調整
-          category: attractionData.category
-        };
-        
-        const newAttractions = [...schedule.attractions];
-        if (insertIndex >= 0 && insertIndex <= newAttractions.length) {
-          // 插入到指定位置
-          newAttractions.splice(insertIndex, 0, newAttraction);
-        } else {
-          // 加到最後
-          newAttractions.push(newAttraction);
-        }
-        
-        return {
-          ...schedule,
-          attractions: newAttractions
-        };
-      }
-      return schedule;
-    });
-    setSchedules(newSchedules);
-  };
-
   const timeSlots = [
-    '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'
+    '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
+    '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00', 
+    '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
+
   ];
 
   return (
@@ -84,7 +59,6 @@ const Schedule_container = () => {
             attractions={schedule.attractions}
             isFirst={index === 0}
             onAddSchedule={addSchedule}
-            onDropAttraction={handleDropAttraction}
           />
         ))}
       </div>

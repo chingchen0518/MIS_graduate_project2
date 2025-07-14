@@ -1,27 +1,11 @@
 import React from 'react';
 import './attraction_card.css';
 
-const AttractionCard = ({ name, category, votes, color, isSelected, onClick, isDragged, onDragStart, onDragEnd }) => {
-  const handleDragStart = (e) => {
-    e.dataTransfer.setData('text/plain', JSON.stringify({ name, category, votes, color }));
-    if (onDragStart) {
-      onDragStart();
-    }
-  };
-
-  const handleDragEnd = (e) => {
-    if (onDragEnd) {
-      onDragEnd();
-    }
-  };
-
+const AttractionCard = ({ name, category, votes, color, isSelected, onClick }) => {
   return (
     <div 
-      className={`attraction_card ${isSelected ? 'selected' : ''} ${isDragged ? 'dragged' : ''}`}
+      className={`attraction_card ${isSelected ? 'selected' : ''}`}
       onClick={onClick}
-      draggable={true}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
     >
       <div className="vote_badge">{votes}</div>
       <div className="category_tag" style={{backgroundColor: color}}>{category}</div>

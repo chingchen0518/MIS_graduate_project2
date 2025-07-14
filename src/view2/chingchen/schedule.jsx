@@ -70,7 +70,7 @@ const Schedule = ({ title, attractions, day, isFirst, onAddSchedule, onDropAttra
     >
       <div className="schedule_header">
         <div className="user_avatar">
-          <img src="https://scontent.frmq3-4.fna.fbcdn.net/v/t39.30808-1/474327915_9354231394597607_1936184203033497631_n.jpg?stp=cp6_dst-jpg_s160x160_tt6&_nc_cat=106&ccb=1-7&_nc_sid=e99d92&_nc_ohc=wTpMP8CQg40Q7kNvwE6TJgz&_nc_oc=AdlbSVhbceLl9mBSaUWXZ54i8JJGAqXXSmKhOWr14ZkdS0sJ4lAT_W0rlACnrjuj3UwDyGMH_62jID7GSrk1xJKd&_nc_zt=24&_nc_ht=scontent.frmq3-4.fna&_nc_gid=5JFfnptAxH2mhkSfWQYh0A&oh=00_AfSrkad_W4skcf8wraIeIdvR7NmPZHUtnw0vhs8NpVRGoA&oe=687472F6" alt="User" />
+          <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />
         </div>
         <div className="budget_display">$350</div>
         <span className="schedule_date">{title}</span>

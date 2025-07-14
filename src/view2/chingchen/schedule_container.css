@@ -47,20 +47,26 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   padding-top: 80px;
+  height: 100%;
+  overflow: hidden;
 }
 
 .time_slot {
-  font-size: 8px;
+  font-size: 7px;
   color: #666;
   text-align: center;
-  min-height: 32px;
+  height: calc((100vh - 200px) / 25);
+  min-height: 18px;
+  max-height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-right: 1px solid #eee;
   margin-right: 6px;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .schedule_list::-webkit-scrollbar {

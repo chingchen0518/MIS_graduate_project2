@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import AttractionCard from './attraction_card.jsx';
-import AttractionDetails from './attraction_details.jsx';
+import AttractionDetail from './attraction_detail.jsx';
 
 import './attraction_container.css';
 
 const Attraction_container = () => {
   const [selectedTab, setSelectedTab] = useState('選擇文化村');
   const [selectedAttraction, setSelectedAttraction] = useState(null);
+  const [draggedAttractions, setDraggedAttractions] = useState(new Set());
   const [attractions, setAttractions] = useState([
     {
       id: 1,
@@ -84,6 +85,19 @@ const Attraction_container = () => {
     setSelectedAttraction(attraction);
   };
 
+  const handleDragStart = (attractionId) => {
+    setDraggedAttractions(prev => new Set([...prev, attractionId]));
+  };
+
+  const handleDragEnd = (attractionId) => {
+    // 保持拖拽狀態，直到頁面重新載入或手動重置
+    // setDraggedAttractions(prev => {
+    //   const newSet = new Set(prev);
+    //   newSet.delete(attractionId);
+    //   return newSet;
+    // });
+  };
+
   return (
       <div className="attraction_container">
         <div className="attraction_cards_wrapper">
@@ -95,11 +109,14 @@ const Attraction_container = () => {
               votes={attraction.votes}
               color={attraction.color}
               isSelected={selectedAttraction?.id === attraction.id}
+              isDragged={draggedAttractions.has(attraction.id)}
               onClick={() => handleCardClick(attraction)}
+              onDragStart={() => handleDragStart(attraction.id)}
+              onDragEnd={() => handleDragEnd(attraction.id)}
             />
           ))}
         </div>
-        <AttractionDetails attraction={selectedAttraction} />
+        <AttractionDetail attraction={selectedAttraction} />
       </div>
   );
 };

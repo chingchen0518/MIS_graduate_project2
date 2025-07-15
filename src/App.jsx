@@ -9,6 +9,8 @@ import MapDisplay from './view2/Liu/mapAddRoute/MapDisplay.jsx'
 
 import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
 import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
+import UserProfile from './view2/chingchen/user.jsx'; 
+
 
 // import './App.css';
 
@@ -23,6 +25,9 @@ function App() {
         <Route path="/MapDisplay" element={<MapDisplay />} />
         <Route path="/test" element={<DragAndDropExample />} />
         <Route path="/test2" element={<DragAndDropWithPosition />} />
+        
+        <Route path="/UserProfile" element={<UserProfile />} />
+
 
         {/* <Route path="/attraction" element={<Attraction_container />} /> */}
       </Routes>

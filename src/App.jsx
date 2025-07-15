@@ -5,6 +5,8 @@ import InteractiveMap from './view2/Liu/map/InteractiveMap.jsx'
 import Attraction_container from './view2/chingchen/attraction_container.jsx'
 import HomePage from './components/homepage.jsx'
 import Page1 from './view2/chingchen/page1.jsx'
+import MapDisplay from './view2/Liu/mapAddRoute/MapDisplay.jsx'
+
 
 // import './App.css'
 
@@ -16,6 +18,7 @@ function App() {
         <Route path="/attraction" element={<Attraction_container />} />
         <Route path="/map" element={<InteractiveMap />} />
         <Route path="/page1" element={<Page1 />} />
+        <Route path="/MapDisplay" element={<MapDisplay />} />
         {/* <Route path="/attraction" element={<Attraction_container />} /> */}
 
       </Routes>

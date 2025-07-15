@@ -30,9 +30,23 @@
     box-shadow: 0 3px 6px rgba(255, 152, 0, 0.3);
 }
 
+.attraction_card.dragged {
+    opacity: 0.5;
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+.attraction_card.dragged .attraction_name {
+    color: #999;
+}
+
+.attraction_card.dragged .vote_badge {
+    background-color: #ccc;
+}
+
 .attraction_name {
     margin: 0;
-    font-size: 8px;
+    font-size: 15px;
     color: #333;
     font-weight: 600;
     line-height: 1.1;

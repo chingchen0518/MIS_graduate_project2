@@ -1,7 +1,7 @@
-// components/MapDisplay.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { mapService } from './services/MapService.js';
 import { routeService } from './services/RouteCalculationService.js';
+import './MapDisplay.css';
 
 // 交通方式配置（內建）
 const transportModes = {
@@ -138,25 +138,16 @@ const MapDisplay = () => {
     setActiveTransport('walk');
   };
 
-
-
   return (
-    <div>
+    <div className="map-display">
       <h2>交通方式</h2>
       
       {/* 控制按鈕 */}
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+      <div className="control-buttons">
         <button 
           onClick={calculateAllRoutes}
           disabled={isCalculating}
-          style={{
-            padding: '10px 15px',
-            backgroundColor: isCalculating ? '#6c757d' : '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: isCalculating ? 'not-allowed' : 'pointer'
-          }}
+          className={`control-button primary ${isCalculating ? 'loading' : ''}`}
         >
           {isCalculating ? '計算中...' : '計算所有路線'}
         </button>
@@ -164,14 +155,7 @@ const MapDisplay = () => {
         <button 
           onClick={clearRoutes}
           disabled={isCalculating}
-          style={{
-            padding: '10px 15px',
-            backgroundColor: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: isCalculating ? 'not-allowed' : 'pointer'
-          }}
+          className="control-button danger"
         >
           清除路線
         </button>
@@ -179,9 +163,9 @@ const MapDisplay = () => {
 
       {/* 交通方式選擇器 */}
       {Object.keys(routeData).length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
+        <div className="transport-selector">
           <h3>選擇交通方式：</h3>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <div className="transport-buttons">
             {Object.entries(transportModes).map(([key, transport]) => {
               const isActive = activeTransport === key;
               const hasData = routeData[key] && !routeData[key].error;
@@ -192,24 +176,16 @@ const MapDisplay = () => {
                   key={key}
                   onClick={() => handleTransportChange(key)}
                   disabled={!hasData}
-                  style={{
-                    padding: '10px 15px',
-                    backgroundColor: isActive ? transport.color : '#f8f9fa',
-                    color: isActive ? 'white' : '#333',
-                    border: `2px solid `,
-                    borderRadius: '8px',
-                    cursor: hasData ? 'pointer' : 'not-allowed',
-                    opacity: hasData ? 1 : 0.5,
-                    minWidth: '120px',
-                    textAlign: 'center'
-                  }}
+                  className={`transport-button ${key} ${isActive ? 'active' : 'inactive'}`}
                 >
-                  <div>{transport.name}</div>
-                  {summary && (
-                    <div style={{ fontSize: '12px', marginTop: '5px' }}>
-                      {summary.duration} 分鐘
-                    </div>
-                  )}
+                  <div className="transport-button-content">
+                    <div className="transport-button-name">{transport.name}</div>
+                    {summary && (
+                      <div className="transport-button-duration">
+                        {summary.duration} 分鐘
+                      </div>
+                    )}
+                  </div>
                 </button>
               );
             })}
@@ -219,40 +195,38 @@ const MapDisplay = () => {
 
       {/* 路線詳細資訊 */}
       {routeSummaries[activeTransport] && (
-        <div style={{ 
-          marginBottom: '20px', 
-          padding: '15px', 
-          backgroundColor: '#f8f9fa', 
-          borderRadius: '8px',
-          border: `3px solid ${transportModes[activeTransport]}`
-        }}>
+        <div 
+          className="route-details"
+          style={{ borderColor: transportModes[activeTransport].color }}
+        >
           <h4>{transportModes[activeTransport].name} 路線詳情</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
-            <div><strong>時間：</strong>{routeSummaries[activeTransport].duration} 分鐘</div>
-            <div><strong>距離：</strong>{routeSummaries[activeTransport].distance} 公里</div>
-            <div><strong>出發：</strong>{routeSummaries[activeTransport].startTime}</div>
-            <div><strong>抵達：</strong>{routeSummaries[activeTransport].endTime}</div>
+          <div className="route-details-grid">
+            <div className="route-details-item">
+              <strong>時間：</strong>{routeSummaries[activeTransport].duration} 分鐘
+            </div>
+            <div className="route-details-item">
+              <strong>距離：</strong>{routeSummaries[activeTransport].distance} 公里
+            </div>
+            <div className="route-details-item">
+              <strong>出發：</strong>{routeSummaries[activeTransport].startTime}
+            </div>
+            <div className="route-details-item">
+              <strong>抵達：</strong>{routeSummaries[activeTransport].endTime}
+            </div>
             {routeSummaries[activeTransport].transfers > 0 && (
-              <div><strong>轉乘：</strong>{routeSummaries[activeTransport].transfers} 次</div>
+              <div className="route-details-item">
+                <strong>轉乘：</strong>{routeSummaries[activeTransport].transfers} 次
+              </div>
             )}
           </div>
         </div>
       )}
 
       {/* 地圖容器 */}
-      <div 
-        ref={mapRef} 
-        style={{
-          width: '410px',
-          height: '100%',
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-        }}
-      />
+      <div ref={mapRef} className="map-container" />
       
       {/* 說明資訊 */}
-      <div style={{ marginTop: '15px', fontSize: '14px', color: '#666' }}>
+      <div className="info-section">
         <p><strong>測試路線：</strong> 蘇黎世 → 琉森</p>
       </div>
     </div>

@@ -141,7 +141,7 @@ const MapDisplay = () => {
 
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div>
       <h2>交通方式</h2>
       
       {/* 控制按鈕 */}
@@ -243,8 +243,8 @@ const MapDisplay = () => {
       <div 
         ref={mapRef} 
         style={{
-          width: '100%',
-          height: '500px',
+          width: '410px',
+          height: '100%',
           border: '1px solid #ccc',
           borderRadius: '8px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'

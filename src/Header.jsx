@@ -3,7 +3,7 @@ import './Header.css';
 
 export default function TreasureHuntHeader() {
   const [stage, setStage] = useState(1);
-  const [deadline, setDeadline] = useState(new Date('2025-07-06T19:28:00'));
+  const [deadline, setDeadline] = useState(new Date('2025-07-16T19:18:00'));
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {

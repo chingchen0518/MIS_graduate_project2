@@ -44,6 +44,7 @@
   z-index: 1;
   position: relative;
   border: none;
+  color: black;
 }
 
 .step.active {

@@ -5,7 +5,7 @@ import InteractiveMap from './view2/Liu/map/InteractiveMap.jsx'
 import Attraction_container from './view2/chingchen/attraction_container.jsx'
 import HomePage from './components/homepage.jsx'
 import Page1 from './view2/chingchen/page1.jsx'
-import Header from './components/header.jsx'
+
 
 // import './App.css'
 

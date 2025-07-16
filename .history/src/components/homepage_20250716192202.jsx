@@ -7,7 +7,7 @@ const HomePage = () => {
       <br />
       <a href="/page1">page1</a>
       <br />
-      <a href="/header">header</a>
+      <a href="/map">map</a>
     </div>
 
   );

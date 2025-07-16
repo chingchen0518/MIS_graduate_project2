@@ -67,5 +67,4 @@ export {
   Trip,
   User,
   Weekday,
-  Hotel,
 };

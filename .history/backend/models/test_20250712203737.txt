@@ -52,8 +52,7 @@ INSERT INTO Support (u_id, a_id, t_id, reason, onelove, twolove) VALUES
 (1, 1, 1, '很棒的文化體驗', 3, 1),
 (2, 2, 2, '非常刺激好玩', 5, 2);
 
--- 11. Hotel
-INSERT INTO Hotel (h_img, h_address, h_name_zh, h_name_en, h_country, h_city, rate, price, description, cin_time, cout_time, t_id) VALUES
-('hotel1.jpg', '東京都新宿區1-1-1', '新宿大飯店', 'Shinjuku Grand Hotel', 'Japan', 'Tokyo', 4.5, 12000.00, '位於新宿核心地段，交通便利，設施齊全。', '2025-07-01 15:00:00', '2025-07-05 11:00:00', 1),
-('hotel2.jpg', '首爾江南區2-2-2', '江南豪華酒店', 'Gangnam Luxury Hotel', 'Korea', 'Seoul', 4.8, 15000.00, '提供頂級服務與設施，鄰近購物區與地鐵站。', '2025-08-10 14:00:00', '2025-08-15 12:00:00', 2);
-
+-- 11. Trip
+INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id) VALUES
+('2025-07-01', '2025-07-05', '08:00:00', '20:00:00', 'Japan', '2025-07-01 08:00:00', '12:00:00', '東京之旅', '計畫中', 1),
+('2025-08-10', '2025-08-15', '09:00:00', '19:00:00', 'Korea', '2025-08-10 08:00:00', '10:00:00', '首爾探訪', '完成', 2);

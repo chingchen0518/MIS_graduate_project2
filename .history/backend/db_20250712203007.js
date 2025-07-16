@@ -92,13 +92,6 @@ app.get('/api/travel', (req, res) => {
       stage_date: formatFullDateTime(row.stage_date)
     }));
   }
-  if (key === 'hotels') {
-    rows = rows.map(row => ({
-      ...row,
-      cin_time: formatFullDateTime(row.cin_time),
-      cout_time: formatFullDateTime(row.cout_time)
-    }));
-  }
 
     if (key === 'schedules') {
       rows = rows.map(row => ({

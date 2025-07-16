@@ -340,7 +340,6 @@ class RouteCalculationService {
     };
   }
 
-
   /*獲取支援的交通模式*/
   async getSupportedModes() {
     try {

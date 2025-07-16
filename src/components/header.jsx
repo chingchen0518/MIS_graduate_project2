@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './header.css';
 
-export default function Header() {
+function Header() {
   const [stage, setStage] = useState(1);
   const [deadline, setDeadline] = useState(new Date('2025-07-16T19:40:00'));
   const [now, setNow] = useState(new Date());
@@ -75,9 +75,11 @@ export default function Header() {
         </div>
       </div>
 
-      <div>stage: {stage}</div>
+      {/* <div>stage: {stage}</div>
       <div>截止時間: {formatTime(deadline)}</div>
-      <div>現在的時間: {formatTime(now)}</div>
+      <div>現在的時間: {formatTime(now)}</div> */}
     </div>
   );
 }
+
+export default Header;

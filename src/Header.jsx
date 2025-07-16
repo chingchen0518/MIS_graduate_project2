@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import './Header.css';
 
-export default function TreasureHuntHeader() {
+export default function Header() {
   const [stage, setStage] = useState(1);
-  const [deadline, setDeadline] = useState(new Date('2025-07-16T19:18:00'));
+  const [deadline, setDeadline] = useState(new Date('2025-07-16T19:20:00'));
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {

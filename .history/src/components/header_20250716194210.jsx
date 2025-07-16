@@ -17,6 +17,7 @@ export default function Header() {
         setStage(nextStage);
 
         const newDeadline = new Date(deadline.getTime() + 5000);
+        console.log(`Stage ${stage} completed, moving to stage ${nextStage}. New deadline: ${newDeadline}`);
         setDeadline(newDeadline);
       }
     }, 1000);

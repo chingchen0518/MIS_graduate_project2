@@ -3,7 +3,7 @@ import './header.css';
 
 export default function Header() {
   const [stage, setStage] = useState(1);
-  const [deadline, setDeadline] = useState(new Date('2025-07-16T19:40:00'));
+  const [deadline, setDeadline] = useState(new Date('2025-07-20T19:40:00'));
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -17,6 +17,7 @@ export default function Header() {
         setStage(nextStage);
 
         const newDeadline = new Date(deadline.getTime() + 5000);
+        console.log(`Stage ${stage} completed, moving to stage ${nextStage}. New deadline: ${newDeadline}`);
         setDeadline(newDeadline);
       }
     }, 1000);

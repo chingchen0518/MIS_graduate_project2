@@ -6,12 +6,7 @@ const HomePage = () => {
       <a href="/attraction">attraction</a>
       <br />
       <a href="/page1">page1</a>
-      <br />
-
-      <a href="/header">header</a>
-      <a href="/map">map</a>
-      <br />
-      <a href="/MapDisplay">MapDisplay</a>
+      
     </div>
 
   );

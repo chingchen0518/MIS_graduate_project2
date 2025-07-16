@@ -1,16 +1,22 @@
 import React from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import Attraction_container from '../chingchen/attraction_container.jsx';
 import Schedule_container from '../chingchen/schedule_container.jsx';
+import { CustomDragPreview } from './schedule.jsx';
 import './page1.css';
 
 const Page1 = () => {
   return (
-    <div className="page1">
-      <div className="page1_content">
-        <Attraction_container />
-        <Schedule_container />
+    <DndProvider backend={HTML5Backend}>
+      <CustomDragPreview />
+      <div className="page1">
+        <div className="page1_content">
+          <Attraction_container />
+          <Schedule_container />
+        </div>
       </div>
-    </div>
+    </DndProvider>
   );
 };
 

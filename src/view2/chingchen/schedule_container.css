@@ -31,21 +31,6 @@
   margin: 0;
 }
 
-.add_schedule_btn {
-  background-color: #4A90E2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 11px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.add_schedule_btn:hover {
-  background-color: #357abd;
-}
-
 .schedule_list {
   flex: 1;
   display: flex;
@@ -55,6 +40,33 @@
   padding: 6px 0;
   height: calc(100% - 70px);
   min-height: 0;
+}
+
+.time_column {
+  width: 40px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-top: 80px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.time_slot {
+  font-size: 7px;
+  color: #666;
+  text-align: center;
+  height: calc((100vh - 200px) / 25);
+  min-height: 18px;
+  max-height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #eee;
+  margin-right: 6px;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .schedule_list::-webkit-scrollbar {

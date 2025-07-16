@@ -1,19 +1,12 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import InteractiveMap from './view2/Liu/map/InteractiveMap.jsx'
 import Attraction_container from './view2/chingchen/attraction_container.jsx'
 import HomePage from './components/homepage.jsx'
 import Page1 from './view2/chingchen/page1.jsx'
-import Header from './components/header.jsx'
-import MapDisplay from './view2/Liu/mapAddRoute/MapDisplay.jsx'
 
-import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
-import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
-import UserProfile from './view2/chingchen/user.jsx'; 
-
-
-// import './App.css';
+// import './App.css'
 
 function App() {
   return (
@@ -25,16 +18,10 @@ function App() {
         <Route path="/page1" element={<Page1 />} />
         <Route path="/header" element={<Header />} />
         {/* <Route path="/attraction" element={<Attraction_container />} /> */}
-        <Route path="/MapDisplay" element={<MapDisplay />} />
-        <Route path="/test" element={<DragAndDropExample />} />
-        <Route path="/test2" element={<DragAndDropWithPosition />} />
-        <Route path="/UserProfile" element={<UserProfile />} />
 
-
-        {/* <Route path="/attraction" element={<Attraction_container />} /> */}
       </Routes>
     </Router>
-  );
+  )
 }
 
-export default App;
+export default App

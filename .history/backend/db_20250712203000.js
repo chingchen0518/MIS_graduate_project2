@@ -68,7 +68,7 @@ app.get('/api/travel', (req, res) => {
     { key: 'evaluates', sql: 'SELECT * FROM Evaluate' },
     { key: 'supports', sql: 'SELECT * FROM Support' },
     { key: 'businesses', sql: 'SELECT * FROM Business' },
-    { key: 'hotels', sql: 'SELECT * FROM Hotel' }
+    { key: 'businesses', sql: 'SELECT * FROM Hotel' }
   ];
 
   let completed = 0;
@@ -90,13 +90,6 @@ app.get('/api/travel', (req, res) => {
       s_date: formatDate(row.s_date),
       e_date: formatDate(row.e_date),
       stage_date: formatFullDateTime(row.stage_date)
-    }));
-  }
-  if (key === 'hotels') {
-    rows = rows.map(row => ({
-      ...row,
-      cin_time: formatFullDateTime(row.cin_time),
-      cout_time: formatFullDateTime(row.cout_time)
     }));
   }
 

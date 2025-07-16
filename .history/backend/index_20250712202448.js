@@ -8,12 +8,8 @@ import Support from './models/support.js';
 import Trip from './models/trip.js';
 import User from './models/user.js';
 import Weekday from './models/weekday.js';
-import Hotel from './models/hotel.js';
+import Weekday from './models/hotel.js';
 
-
-// Trip 與 Hotel（一對多）
-Trip.hasMany(Hotel, { foreignKey: 't_id' });
-Hotel.belongsTo(Trip, { foreignKey: 't_id' });
 
 // Trip 與 Attraction（一對多）
 Trip.hasMany(Attraction, { foreignKey: 't_id' });
@@ -67,5 +63,4 @@ export {
   Trip,
   User,
   Weekday,
-  Hotel,
 };

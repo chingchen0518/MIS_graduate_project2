@@ -11,6 +11,7 @@ const HomePage = () => {
         <li><a href="/map">map</a></li>
         <li><a href="/MapDisplay">MapDisplay</a></li>
         <li><a href="/header">header</a></li>
+        <li><a href="/login">login</a></li>
       </ul>
     </div>
 

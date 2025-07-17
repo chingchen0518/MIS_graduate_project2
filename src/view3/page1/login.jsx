@@ -130,7 +130,7 @@ const Login = () => {
                 </div>
                 <div className="login-footer">
                     <p className="register-link">
-                        還沒有帳號？ <a href="/register">立即註冊</a>
+                        還沒有帳號？ <a href="/signin">立即註冊</a>
                     </p>
                 </div>
             </div>

@@ -48,7 +48,7 @@ export default function Header() {
   const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
 
   return (
-    <div className="treasure-hunt-wrapper">
+    <div>
       <div className="header-container">
         <div className="header-icon">
           <img src="logo.jpg" className="header-icon-img" alt="logo" />

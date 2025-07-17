@@ -118,6 +118,7 @@ body {
     flex: 1;
     font-size: 16px;
     padding-left: 10px;
+    color: black;
 }
 
 .input-with-icon svg {

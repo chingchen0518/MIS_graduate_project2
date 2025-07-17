@@ -71,7 +71,7 @@ function Header() {
           ))}
         </div>
         <div className="header-icon">
-          <img src="user1.jpg" className="header-icon-img" alt="user" />
+          <img src="logo.jpg" className="header-icon-img" alt="logo" />
         </div>
       </div>
 

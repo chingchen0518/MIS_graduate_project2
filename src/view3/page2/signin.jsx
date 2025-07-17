@@ -3,8 +3,6 @@ import './signin.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe, faEnvelope, faUser, faLock } from '@fortawesome/free-solid-svg-icons';
 
-
-
 const initialState = {
     name: "",
     email: "",
@@ -49,19 +47,25 @@ function Signin() {
     };
 
     return (
-        <div className="register-outer">
-            <div className="register-container">
-                <div className="register-header">
-                    <div className="register-logo">
-                        <div className="register-logo-icon">
+        <div className="page">
+            <div className="floating-shapes">
+                <div className="shape" />
+                <div className="shape" />
+                <div className="shape" />
+                <div className="shape" />
+            </div>
+            <div className="container">
+                <div className="header">
+                    <div className="logo">
+                        <div className="logo-icon">
                             <FontAwesomeIcon icon={faGlobe}/>
                         </div>
-                        <h1 className="register-title">Vistour</h1>
+                        <h1 className="title">Vistour</h1>
                     </div>
-                    <p className="register-subtitle">註冊新帳號</p>
+                    <p className="subtitle">註冊新帳號</p>
                 </div>
 
-                <div className="register-body">
+                <div className="body">
                     {errors.length > 0 && (
                         <div className="error-message">
                             <ul>
@@ -143,11 +147,11 @@ function Signin() {
                             </div>
                         </div>
 
-                        <button type="submit" className="register-btn">註冊</button>
+                        <button type="submit" className="btn">註冊</button>
                     </form>
                 </div>
 
-                <div className="register-footer">
+                <div className="footer">
                     <p className="login-link">
                         已有帳號？ <a href="/login">立即登入</a>
                     </p>

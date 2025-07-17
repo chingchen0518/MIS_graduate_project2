@@ -1,215 +1,141 @@
-/* login.css */
-body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f5f9ff, #dcecff);
-}
+// login.jsx
+import React, { useState } from 'react';
+import './login.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faLock, faSignInAlt, faGlobe, faCheckCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
-.login-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    position: relative;
-    overflow: hidden;
-}
+const Login = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
 
-.floating-shapes .shape {
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    background-color: #aedbff;
-    border-radius: 50%;
-    opacity: 0.3;
-    animation: float 8s ease-in-out infinite;
-}
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
 
-.floating-shapes .shape:nth-child(1) {
-    top: 10%;
-    left: 20%;
-    animation-delay: 0s;
-}
+        if (!email || !password) {
+            setError('請輸入電子郵件和密碼！');
+            return;
+        }
 
-.floating-shapes .shape:nth-child(2) {
-    top: 30%;
-    right: 15%;
-    animation-delay: 2s;
-}
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setError('請輸入有效的電子郵件格式');
+            return;
+        }
 
-.floating-shapes .shape:nth-child(3) {
-    bottom: 20%;
-    left: 25%;
-    animation-delay: 4s;
-}
+        setLoading(true);
 
-.floating-shapes .shape:nth-child(4) {
-    bottom: 10%;
-    right: 10%;
-    animation-delay: 6s;
-}
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
 
-@keyframes float {
+            const data = await res.json();
+            if (res.ok) {
+                setSuccess(data.message || '登入成功！');
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/';
+                }, 1500);
+            } else {
+                setError(data.message || '登入失敗！');
+            }
+        } catch (err) {
+            setError('發生錯誤，請稍後再試');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    0%,
-    100% {
-        transform: translateY(0);
-    }
+    return (
+        <div className="login-page">
+            <div className="floating-shapes">
+                <div className="shape" />
+                <div className="shape" />
+                <div className="shape" />
+                <div className="shape" />
+            </div>
+            <div className="login-container">
+                <div className="login-header">
+                    <div className="login-logo">
+                        <div className="login-logo-icon">
+                            <FontAwesomeIcon icon={faGlobe} />
+                        </div>
+                        <h1 className="login-title">Vistour</h1>
+                    </div>
+                    <p className="login-subtitle">你的旅遊好幫手</p>
+                </div>
+                <div className="login-body">
+                    {success && (
+                        <div className="message success">
+                            <FontAwesomeIcon icon={faCheckCircle} />
+                            <span>{success}</span>
+                        </div>
+                    )}
+                    {error && (
+                        <div className="message error">
+                            <FontAwesomeIcon icon={faExclamationTriangle} />
+                            <span>{error}</span>
+                        </div>
+                    )}
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label htmlFor="email">電子郵件</label>
+                            <div className="input-with-icon">
+                                <FontAwesomeIcon icon={faEnvelope} />
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    className="form-control"
+                                    placeholder="請輸入您的電子郵件地址"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="password">密碼</label>
+                            <div className="input-with-icon">
+                                <FontAwesomeIcon icon={faLock} />
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    className="form-control"
+                                    placeholder="請輸入您的密碼"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="form-options">
+                            <label className="remember-me">
+                                <input type="checkbox" name="remember" /> 記住我
+                            </label>
+                            <a href="/forgot-password" className="forgot-password">忘記密碼？</a>
+                        </div>
+                        <button type="submit" className="login-btn" disabled={loading}>
+                            {loading ? <span className="loading" /> : <span className="btn-text">登入</span>}
+                            <FontAwesomeIcon icon={faSignInAlt} style={{ marginLeft: '8px' }} />
+                        </button>
+                    </form>
+                </div>
+                <div className="login-footer">
+                    <p className="register-link">
+                        還沒有帳號？ <a href="/register">立即註冊</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
 
-    50% {
-        transform: translateY(-20px);
-    }
-}
-
-.login-container {
-    background-color: #fff;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 420px;
-    z-index: 10;
-}
-
-.login-header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.login-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.login-logo-icon {
-    font-size: 32px;
-    margin-right: 10px;
-    color: #3b82f6;
-}
-
-.login-title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #333;
-}
-
-.login-subtitle {
-    font-size: 14px;
-    color: #777;
-    margin-top: 4px;
-}
-
-.login-body .form-group {
-    margin-bottom: 20px;
-}
-
-.input-with-icon {
-    display: flex;
-    align-items: center;
-    background-color: #f0f4f8;
-    border-radius: 10px;
-    padding: 10px;
-}
-
-.input-with-icon input {
-    border: none;
-    outline: none;
-    background: none;
-    flex: 1;
-    font-size: 16px;
-    padding-left: 10px;
-}
-
-.input-with-icon svg {
-    color: #3b82f6;
-}
-
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    margin-bottom: 20px;
-}
-
-.forgot-password {
-    color: #3b82f6;
-    text-decoration: none;
-}
-
-.forgot-password:hover {
-    text-decoration: underline;
-}
-
-.login-btn {
-    width: 100%;
-    background-color: #3b82f6;
-    color: white;
-    padding: 12px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background-color 0.3s ease;
-}
-
-.login-btn:hover {
-    background-color: #2563eb;
-}
-
-.login-btn:disabled {
-    background-color: #93c5fd;
-    cursor: not-allowed;
-}
-
-.loading {
-    width: 20px;
-    height: 20px;
-    border: 3px solid #fff;
-    border-top: 3px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.message {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px;
-    margin-bottom: 16px;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-.message.success {
-    background-color: #e0fce5;
-    color: #15803d;
-}
-
-.message.error {
-    background-color: #fee2e2;
-    color: #b91c1c;
-}
-
-.login-footer {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.register-link a {
-    color: #3b82f6;
-    text-decoration: none;
-}
-
-.register-link a:hover {
-    text-decoration: underline;
-}
+export default Login;

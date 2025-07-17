@@ -1,41 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Header from './Header';
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import InteractiveMap from './view2/Liu/map/InteractiveMap.jsx'
+import Attraction_container from './view2/chingchen/attraction_container.jsx'
+import HomePage from './components/homepage.jsx'
+import Page1 from './view2/chingchen/page1.jsx'
+import Header from './components/header.jsx'
+import MapDisplay from './view2/Liu/mapAddRoute/MapDisplay.jsx'
+
+import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
+import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
+import UserProfile from './view2/chingchen/user.jsx'; 
+
+import Login from './view3/page1/login.jsx'; 
+
+
+
+// import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <Header/>
-      </div>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/attraction" element={<Attraction_container />} />
+        <Route path="/map" element={<InteractiveMap />} />
+        <Route path="/page1" element={<Page1 />} />
+        <Route path="/header" element={<Header />} />
+        {/* <Route path="/attraction" element={<Attraction_container />} /> */}
+        <Route path="/MapDisplay" element={<MapDisplay />} />
+        <Route path="/test" element={<DragAndDropExample />} />
+        <Route path="/test2" element={<DragAndDropWithPosition />} />
+        <Route path="/UserProfile" element={<UserProfile />} />
+        <Route path="/Login" element={<Login />} />
 
 
-    </>
-  )
+        {/* <Route path="/attraction" element={<Attraction_container />} /> */}
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

@@ -48,7 +48,6 @@ function Header() {
   const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
 
   return (
-    <div>
       <div className="header-container">
         <div className="header-icon">
           <img src="logo.jpg" className="header-icon-img" alt="logo" />
@@ -73,7 +72,6 @@ function Header() {
         <div className="header-icon">
           <img src="logo.jpg" className="header-icon-img" alt="logo" />
         </div>
-      </div>
 
       {/* <div>stage: {stage}</div>
       <div>截止時間: {formatTime(deadline)}</div>

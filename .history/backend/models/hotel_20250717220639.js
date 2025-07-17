@@ -9,7 +9,8 @@ const Hotel = sequelize.define('Hotel', {
     h_name_en:  { type: DataTypes.STRING, allowNull: false },
     h_country:  { type: DataTypes.STRING, allowNull: false },
     h_city:     { type: DataTypes.STRING, allowNull: false },
-    price:      { type: DataTypes.FLOAT, allowNull: true }
+    price:      { type: DataTypes.FLOAT, allowNull: true },
+
 }, {
     tableName: 'Hotel',
     timestamps: false,

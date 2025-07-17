@@ -10,6 +10,7 @@ import User from './models/user.js';
 import Weekday from './models/weekday.js';
 import Hotel from './models/hotel.js';
 import TripHotel from './models/tripHotel.js';
+import { faTemperatureHigh } from '@fortawesome/free-solid-svg-icons';
 
 Trip.hasMany(Attraction, { foreignKey: 't_id' });
 Attraction.belongsTo(Trip, { foreignKey: 't_id' });
@@ -42,7 +43,7 @@ User.belongsToMany(Schedule, { through: Evaluate, foreignKey: 'u_id', otherKey: 
 Schedule.belongsToMany(User, { through: Evaluate, foreignKey: 's_id', otherKey: 'u_id' });
 
 Hotel.belongsToMany(Trip, { through: TripHotel, foreignKey: 'h_id', otherKey: 't_id' });
-Trip.belongsToMany(Hotel, { through: TripHotel, foreignKey: 't_id', otherKey: 'h_id' });
+Schedule.belongsToMany(Hotel, { through: TripHotel, foreignKey: 't_id', otherKey: 'h_id' });
 
 
 export {
@@ -57,5 +58,4 @@ export {
   User,
   Weekday,
   Hotel,
-  TripHotel
 };

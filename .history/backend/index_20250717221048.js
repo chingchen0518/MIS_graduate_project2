@@ -10,6 +10,7 @@ import User from './models/user.js';
 import Weekday from './models/weekday.js';
 import Hotel from './models/hotel.js';
 import TripHotel from './models/tripHotel.js';
+import { faTemperatureHigh } from '@fortawesome/free-solid-svg-icons';
 
 Trip.hasMany(Attraction, { foreignKey: 't_id' });
 Attraction.belongsTo(Trip, { foreignKey: 't_id' });
@@ -57,5 +58,4 @@ export {
   User,
   Weekday,
   Hotel,
-  TripHotel
 };

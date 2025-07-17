@@ -69,7 +69,7 @@ app.get('/api/travel', (req, res) => {
     { key: 'supports', sql: 'SELECT * FROM Support' },
     { key: 'businesses', sql: 'SELECT * FROM Business' },
     { key: 'hotels', sql: 'SELECT * FROM Hotel' },
-    { key: 'tripHotels', sql: 'SELECT * FROM TripHotel' }
+    { key: 'triphotels', sql: 'SELECT * FROM TripHotel' }
   ];
 
   let completed = 0;
@@ -93,7 +93,7 @@ app.get('/api/travel', (req, res) => {
       stage_date: formatFullDateTime(row.stage_date)
     }));
   }
-  if (key === 'trip_hotels') {
+  if (key === 'hotels') {
     rows = rows.map(row => ({
       ...row,
       cin_time: formatFullDateTime(row.cin_time),

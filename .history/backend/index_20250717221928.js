@@ -41,8 +41,8 @@ Attraction.belongsToMany(User, { through: Support, foreignKey: 'a_id', otherKey:
 User.belongsToMany(Schedule, { through: Evaluate, foreignKey: 'u_id', otherKey: 's_id' });
 Schedule.belongsToMany(User, { through: Evaluate, foreignKey: 's_id', otherKey: 'u_id' });
 
-Hotel.belongsToMany(Trip, { through: TripHotel, foreignKey: 'h_id', otherKey: 't_id' });
-Trip.belongsToMany(Hotel, { through: TripHotel, foreignKey: 't_id', otherKey: 'h_id' });
+Hotel.belongsToMany(Trip, { through: Trip_hotel, foreignKey: 'h_id', otherKey: 't_id' });
+Trip.belongsToMany(Hotel, { through: Trip_hotel, foreignKey: 't_id', otherKey: 'h_id' });
 
 
 export {
@@ -57,5 +57,4 @@ export {
   User,
   Weekday,
   Hotel,
-  TripHotel
 };

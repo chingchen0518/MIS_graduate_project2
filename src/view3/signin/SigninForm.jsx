@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faUser, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faUser, faLock, faAddressCard} from '@fortawesome/free-solid-svg-icons';
 
 const SigninForm = ({ form, handleChange, handleSubmit }) => (
     <form onSubmit={handleSubmit}>
@@ -31,6 +31,23 @@ const SigninForm = ({ form, handleChange, handleSubmit }) => (
                     name="email"
                     className="form-control"
                     placeholder="請輸入電子郵件"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                />
+            </div>
+        </div>
+
+        <div className="form-group">
+            <label htmlFor="account">帳號</label>
+            <div className="input-with-icon">
+                <FontAwesomeIcon icon={faAddressCard} />
+                <input
+                    type="account"
+                    id="account"
+                    name="account"
+                    className="form-control"
+                    placeholder="請輸入帳號"
                     value={form.email}
                     onChange={handleChange}
                     required

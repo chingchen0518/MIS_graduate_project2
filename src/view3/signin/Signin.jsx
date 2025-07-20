@@ -9,12 +9,9 @@ import SigninErrors from './SigninErrors';
 const initialState = {
     name: "",
     email: "",
+    account: "123",
     password: "",
     confirmPassword: "",
-    phone: "",
-    address: "",
-    role: "delivery",
-    healthGoal: "",
 };
 
 function Signin() {
@@ -42,10 +39,37 @@ function Signin() {
         const errs = validate();
         setErrors(errs);
         if (errs.length === 0) {
-            alert("註冊成功（模擬）");
-            setForm(initialState);
+            try {
+                const response = await fetch('http://localhost:3001/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(form),
+                });
+
+                console.log('response status:', response.status);
+
+                let data = null;
+                try {
+                    data = await response.json();
+                    console.log('response data:', data);
+                } catch (jsonErr) {
+                    console.error('response not json:', jsonErr);
+                }
+
+                if (response.ok) {
+                    alert('註冊成功！');
+                    setForm(initialState);
+                    setErrors([]);
+                } else {
+                    setErrors([data?.message || `註冊失敗 (狀態碼: ${response.status})`]);
+                }
+            } catch (err) {
+                console.error('fetch error:', err);
+                setErrors([`發生錯誤，請確認伺服器已啟動。錯誤訊息: ${err.message}`]);
+            }
         }
     };
+
 
     return (
         <div className="page">

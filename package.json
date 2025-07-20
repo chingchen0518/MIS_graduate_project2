@@ -17,6 +17,7 @@
     "crypt": "^0.0.2",
     "express": "^5.1.0",
     "leaflet": "^1.9.4",
+    "multer": "^2.0.2",
     "mysql2": "^3.14.1",
     "nodemailer": "^7.0.5",
     "react": "^19.1.0",

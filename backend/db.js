@@ -5,6 +5,33 @@ import cors from 'cors';
 import './syncModels.js';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// 取得 __dirname 的方式（ES Module 環境）
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// 設定儲存位置和檔名
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const destPath = path.join(__dirname, '../img/avatar'); // 相對於 backend/db.js
+    cb(null, destPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({ storage: storage });
+
+
+
+export default upload;  // 如果你用 ES module 的話可以 export
+
 
 const app = express();
 app.use(cors());
@@ -88,28 +115,28 @@ app.get('/api/travel', (req, res) => {
         return res.status(500).json({ error: `查詢 ${key} 失敗：${err.message}` });
       }
 
-  if (key === 'trips') {
-    rows = rows.map(row => ({
-      ...row,
-      s_date: formatDate(row.s_date),
-      e_date: formatDate(row.e_date),
-      stage_date: formatFullDateTime(row.stage_date)
-    }));
-  }
-  if (key === 'trip_hotels') {
-    rows = rows.map(row => ({
-      ...row,
-      cin_time: formatFullDateTime(row.cin_time),
-      cout_time: formatFullDateTime(row.cout_time)
-    }));
-  }
+      if (key === 'trips') {
+        rows = rows.map(row => ({
+          ...row,
+          s_date: formatDate(row.s_date),
+          e_date: formatDate(row.e_date),
+          stage_date: formatFullDateTime(row.stage_date)
+        }));
+      }
+      if (key === 'trip_hotels') {
+        rows = rows.map(row => ({
+          ...row,
+          cin_time: formatFullDateTime(row.cin_time),
+          cout_time: formatFullDateTime(row.cout_time)
+        }));
+      }
 
-    if (key === 'schedules') {
-      rows = rows.map(row => ({
-        ...row,
-        date: formatDate(row.date)
-      }));
-    }
+      if (key === 'schedules') {
+        rows = rows.map(row => ({
+          ...row,
+          date: formatDate(row.date)
+        }));
+      }
 
 
       results[key] = rows;
@@ -246,7 +273,33 @@ app.post('/api/share-trip', async (req, res) => {
       });
     }
   });
+app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
+  try {
+    const { name, email, account, password } = req.body;
+    const avatarFile = req.file;
+
+    if (!email || !account || !password) {
+      return res.status(400).json({ message: '請填寫完整資訊' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const avatarFilename = avatarFile ? avatarFile.filename : null;
+
+    const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
+    connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err) => {
+      if (err) {
+        console.error('❌ 註冊錯誤:', err);
+        return res.status(500).json({ message: '伺服器錯誤' });
+      }
+      return res.status(200).json({ message: '✅ 註冊成功' });
+    });
+  } catch (error) {
+    console.error('❌ 加密或其他錯誤:', error);
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
 });
+});
+
 
 
 // 下面不用管它

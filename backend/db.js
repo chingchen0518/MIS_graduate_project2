@@ -128,7 +128,7 @@ app.get('/api/view2_attraction_list', (req, res) => {
   connection.query(sql, (err, rows) => {
     // if (err) {
     //   console.error('❌ 查詢 Attraction 時出錯：', err.message);
-    //   return res.status(500).json({ error: `查詢 Attraction 失敗：${err.message}` });
+    //   return res.status(500).json({ error: 查詢 Attraction 失敗：${err.message} });
     // }
 
     res.json(rows);
@@ -166,6 +166,35 @@ app.post('/api/view3_login', (req, res) => {
     });
   });
 });
+
+app.post('/api/register', async (req, res) => {
+  const { name, email, account, password } = req.body;
+
+  if (!email || !account || !password) {
+    return res.status(400).json({ message: '請填寫完整資訊' });
+  }
+
+  try {
+    // 1. 加密密碼
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // 2. 存入資料庫（注意這邊用的是 hashedPassword）
+    const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password) VALUES (?, ?, ?, ?)';
+    connection.query(sql, [name, email, account, hashedPassword], (err, result) => {
+      if (err) {
+        console.error('❌ 註冊錯誤：', err.message);
+        return res.status(500).json({ message: '伺服器錯誤' });
+      }
+
+      return res.status(200).json({ message: '註冊成功' });
+    });
+  } catch (error) {
+    console.error('❌ 加密錯誤：', error);
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
+});
+
 
 // 下面不用管它
 app.listen(port, () => {

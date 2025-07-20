@@ -1,4 +1,4 @@
-/* login.css */
+/* signin.css*/
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -30,7 +30,6 @@ body {
     }
 }
 
-
 .floating-shapes .shape {
     position: absolute;
     width: 120px;
@@ -40,6 +39,7 @@ body {
     opacity: 0.3;
     animation: float 8s ease-in-out infinite;
 }
+
 .shape:nth-child(1) {
     width: 80px;
     height: 80px;
@@ -164,14 +164,6 @@ body {
     flex: 1;
 }
 
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    margin-bottom: 20px;
-}
-
 .btn {
     width: 100%;
     background-color: #3b82f6;
@@ -185,6 +177,7 @@ body {
     justify-content: center;
     align-items: center;
     transition: background-color 0.3s ease;
+    margin-top: 10px;
 }
 
 .btn:hover {
@@ -210,71 +203,30 @@ body {
     text-decoration: underline;
 }
 
-@media (max-width: 480px) {
-    .floating-shapes {
-        display: none;
+@media (max-width: 576px) {
+
+    .container {
+        max-width: 100%;
+        border-radius: 0;
+        padding: 20px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
     }
 }
 
-.forgot-password {
-    color: #3b82f6;
-    text-decoration: none;
-}
 
-.forgot-password:hover {
-    text-decoration: underline;
-}
-
-
-.loading {
-    width: 20px;
-    height: 20px;
-    border: 3px solid #fff;
-    border-top: 3px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.message {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px;
-    margin-bottom: 16px;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-.message.success {
-    background-color: #e0fce5;
-    color: #15803d;
-}
-
-.message.error {
+.error-message {
     background-color: #fee2e2;
     color: #b91c1c;
-}
-
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
+    padding: 12px;
+    border-radius: 8px;
     margin-bottom: 20px;
+    font-size: 14px;
 }
 
-.forgot-password {
-    color: #3b82f6;
-    text-decoration: none;
+.error-message ul {
+    margin-left: 20px;
 }
-
-.forgot-password:hover {
-    text-decoration: underline;
-}
-

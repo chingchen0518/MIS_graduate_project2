@@ -3,6 +3,7 @@ import './signin.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe, faEnvelope, faUser, faLock, faAddressCard } from '@fortawesome/free-solid-svg-icons';
 
+
 const initialState = {
     name: "",
     email: "",
@@ -190,7 +191,7 @@ function Signin() {
 
                 <div className="footer">
                     <p className="login-link">
-                        已有帳號？ <a href="/login">立即登入</a>
+                        已有帳號？ <a href="/Login">立即登入</a>
                     </p>
                 </div>
             </div>

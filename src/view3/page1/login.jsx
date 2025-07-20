@@ -58,24 +58,24 @@ const Login = () => {
     };
 
     return (
-        <div className="login-page">
+        <div className="page">
             <div className="floating-shapes">
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
             </div>
-            <div className="login-container">
-                <div className="login-header">
-                    <div className="login-logo">
-                        <div className="login-logo-icon">
+            <div className="container">
+                <div className="header">
+                    <div className="logo">
+                        <div className="logo-icon">
                             <FontAwesomeIcon icon={faGlobe} />
                         </div>
-                        <h1 className="login-title">Vistour</h1>
+                        <h1 className="title">Vistour</h1>
                     </div>
-                    <p className="login-subtitle">你的旅遊好幫手</p>
+                    <p className="subtitle">你的旅遊好幫手</p>
                 </div>
-                <div className="login-body">
+                <div className="body">
                     {success && (
                         <div className="message success" role="alert" aria-live="assertive">
                             <FontAwesomeIcon icon={faCheckCircle} />
@@ -135,7 +135,7 @@ const Login = () => {
                         </div>
                         <button
                             type="submit"
-                            className="login-btn"
+                            className="btn"
                             disabled={loading}
                             aria-busy={loading}
                             aria-disabled={loading}
@@ -151,9 +151,9 @@ const Login = () => {
                         </button>
                     </form>
                 </div>
-                <div className="login-footer">
+                <div className="footer">
                     <p className="register-link">
-                        還沒有帳號？ <a href="/register">立即註冊</a>
+                        還沒有帳號？ <a href="/Signin">立即註冊</a>
                     </p>
                 </div>
             </div>

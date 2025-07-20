@@ -14,6 +14,7 @@ import UserProfile from './view2/chingchen/user.jsx';
 
 import Login from './view3/page1/login.jsx'; 
 import Signin from './view3/page1/signin.jsx'; 
+import ForgotPassword from './view3/page1/forgotpassword.jsx'; 
 
 import './App.css';
 
@@ -33,6 +34,7 @@ function App() {
         <Route path="/UserProfile" element={<UserProfile />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Signin" element={<Signin />} />
+        <Route path="/ForgotPassword" element={<ForgotPassword />} />
 
       </Routes>
     </Router>

@@ -13,6 +13,7 @@ const HomePage = () => {
         <li class="homepage_li"><a href="/header">header</a></li>
         <li class="homepage_li"><a href="/login">login</a></li>
         <li class="homepage_li"><a href="/signin">signin</a></li>
+        <li class="homepage_li"><a href="/forgotPassword">forgotPassword</a></li>
       </ul>
     </div>
 

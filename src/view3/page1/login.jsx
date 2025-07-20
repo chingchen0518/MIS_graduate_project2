@@ -129,7 +129,7 @@ const Login = () => {
                                 <input type="checkbox" name="remember" />
                                 記住我
                             </label>
-                            <a href="/forgot-password" className="forgot-password">
+                            <a href="/forgotpassword" className="forgotpassword">
                                 忘記密碼？
                             </a>
                         </div>

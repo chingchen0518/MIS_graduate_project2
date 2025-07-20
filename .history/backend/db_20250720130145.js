@@ -167,7 +167,7 @@ app.post('/api/view3_login', (req, res) => {
   });
 });
 
-app.post('/api/view3_signin', async (req, res) => {
+app.post('/api/view3_si', async (req, res) => {
   const { name, email, account, password } = req.body;
 
   if (!email || !account || !password) {

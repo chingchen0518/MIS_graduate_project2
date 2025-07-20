@@ -11,7 +11,7 @@ const initialState = {
     confirmPassword: "",
 };
 
-function Signin() {
+function () {
     const [form, setForm] = useState(initialState);
     const [errors, setErrors] = useState([]);
 
@@ -198,4 +198,4 @@ function Signin() {
     );
 }
 
-export default Signin;
+export default ;

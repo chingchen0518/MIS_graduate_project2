@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import './login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faSignInAlt, faGlobe, faCheckCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,17 +32,20 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/login', {
+            const res = await fetch('/api/view3_login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password }),
             });
 
             const data = await res.json();
+
             if (res.ok) {
                 setSuccess(data.message || '登入成功！');
+
+                // 使用 React Router 導頁
                 setTimeout(() => {
-                    window.location.href = data.redirect || '/';
+                    navigate(data.redirect || '/');
                 }, 1500);
             } else {
                 setError(data.message || '登入失敗！');
@@ -53,37 +58,37 @@ const Login = () => {
     };
 
     return (
-        <div className="page">
+        <div className="login-page">
             <div className="floating-shapes">
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
             </div>
-            <div className="container">
-                <div className="header">
-                    <div className="logo">
-                        <div className="logo-icon">
+            <div className="login-container">
+                <div className="login-header">
+                    <div className="login-logo">
+                        <div className="login-logo-icon">
                             <FontAwesomeIcon icon={faGlobe} />
                         </div>
-                        <h1 className="title">Vistour</h1>
+                        <h1 className="login-title">Vistour</h1>
                     </div>
-                    <p className="subtitle">你的旅遊好幫手</p>
+                    <p className="login-subtitle">你的旅遊好幫手</p>
                 </div>
-                <div className="body">
+                <div className="login-body">
                     {success && (
-                        <div className="message success">
+                        <div className="message success" role="alert" aria-live="assertive">
                             <FontAwesomeIcon icon={faCheckCircle} />
                             <span>{success}</span>
                         </div>
                     )}
                     {error && (
-                        <div className="message error">
+                        <div className="message error" role="alert" aria-live="assertive">
                             <FontAwesomeIcon icon={faExclamationTriangle} />
                             <span>{error}</span>
                         </div>
                     )}
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} noValidate>
                         <div className="form-group">
                             <label htmlFor="email">電子郵件</label>
                             <div className="input-with-icon">
@@ -95,8 +100,10 @@ const Login = () => {
                                     className="form-control"
                                     placeholder="請輸入您的電子郵件地址"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => setEmail(e.target.value.trim())}
                                     required
+                                    autoComplete="email"
+                                    aria-describedby="emailHelp"
                                 />
                             </div>
                         </div>
@@ -113,24 +120,40 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
+                                    autoComplete="current-password"
                                 />
                             </div>
                         </div>
                         <div className="form-options">
                             <label className="remember-me">
-                                <input type="checkbox" name="remember" /> 記住我
+                                <input type="checkbox" name="remember" />
+                                記住我
                             </label>
-                            <a href="/forgot-password" className="forgot-password">忘記密碼？</a>
+                            <a href="/forgot-password" className="forgot-password">
+                                忘記密碼？
+                            </a>
                         </div>
-                        <button type="submit" className="btn" disabled={loading}>
-                            {loading ? <span className="loading" /> : <span className="btn-text">登入</span>}
-                            <FontAwesomeIcon icon={faSignInAlt} style={{ marginLeft: '8px' }} />
+                        <button
+                            type="submit"
+                            className="login-btn"
+                            disabled={loading}
+                            aria-busy={loading}
+                            aria-disabled={loading}
+                        >
+                            {loading ? (
+                                <span className="loading" aria-label="Loading" />
+                            ) : (
+                                <>
+                                    <span className="btn-text">登入</span>
+                                    <FontAwesomeIcon icon={faSignInAlt} style={{ marginLeft: '8px' }} />
+                                </>
+                            )}
                         </button>
                     </form>
                 </div>
-                <div className="footer">
-                    <p className="link">
-                        還沒有帳號？ <a href="/signin">立即註冊</a>
+                <div className="login-footer">
+                    <p className="register-link">
+                        還沒有帳號？ <a href="/register">立即註冊</a>
                     </p>
                 </div>
             </div>

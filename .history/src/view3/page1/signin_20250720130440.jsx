@@ -38,7 +38,7 @@ function Signin() {
         setErrors(errs);
         if (errs.length === 0) {
             try {
-                const response = await fetch('/api/view3_signin', {
+                const response = await fetch('/api/view3_in', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(form),

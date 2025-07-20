@@ -162,7 +162,7 @@ app.post('/api/view3_login', (req, res) => {
 
     return res.status(200).json({
       message: '登入成功！',
-      redirect: '/header'
+      redirect: '/dashboard' // 成功後導向的頁面
     });
   });
 });

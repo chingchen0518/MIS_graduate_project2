@@ -154,7 +154,7 @@ app.post('/api/view3_login', (req, res) => {
     }
 
     const user = results[0];
-    const isMatch = await bcrypt.compare(password, user.u_password);
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({ message: '密碼錯誤' });
@@ -162,7 +162,7 @@ app.post('/api/view3_login', (req, res) => {
 
     return res.status(200).json({
       message: '登入成功！',
-      redirect: '/header'
+      redirect: '/dashboard' // 成功後導向的頁面
     });
   });
 });

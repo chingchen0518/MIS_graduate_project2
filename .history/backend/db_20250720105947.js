@@ -7,7 +7,6 @@ import bcrypt from 'bcrypt';
 
 const app = express();
 app.use(cors());
-app.use(express.json());
 
 const port = 3001;
 
@@ -132,38 +131,6 @@ app.get('/api/view2_attraction_list', (req, res) => {
     // }
 
     res.json(rows);
-  });
-});
-
-// 加密驗證 API
-app.post('/api/view3_login', (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ message: '缺少帳號或密碼' });
-  }
-
-  const sql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
-  connection.query(sql, [email], async (err, results) => {
-    if (err) {
-      console.error('❌ 查詢錯誤：', err.message);
-      return res.status(500).json({ message: '伺服器錯誤' });
-    }
-
-    if (results.length === 0) {
-      return res.status(401).json({ message: '帳號不存在' });
-    }
-
-    const user = results[0];
-    const isMatch = await bcrypt.compare(password, user.u_password);
-
-    if (!isMatch) {
-      return res.status(401).json({ message: '密碼錯誤' });
-    }
-
-    return res.status(200).json({
-      message: '登入成功！',
-      redirect: '/header'
-    });
   });
 });
 

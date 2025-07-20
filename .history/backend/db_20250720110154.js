@@ -136,13 +136,13 @@ app.get('/api/view2_attraction_list', (req, res) => {
 });
 
 // 加密驗證 API
-app.post('/api/view3_login', (req, res) => {
+app.post('/api/viewlogin', (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ message: '缺少帳號或密碼' });
   }
 
-  const sql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
+  const sql = 'SELECT * FROM User WHERE email = ? LIMIT 1';
   connection.query(sql, [email], async (err, results) => {
     if (err) {
       console.error('❌ 查詢錯誤：', err.message);
@@ -154,7 +154,7 @@ app.post('/api/view3_login', (req, res) => {
     }
 
     const user = results[0];
-    const isMatch = await bcrypt.compare(password, user.u_password);
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({ message: '密碼錯誤' });
@@ -162,7 +162,7 @@ app.post('/api/view3_login', (req, res) => {
 
     return res.status(200).json({
       message: '登入成功！',
-      redirect: '/header'
+      redirect: '/dashboard' // 成功後導向的頁面
     });
   });
 });

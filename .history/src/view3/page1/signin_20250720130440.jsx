@@ -17,12 +17,8 @@ function Signin() {
     const [errors, setErrors] = useState([]);
 
     const handleChange = (e) => {
-        const { name, type, files, value } = e.target;
-        if (type === 'file') {
-            setForm((prev) => ({ ...prev, [name]: files[0] }));
-        } else {
-            setForm((prev) => ({ ...prev, [name]: value }));
-        }
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
     const validate = () => {
@@ -42,19 +38,21 @@ function Signin() {
         setErrors(errs);
         if (errs.length === 0) {
             try {
-                const formData = new FormData();
-                formData.append('name', form.name);
-                formData.append('email', form.email);
-                formData.append('account', form.account);
-                formData.append('password', form.password);
-                if (form.avatar) formData.append('avatar', form.avatar);
-
-                const response = await fetch('/api/view3_signin', {
+                const response = await fetch('/api/view3_in', {
                     method: 'POST',
-                    body: formData,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(form),
                 });
 
-                const data = await response.json();
+                console.log('response status:', response.status);
+
+                let data = null;
+                try {
+                    data = await response.json();
+                    console.log('response data:', data);
+                } catch (jsonErr) {
+                    console.error('response not json:', jsonErr);
+                }
 
                 if (response.ok) {
                     alert('註冊成功！');
@@ -64,11 +62,11 @@ function Signin() {
                     setErrors([data?.message || `註冊失敗 (狀態碼: ${response.status})`]);
                 }
             } catch (err) {
+                console.error('fetch error:', err);
                 setErrors([`發生錯誤，請確認伺服器已啟動。錯誤訊息: ${err.message}`]);
             }
         }
     };
-
 
     return (
         <div className="page">
@@ -100,7 +98,7 @@ function Signin() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} encType="multipart/form-data" method="POST">
+                    <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="name">姓名</label>
                             <div className="input-with-icon">
@@ -186,21 +184,6 @@ function Signin() {
                                 </div>
                             </div>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="avatar">新增頭貼</label>
-                            <div className="input-with-icon">
-                                <FontAwesomeIcon icon={faAddressCard} />
-                                <input
-                                    type="file"
-                                    id="avatar"
-                                    name="avatar"
-                                    accept="image/*"
-                                    className="form-control"
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                        </div>
 
                         <button type="submit" className="btn">註冊</button>
                     </form>
@@ -216,4 +199,4 @@ function Signin() {
     );
 }
 
-export default Signin;
+export default  Signin;

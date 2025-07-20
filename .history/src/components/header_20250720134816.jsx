@@ -50,7 +50,7 @@ function Header() {
   return (
       <div className="header-container">
         <div className="header-icon">
-          <img src="img/logo.jpg" className="header-icon-img" alt="logo" />
+          <img src="imglogo.jpg" className="header-icon-img" alt="logo" />
         </div>
         <div className="header-title-block">
           <span className="header-title">小明的尋寶之旅</span>
@@ -70,7 +70,7 @@ function Header() {
           ))}
         </div>
         <div className="header-icon">
-          <img src="img/logo.jpg" className="header-icon-img" alt="logo" />
+          <img src="logo.jpg" className="header-icon-img" alt="logo" />
         </div>
 
       {/* <div>stage: {stage}</div>

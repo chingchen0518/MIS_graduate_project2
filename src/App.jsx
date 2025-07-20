@@ -12,8 +12,9 @@ import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
 import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
 import UserProfile from './view2/chingchen/user.jsx'; 
 
-import Login from './view3/login/Login.jsx'; 
-import Signin from './view3/signin/Signin.jsx'; 
+import Login from './view3/page1/login.jsx'; 
+import  from './view3/page1/signin.jsx'; 
+
 import './App.css';
 
 function App() {
@@ -31,7 +32,7 @@ function App() {
         <Route path="/test2" element={<DragAndDropWithPosition />} />
         <Route path="/UserProfile" element={<UserProfile />} />
         <Route path="/Login" element={<Login />} />
-        <Route path="/Signin" element={<Signin />} />
+        <Route path="/" element={< />} />
 
       </Routes>
     </Router>

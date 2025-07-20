@@ -12,8 +12,8 @@ import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
 import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
 import UserProfile from './view2/chingchen/user.jsx'; 
 
-import Login from './view3/login/Login.jsx'; 
-import Signin from './view3/signin/Signin.jsx'; 
+import Login from './view3/page1/login.jsx'; 
+import Signin from './view3/page1/signin.jsx'; 
 
 
 

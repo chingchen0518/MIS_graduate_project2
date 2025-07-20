@@ -14,9 +14,6 @@ import UserProfile from './view2/chingchen/user.jsx';
 
 import Login from './view3/login/Login.jsx'; 
 import Signin from './view3/signin/Signin.jsx'; 
-
-
-
 import './App.css';
 
 function App() {
@@ -36,7 +33,6 @@ function App() {
         <Route path="/Login" element={<Login />} />
         <Route path="/Signin" element={<Signin />} />
 
-        {/* <Route path="/attraction" element={<Attraction_container />} /> */}
       </Routes>
     </Router>
   );

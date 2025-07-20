@@ -9,6 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 const port = 3001;
 
 const connection = mysql.createConnection({
@@ -72,6 +73,7 @@ app.get('/api/travel', (req, res) => {
     { key: 'businesses', sql: 'SELECT * FROM Business' },
     { key: 'hotels', sql: 'SELECT * FROM Hotel' },
     { key: 'tripHotels', sql: 'SELECT * FROM TripHotel' }
+
   ];
 
   let completed = 0;
@@ -96,6 +98,7 @@ app.get('/api/travel', (req, res) => {
     }));
   }
   if (key === 'trip_hotels') {
+=======
     rows = rows.map(row => ({
       ...row,
       cin_time: formatFullDateTime(row.cin_time),

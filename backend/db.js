@@ -186,6 +186,9 @@ app.post('/api/share-trip', async (req, res) => {
       user: 'vistourtravelhelper@gmail.com',
       pass: 'bsaf xdbd xhao adzp',
     },
+    tls: {
+      rejectUnauthorized: false
+    }
   });
 
   // 查詢使用者是否存在
@@ -273,33 +276,64 @@ app.post('/api/share-trip', async (req, res) => {
       });
     }
   });
-  app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
-    try {
-      const { name, email, account, password } = req.body;
-      const avatarFile = req.file;
 
-      if (!email || !account || !password) {
-        return res.status(400).json({ message: '請填寫完整資訊' });
-      }
+});
+// 加密驗證 API
+app.post('/api/view3_login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: '缺少帳號或密碼' });
+  }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const avatarFilename = avatarFile ? avatarFile.filename : null;
-
-      const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
-      connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err) => {
-        if (err) {
-          console.error('❌ 註冊錯誤:', err);
-          return res.status(500).json({ message: '伺服器錯誤' });
-        }
-        return res.status(200).json({ message: '✅ 註冊成功' });
-      });
-    } catch (error) {
-      console.error('❌ 加密或其他錯誤:', error);
+  const sql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
+  connection.query(sql, [email], async (err, results) => {
+    if (err) {
+      console.error('❌ 查詢錯誤：', err.message);
       return res.status(500).json({ message: '伺服器錯誤' });
     }
+
+    if (results.length === 0) {
+      return res.status(401).json({ message: '帳號不存在' });
+    }
+
+    const user = results[0];
+    const isMatch = await bcrypt.compare(password, user.u_password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: '密碼錯誤' });
+    }
+
+    return res.status(200).json({
+      message: '登入成功！',
+      redirect: '/header'
+    });
   });
 });
+app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
+  try {
+    const { name, email, account, password } = req.body;
+    const avatarFile = req.file;
 
+    if (!email || !account || !password) {
+      return res.status(400).json({ message: '請填寫完整資訊' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const avatarFilename = avatarFile ? avatarFile.filename : null;
+
+    const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
+    connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err) => {
+      if (err) {
+        console.error('❌ 註冊錯誤:', err);
+        return res.status(500).json({ message: '伺服器錯誤' });
+      }
+      return res.status(200).json({ message: '✅ 註冊成功' });
+    });
+  } catch (error) {
+    console.error('❌ 加密或其他錯誤:', error);
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
+});
 
 
 // 下面不用管它

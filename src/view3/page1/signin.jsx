@@ -197,7 +197,6 @@ function Signin() {
                                     accept="image/*"
                                     className="form-control"
                                     onChange={handleChange}
-                                    required
                                 />
                             </div>
                         </div>

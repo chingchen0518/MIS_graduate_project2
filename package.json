@@ -10,10 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "crypt": "^0.0.2",
     "express": "^5.1.0",
     "leaflet": "^1.9.4",
+    "multer": "^2.0.2",
     "mysql2": "^3.14.1",
+    "nodemailer": "^7.0.5",
     "react": "^19.1.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",

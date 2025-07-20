@@ -49,6 +49,7 @@ export default function Header() {
 
   return (
     <div className="treasure-hunt-wrapper">
+
       <div className="header-container">
         <div className="header-icon">
           <img src="logo.jpg" className="header-icon-img" alt="logo" />

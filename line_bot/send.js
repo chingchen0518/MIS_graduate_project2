@@ -13,7 +13,7 @@ const sendLineMessage = async () => {
         messages: [
           {
             type: 'text',
-            text: '👋 你好！這是從你的旅遊網站發送的第一則 LINE 訊息！'
+            text: '請先在系統註冊完後，輸入您的gmail'
           }
         ]
       },

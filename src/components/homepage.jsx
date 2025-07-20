@@ -6,11 +6,14 @@ const HomePage = () => {
 
     <div id ="home_page">
       <ul>
-        <li><a href="/attraction">attraction</a></li>
-        <li><a href="/page1">page1</a></li>
-        <li><a href="/map">map</a></li>
-        <li><a href="/MapDisplay">MapDisplay</a></li>
-        <li><a href="/header">header</a></li>
+        <li class="homepage_li"><a href="/attraction">attraction</a></li>
+        <li class="homepage_li"><a href="/page1">page1</a></li>
+        <li class="homepage_li"><a href="/map">map</a></li>
+        <li class="homepage_li"><a href="/MapDisplay">MapDisplay</a></li>
+        <li class="homepage_li"><a href="/header">header</a></li>
+        <li class="homepage_li"><a href="/login">login</a></li>
+        <li class="homepage_li"><a href="/signin">signin</a></li>
+        <li class="homepage_li"><a href="/forgotPassword">forgotPassword</a></li>
       </ul>
     </div>
 

@@ -3,19 +3,21 @@ body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #f5f9ff, #dcecff);
+    
 }
 
-.page {
+.long_page {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    min-height: 100vh;
     position: relative;
-    overflow: hidden;
     width: 100vw;
     background: linear-gradient(135deg, #667eea 0%, #9cd0b5 25%, #003ea8 50%, #9cd0b5 75%, #3b82f6 100%);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
+    overflow: auto;
+    
 }
 
 @keyframes gradientBG {
@@ -294,7 +296,7 @@ body {
     padding: 32px 40px;
     max-width: 700px;
     margin: 0 auto 32px auto;
-    height: 350px;
+    height: 400px;
 }
 
 .profile-avatar-section-horizontal {
@@ -358,7 +360,7 @@ body {
     padding-left: 40px;
 }
 
-.profile-info-horizontal .info-row-horizontal,
+.profile-info-horizontal .input-with-icon,
 .profile-form-horizontal .form-row-horizontal {
     display: flex;
     align-items: center;
@@ -374,6 +376,7 @@ body {
     border-radius: 8px;
     border: 1px solid #e0e0e0;
     background: #f8f8f8;
+    color: black;
 }
 
 .profile-actions-horizontal {
@@ -430,7 +433,16 @@ body {
     padding: 16px 0;
 }
 
+
 @media (max-width: 800px) {
+    .long_page {
+        align-items: flex-start;
+        height: -webkit-fill-available;
+    }
+
+    .profile-card {
+        flex-direction: column;
+    }
 
     .profile-card-horizontal,
     .profile-history-card {
@@ -438,6 +450,7 @@ body {
         padding: 24px 10px;
         min-height: unset;
         max-width: 100%;
+        height: max-content;
     }
 
     .profile-avatar-section-horizontal {
@@ -446,5 +459,9 @@ body {
 
     .profile-info-section-horizontal {
         padding-left: 0;
+    }
+
+    .container {
+        margin: 30px 0px;
     }
 }

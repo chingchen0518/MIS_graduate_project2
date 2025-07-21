@@ -43,7 +43,7 @@ function Profile() {
     };
 
     return (
-        <div className="page">
+        <div className="long_page">
             <div className="floating-shapes">
                 <div className="shape" />
                 <div className="shape" />
@@ -72,54 +72,61 @@ function Profile() {
                         <div className="profile-info-section-horizontal">
                             {editing ? (
                                 <form className="profile-form-horizontal" onSubmit={handleSave}>
-                                    <div className="form-row-horizontal">
-                                        <label htmlFor="uid"><FontAwesomeIcon icon={faUser} /> UID</label>
-                                        <input
-                                            type="text"
-                                            id="uid"
-                                            name="uid"
-                                            className="form-control"
-                                            value={form.uid}
-                                            onChange={handleChange}
-                                            disabled
-                                        />
+                                    <div className="profile-info-horizontal">
+                                        <div className="input-with-icon">
+                                            <FontAwesomeIcon icon={faUser} />
+                                            <input
+                                                type="text"
+                                                id="uid"
+                                                name="uid"
+                                                className="form-control"
+                                                value={form.uid}
+                                                onChange={handleChange}
+                                                disabled
+                                                placeholder="UID"
+                                            />
+                                        </div>
+                                        <div className="input-with-icon">
+                                            <FontAwesomeIcon icon={faEnvelope} />
+                                            <input
+                                                type="email"
+                                                id="email"
+                                                name="email"
+                                                className="form-control"
+                                                value={form.email}
+                                                onChange={handleChange}
+                                                required
+                                                placeholder="信箱"
+                                            />
+                                        </div>
+                                        <div className="input-with-icon">
+                                            <FontAwesomeIcon icon={faAddressCard} />
+                                            <input
+                                                type="text"
+                                                id="account"
+                                                name="account"
+                                                className="form-control"
+                                                value={form.account}
+                                                onChange={handleChange}
+                                                required
+                                                placeholder="帳號"
+                                            />
+                                        </div>
+                                        <div className="input-with-icon">
+                                            <FontAwesomeIcon icon={faKey} />
+                                            <input
+                                                type="password"
+                                                id="password"
+                                                name="password"
+                                                className="form-control"
+                                                value={form.password}
+                                                onChange={handleChange}
+                                                required
+                                                placeholder="密碼"
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="form-row-horizontal">
-                                        <label htmlFor="email"><FontAwesomeIcon icon={faEnvelope} /> 信箱</label>
-                                        <input
-                                            type="email"
-                                            id="email"
-                                            name="email"
-                                            className="form-control"
-                                            value={form.email}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="form-row-horizontal">
-                                        <label htmlFor="account"><FontAwesomeIcon icon={faAddressCard} /> 帳號</label>
-                                        <input
-                                            type="text"
-                                            id="account"
-                                            name="account"
-                                            className="form-control"
-                                            value={form.account}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="form-row-horizontal">
-                                        <label htmlFor="password"><FontAwesomeIcon icon={faKey} /> 密碼</label>
-                                        <input
-                                            type="password"
-                                            id="password"
-                                            name="password"
-                                            className="form-control"
-                                            value={form.password}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
+
                                     <div className="profile-actions-horizontal">
                                         <button type="submit" className="btn">儲存</button>
                                         <button type="button" className="btn" onClick={handleCancel}>取消</button>
@@ -127,19 +134,19 @@ function Profile() {
                                 </form>
                             ) : (
                                 <div className="profile-info-horizontal">
-                                    <div className="info-row-horizontal">
+                                    <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faUser} />
                                         <span>UID：{profile.uid}</span>
                                     </div>
-                                    <div className="info-row-horizontal">
+                                    <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faEnvelope} />
                                         <span>信箱：{profile.email}</span>
                                     </div>
-                                    <div className="info-row-horizontal">
+                                    <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faAddressCard} />
                                         <span>帳號：{profile.account}</span>
                                     </div>
-                                    <div className="info-row-horizontal">
+                                    <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faKey} />
                                         <span>密碼：{profile.password}</span>
                                     </div>

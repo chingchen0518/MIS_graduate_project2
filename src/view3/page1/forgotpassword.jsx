@@ -1,3 +1,4 @@
+// forgotpassword.jsx
 import React, { useState } from 'react';
 import './forgotpassword.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,13 +15,12 @@ const ForgotPassword = () => {
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1); // 1 = 輸入信箱, 2 = 輸入新密碼
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
         if (step === 1) {
-            // 檢查 Email 格式
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!email) {
                 setError('請輸入電子郵件！');
@@ -31,14 +31,31 @@ const ForgotPassword = () => {
                 return;
             }
 
-            // 模擬成功進入第二步
-            setSuccess('驗證成功');
-            setTimeout(() => {
-                setStep(2);
-                setSuccess('');
-            }, 500);
+            try {
+                setLoading(true);
+                const response = await fetch('/api/view3_forgot_password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                });
+
+                const data = await response.json();
+                setLoading(false);
+
+                if (response.ok) {
+                    setSuccess(data.message || '驗證成功');
+                    setTimeout(() => {
+                        setStep(2);
+                        setSuccess('');
+                    }, 500);
+                } else {
+                    setError(data.message || '無法驗證電子郵件');
+                }
+            } catch (err) {
+                setLoading(false);
+                setError('伺服器錯誤，請稍後再試');
+            }
         } else if (step === 2) {
-            // 檢查密碼
             if (!newPassword || !confirmPassword) {
                 setError('請輸入並確認新密碼');
                 return;
@@ -52,11 +69,32 @@ const ForgotPassword = () => {
                 return;
             }
 
-            // 模擬密碼重設成功
-            setSuccess('密碼已成功重設！您可以回去登入囉～');
-            setTimeout(() => {
-                navigate('/Login');
-            }, 1000);
+            try {
+                setLoading(true);
+                const response = await fetch('/api/view3_reset_password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        password: newPassword,
+                    }),
+                });
+
+                const data = await response.json();
+                setLoading(false);
+
+                if (response.ok) {
+                    setSuccess(data.message || '密碼已成功重設！您可以回去登入囉～');
+                    setTimeout(() => {
+                        navigate('/Login');
+                    }, 1000);
+                } else {
+                    setError(data.message || '密碼重設失敗');
+                }
+            } catch (err) {
+                setLoading(false);
+                setError('伺服器錯誤，請稍後再試');
+            }
         }
     };
 

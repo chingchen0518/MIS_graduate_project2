@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import './signin.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe, faEnvelope, faUser, faLock, faAddressCard } from '@fortawesome/free-solid-svg-icons';
-
+import { useNavigate } from 'react-router-dom';
 
 const initialState = {
     name: "",
@@ -15,6 +15,7 @@ const initialState = {
 function Signin() {
     const [form, setForm] = useState(initialState);
     const [errors, setErrors] = useState([]);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, type, files, value } = e.target;
@@ -60,6 +61,9 @@ function Signin() {
                     alert('註冊成功！');
                     setForm(initialState);
                     setErrors([]);
+                    setTimeout(() => {
+                        navigate('/Login');
+                    }, 500);
                 } else {
                     setErrors([data?.message || `註冊失敗 (狀態碼: ${response.status})`]);
                 }
@@ -197,7 +201,6 @@ function Signin() {
                                     accept="image/*"
                                     className="form-control"
                                     onChange={handleChange}
-                                    required
                                 />
                             </div>
                         </div>

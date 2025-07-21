@@ -6,16 +6,21 @@ body {
 }
 
 .page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
     position: relative;
-    overflow: hidden;
     width: 100vw;
+    min-height: 100vh;
     background: linear-gradient(135deg, #667eea 0%, #9cd0b5 25%, #003ea8 50%, #9cd0b5 75%, #3b82f6 100%);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
+
+    /* 允許滾動 */
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    /* 去掉強制置中的 flex */
+    /* display: flex;
+  align-items: center;
+  justify-content: center; */
 }
 
 @keyframes gradientBG {
@@ -430,14 +435,21 @@ body {
     padding: 16px 0;
 }
 
-@media (max-width: 800px) {
 
+@media (max-width: 800px) {
+    .page {
+        align-items: flex-start;
+    }
+    .profile-card {
+        flex-direction: column;
+    }
     .profile-card-horizontal,
     .profile-history-card {
         flex-direction: column;
         padding: 24px 10px;
         min-height: unset;
         max-width: 100%;
+        height: max-content;
     }
 
     .profile-avatar-section-horizontal {
@@ -446,5 +458,8 @@ body {
 
     .profile-info-section-horizontal {
         padding-left: 0;
+    }
+    .container {
+        margin: 30px 0px;
     }
 }

@@ -43,7 +43,7 @@ function Profile() {
     };
 
     return (
-        <div className="page">
+        <div className="long_page">
             <div className="floating-shapes">
                 <div className="shape" />
                 <div className="shape" />

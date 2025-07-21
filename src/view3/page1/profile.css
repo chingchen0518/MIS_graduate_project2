@@ -3,24 +3,21 @@ body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #f5f9ff, #dcecff);
+    
 }
 
-.page {
+.long_page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
     position: relative;
     width: 100vw;
-    min-height: 100vh;
     background: linear-gradient(135deg, #667eea 0%, #9cd0b5 25%, #003ea8 50%, #9cd0b5 75%, #3b82f6 100%);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
-
-    /* 允許滾動 */
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    /* 去掉強制置中的 flex */
-    /* display: flex;
-  align-items: center;
-  justify-content: center; */
+    overflow: auto;
+    
 }
 
 @keyframes gradientBG {
@@ -437,12 +434,15 @@ body {
 
 
 @media (max-width: 800px) {
-    .page {
+    .long_page {
         align-items: flex-start;
+        height: -webkit-fill-available;
     }
+
     .profile-card {
         flex-direction: column;
     }
+
     .profile-card-horizontal,
     .profile-history-card {
         flex-direction: column;
@@ -459,6 +459,7 @@ body {
     .profile-info-section-horizontal {
         padding-left: 0;
     }
+
     .container {
         margin: 30px 0px;
     }

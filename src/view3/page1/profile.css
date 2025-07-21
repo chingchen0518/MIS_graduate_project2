@@ -296,7 +296,7 @@ body {
     padding: 32px 40px;
     max-width: 700px;
     margin: 0 auto 32px auto;
-    height: 350px;
+    height: 400px;
 }
 
 .profile-avatar-section-horizontal {
@@ -360,7 +360,7 @@ body {
     padding-left: 40px;
 }
 
-.profile-info-horizontal .info-row-horizontal,
+.profile-info-horizontal .input-with-icon,
 .profile-form-horizontal .form-row-horizontal {
     display: flex;
     align-items: center;
@@ -376,6 +376,7 @@ body {
     border-radius: 8px;
     border: 1px solid #e0e0e0;
     background: #f8f8f8;
+    color: black;
 }
 
 .profile-actions-horizontal {

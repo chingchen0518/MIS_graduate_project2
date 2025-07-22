@@ -140,10 +140,10 @@ const MapDisplay = () => {
 
   return (
     <div className="map-display">
-      <h2>交通方式</h2>
+      {/* <h2>交通方式</h2> */}
       
       {/* 控制按鈕 */}
-      <div className="control-buttons">
+      {/* <div className="control-buttons">
         <button 
           onClick={calculateAllRoutes}
           disabled={isCalculating}
@@ -156,15 +156,15 @@ const MapDisplay = () => {
           onClick={clearRoutes}
           disabled={isCalculating}
           className="control-button danger"
-        >
-          清除路線
-        </button>
-      </div>
+        > */}
+          {/* 清除路線 */}
+        {/* </button>
+      </div> */}
 
       {/* 交通方式選擇器 */}
       {Object.keys(routeData).length > 0 && (
         <div className="transport-selector">
-          <h3>選擇交通方式：</h3>
+          {/* <h3>選擇交通方式：</h3> */}
           <div className="transport-buttons">
             {Object.entries(transportModes).map(([key, transport]) => {
               const isActive = activeTransport === key;
@@ -224,11 +224,7 @@ const MapDisplay = () => {
 
       {/* 地圖容器 */}
       <div ref={mapRef} className="map-container" />
-      
-      {/* 說明資訊 */}
-      <div className="info-section">
-        <p><strong>測試路線：</strong> 蘇黎世 → 琉森</p>
-      </div>
+
     </div>
   );
 };

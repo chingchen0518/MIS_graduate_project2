@@ -305,7 +305,11 @@ app.post('/api/view3_login', (req, res) => {
 
     return res.status(200).json({
       message: '登入成功！',
-      redirect: '/header'
+      redirect: '/header',
+      user: {
+        id: user.u_id,
+        name: user.u_name
+      }
     });
   });
 });

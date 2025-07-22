@@ -305,7 +305,11 @@ app.post('/api/view3_login', (req, res) => {
 
     return res.status(200).json({
       message: '登入成功！',
-      redirect: '/header'
+      redirect: '/header',
+      user: {
+        id: user.u_id,
+        name: user.u_name
+      }
     });
   });
 });
@@ -335,6 +339,58 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
   }
 });
 
+app.post('/api/view3_forgot_password', (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: '缺少電子郵件' });
+  }
+
+  const sql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
+  connection.query(sql, [email], (err, results) => {
+    if (err) {
+      console.error('❌ 查詢錯誤：', err.message);
+      return res.status(500).json({ message: '伺服器錯誤' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: '電子郵件未註冊' });
+    }
+
+    // // 這裡可以加入發送重設密碼郵件的邏輯
+    return res.status(200).json({ message: '查詢到該帳號!' });
+  });
+});
+
+app.post('/api/view3_reset_password', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: '缺少電子郵件或密碼' });
+  }
+
+  try {
+    // 加密密碼
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 更新到資料庫
+    const sql = 'UPDATE User SET u_password = ? WHERE u_email = ?';
+    connection.query(sql, [hashedPassword, email], (err, result) => {
+      if (err) {
+        console.error('❌ 更新密碼錯誤：', err.message);
+        return res.status(500).json({ message: '伺服器錯誤' });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: '找不到該用戶' });
+      }
+
+      return res.status(200).json({ message: '密碼重設成功' });
+    });
+  } catch (err) {
+    console.error('❌ 加密錯誤：', err.message);
+    return res.status(500).json({ message: '密碼加密失敗' });
+  }
+});
 
 // 下面不用管它
 app.listen(port, () => {

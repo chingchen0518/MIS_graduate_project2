@@ -3,7 +3,7 @@ import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import AttractionCard from './attraction_card';
 
-const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule }) => {
+const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, containerHeight }) => {
   const [attractions, setAttractions] = useState(initialAttractions || []);
   const dropRef = useRef(null);
 
@@ -38,9 +38,8 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule }) =>
   drop(dropRef);
 
   if (isFirst) {
-    // 第一欄顯示新增行程設計
     return (
-      <div className="schedule add_schedule_column">
+      <div className="schedule add_schedule_column" style={{ height: containerHeight }}>
         <div className="add_schedule_content">
           <div className="add_schedule_icon" onClick={onAddSchedule}>
             <div className="plus_icon">+</div>
@@ -53,7 +52,7 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule }) =>
   }
 
   return (
-    <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative' }}>
+    <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight }}>
       <div className="schedule_header">
         <div className="user_avatar">
           <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />

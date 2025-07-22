@@ -1,5 +1,5 @@
 .schedule_container {
-  width: 60%;
+  width: 100%;
   max-width: 820px;
   height: 100%;
   background-color: #ffffff;
@@ -10,7 +10,8 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-y: auto; /* 啟用垂直滾動 */
+  /* max-height: 80vh; 設置最大高度，允許滾動 */
 }
 
 .schedule_container_header {
@@ -31,12 +32,16 @@
   margin: 0;
 }
 
+.schedule {
+  height: 100%; /* 確保 schedule 的高度與 time_column 一致 */
+}
+
 .schedule_list {
   flex: 1;
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto; /* 啟用垂直滾動 */
   padding: 6px 0;
   height: calc(100% - 70px);
   min-height: 0;
@@ -47,14 +52,14 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 10px; /* 設置每個時段的間隔為 10px */
   padding-top: 80px;
-  height: 100%;
-  overflow: hidden;
+  height: auto; /* 自動調整高度以容納所有 time_slot */
+  overflow: visible; /* 確保內容不被裁剪 */
 }
 
 .time_slot {
-  font-size: 7px;
+  font-size: 10px; /* 放大字體大小 */
   color: #666;
   text-align: center;
   height: calc((100vh - 200px) / 25);

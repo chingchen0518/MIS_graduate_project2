@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Schedule from './schedule.jsx';
 import './schedule_container.css';
 
@@ -17,6 +17,31 @@ const Schedule_container = () => {
     { id: 3, title: '行程1', day: 3, attractions: [] }
   ]);
 
+  const timeColumnRef = useRef(null);
+  const [timeColumnHeight, setTimeColumnHeight] = useState(0);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (timeColumnRef.current) {
+        setTimeColumnHeight(timeColumnRef.current.scrollHeight);
+      }
+    };
+
+    updateHeight();
+
+    // Optional: Add a resize observer to handle dynamic changes
+    const resizeObserver = new ResizeObserver(updateHeight);
+    if (timeColumnRef.current) {
+      resizeObserver.observe(timeColumnRef.current);
+    }
+
+    return () => {
+      if (timeColumnRef.current) {
+        resizeObserver.unobserve(timeColumnRef.current);
+      }
+    };
+  }, []);
+
   const addSchedule = () => {
     const newScheduleNumber = schedules.length + 1;
     const newSchedule = {
@@ -25,7 +50,6 @@ const Schedule_container = () => {
       day: schedules.length + 1,
       attractions: []
     };
-    // 在 index 1 位置插入新的 schedule，其他 schedule 往右移
     const newSchedules = [...schedules];
     newSchedules.splice(1, 0, newSchedule);
     setSchedules(newSchedules);
@@ -35,7 +59,6 @@ const Schedule_container = () => {
     '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
     '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00', 
     '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
-
   ];
 
   return (
@@ -44,7 +67,7 @@ const Schedule_container = () => {
         <h2 className="schedule_container_title">旅遊行程</h2>
       </div>
       <div className="schedule_list">
-        <div className="time_column">
+        <div className="time_column" ref={timeColumnRef}>
           {timeSlots.map((time) => (
             <div key={time} className="time_slot">
               {time}
@@ -59,6 +82,7 @@ const Schedule_container = () => {
             attractions={schedule.attractions}
             isFirst={index === 0}
             onAddSchedule={addSchedule}
+            containerHeight={timeColumnHeight} // 傳遞高度
           />
         ))}
       </div>

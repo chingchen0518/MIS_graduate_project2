@@ -150,14 +150,11 @@ app.get('/api/travel', (req, res) => {
 });
 
 
+
 app.get('/api/view2_attraction_list', (req, res) => {
   const sql = 'SELECT * FROM Attraction';
 
   connection.query(sql, (err, rows) => {
-    // if (err) {
-    //   console.error('❌ 查詢 Attraction 時出錯：', err.message);
-    //   return res.status(500).json({ error: 查詢 Attraction 失敗：${err.message} });
-    // }
 
     res.json(rows);
   });

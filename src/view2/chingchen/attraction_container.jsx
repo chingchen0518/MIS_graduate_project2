@@ -11,6 +11,9 @@ const Attraction_container = () => {
   const [draggedAttractions, setDraggedAttractions] = useState(new Set());
   const [attractions, setAttractions] = useState([]);
 
+  const [attractions, setAttractions] = useState([]);
+  const [showTripPlanning, setShowTripPlanning] = useState(false); // 控制是否顯示行程規劃區域
+
   useEffect(() => {
     // Fetch data from the API
     fetch('http://localhost:3001/api/view2_attraction_list')
@@ -28,6 +31,7 @@ const Attraction_container = () => {
       });
   }, []);
 
+
   const handleCardClick = (attraction) => {
     setSelectedAttraction(attraction);
   };
@@ -38,6 +42,10 @@ const Attraction_container = () => {
 
   const handleDragEnd = (attractionId) => {
     // 保持拖拽狀態，直到頁面重新載入或手動重置
+  };
+
+  const handleAddTrip = () => {
+    setShowTripPlanning(true);
   };
 
   return (
@@ -64,11 +72,17 @@ const Attraction_container = () => {
           />
         ))}
       </div>
+
+      <div className="map_small_container">
+        <MapDisplay selectedAttraction={selectedAttraction} />
+      </div>
+
       {/* <div className="map_small_container">
         <MapDisplay />
       </div> */}
       <AttractionDetail attraction={selectedAttraction} />
     </div>
+
   );
 };
 

@@ -1,8 +1,79 @@
-/* 移除重複的 add_schedule_column 樣式定義，統一使用 schedule_container.css 中的定義 */
+/* 新增行程欄位樣式 */
+.add_schedule_column {
+  width: 120px;
+  height: calc(100% - 10px);
+  background-color: #f8f9fa;
+  border: 2px dashed #4A90E2;
+  border-radius: 8px;
+  margin: 2px;
+  padding: 8px;
+  box-sizing: border-box;
+  min-width: 120px;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add_schedule_content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.add_schedule_icon {
+  width: 40px;
+  height: 40px;
+  background-color: #4A90E2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add_schedule_icon:hover {
+  background-color: #357abd;
+  transform: scale(1.1);
+}
+
+.plus_icon {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.add_schedule_text {
+  font-size: 10px;
+  color: #333;
+  font-weight: 500;
+}
+
+.skip_btn {
+  background: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skip_btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
 
 .schedule {
   width: 120px;
-  /* height: calc(100% - 10px); 移除固定高度，使用動態高度 */
+  height: calc(100% - 10px);
   background-color: white;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
@@ -20,12 +91,6 @@
 .schedule.drag_over {
   background-color: #e3f2fd;
   border-color: #2196f3;
-}
-
-.schedule.highlight {
-  background-color: #e8f5e8;
-  border-color: #4caf50;
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
 }
 
 .schedule_header {
@@ -84,30 +149,18 @@
 
 .schedule_item {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.time_slot {
-  font-size: 8px;
-  color: #666;
-  font-weight: bold;
-  margin-bottom: 2px;
-  text-align: center;
 }
 
 .attraction_card {
   background: #f0f0f0;
   border-radius: 4px;
-  padding: 4px 6px;
-  font-size: 7px;
+  padding: 4px;
+  margin-bottom: 2px;
+  font-size: 6px;
   text-align: center;
   color: #333;
   border: 1px solid #ddd;
-  width: 90%;
-  box-sizing: border-box;
+  position: relative;
 }
 
 .attraction_name {

@@ -15,21 +15,38 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
         return;
       }
 
-      const sourceOffset = monitor.getSourceClientOffset();
-      if (!sourceOffset) {
-        console.error("Source offset not found!");
+      // 使用 getClientOffset 獲取拖放預覽的位置，而不是原始元素的位置
+      console.log("Monitor methods:", {
+        getClientOffset: monitor.getClientOffset(),
+        getSourceClientOffset: monitor.getSourceClientOffset(),
+        getDifferenceFromInitialOffset: monitor.getDifferenceFromInitialOffset()
+      });
+      
+      const clientOffset = monitor.getClientOffset();
+      if (!clientOffset) {
+        console.error("Client offset not found!");
         return;
       }
 
-      const dropTargetRect = dropRef.current.querySelector('.schedule_timeline').getBoundingClientRect();
-      const x = sourceOffset.x - dropTargetRect.left;
-      const y = sourceOffset.y - dropTargetRect.top;
+      const dropTarget = dropRef.current.querySelector('.schedule_timeline');
+      if (!dropTarget) {
+        console.error("Drop target element not found!");
+        return;
+      }
 
-      console.log('sourceOffset.y:', sourceOffset.y);
-      console.log('dropTargetRect.top', dropTargetRect.top);
+      const dropTargetRect = dropTarget.getBoundingClientRect();
 
-      // 修正坐标计算，确保不受页面缩放或样式影响
-      const correctedX = Math.max(0, Math.min(x, dropTargetRect.width));
+      // 獲取鼠標相對於drop目標的位置（相對於schedule_timeline的左上角）
+      // 將 x 坐標設為 0，讓元素總是從左邊開始
+      const x = 0; // 固定為 0，總是從左邊開始
+      const y = clientOffset.y - dropTargetRect.top;
+      
+      console.log('clientOffset:', clientOffset);
+      console.log('dropTargetRect:', dropTargetRect);
+
+      // 確保拖放位置不超出容器範圍
+      // x 已經固定為 0，所以不需要修正
+      const correctedX = x;
       const correctedY = Math.max(0, Math.min(y, dropTargetRect.height));
 
       setAttractions((prevAttractions) => [
@@ -148,8 +165,8 @@ const CustomDragPreview = () => {
     return null;
   }
 
-  // const { x, y } = currentOffset;
-  const x = currentOffset.x - (scheduleWidth / 2);
+  // 移除預覽的水平偏移
+  const x = currentOffset.x;
   const y = currentOffset.y;
 
   return (

@@ -166,7 +166,7 @@ const CustomDragPreview = () => {
   }
 
   // 移除預覽的水平偏移
-  const x = currentOffset.x;
+  const x = currentOffset.x - (scheduleWidth / 2);
   const y = currentOffset.y;
 
   return (

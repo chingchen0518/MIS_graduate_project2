@@ -16,7 +16,11 @@ const Attraction = sequelize.define('Attraction', {
     city:  { type: DataTypes.STRING, allowNull: true },
     budget:   { type: DataTypes.FLOAT, allowNull: true },
     photo:    { type: DataTypes.STRING, allowNull: true },
+    latitude: { type: DataTypes.FLOAT, allowNull: true },
+    longitude: { type: DataTypes.FLOAT, allowNull: true },
     u_id: { type: DataTypes.INTEGER, allowNull: false }
+    
+
 }, {
     tableName: 'Attraction',
     timestamps: false,

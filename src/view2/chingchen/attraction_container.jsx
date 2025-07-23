@@ -64,9 +64,9 @@ const Attraction_container = () => {
           />
         ))}
       </div>
-      <div className="map_small_container">
+      {/* <div className="map_small_container">
         <MapDisplay />
-      </div>
+      </div> */}
       <AttractionDetail attraction={selectedAttraction} />
     </div>
   );

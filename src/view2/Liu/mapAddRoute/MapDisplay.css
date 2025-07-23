@@ -192,6 +192,25 @@
   color: #333;
 }
 
+
+/* 自定義標記樣式 */
+.custom-marker {
+  border: none !important;
+  background: transparent !important;
+}
+
+.custom-marker div {
+  position: relative;
+  z-index: 1000;
+}
+
+/* 景點標記動畫效果 */
+.custom-marker:hover div {
+  transform: scale(1.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+
 /* 響應式設計 */
 @media (max-width: 768px) {
   .control-buttons {

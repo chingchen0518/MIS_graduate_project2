@@ -27,7 +27,7 @@ const transportModes = {
   }
 };
 
-const MapDisplay = () => {
+const MapDisplay = ({ selectedAttraction }) => {
   const mapRef = useRef(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [routeData, setRouteData] = useState({});
@@ -47,25 +47,25 @@ const MapDisplay = () => {
         // 設定交通方式配置
         routeService.setTransportModes(transportModes);
         
-        // 初始化地圖
-        mapService.initMap(mapRef.current);
+        // 初始化地圖 (使用全球配置以支持台灣景點)
+        mapService.initMap(mapRef.current, {}, 'global');
         
-        // 添加測試標記
-        mapService.addMarker('zurich', testLocations.zurich.coords, {
-          title: testLocations.zurich.name,
-          popup: `<strong>${testLocations.zurich.name}</strong><br>起點`
-        });
+        // 暫時移除測試標記，因為景點在台灣
+        // mapService.addMarker('zurich', testLocations.zurich.coords, {
+        //   title: testLocations.zurich.name,
+        //   popup: <strong>${testLocations.zurich.name}</strong><br>起點
+        // });
         
-        mapService.addMarker('luzern', testLocations.luzern.coords, {
-          title: testLocations.luzern.name,
-          popup: `<strong>${testLocations.luzern.name}</strong><br>終點`
-        });
+        // mapService.addMarker('luzern', testLocations.luzern.coords, {
+        //   title: testLocations.luzern.name,
+        //   popup: <strong>${testLocations.luzern.name}</strong><br>終點
+        // });
         
-        // 適應視野
-        mapService.fitBounds([
-          testLocations.zurich.coords,
-          testLocations.luzern.coords
-        ]);
+        // 如果沒有選中景點，顯示台灣地區
+        // mapService.fitBounds([
+        //   testLocations.zurich.coords,
+        //   testLocations.luzern.coords
+        // ]);
         
         console.log('地圖初始化完成');
       } catch (error) {
@@ -81,6 +81,76 @@ const MapDisplay = () => {
       };
     }
   }, []);
+
+  // 處理選中景點的顯示
+  useEffect(() => {
+    if (selectedAttraction && mapRef.current && mapService.map) {
+      // 移除之前的景點標記
+      mapService.removeMarker('selected-attraction');
+      
+      // 地理編碼函數
+      const geocodeAttraction = async (address) => {
+        try {
+          // 使用 Nominatim API 進行地理編碼 (不限制國家)
+          const query = encodeURIComponent(address);
+          const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&addressdetails=1`);
+          const data = await response.json();
+          
+          if (data && data.length > 0) {
+            console.log('地理編碼結果:', data[0]);
+            return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+          }
+          return null;
+        } catch (error) {
+          console.error('地理編碼失敗:', error);
+          return null;
+        }
+      };
+      
+      // 獲取座標並顯示標記
+      const displayAttraction = async () => {
+        let coords;
+        console.log('選中的景點:', selectedAttraction);
+        
+        // 如果景點有座標資料
+        if (selectedAttraction.latitude && selectedAttraction.longitude) {
+          coords = [parseFloat(selectedAttraction.latitude), parseFloat(selectedAttraction.longitude)];
+          console.log('使用景點座標:', coords);
+        } else if (selectedAttraction.address) {
+          console.log('開始地理編碼:', selectedAttraction.address);
+          // 使用地址進行地理編碼
+          coords = await geocodeAttraction(selectedAttraction.address);
+          if (coords) {
+            console.log('地理編碼成功:', coords);
+          } else {
+            console.log('地理編碼失敗，使用預設座標');
+          }
+        }
+        
+        // 如果還是沒有座標，使用台北市中心點
+        if (!coords) {
+          coords = [25.0330, 121.5654]; // 台北市中心點
+          console.log('使用預設座標 (台北):', coords);
+        }
+        
+        // 添加景點標記 - 使用原本測試用的預設地標樣式
+        mapService.addMarker('selected-attraction', coords, {
+          title: selectedAttraction.name,
+          popup: `
+            <div style="font-family: Arial, sans-serif; min-width: 150px;">
+              <h4 style="margin: 0; color: #333;">${selectedAttraction.name}</h4>
+              <p style="margin: 2px 0; font-size: 11px; color: #666;">${selectedAttraction.category || '景點'}</p>
+            </div>
+          `
+        });
+        
+        // 將地圖視野置中到該景點，使用較小的縮放級別
+        mapService.map.setView(coords, 13);
+      };
+      
+      displayAttraction();
+    }
+  }, [selectedAttraction]);
 
   // 計算所有交通方式的路線
   const calculateAllRoutes = async () => {

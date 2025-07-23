@@ -19,6 +19,23 @@ export const SWITZERLAND_CONFIG = {
   ]
 };
 
+/* 台灣地圖常數*/
+export const TAIWAN_CONFIG = {
+  CENTER: [23.8, 120.9],
+  ZOOM: 8,
+  BOUNDS: [
+    [21.9, 119.3],  // 西南角
+    [25.3, 122.0]   // 東北角
+  ]
+};
+
+/* 全球地圖常數*/
+export const GLOBAL_CONFIG = {
+  CENTER: [25.0, 121.0], // 預設台北
+  ZOOM: 2,
+  BOUNDS: null // 不限制邊界
+};
+
 /*交通方式顏色配置（與 transportModes.js 一致）*/
 export const TRANSPORT_COLORS = {
   walk: 'green',        // 步行
@@ -41,11 +58,25 @@ export class MapService {
    * 初始化地圖
    * @param {HTMLElement} container - 地圖容器元素
    * @param {Object} options - 地圖選項
+   * @param {string} region - 地區配置 ('taiwan', 'switzerland', 'global')
    */
-  initMap(container, options = {}) {
+  initMap(container, options = {}, region = 'global') {
+    let config;
+    switch (region) {
+      case 'taiwan':
+        config = TAIWAN_CONFIG;
+        break;
+      case 'switzerland':
+        config = SWITZERLAND_CONFIG;
+        break;
+      default:
+        config = GLOBAL_CONFIG;
+        break;
+    }
+
     const defaultOptions = {
-      center: SWITZERLAND_CONFIG.CENTER,
-      zoom: SWITZERLAND_CONFIG.ZOOM,
+      center: config.CENTER,
+      zoom: config.ZOOM,
       zoomControl: true,
       attributionControl: true
     };
@@ -60,8 +91,10 @@ export class MapService {
       maxZoom: 18
     }).addTo(this.map);
     
-    // 設定瑞士邊界
-    this.map.fitBounds(SWITZERLAND_CONFIG.BOUNDS);
+    // 設定地區邊界
+    if (config.BOUNDS) {
+      this.map.fitBounds(config.BOUNDS);
+    }
     
     return this.map;
   }
@@ -374,15 +407,4 @@ export class MapService {
           }
         } else if (leg.from && leg.to) {
           coordinates.push([leg.from.lat, leg.from.lon]);
-          coordinates.push([leg.to.lat, leg.to.lon]);
-        }
-      });
-    }
-    
-    return coordinates;
-  }
-
-}
-
-// 創建預設實例
-export const mapService = new MapService();
+          coordinates.push([leg.to.lat, le

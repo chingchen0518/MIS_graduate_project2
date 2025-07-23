@@ -53,12 +53,12 @@ const MapDisplay = ({ selectedAttraction }) => {
         // 暫時移除測試標記，因為景點在台灣
         // mapService.addMarker('zurich', testLocations.zurich.coords, {
         //   title: testLocations.zurich.name,
-        //   popup: `<strong>${testLocations.zurich.name}</strong><br>起點`
+        //   popup: <strong>${testLocations.zurich.name}</strong><br>起點
         // });
         
         // mapService.addMarker('luzern', testLocations.luzern.coords, {
         //   title: testLocations.luzern.name,
-        //   popup: `<strong>${testLocations.luzern.name}</strong><br>終點`
+        //   popup: <strong>${testLocations.luzern.name}</strong><br>終點
         // });
         
         // 如果沒有選中景點，顯示台灣地區

@@ -1,21 +1,27 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import InteractiveMap from './view2/Liu/map/InteractiveMap.jsx';
-import Attraction_container from './view2/chingchen/attraction_container.jsx';
-import HomePage from './components/homepage.jsx';
-import Page1 from './view2/chingchen/page1.jsx';
+import InteractiveMap from './view2/Liu/map/InteractiveMap.jsx'
+import Attraction_container from './view2/chingchen/attraction_container.jsx'
+import HomePage from './components/homepage.jsx'
+import Page1 from './view2/chingchen/page1.jsx'
+import Header from './components/header.jsx'
+import MapDisplay from './view2/Liu/mapAddRoute/MapDisplay.jsx'
 
 import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
 import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
-<<<<<<< Updated upstream
-=======
+
 import DragAndDropExample2 from './view2/chingchen/DragAndDropExample2.jsx';
 
 import UserProfile from './view2/chingchen/user.jsx'; 
->>>>>>> Stashed changes
 
-// import './App.css';
+import Login from './view3/page1/login.jsx'; 
+import Signin from './view3/page1/signin.jsx'; 
+import ForgotPassword from './view3/page1/forgotpassword.jsx'; 
+import Logout from './view3/page1/logout.jsx'; 
+import Profile from './view3/page1/profile.jsx'; 
+
+import './App.css';
 
 function App() {
   return (
@@ -25,11 +31,12 @@ function App() {
         <Route path="/attraction" element={<Attraction_container />} />
         <Route path="/map" element={<InteractiveMap />} />
         <Route path="/page1" element={<Page1 />} />
-
+        <Route path="/header" element={<Header />} />
+        {/* <Route path="/attraction" element={<Attraction_container />} /> */}
+        <Route path="/MapDisplay" element={<MapDisplay />} />
         <Route path="/test" element={<DragAndDropExample />} />
         <Route path="/test2" element={<DragAndDropWithPosition />} />
-<<<<<<< Updated upstream
-=======
+
         <Route path="/test3" element={<DragAndDropExample2 />} />
 
         <Route path="/UserProfile" element={<UserProfile />} />
@@ -38,9 +45,8 @@ function App() {
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/Profile" element={<Profile />} />
         <Route path="/logout" element={<Logout />} />
->>>>>>> Stashed changes
 
-        {/* <Route path="/attraction" element={<Attraction_container />} /> */}
+
       </Routes>
     </Router>
   );

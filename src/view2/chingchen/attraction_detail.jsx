@@ -16,7 +16,7 @@ const AttractionDetail = ({ attraction }) => {
     <div className="attraction_details">
       <div className="attraction_card_layout">
         <div className="attraction_image">
-          <img src="https://image.cdn-eztravel.com.tw/ZiZ-FgvBm0Mo6ci3xqfLwvVwwicmC4AUZM2K1Zeg0zQ/g:ce/aHR0cHM6Ly92YWNhdGlvbi5jZG4tZXp0cmF2ZWwuY29tLnR3L2ltZy9WRFIvVFAxXzU2MjUxMjU2NS5qcGc.jpg" alt={attraction.name} />
+          <img src={`../../img/${attraction.photo}`} alt={attraction.name} />
         </div>
         
         <div className="attraction_info">

@@ -407,15 +407,4 @@ export class MapService {
           }
         } else if (leg.from && leg.to) {
           coordinates.push([leg.from.lat, leg.from.lon]);
-          coordinates.push([leg.to.lat, leg.to.lon]);
-        }
-      });
-    }
-    
-    return coordinates;
-  }
-
-}
-
-// 創建預設實例
-export const mapService = new MapService();
+          coordinates.push([leg.to.lat, le

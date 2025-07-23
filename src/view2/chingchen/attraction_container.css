@@ -12,7 +12,7 @@
     overflow: hidden;
 }
 
-.attraction_cards_wrapper {
+/* .attraction_cards_wrapper {
     flex: 1;
     padding: 6px;
     display: flex;
@@ -23,9 +23,8 @@
     overflow-y: auto;
     overflow-x: hidden;
     min-height: 0;
-<<<<<<< Updated upstream
-=======
-}
+} */
+
 
 .map_small_container {
     width: calc(100% - 16px);
@@ -41,8 +40,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 10px;
->>>>>>> Stashed changes
+    margin-top: 160px;
+
 }
 
 /* .attraction_card {
@@ -67,7 +66,7 @@
     border-radius: 8px;
     overflow-y: auto;
     overflow-x: hidden;
-    margin: 8px;
+    margin: 8px 0px 0px 8px;
     position: relative;
     flex-shrink: 0;
 }

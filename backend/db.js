@@ -3,9 +3,39 @@ import express from 'express';
 import mysql from 'mysql2';
 import cors from 'cors';
 import './syncModels.js';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// 取得 __dirname 的方式（ES Module 環境）
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// 設定儲存位置和檔名
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const destPath = path.join(__dirname, '../img/avatar'); // 相對於 backend/db.js
+    cb(null, destPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({ storage: storage });
+
+
+
+export default upload;  // 如果你用 ES module 的話可以 export
+
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 const port = 3001;
 
@@ -67,7 +97,9 @@ app.get('/api/travel', (req, res) => {
     { key: 'include2s', sql: 'SELECT * FROM Include2' },
     { key: 'evaluates', sql: 'SELECT * FROM Evaluate' },
     { key: 'supports', sql: 'SELECT * FROM Support' },
-    { key: 'businesses', sql: 'SELECT * FROM Business' }
+    { key: 'businesses', sql: 'SELECT * FROM Business' },
+    { key: 'hotels', sql: 'SELECT * FROM Hotel' },
+    { key: 'tripHotels', sql: 'SELECT * FROM TripHotel' }
   ];
 
   let completed = 0;
@@ -83,21 +115,28 @@ app.get('/api/travel', (req, res) => {
         return res.status(500).json({ error: `查詢 ${key} 失敗：${err.message}` });
       }
 
-  if (key === 'trips') {
-    rows = rows.map(row => ({
-      ...row,
-      s_date: formatDate(row.s_date),
-      e_date: formatDate(row.e_date),
-      stage_date: formatFullDateTime(row.stage_date)
-    }));
-  }
+      if (key === 'trips') {
+        rows = rows.map(row => ({
+          ...row,
+          s_date: formatDate(row.s_date),
+          e_date: formatDate(row.e_date),
+          stage_date: formatFullDateTime(row.stage_date)
+        }));
+      }
+      if (key === 'trip_hotels') {
+        rows = rows.map(row => ({
+          ...row,
+          cin_time: formatFullDateTime(row.cin_time),
+          cout_time: formatFullDateTime(row.cout_time)
+        }));
+      }
 
-    if (key === 'schedules') {
-      rows = rows.map(row => ({
-        ...row,
-        date: formatDate(row.date)
-      }));
-    }
+      if (key === 'schedules') {
+        rows = rows.map(row => ({
+          ...row,
+          date: formatDate(row.date)
+        }));
+      }
 
 
       results[key] = rows;
@@ -110,17 +149,12 @@ app.get('/api/travel', (req, res) => {
   });
 });
 
-<<<<<<< Updated upstream
-=======
+
 
 app.get('/api/view2_attraction_list', (req, res) => {
   const sql = 'SELECT * FROM Attraction';
 
   connection.query(sql, (err, rows) => {
-    if (err) {
-      console.error('❌ 查詢 Attraction 時出錯：', err.message);
-      return res.status(500).json({ error: `查詢 Attraction 失敗：${err.message}` });
-    }
 
     res.json(rows);
   });
@@ -356,7 +390,6 @@ app.post('/api/view3_reset_password', async (req, res) => {
 });
 
 // 下面不用管它
->>>>>>> Stashed changes
 app.listen(port, () => {
   console.log(`伺服器啟動於 http://localhost:${port}`);
 });

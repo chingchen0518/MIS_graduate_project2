@@ -1,7 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, lazy, Suspense } from 'react';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import AttractionCard from './attraction_card';
+
+// 使用 lazy 進行按需加載
+const ScheduleItem = lazy(() => import('./schedule_item'));
 
 const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, containerHeight }) => {
   const [attractions, setAttractions] = useState(initialAttractions || []);
@@ -110,37 +113,16 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
       <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
         {renderGrid()}
         {attractions && attractions.length > 0 ? (
-          attractions.map((attraction, index) => (
-            <div
-              key={index}
-              className="schedule_item"
-              style={{
-                position: 'absolute',
-                left: `${attraction.position.x}px`,
-                top: `${attraction.position.y}px`,
-                width: `${attraction.width}px`, // Dynamic width
-                backgroundColor: '#f0f0f0',
-                border: '1px solid black',
-                borderRadius: '5px',
-                padding: '10px',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-              }}
-            >
-              <div
-                className="attraction_name"
-                style={{
-                  fontWeight: 'bold',
-                  color: '#333',
-                  fontSize: `${Math.min(16, attraction.width / 10)}px`, // Adjust font size dynamically
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {attraction.name}
-              </div>
-            </div>
-          ))
+          <Suspense fallback={<div>Loading...</div>}>
+            {attractions.map((attraction, index) => (
+              <ScheduleItem
+                key={index}
+                name={attraction.name}
+                position={attraction.position}
+                width={attraction.width}
+              />
+            ))}
+          </Suspense>
         ) : (
           <div className="schedule_empty">
             <span>暫無行程安排</span>

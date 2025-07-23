@@ -54,7 +54,6 @@ const DropTargetArea = () => {
       // 计算放置位置相对于目标区域的偏移
       const x = sourceOffset.x - dropTargetRect.left;
       const y = sourceOffset.y - dropTargetRect.top;
-
       // 更新放置位置
       setPositions((prevPositions) => [...prevPositions, { x, y }]);
     },

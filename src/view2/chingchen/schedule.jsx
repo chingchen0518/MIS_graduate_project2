@@ -1,67 +1,87 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, lazy, Suspense } from 'react';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import AttractionCard from './attraction_card';
 
-const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, containerHeight }) => {
+// 使用 lazy 進行按需加載
+const ScheduleItem = lazy(() => import('./schedule_item'));
+
+const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, containerHeight, usedAttractions, onAttractionUsed }) => {
   const [attractions, setAttractions] = useState(initialAttractions || []);
   const dropRef = useRef(null);
 
   const [{ isOver }, drop] = useDrop({
-    accept: "card",
+    accept: ["card", "schedule_item"],
     drop: (item, monitor) => {
       if (!dropRef.current) {
         console.error("Drop target not found!");
         return;
       }
 
-      const sourceOffset = monitor.getSourceClientOffset();
-      if (!sourceOffset) {
-        console.error("Source offset not found!");
+      const clientOffset = monitor.getClientOffset();
+      if (!clientOffset) {
+        console.error("Client offset not found!");
         return;
       }
 
-      const dropTargetRect = dropRef.current.querySelector('.schedule_timeline').getBoundingClientRect();
-      const x = sourceOffset.x - dropTargetRect.left;
-      const y = sourceOffset.y - dropTargetRect.top;
+      const dropTarget = dropRef.current.querySelector('.schedule_timeline');
+      if (!dropTarget) {
+        console.error("Drop target element not found!");
+        return;
+      }
 
-      console.log('sourceOffset.y:', sourceOffset.y);
-      console.log('dropTargetRect.top', dropTargetRect.top);
-
-      // 修正坐标计算，确保不受页面缩放或样式影响
-      const correctedX = Math.max(0, Math.min(x, dropTargetRect.width));
+      const dropTargetRect = dropTarget.getBoundingClientRect();
+      const x = 0;
+      const y = clientOffset.y - dropTargetRect.top;
+      const correctedX = x;
       const correctedY = Math.max(0, Math.min(y, dropTargetRect.height));
 
-      setAttractions((prevAttractions) => [
-        ...prevAttractions,
-        {
-          name: item.id,
-          time: null,
-          position: { x: correctedX, y: correctedY },
-          width: dropTargetRect.width, // Schedule item width based on container width
-        },
-//       const dropTargetRect = dropRef.current.getBoundingClientRect();
-//       const y = sourceOffset.y - dropTargetRect.top;
-
-//       // 計算對應的時間，基於拖放的垂直位置
-//       const timeSlots = [
-//         '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
-//         '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00', 
-//         '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
-//       ];
-      
-//       // 扣除 header 高度，計算在時間軸範圍內的相對位置
-//       const headerHeight = 60; // 大概的 header 高度
-//       const timelineY = Math.max(0, y - headerHeight);
-//       const timeSlotHeight = (containerHeight - headerHeight) / timeSlots.length;
-//       const timeIndex = Math.min(Math.floor(timelineY / timeSlotHeight), timeSlots.length - 1);
-//       const selectedTime = timeSlots[Math.max(0, timeIndex)];
-
-//       setAttractions((prevAttractions) => [
-//         ...prevAttractions,
-//         { name: item.id, time: selectedTime },
-
-      ]);
+      if (monitor.getItemType() === "card") {
+        // 處理從 attraction_card 拖動
+        setAttractions((prevAttractions) => [
+          ...prevAttractions,
+          {
+            name: item.id,
+            time: null,
+            position: { x: correctedX, y: correctedY },
+            width: dropTargetRect.width,
+          },
+        ]);
+        
+        // 通知父組件該景點已被使用
+        if (onAttractionUsed) {
+          onAttractionUsed(item.id);
+        }
+      } else if (monitor.getItemType() === "schedule_item") {
+        // 處理 schedule_item 的重新排序（僅限同一個 schedule）
+        if (item.scheduleId === day) {
+          // 獲取拖動開始時鼠標相對於元素的偏移
+          const initialOffset = monitor.getInitialClientOffset();
+          const initialSourceOffset = monitor.getInitialSourceClientOffset();
+          const sourceOffset = monitor.getSourceClientOffset();
+          
+          // 計算鼠標相對於被拖動元素的偏移量
+          let offsetX = 0;
+          let offsetY = 0;
+          if (initialOffset && initialSourceOffset) {
+            offsetX = initialOffset.x - initialSourceOffset.x;
+            offsetY = initialOffset.y - initialSourceOffset.y;
+          }
+          
+          // 調整落點位置，減去鼠標偏移
+          const adjustedY = correctedY - offsetY;
+          const finalY = Math.max(0, Math.min(adjustedY, dropTargetRect.height));
+          
+          setAttractions((prevAttractions) => {
+            const newAttractions = [...prevAttractions];
+            const draggedItem = newAttractions[item.index];
+            if (draggedItem) {
+              draggedItem.position = { x: correctedX, y: finalY };
+            }
+            return newAttractions;
+          });
+        }
+      }
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -102,9 +122,7 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
   }
 
   return (
-
     <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
-
       <div className="schedule_header">
         <div className="user_avatar">
           <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />
@@ -116,55 +134,18 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
       <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
         {renderGrid()}
         {attractions && attractions.length > 0 ? (
-
-//           attractions.map((attraction, index) => (
-//             <div
-//               key={index}
-//               className="schedule_item"
-//               style={{
-//                 position: 'absolute',
-//                 left: `${attraction.position.x}px`,
-//                 top: `${attraction.position.y}px`,
-//                 width: `${attraction.width}px`, // Dynamic width
-//                 backgroundColor: '#f0f0f0',
-//                 border: '1px solid black',
-//                 borderRadius: '5px',
-//                 padding: '10px',
-//                 boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-//               }}
-//             >
-//               <div
-//                 className="attraction_name"
-//                 style={{
-//                   fontWeight: 'bold',
-//                   color: '#333',
-//                   fontSize: `${Math.min(16, attraction.width / 10)}px`, // Adjust font size dynamically
-//                   whiteSpace: 'nowrap',
-//                   overflow: 'hidden',
-//                   textOverflow: 'ellipsis',
-//                 }}
-//               >
-//                 {attraction.name}
-
-
-// 按時間排序景點
-          attractions
-            .sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'))
-            .map((attraction, index) => (
-              <div
+          <Suspense fallback={<div>Loading...</div>}>
+            {attractions.map((attraction, index) => (
+              <ScheduleItem
                 key={index}
-                className="schedule_item"
-              >
-                <div className="time_slot">{attraction.time}</div>
-                <div className="attraction_card">
-                  <div className="attraction_name">
-                    {attraction.name}
-                  </div>
-                </div>
-                {index < attractions.length - 1 && <div className="connection_line"></div>}
-
-              </div>
-            ))
+                name={attraction.name}
+                position={attraction.position}
+                width={attraction.width}
+                index={index}
+                scheduleId={day}
+              />
+            ))}
+          </Suspense>
         ) : (
           <div className="schedule_empty">
             <span>暫無行程安排</span>
@@ -176,20 +157,22 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
 };
 
 const CustomDragPreview = () => {
-  const { item, currentOffset, isDragging } = useDragLayer((monitor) => ({
+  const { item, currentOffset, isDragging, itemType } = useDragLayer((monitor) => ({
     item: monitor.getItem(),
     currentOffset: monitor.getClientOffset(),
     isDragging: monitor.isDragging(),
+    itemType: monitor.getItemType(),
   }));
 
   const scheduleRef = document.querySelector('.schedule');
   const scheduleWidth = scheduleRef ? scheduleRef.offsetWidth : 0;
 
-  if (!isDragging || !currentOffset || scheduleWidth === 0) {
+  // 只對 "card" 類型顯示自定義預覽，不對 "schedule_item" 顯示
+  if (!isDragging || !currentOffset || scheduleWidth === 0 || itemType === "schedule_item") {
     return null;
   }
 
-  // const { x, y } = currentOffset;
+  // 移除預覽的水平偏移
   const x = currentOffset.x - (scheduleWidth / 2);
   const y = currentOffset.y;
 

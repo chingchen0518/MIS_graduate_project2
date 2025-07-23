@@ -21,9 +21,12 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
         return;
       }
 
-      const dropTargetRect = dropRef.current.getBoundingClientRect();
+      const dropTargetRect = dropRef.current.querySelector('.schedule_timeline').getBoundingClientRect();
       const x = sourceOffset.x - dropTargetRect.left;
       const y = sourceOffset.y - dropTargetRect.top;
+
+      console.log('sourceOffset.y:', sourceOffset.y);
+      console.log('dropTargetRect.top', dropTargetRect.top);
 
       // 修正坐标计算，确保不受页面缩放或样式影响
       const correctedX = Math.max(0, Math.min(x, dropTargetRect.width));
@@ -31,7 +34,12 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
 
       setAttractions((prevAttractions) => [
         ...prevAttractions,
-        { name: item.id, time: null, position: { x: correctedX, y: correctedY } },
+        {
+          name: item.id,
+          time: null,
+          position: { x: correctedX, y: correctedY },
+          width: dropTargetRect.width, // Schedule item width based on container width
+        },
       ]);
     },
     collect: (monitor) => ({
@@ -40,6 +48,23 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
   });
 
   drop(dropRef);
+
+  const renderGrid = () => {
+    const timeColumn = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
+                        '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00', 
+                       '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
+                     ];
+    const lines = [];
+    const intervalHeight = containerHeight / 25; // 調整為空間/25
+
+    timeColumn.forEach((time, index) => {
+      lines.push(
+        <div key={index} style={{ position: "absolute", top: index * intervalHeight, left: 0, width: "100%", height: "1px", backgroundColor: "lightgray" }} />
+      );
+    });
+
+    return lines;
+  };
 
   if (isFirst) {
     return (
@@ -56,7 +81,7 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
   }
 
   return (
-    <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight }}>
+    <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
       <div className="schedule_header">
         <div className="user_avatar">
           <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />
@@ -65,7 +90,8 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
         <span className="schedule_date">{title}</span>
       </div>
       
-      <div className="schedule_timeline">
+      <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
+        {renderGrid()}
         {attractions && attractions.length > 0 ? (
           attractions.map((attraction, index) => (
             <div
@@ -75,16 +101,26 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
                 position: 'absolute',
                 left: `${attraction.position.x}px`,
                 top: `${attraction.position.y}px`,
-                width: '90%', // 調整寬度以適應 Schedule
-                backgroundColor: '#f0f0f0', // 與 AttractionCard 顏色一致
+                width: `${attraction.width}px`, // Dynamic width
+                backgroundColor: '#f0f0f0',
                 border: '1px solid black',
                 borderRadius: '5px',
                 padding: '10px',
                 boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
               }}
             >
-                <div className="attraction_name" style={{ fontWeight: 'bold', color: '#333' }}>
-                  {attraction.name}
+              <div
+                className="attraction_name"
+                style={{
+                  fontWeight: 'bold',
+                  color: '#333',
+                  fontSize: `${Math.min(16, attraction.width / 10)}px`, // Adjust font size dynamically
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {attraction.name}
               </div>
             </div>
           ))

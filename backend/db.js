@@ -160,6 +160,16 @@ app.get('/api/view2_attraction_list', (req, res) => {
   });
 });
 
+app.get('/api/view2_schedule_list', (req, res) => {
+  const sql = 'SELECT * FROM Schedule';
+
+  connection.query(sql, (err, rows) => {
+
+    res.json(rows);
+  });
+});
+
+
 app.post('/api/share-trip', async (req, res) => {
   const { email, tripId, tripTitle } = req.body;
 
@@ -394,6 +404,7 @@ app.get('/api/fake-data', async (req, res) => {
     // 插入 User
     const userSql = `INSERT INTO User (u_name, u_email, u_account, u_password, u_img, u_line_id)
       VALUES ('TestUser', 'testuser@example.com', 'testuser', '$2b$10$testpasswordhash', NULL, 'line123')`;
+
     await new Promise((resolve, reject) => {
       connection.query(userSql, (err) => {
         if (err) return reject(err);
@@ -410,6 +421,16 @@ app.get('/api/fake-data', async (req, res) => {
         resolve();
       });
     });
+
+    // 插入 Schedule，t_id 設為 1，u_id 設為 1
+    const scheduleSql = `INSERT INTO Schedule (t_id, u_id, date) VALUES (1, 1, '2025-08-01')`;
+    await new Promise((resolve, reject) => {
+      connection.query(scheduleSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
 
     // 插入 10 筆瑞士景點 Attraction
     const swissAttractions = [
@@ -436,9 +457,27 @@ app.get('/api/fake-data', async (req, res) => {
       });
     }
 
-    return res.status(200).json({ message: 'User、Trip、Attraction 假資料插入成功！' });
+    return res.status(200).json({ message: 'User、Trip、Schedule、ScheduleItem、Attraction 假資料插入成功！' });
   } catch (error) {
     console.error('❌ 插入假資料失敗：', error);
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
+});
+
+app.get('/api/fake-data-clean', async (req, res) => {
+  try {
+    const tables = [, 'schedule', 'trip', 'user'];
+    for (const table of tables) {
+      await new Promise((resolve, reject) => {
+        connection.query(`DELETE FROM ${table}`, (err) => {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+    }
+    return res.status(200).json({ message: '所有資料已清理！' });
+  } catch (error) {
+    console.error('❌ 清理資料失敗：', error);
     return res.status(500).json({ message: '伺服器錯誤' });
   }
 });

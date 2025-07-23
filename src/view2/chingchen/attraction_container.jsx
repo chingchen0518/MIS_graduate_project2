@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AttractionCard from './attraction_card.jsx';
 import AttractionDetail from './attraction_detail.jsx';
+import MapDisplay from '../Liu/mapAddRoute/MapDisplay.jsx'; // 導入地圖組件
 
 import './attraction_container.css';
 
@@ -37,37 +38,37 @@ const Attraction_container = () => {
 
   const handleDragEnd = (attractionId) => {
     // 保持拖拽狀態，直到頁面重新載入或手動重置
-    // setDraggedAttractions(prev => {
-    //   const newSet = new Set(prev);
-    //   newSet.delete(attractionId);
-    //   return newSet;
-    // });
   };
 
   return (
-      <div className="attraction_container">
-        <div className="attraction_cards_wrapper">
-          {attractions.map(attraction => (
-            <AttractionCard 
-              key={attraction.id}
-              name={attraction.name}
-              category={attraction.category}
-              votes={attraction.votes}
-              color={attraction.color}
-              address={attraction.address} // 傳遞地址
-              hours={attraction.hours}     // 傳遞營業時間
-              phone={attraction.phone}     // 傳遞電話
-              budget={attraction.budget}   // 傳遞預算
-              isSelected={selectedAttraction?.id === attraction.id}
-              isDragged={draggedAttractions.has(attraction.id)}
-              onClick={() => handleCardClick(attraction)}
-              onDragStart={() => handleDragStart(attraction.id)}
-              onDragEnd={() => handleDragEnd(attraction.id)}
-            />
-          ))}
-        </div>
-        <AttractionDetail attraction={selectedAttraction} />
+    <div className="attraction_container">
+
+
+      <div className="attraction_cards_wrapper">
+        {attractions.map(attraction => (
+          <AttractionCard 
+            key={attraction.id}
+            name={attraction.name}
+            category={attraction.category}
+            votes={attraction.votes}
+            color={attraction.color}
+            address={attraction.address}
+            hours={attraction.hours}
+            phone={attraction.phone}
+            budget={attraction.budget}
+            isSelected={selectedAttraction?.id === attraction.id}
+            isDragged={draggedAttractions.has(attraction.id)}
+            onClick={() => handleCardClick(attraction)}
+            onDragStart={() => handleDragStart(attraction.id)}
+            onDragEnd={() => handleDragEnd(attraction.id)}
+          />
+        ))}
       </div>
+      <div className="map_small_container">
+        <MapDisplay />
+      </div>
+      <AttractionDetail attraction={selectedAttraction} />
+    </div>
   );
 };
 

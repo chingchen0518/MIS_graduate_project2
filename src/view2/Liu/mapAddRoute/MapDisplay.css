@@ -1,0 +1,218 @@
+.map-display {
+  font-family: Arial, sans-serif;
+}
+
+.map-display h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* 控制按鈕區域 */
+.control-buttons {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.control-button {
+  padding: 10px 15px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.control-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.control-button.primary {
+  background-color: #007bff;
+}
+
+.control-button.primary:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.control-button.primary:disabled {
+  background-color: #6c757d;
+}
+
+.control-button.danger {
+  background-color: #dc3545;
+}
+
+.control-button.danger:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+/* 交通方式選擇器 */
+.transport-selector {
+  margin-bottom: 20px;
+}
+
+.transport-selector h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.transport-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.transport-button {
+  padding: 10px 15px;
+  border: 1px solid;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 120px;
+  text-align: center;
+  transition: all 0.2s;
+  font-size: 12px;
+}
+
+.transport-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.transport-button.inactive {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.transport-button.active {
+  color: white;
+}
+
+.transport-button.walk {
+  border-color: green;
+}
+
+.transport-button.walk.active {
+  background-color: green;
+}
+
+.transport-button.bicycle {
+  border-color: blue;
+}
+
+.transport-button.bicycle.active {
+  background-color: blue;
+}
+
+.transport-button.car {
+  border-color: red;
+}
+
+.transport-button.car.active {
+  background-color: red;
+}
+
+.transport-button.transit {
+  border-color: purple;
+}
+
+.transport-button.transit.active {
+  background-color: purple;
+}
+
+.transport-button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.transport-button-name {
+  font-weight: bold;
+}
+
+.transport-button-duration {
+  font-size: 10px;
+  margin-top: 5px;
+}
+
+/* 路線詳細資訊 */
+.route-details {
+  margin-bottom: 10px;
+  width:600px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid;
+}
+
+.route-details h4 {
+  margin-bottom: 5px;
+  color: #333;
+  margin-top: 0px;
+}
+
+.route-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 0.5fr));
+  gap: 1px;
+}
+
+.route-details-item {
+  font-size: 10px;
+}
+
+.route-details-item strong {
+  color: #333;
+}
+
+/* 地圖容器 */
+.map-container {
+  width: 350px;
+  height: 150px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 說明資訊 */
+.info-section {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.info-section p {
+  margin: 5px 0;
+}
+
+.info-section strong {
+  color: #333;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .control-buttons {
+    flex-direction: column;
+  }
+  
+  .transport-buttons {
+    flex-direction: column;
+  }
+  
+  .transport-button {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .map-container {
+    width: 100%;
+    max-width: 410px;
+  }
+  
+  .route-details-grid {
+    grid-template-columns: 1fr;
+  }
+}

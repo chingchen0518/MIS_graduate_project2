@@ -12,7 +12,7 @@
     overflow: hidden;
 }
 
-.attraction_cards_wrapper {
+/* .attraction_cards_wrapper {
     flex: 1;
     padding: 6px;
     display: flex;
@@ -23,6 +23,23 @@
     overflow-y: auto;
     overflow-x: hidden;
     min-height: 0;
+} */
+
+.map_small_container {
+    width: calc(100% - 16px);
+    height: 150px;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid black;
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0px 0px 0px 8px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 160px;
 }
 
 /* .attraction_card {
@@ -47,7 +64,7 @@
     border-radius: 8px;
     overflow-y: auto;
     overflow-x: hidden;
-    margin: 8px;
+    margin: 8px 0px 0px 8px;
     position: relative;
     flex-shrink: 0;
 }

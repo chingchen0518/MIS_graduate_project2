@@ -5,6 +5,7 @@ import Attraction_container from '../chingchen/attraction_container.jsx';
 import Schedule_container from '../chingchen/schedule_container.jsx';
 import { CustomDragPreview } from './schedule.jsx';
 import Header from '../../components/header.jsx'
+import MapDisplay from '../Liu/mapAddRoute/MapDisplay.jsx'
 
 import './page1.css';
 

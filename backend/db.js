@@ -169,6 +169,17 @@ app.get('/api/view2_schedule_list', (req, res) => {
   });
 });
 
+app.get('/api/view2_schedule_list_insert', (req, res) => {
+  const sql = 'INSERT INTO Schedule (t_id, date, u_id) VALUES (?, ?, ?)';
+  
+  connection.query(sql, [1, '2025-08-01', 1], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
 
 app.post('/api/share-trip', async (req, res) => {
   const { email, tripId, tripTitle } = req.body;

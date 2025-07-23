@@ -50,6 +50,8 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
             day: schedule.day || schedule.s_id,
             attractions: schedule.attractions || []
           }));
+          // 倒序排列，讓最新的行程在最前面（最左邊）
+          formattedSchedules.reverse();
           setSchedules(formattedSchedules);
         }
       })
@@ -74,24 +76,25 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
       attractions: []
     };
 
-    // 將新行程發送到後端
-    fetch('http://localhost:3001/api/view2_add_schedule', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        title: newSchedule.title,
-        day: newSchedule.day
-      })
-    })
+    // 使用 GET 方法調用 API
+    console.log('正在發送新行程數據，使用 GET 方法');
+    
+    // 添加參數到 URL
+    const url = `http://localhost:3001/api/view2_schedule_list_insert?title=${encodeURIComponent(newSchedule.title)}&day=${encodeURIComponent(newSchedule.day)}`;
+    
+    console.log('請求 URL:', url);
+    
+    // 發送 GET 請求
+    fetch(url)
       .then(response => {
+        console.log('收到伺服器響應:', response.status, response.statusText);
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error(`伺服器響應錯誤: ${response.status} ${response.statusText}`);
         }
         return response.json();
       })
       .then(data => {
+        console.log('解析的JSON數據:', data);
         // 如果後端返回了新創建的行程，使用後端返回的數據
         if (data && data.s_id) {
           const createdSchedule = {
@@ -100,16 +103,19 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
             day: data.day || data.s_id,
             attractions: []
           };
-          setSchedules(prev => [...prev, createdSchedule]);
+          console.log('創建的行程對象:', createdSchedule);
+          // 在當前行程列表的最前面添加新的行程（而不是末尾）
+          setSchedules(prev => [createdSchedule, ...prev]);
         } else {
-          // 如果後端沒有返回數據，使用前端創建的數據
-          setSchedules(prev => [...prev, newSchedule]);
+          console.log('後端沒有返回有效的s_id，使用前端生成的數據');
+          // 如果後端沒有返回數據，使用前端創建的數據，同樣添加到最前面
+          setSchedules(prev => [newSchedule, ...prev]);
         }
       })
       .catch(error => {
-        console.error('創建新行程失敗:', error);
-        // 即使 API 調用失敗，也更新 UI
-        setSchedules(prev => [...prev, newSchedule]);
+        console.error('創建新行程失敗:', error.message);
+        // 即使 API 調用失敗，也更新 UI，添加到最前面
+        setSchedules(prev => [newSchedule, ...prev]);
       });
   };
 

@@ -1,6 +1,7 @@
 .attraction_card {
     cursor: pointer;
-    width: calc(25% - 2px);
+    width: 40%;
+    /* calc(25% - 2px); */
     margin: 0;
     padding: 2px;
     background-color: #e8f4f8;

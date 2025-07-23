@@ -5,7 +5,7 @@ import MapDisplay from '../Liu/mapAddRoute/MapDisplay.jsx'; // 導入地圖組�
 
 import './attraction_container.css';
 
-const Attraction_container = () => {
+const Attraction_container = ({ usedAttractions = [] }) => {
   const [selectedTab, setSelectedTab] = useState('選擇文化村');
   const [selectedAttraction, setSelectedAttraction] = useState(null);
   const [draggedAttractions, setDraggedAttractions] = useState(new Set());
@@ -65,6 +65,7 @@ const Attraction_container = () => {
             budget={attraction.budget}
             isSelected={selectedAttraction?.id === attraction.id}
             isDragged={draggedAttractions.has(attraction.id)}
+            isUsed={usedAttractions.includes(attraction.name)}
             onClick={() => handleCardClick(attraction)}
             onDragStart={() => handleDragStart(attraction.id)}
             onDragEnd={() => handleDragEnd(attraction.id)}

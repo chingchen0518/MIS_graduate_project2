@@ -160,6 +160,27 @@ app.get('/api/view2_attraction_list', (req, res) => {
   });
 });
 
+app.get('/api/view2_schedule_list', (req, res) => {
+  const sql = 'SELECT * FROM Schedule';
+
+  connection.query(sql, (err, rows) => {
+
+    res.json(rows);
+  });
+});
+
+app.get('/api/view2_schedule_list_insert', (req, res) => {
+  const sql = 'INSERT INTO Schedule (t_id, date, u_id) VALUES (?, ?, ?)';
+  
+  connection.query(sql, [1, '2025-08-01', 1], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
+
 app.post('/api/share-trip', async (req, res) => {
   const { email, tripId, tripTitle } = req.body;
 
@@ -389,7 +410,89 @@ app.post('/api/view3_reset_password', async (req, res) => {
   }
 });
 
-// 下面不用管它
+app.get('/api/fake-data', async (req, res) => {
+  try {
+    // 插入 User
+    const userSql = `INSERT INTO User (u_name, u_email, u_account, u_password, u_img, u_line_id)
+      VALUES ('TestUser', 'testuser@example.com', 'testuser', '$2b$10$testpasswordhash', NULL, 'line123')`;
+
+    await new Promise((resolve, reject) => {
+      connection.query(userSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    // 插入 Trip，u_id 設為 1
+    const tripSql = `INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id)
+      VALUES ('2025-08-01', '2025-08-10', '08:00:00', '20:00:00', 'France', '2025-08-01', '10:00:00', '巴黎之旅', 'A', 1)`;
+    await new Promise((resolve, reject) => {
+      connection.query(tripSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    // 插入 Schedule，t_id 設為 1，u_id 設為 1
+    const scheduleSql = `INSERT INTO Schedule (t_id, u_id, date) VALUES (1, 1, '2025-08-01')`;
+    await new Promise((resolve, reject) => {
+      connection.query(scheduleSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+
+    // 插入 10 筆瑞士景點 Attraction
+    const swissAttractions = [
+      { name: '馬特洪峰', name_zh: '馬特洪峰', name_en: 'Matterhorn', category: '山峰', address: 'Zermatt', country: 'Switzerland', city: 'Zermatt', budget: 0 },
+      { name: '少女峰', name_zh: '少女峰', name_en: 'Jungfrau', category: '山峰', address: 'Bernese Alps', country: 'Switzerland', city: 'Interlaken', budget: 0 },
+      { name: '瑞吉山', name_zh: '瑞吉山', name_en: 'Rigi', category: '山峰', address: 'Lucerne', country: 'Switzerland', city: 'Lucerne', budget: 0 },
+      { name: '日內瓦湖', name_zh: '日內瓦湖', name_en: 'Lake Geneva', category: '湖泊', address: 'Geneva', country: 'Switzerland', city: 'Geneva', budget: 0 },
+      { name: '盧塞恩湖', name_zh: '盧塞恩湖', name_en: 'Lake Lucerne', category: '湖泊', address: 'Lucerne', country: 'Switzerland', city: 'Lucerne', budget: 0 },
+      { name: '策馬特', name_zh: '策馬特', name_en: 'Zermatt', category: '小鎮', address: 'Zermatt', country: 'Switzerland', city: 'Zermatt', budget: 0 },
+      { name: '伯恩老城', name_zh: '伯恩老城', name_en: 'Old City of Bern', category: '古城', address: 'Bern', country: 'Switzerland', city: 'Bern', budget: 0 },
+      { name: '蘇黎世湖', name_zh: '蘇黎世湖', name_en: 'Lake Zurich', category: '湖泊', address: 'Zurich', country: 'Switzerland', city: 'Zurich', budget: 0 },
+      { name: '施皮茨城堡', name_zh: '施皮茨城堡', name_en: 'Spiez Castle', category: '城堡', address: 'Spiez', country: 'Switzerland', city: 'Spiez', budget: 0 },
+      { name: '拉沃葡萄園', name_zh: '拉沃葡萄園', name_en: 'Lavaux Vineyard', category: '葡萄園', address: 'Lavaux', country: 'Switzerland', city: 'Lavaux', budget: 0 }
+    ];
+    for (let i = 0; i < swissAttractions.length; i++) {
+      const a = swissAttractions[i];
+      const sql = `INSERT INTO Attraction (t_id, name, name_zh, name_en, category, address, country, city, budget, photo, u_id)
+        VALUES (1, '${a.name}', '${a.name_zh}', '${a.name_en}', '${a.category}', '${a.address}', '${a.country}', '${a.city}', ${a.budget}, '${i+1}.jpg', 1)`;
+      await new Promise((resolve, reject) => {
+        connection.query(sql, (err) => {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+    }
+
+    return res.status(200).json({ message: 'User、Trip、Schedule、ScheduleItem、Attraction 假資料插入成功！' });
+  } catch (error) {
+    console.error('❌ 插入假資料失敗：', error);
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
+});
+
+app.get('/api/fake-data-clean', async (req, res) => {
+  try {
+    const tables = [, 'schedule', 'trip', 'user'];
+    for (const table of tables) {
+      await new Promise((resolve, reject) => {
+        connection.query(`DELETE FROM ${table}`, (err) => {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+    }
+    return res.status(200).json({ message: '所有資料已清理！' });
+  } catch (error) {
+    console.error('❌ 清理資料失敗：', error);
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
+});
+
 app.listen(port, () => {
-  console.log(`伺服器啟動於 http://localhost:${port}`);
+  console.log(`✅ 伺服器正在運行於 http://localhost:${port}`);
 });

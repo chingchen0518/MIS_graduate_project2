@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Schedule from './schedule.jsx';
 import './schedule_container.css';
 
-const Schedule_container = () => {
+const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
   const [schedules, setSchedules] = useState([
     { 
       id: 1, 
@@ -55,6 +55,12 @@ const Schedule_container = () => {
     setSchedules(newSchedules);
   };
 
+  const handleAttractionUsed = (attractionName) => {
+    if (onAttractionUsed) {
+      onAttractionUsed(attractionName);
+    }
+  };
+
   const timeSlots = [
     '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
     '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00', 
@@ -83,6 +89,8 @@ const Schedule_container = () => {
             isFirst={index === 0}
             onAddSchedule={addSchedule}
             containerHeight={timeColumnHeight} // 傳遞高度
+            usedAttractions={usedAttractions}
+            onAttractionUsed={handleAttractionUsed}
           />
         ))}
       </div>

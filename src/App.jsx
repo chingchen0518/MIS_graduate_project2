@@ -8,6 +8,12 @@ import Page1 from './view2/chingchen/page1.jsx';
 
 import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
 import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
+<<<<<<< Updated upstream
+=======
+import DragAndDropExample2 from './view2/chingchen/DragAndDropExample2.jsx';
+
+import UserProfile from './view2/chingchen/user.jsx'; 
+>>>>>>> Stashed changes
 
 // import './App.css';
 
@@ -22,6 +28,17 @@ function App() {
 
         <Route path="/test" element={<DragAndDropExample />} />
         <Route path="/test2" element={<DragAndDropWithPosition />} />
+<<<<<<< Updated upstream
+=======
+        <Route path="/test3" element={<DragAndDropExample2 />} />
+
+        <Route path="/UserProfile" element={<UserProfile />} />
+        <Route path="/Login" element={<Login />} />
+        <Route path="/Signin" element={<Signin />} />
+        <Route path="/ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/Profile" element={<Profile />} />
+        <Route path="/logout" element={<Logout />} />
+>>>>>>> Stashed changes
 
         {/* <Route path="/attraction" element={<Attraction_container />} /> */}
       </Routes>

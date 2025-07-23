@@ -8,6 +8,7 @@ const Attraction_container = () => {
   const [selectedTab, setSelectedTab] = useState('選擇文化村');
   const [selectedAttraction, setSelectedAttraction] = useState(null);
   const [draggedAttractions, setDraggedAttractions] = useState(new Set());
+<<<<<<< Updated upstream
   const [attractions, setAttractions] = useState([
     {
       id: 1,
@@ -80,6 +81,27 @@ const Attraction_container = () => {
       color: '#4CAF50'
     }
   ]);
+=======
+  const [attractions, setAttractions] = useState([]);
+  const [showTripPlanning, setShowTripPlanning] = useState(false); // 控制是否顯示行程規劃區域
+
+  useEffect(() => {
+    // Fetch data from the API
+    fetch('http://localhost:3001/api/view2_attraction_list')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setAttractions(data);
+      })
+      .catch(error => {
+        console.error('Error fetching attractions:', error);
+      });
+  }, []);
+>>>>>>> Stashed changes
 
   const handleCardClick = (attraction) => {
     setSelectedAttraction(attraction);
@@ -96,6 +118,10 @@ const Attraction_container = () => {
     //   newSet.delete(attractionId);
     //   return newSet;
     // });
+  };
+
+  const handleAddTrip = () => {
+    setShowTripPlanning(true);
   };
 
   return (
@@ -118,6 +144,17 @@ const Attraction_container = () => {
         </div>
         <AttractionDetail attraction={selectedAttraction} />
       </div>
+<<<<<<< Updated upstream
+=======
+      <div className="map_small_container">
+        <MapDisplay selectedAttraction={selectedAttraction} />
+      </div>
+      {/* <div className="map_small_container">
+        <MapDisplay />
+      </div> */}
+      <AttractionDetail attraction={selectedAttraction} />
+    </div>
+>>>>>>> Stashed changes
   );
 };
 

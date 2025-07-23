@@ -22,12 +22,26 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule }) =>
       }
 
       const dropTargetRect = dropRef.current.getBoundingClientRect();
-      const x = sourceOffset.x - dropTargetRect.left;
       const y = sourceOffset.y - dropTargetRect.top;
+
+      // 計算對應的時間，基於拖放的垂直位置
+      const timeSlots = [
+        '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
+        '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00', 
+        '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
+      ];
+      
+      // 扣除 header 高度，計算在時間軸範圍內的相對位置
+      const headerHeight = 60; // 大概的 header 高度
+      const timelineY = Math.max(0, y - headerHeight);
+      const timeSlotHeight = (containerHeight - headerHeight) / timeSlots.length;
+      const timeIndex = Math.min(Math.floor(timelineY / timeSlotHeight), timeSlots.length - 1);
+      const selectedTime = timeSlots[Math.max(0, timeIndex)];
 
       setAttractions((prevAttractions) => [
         ...prevAttractions,
-        { name: item.id, time: null, position: { x, y } },
+        { name: item.id, time: selectedTime },
+
       ]);
     },
     collect: (monitor) => ({
@@ -36,6 +50,23 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule }) =>
   });
 
   drop(dropRef);
+
+  const renderGrid = () => {
+    const timeColumn = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
+                        '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00', 
+                       '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
+                     ];
+    const lines = [];
+    const intervalHeight = containerHeight / 25; // 調整為空間/25
+
+    timeColumn.forEach((time, index) => {
+      lines.push(
+        <div key={index} style={{ position: "absolute", top: index * intervalHeight, left: 0, width: "100%", height: "1px", backgroundColor: "lightgray" }} />
+      );
+    });
+
+    return lines;
+  };
 
   if (isFirst) {
     // 第一欄顯示新增行程設計
@@ -53,7 +84,11 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule }) =>
   }
 
   return (
+<<<<<<< Updated upstream
     <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative' }}>
+=======
+    <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
+>>>>>>> Stashed changes
       <div className="schedule_header">
         <div className="user_avatar">
           <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />
@@ -62,29 +97,27 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule }) =>
         <span className="schedule_date">{title}</span>
       </div>
       
-      <div className="schedule_timeline">
+      <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
+        {renderGrid()}
         {attractions && attractions.length > 0 ? (
-          attractions.map((attraction, index) => (
-            <div
-              key={index}
-              className="schedule_item"
-              style={{
-                position: 'absolute',
-                left: `${attraction.position.x}px`,
-                top: `${attraction.position.y}px`,
-                width: '90%', // 調整寬度以適應 Schedule
-                backgroundColor: '#f0f0f0', // 與 AttractionCard 顏色一致
-                border: '1px solid black',
-                borderRadius: '5px',
-                padding: '10px',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-              }}
-            >
-                <div className="attraction_name" style={{ fontWeight: 'bold', color: '#333' }}>
-                  {attraction.name}
+          // 按時間排序景點
+          attractions
+            .sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'))
+            .map((attraction, index) => (
+              <div
+                key={index}
+                className="schedule_item"
+              >
+                <div className="time_slot">{attraction.time}</div>
+                <div className="attraction_card">
+                  <div className="attraction_name">
+                    {attraction.name}
+                  </div>
+                </div>
+                {index < attractions.length - 1 && <div className="connection_line"></div>}
+
               </div>
-            </div>
-          ))
+            ))
         ) : (
           <div className="schedule_empty">
             <span>暫無行程安排</span>

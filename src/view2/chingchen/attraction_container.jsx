@@ -9,7 +9,6 @@ const Attraction_container = () => {
   const [selectedTab, setSelectedTab] = useState('選擇文化村');
   const [selectedAttraction, setSelectedAttraction] = useState(null);
   const [draggedAttractions, setDraggedAttractions] = useState(new Set());
-  const [attractions, setAttractions] = useState([]);
 
   const [attractions, setAttractions] = useState([]);
   const [showTripPlanning, setShowTripPlanning] = useState(false); // 控制是否顯示行程規劃區域

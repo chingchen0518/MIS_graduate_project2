@@ -25,9 +25,13 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
       const x = sourceOffset.x - dropTargetRect.left;
       const y = sourceOffset.y - dropTargetRect.top;
 
+      // 修正坐标计算，确保不受页面缩放或样式影响
+      const correctedX = Math.max(0, Math.min(x, dropTargetRect.width));
+      const correctedY = Math.max(0, Math.min(y, dropTargetRect.height));
+
       setAttractions((prevAttractions) => [
         ...prevAttractions,
-        { name: item.id, time: null, position: { x, y } },
+        { name: item.id, time: null, position: { x: correctedX, y: correctedY } },
       ]);
     },
     collect: (monitor) => ({

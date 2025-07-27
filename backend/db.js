@@ -8,6 +8,7 @@ import nodemailer from 'nodemailer';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Schedule from './models/schedule.js';
 import { dirname } from 'path';
 
 // 取得 __dirname 的方式（ES Module 環境）
@@ -161,22 +162,106 @@ app.get('/api/view2_attraction_list', (req, res) => {
 });
 
 app.get('/api/view2_schedule_list', (req, res) => {
-  const sql = 'SELECT * FROM Schedule';
+  const { date } = req.query;
+  
+  let sql = 'SELECT * FROM Schedule';
+  let params = [];
+  
+  // 如果有提供日期參數，則按日期過濾
+  if (date) {
+    sql += ' WHERE date = ?';
+    params.push(date);
+    console.log('📅 按日期過濾 Schedule:', date);
+  }
+  
+  console.log('🔍 執行 SQL:', sql, params);
 
-  connection.query(sql, (err, rows) => {
-
+  connection.query(sql, params, (err, rows) => {
+    if (err) {
+      console.error('❌ 查詢 Schedule 時出錯：', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    console.log('✅ 查詢到 Schedule 記錄數:', rows.length);
     res.json(rows);
   });
 });
 
 app.get('/api/view2_schedule_list_insert', (req, res) => {
-  const sql = 'INSERT INTO Schedule (t_id, date, u_id) VALUES (?, ?, ?)';
+  const { title, day, date } = req.query;
   
-  connection.query(sql, [1, '2025-08-01', 1], (err, rows) => {
+  console.log('📝 收到新增 Schedule 請求:');
+  console.log('  - title:', title);
+  console.log('  - day:', day);
+  console.log('  - date:', date);
+  
+  // 如果沒有提供日期，使用默認值
+  const scheduleDate = date || '2025-08-01';
+  console.log('  - 使用的日期:', scheduleDate);
+  
+  const sql = 'INSERT INTO Schedule (t_id, date, u_id) VALUES (?, ?, ?)';
+  console.log('  - SQL:', sql);
+  console.log('  - 參數:', [1, scheduleDate, 1]);
+  
+  connection.query(sql, [1, scheduleDate, 1], (err, result) => {
     if (err) {
+      console.error('❌ 插入 Schedule 時出錯：', err.message);
       return res.status(500).json({ error: err.message });
     }
-    res.json(rows);
+    
+    console.log('✅ 插入成功! result:', result);
+    console.log('✅ insertId:', result.insertId);
+    
+    // 返回新創建的記錄信息
+    const response = {
+      s_id: result.insertId,
+      title: title || `行程${result.insertId}`,
+      day: day || result.insertId,
+      date: scheduleDate,
+      message: 'Schedule created successfully'
+    };
+    
+    console.log('✅ 準備返回的響應:', response);
+    res.json(response);
+  });
+});
+
+// 新增 API 端點：獲取指定 trip 的日期範圍
+app.get('/api/trip-dates/:tripId', (req, res) => {
+  const tripId = req.params.tripId;
+  const sql = 'SELECT s_date, e_date FROM Trip WHERE t_id = ?';
+
+  connection.query(sql, [tripId], (err, rows) => {
+    if (err) {
+      console.error('❌ 查詢 trip 日期時出錯：', err.message);
+      return res.status(500).json({ error: `查詢失敗：${err.message}` });
+    }
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Trip not found' });
+    }
+
+    const trip = rows[0];
+    const startDate = new Date(trip.s_date);
+    const endDate = new Date(trip.e_date);
+    const dates = [];
+
+    // 產生從開始日期到結束日期的所有日期
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');
+      const day = d.getDate().toString().padStart(2, '0');
+      dates.push({
+        date: formatDate(d),
+        displayText: `${month}/${day}`
+      });
+    }
+
+    res.json({
+      tripId,
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
+      dates
+    });
   });
 });
 
@@ -495,4 +580,21 @@ app.get('/api/fake-data-clean', async (req, res) => {
 
 app.listen(port, () => {
   console.log(`✅ 伺服器正在運行於 http://localhost:${port}`);
+});
+
+// 新增測試資料的 API 端點
+app.get('/api/create-test-trip', (req, res) => {
+  const sql = `INSERT INTO Trip (t_id, u_id, s_date, e_date, s_time, e_time, country, stage_date, time, title, stage) 
+               VALUES (1, 1, '2024-01-01', '2024-01-10', '09:00:00', '18:00:00', '台灣', NOW(), '09:00:00', '測試旅程', '規劃中')
+               ON DUPLICATE KEY UPDATE title = '測試旅程'`;
+  
+  connection.query(sql, (err, result) => {
+    if (err) {
+      console.error('❌ 創建測試 Trip 失敗:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    console.log('✅ 測試 Trip 創建成功:', result);
+    res.json({ message: '測試 Trip 創建成功', result });
+  });
 });

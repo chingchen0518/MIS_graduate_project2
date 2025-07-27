@@ -1,0 +1,27 @@
+.date-selector {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: white;
+  cursor: pointer;
+  min-width: 50px;
+  flex-shrink: 0;
+  width: auto;
+}
+
+.date-selector:hover {
+  border-color: #007bff;
+}
+
+.date-selector:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.date-selector:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #999;
+}

@@ -10,6 +10,7 @@ import User from './models/user.js';
 import Weekday from './models/weekday.js';
 import Hotel from './models/hotel.js';
 import TripHotel from './models/tripHotel.js';
+import ScheduleItem from './models/schedule_item.js';
 
 Trip.hasMany(Attraction, { foreignKey: 't_id' });
 Attraction.belongsTo(Trip, { foreignKey: 't_id' });
@@ -44,6 +45,12 @@ Schedule.belongsToMany(User, { through: Evaluate, foreignKey: 's_id', otherKey: 
 Hotel.belongsToMany(Trip, { through: TripHotel, foreignKey: 'h_id', otherKey: 't_id' });
 Trip.belongsToMany(Hotel, { through: TripHotel, foreignKey: 't_id', otherKey: 'h_id' });
 
+Schedule.hasMany(ScheduleItem, { foreignKey: 's_id' });
+ScheduleItem.belongsTo(Schedule, { foreignKey: 's_id' });
+
+Attraction.hasMany(ScheduleItem, { foreignKey: 'a_id' });
+ScheduleItem.belongsTo(Attraction, { foreignKey: 'a_id' });
+
 
 export {
   Attraction,
@@ -57,5 +64,6 @@ export {
   User,
   Weekday,
   Hotel,
-  TripHotel
+  TripHotel,
+  ScheduleItem
 };

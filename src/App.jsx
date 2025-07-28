@@ -10,12 +10,17 @@ import MapDisplay from './view2/Liu/mapAddRoute/MapDisplay.jsx'
 
 import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
 import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
+
+import DragAndDropExample2 from './view2/chingchen/DragAndDropExample2.jsx';
+
 import UserProfile from './view2/chingchen/user.jsx'; 
 
 import Login from './view3/page1/login.jsx'; 
 import Signin from './view3/page1/signin.jsx'; 
 import ForgotPassword from './view3/page1/forgotpassword.jsx'; 
-
+import Logout from './view3/page1/logout.jsx'; 
+import Profile from './view3/page1/profile.jsx'; 
+import Schedule_container from './view2/chingchen/schedule_container.jsx';
 import './App.css';
 
 function App() {
@@ -31,10 +36,15 @@ function App() {
         <Route path="/MapDisplay" element={<MapDisplay />} />
         <Route path="/test" element={<DragAndDropExample />} />
         <Route path="/test2" element={<DragAndDropWithPosition />} />
+        <Route path="/test3" element={<DragAndDropExample2 />} />
         <Route path="/UserProfile" element={<UserProfile />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Signin" element={<Signin />} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/Profile" element={<Profile />} />
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/Schedule_container" element={<Schedule_container />} />
+
 
       </Routes>
     </Router>

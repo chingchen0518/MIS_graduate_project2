@@ -168,6 +168,7 @@ const ForgotPassword = () => {
                                             value={newPassword}
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             required
+                                            autoComplete="new-password"
                                         />
                                     </div>
                                 </div>

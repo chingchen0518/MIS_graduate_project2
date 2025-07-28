@@ -1,7 +1,7 @@
-// components/MapDisplay.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { mapService } from './services/MapService.js';
 import { routeService } from './services/RouteCalculationService.js';
+import './MapDisplay.css';
 
 // 交通方式配置（內建）
 const transportModes = {
@@ -27,7 +27,7 @@ const transportModes = {
   }
 };
 
-const MapDisplay = () => {
+const MapDisplay = ({ selectedAttraction }) => {
   const mapRef = useRef(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [routeData, setRouteData] = useState({});
@@ -47,25 +47,8 @@ const MapDisplay = () => {
         // 設定交通方式配置
         routeService.setTransportModes(transportModes);
         
-        // 初始化地圖
-        mapService.initMap(mapRef.current);
-        
-        // 添加測試標記
-        mapService.addMarker('zurich', testLocations.zurich.coords, {
-          title: testLocations.zurich.name,
-          popup: `<strong>${testLocations.zurich.name}</strong><br>起點`
-        });
-        
-        mapService.addMarker('luzern', testLocations.luzern.coords, {
-          title: testLocations.luzern.name,
-          popup: `<strong>${testLocations.luzern.name}</strong><br>終點`
-        });
-        
-        // 適應視野
-        mapService.fitBounds([
-          testLocations.zurich.coords,
-          testLocations.luzern.coords
-        ]);
+        // 初始化地圖 (使用全球配置)
+        mapService.initMap(mapRef.current, {}, 'global');
         
         console.log('地圖初始化完成');
       } catch (error) {
@@ -81,6 +64,76 @@ const MapDisplay = () => {
       };
     }
   }, []);
+
+  // 處理選中景點的顯示
+  useEffect(() => {
+    if (selectedAttraction && mapRef.current && mapService.map) {
+      // 移除之前的景點標記
+      mapService.removeMarker('selected-attraction');
+      
+      // 地理編碼函數
+      const geocodeAttraction = async (address) => {
+        try {
+          // 使用 Nominatim API 進行地理編碼 (不限制國家)
+          const query = encodeURIComponent(address);
+          const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&addressdetails=1`);
+          const data = await response.json();
+          
+          if (data && data.length > 0) {
+            console.log('地理編碼結果:', data[0]);
+            return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+          }
+          return null;
+        } catch (error) {
+          console.error('地理編碼失敗:', error);
+          return null;
+        }
+      };
+      
+      // 獲取座標並顯示標記
+      const displayAttraction = async () => {
+        let coords;
+        console.log('選中的景點:', selectedAttraction);
+        
+        // 如果景點有座標資料
+        if (selectedAttraction.latitude && selectedAttraction.longitude) {
+          coords = [parseFloat(selectedAttraction.latitude), parseFloat(selectedAttraction.longitude)];
+          console.log('使用景點座標:', coords);
+        } else if (selectedAttraction.address) {
+          console.log('開始地理編碼:', selectedAttraction.address);
+          // 使用地址進行地理編碼
+          coords = await geocodeAttraction(selectedAttraction.address);
+          if (coords) {
+            console.log('地理編碼成功:', coords);
+          } else {
+            console.log('地理編碼失敗，使用預設座標');
+          }
+        }
+        
+        // 如果還是沒有座標，使用台北市中心點
+        if (!coords) {
+          coords = [25.0330, 121.5654]; // 台北市中心點
+          console.log('使用預設座標 (台北):', coords);
+        }
+        
+        // 添加景點標記 - 使用原本測試用的預設地標樣式
+        mapService.addMarker('selected-attraction', coords, {
+          title: selectedAttraction.name,
+          popup: `
+            <div style="font-family: Arial, sans-serif; min-width: 150px;">
+              <h4 style="margin: 0; color: #333;">${selectedAttraction.name}</h4>
+              <p style="margin: 2px 0; font-size: 11px; color: #666;">${selectedAttraction.category || '景點'}</p>
+            </div>
+          `
+        });
+        
+        // 將地圖視野置中到該景點，使用較小的縮放級別
+        mapService.map.setView(coords, 13);
+      };
+      
+      displayAttraction();
+    }
+  }, [selectedAttraction]);
 
   // 計算所有交通方式的路線
   const calculateAllRoutes = async () => {
@@ -138,25 +191,16 @@ const MapDisplay = () => {
     setActiveTransport('walk');
   };
 
-
-
   return (
-    <div>
-      <h2>交通方式</h2>
+    <div className="map-display">
+      {/* <h2>交通方式</h2> */}
       
       {/* 控制按鈕 */}
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+      {/* <div className="control-buttons">
         <button 
           onClick={calculateAllRoutes}
           disabled={isCalculating}
-          style={{
-            padding: '10px 15px',
-            backgroundColor: isCalculating ? '#6c757d' : '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: isCalculating ? 'not-allowed' : 'pointer'
-          }}
+          className={`control-button primary ${isCalculating ? 'loading' : ''}`}
         >
           {isCalculating ? '計算中...' : '計算所有路線'}
         </button>
@@ -164,24 +208,17 @@ const MapDisplay = () => {
         <button 
           onClick={clearRoutes}
           disabled={isCalculating}
-          style={{
-            padding: '10px 15px',
-            backgroundColor: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: isCalculating ? 'not-allowed' : 'pointer'
-          }}
-        >
-          清除路線
-        </button>
-      </div>
+          className="control-button danger"
+        > */}
+          {/* 清除路線 */}
+        {/* </button>
+      </div> */}
 
       {/* 交通方式選擇器 */}
       {Object.keys(routeData).length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
-          <h3>選擇交通方式：</h3>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="transport-selector">
+          {/* <h3>選擇交通方式：</h3> */}
+          <div className="transport-buttons">
             {Object.entries(transportModes).map(([key, transport]) => {
               const isActive = activeTransport === key;
               const hasData = routeData[key] && !routeData[key].error;
@@ -192,24 +229,16 @@ const MapDisplay = () => {
                   key={key}
                   onClick={() => handleTransportChange(key)}
                   disabled={!hasData}
-                  style={{
-                    padding: '10px 15px',
-                    backgroundColor: isActive ? transport.color : '#f8f9fa',
-                    color: isActive ? 'white' : '#333',
-                    border: `2px solid `,
-                    borderRadius: '8px',
-                    cursor: hasData ? 'pointer' : 'not-allowed',
-                    opacity: hasData ? 1 : 0.5,
-                    minWidth: '120px',
-                    textAlign: 'center'
-                  }}
+                  className={`transport-button ${key} ${isActive ? 'active' : 'inactive'}`}
                 >
-                  <div>{transport.name}</div>
-                  {summary && (
-                    <div style={{ fontSize: '12px', marginTop: '5px' }}>
-                      {summary.duration} 分鐘
-                    </div>
-                  )}
+                  <div className="transport-button-content">
+                    <div className="transport-button-name">{transport.name}</div>
+                    {summary && (
+                      <div className="transport-button-duration">
+                        {summary.duration} 分鐘
+                      </div>
+                    )}
+                  </div>
                 </button>
               );
             })}
@@ -219,42 +248,36 @@ const MapDisplay = () => {
 
       {/* 路線詳細資訊 */}
       {routeSummaries[activeTransport] && (
-        <div style={{ 
-          marginBottom: '20px', 
-          padding: '15px', 
-          backgroundColor: '#f8f9fa', 
-          borderRadius: '8px',
-          border: `3px solid ${transportModes[activeTransport]}`
-        }}>
+        <div 
+          className="route-details"
+          style={{ borderColor: transportModes[activeTransport].color }}
+        >
           <h4>{transportModes[activeTransport].name} 路線詳情</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
-            <div><strong>時間：</strong>{routeSummaries[activeTransport].duration} 分鐘</div>
-            <div><strong>距離：</strong>{routeSummaries[activeTransport].distance} 公里</div>
-            <div><strong>出發：</strong>{routeSummaries[activeTransport].startTime}</div>
-            <div><strong>抵達：</strong>{routeSummaries[activeTransport].endTime}</div>
+          <div className="route-details-grid">
+            <div className="route-details-item">
+              <strong>時間：</strong>{routeSummaries[activeTransport].duration} 分鐘
+            </div>
+            <div className="route-details-item">
+              <strong>距離：</strong>{routeSummaries[activeTransport].distance} 公里
+            </div>
+            <div className="route-details-item">
+              <strong>出發：</strong>{routeSummaries[activeTransport].startTime}
+            </div>
+            <div className="route-details-item">
+              <strong>抵達：</strong>{routeSummaries[activeTransport].endTime}
+            </div>
             {routeSummaries[activeTransport].transfers > 0 && (
-              <div><strong>轉乘：</strong>{routeSummaries[activeTransport].transfers} 次</div>
+              <div className="route-details-item">
+                <strong>轉乘：</strong>{routeSummaries[activeTransport].transfers} 次
+              </div>
             )}
           </div>
         </div>
       )}
 
       {/* 地圖容器 */}
-      <div 
-        ref={mapRef} 
-        style={{
-          width: '410px',
-          height: '100%',
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-        }}
-      />
-      
-      {/* 說明資訊 */}
-      <div style={{ marginTop: '15px', fontSize: '14px', color: '#666' }}>
-        <p><strong>測試路線：</strong> 蘇黎世 → 琉森</p>
-      </div>
+      <div ref={mapRef} className="map-container" />
+
     </div>
   );
 };

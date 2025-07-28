@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
+// const DraggableBox2 = () => {
+//   const [{ isDragging }, dragRef] = useDrag({
+
+// }
+
 const DraggableBox = () => {
   const [{ isDragging }, dragRef] = useDrag({
     type: "BOX",
@@ -54,6 +59,7 @@ const DropTargetArea = () => {
       // 计算放置位置相对于目标区域的偏移
       const x = sourceOffset.x - dropTargetRect.left;
       const y = sourceOffset.y - dropTargetRect.top;
+
       // 更新放置位置
       setPositions((prevPositions) => [...prevPositions, { x, y }]);
     },
@@ -98,7 +104,7 @@ const DropTargetArea = () => {
   );
 };
 
-const DragAndDropWithPosition = () => {
+const DragAndDropExample2 = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -109,4 +115,4 @@ const DragAndDropWithPosition = () => {
   );
 };
 
-export default DragAndDropWithPosition;
+export default DragAndDropExample2;

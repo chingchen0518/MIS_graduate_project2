@@ -8,6 +8,7 @@ import nodemailer from 'nodemailer';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Schedule from './models/schedule.js';
 import { dirname } from 'path';
 
 // 取得 __dirname 的方式（ES Module 環境）
@@ -150,18 +151,120 @@ app.get('/api/travel', (req, res) => {
 });
 
 
+
 app.get('/api/view2_attraction_list', (req, res) => {
   const sql = 'SELECT * FROM Attraction';
 
   connection.query(sql, (err, rows) => {
-    // if (err) {
-    //   console.error('❌ 查詢 Attraction 時出錯：', err.message);
-    //   return res.status(500).json({ error: 查詢 Attraction 失敗：${err.message} });
-    // }
 
     res.json(rows);
   });
 });
+
+app.get('/api/view2_schedule_list', (req, res) => {
+  const { date } = req.query;
+  
+  let sql = 'SELECT * FROM Schedule';
+  let params = [];
+  
+  // 如果有提供日期參數，則按日期過濾
+  if (date) {
+    sql += ' WHERE date = ?';
+    params.push(date);
+    console.log('📅 按日期過濾 Schedule:', date);
+  }
+  
+  console.log('🔍 執行 SQL:', sql, params);
+
+  connection.query(sql, params, (err, rows) => {
+    if (err) {
+      console.error('❌ 查詢 Schedule 時出錯：', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    console.log('✅ 查詢到 Schedule 記錄數:', rows.length);
+    res.json(rows);
+  });
+});
+
+app.get('/api/view2_schedule_list_insert', (req, res) => {
+  const { title, day, date } = req.query;
+  
+  console.log('📝 收到新增 Schedule 請求:');
+  console.log('  - title:', title);
+  console.log('  - day:', day);
+  console.log('  - date:', date);
+  
+  // 如果沒有提供日期，使用默認值
+  const scheduleDate = date || '2025-08-01';
+  console.log('  - 使用的日期:', scheduleDate);
+  
+  const sql = 'INSERT INTO Schedule (t_id, date, u_id) VALUES (?, ?, ?)';
+  console.log('  - SQL:', sql);
+  console.log('  - 參數:', [1, scheduleDate, 1]);
+  
+  connection.query(sql, [1, scheduleDate, 1], (err, result) => {
+    if (err) {
+      console.error('❌ 插入 Schedule 時出錯：', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    console.log('✅ 插入成功! result:', result);
+    console.log('✅ insertId:', result.insertId);
+    
+    // 返回新創建的記錄信息
+    const response = {
+      s_id: result.insertId,
+      title: title || `行程${result.insertId}`,
+      day: day || result.insertId,
+      date: scheduleDate,
+      message: 'Schedule created successfully'
+    };
+    
+    console.log('✅ 準備返回的響應:', response);
+    res.json(response);
+  });
+});
+
+// 新增 API 端點：獲取指定 trip 的日期範圍
+app.get('/api/trip-dates/:tripId', (req, res) => {
+  const tripId = req.params.tripId;
+  const sql = 'SELECT s_date, e_date FROM Trip WHERE t_id = ?';
+
+  connection.query(sql, [tripId], (err, rows) => {
+    if (err) {
+      console.error('❌ 查詢 trip 日期時出錯：', err.message);
+      return res.status(500).json({ error: `查詢失敗：${err.message}` });
+    }
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Trip not found' });
+    }
+
+    const trip = rows[0];
+    const startDate = new Date(trip.s_date);
+    const endDate = new Date(trip.e_date);
+    const dates = [];
+
+    // 產生從開始日期到結束日期的所有日期
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');
+      const day = d.getDate().toString().padStart(2, '0');
+      dates.push({
+        date: formatDate(d),
+        displayText: `${month}/${day}`
+      });
+    }
+
+    res.json({
+      tripId,
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
+      dates
+    });
+  });
+});
+
 
 app.post('/api/share-trip', async (req, res) => {
   const { email, tripId, tripTitle } = req.body;
@@ -392,7 +495,106 @@ app.post('/api/view3_reset_password', async (req, res) => {
   }
 });
 
-// 下面不用管它
+app.get('/api/fake-data', async (req, res) => {
+  try {
+    // 插入 User
+    const userSql = `INSERT INTO User (u_name, u_email, u_account, u_password, u_img, u_line_id)
+      VALUES ('TestUser', 'testuser@example.com', 'testuser', '$2b$10$testpasswordhash', NULL, 'line123')`;
+
+    await new Promise((resolve, reject) => {
+      connection.query(userSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    // 插入 Trip，u_id 設為 1
+    const tripSql = `INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id)
+      VALUES ('2025-08-01', '2025-08-10', '08:00:00', '20:00:00', 'France', '2025-08-01', '10:00:00', '巴黎之旅', 'A', 1)`;
+    await new Promise((resolve, reject) => {
+      connection.query(tripSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    // 插入 Schedule，t_id 設為 1，u_id 設為 1
+    const scheduleSql = `INSERT INTO Schedule (t_id, u_id, date) VALUES (1, 1, '2025-08-01')`;
+    await new Promise((resolve, reject) => {
+      connection.query(scheduleSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+
+    // 插入 10 筆瑞士景點 Attraction
+    const swissAttractions = [
+      { name: '馬特洪峰', name_zh: '馬特洪峰', name_en: 'Matterhorn', category: '山峰', address: 'Zermatt', country: 'Switzerland', city: 'Zermatt', budget: 0 },
+      { name: '少女峰', name_zh: '少女峰', name_en: 'Jungfrau', category: '山峰', address: 'Bernese Alps', country: 'Switzerland', city: 'Interlaken', budget: 0 },
+      { name: '瑞吉山', name_zh: '瑞吉山', name_en: 'Rigi', category: '山峰', address: 'Lucerne', country: 'Switzerland', city: 'Lucerne', budget: 0 },
+      { name: '日內瓦湖', name_zh: '日內瓦湖', name_en: 'Lake Geneva', category: '湖泊', address: 'Geneva', country: 'Switzerland', city: 'Geneva', budget: 0 },
+      { name: '盧塞恩湖', name_zh: '盧塞恩湖', name_en: 'Lake Lucerne', category: '湖泊', address: 'Lucerne', country: 'Switzerland', city: 'Lucerne', budget: 0 },
+      { name: '策馬特', name_zh: '策馬特', name_en: 'Zermatt', category: '小鎮', address: 'Zermatt', country: 'Switzerland', city: 'Zermatt', budget: 0 },
+      { name: '伯恩老城', name_zh: '伯恩老城', name_en: 'Old City of Bern', category: '古城', address: 'Bern', country: 'Switzerland', city: 'Bern', budget: 0 },
+      { name: '蘇黎世湖', name_zh: '蘇黎世湖', name_en: 'Lake Zurich', category: '湖泊', address: 'Zurich', country: 'Switzerland', city: 'Zurich', budget: 0 },
+      { name: '施皮茨城堡', name_zh: '施皮茨城堡', name_en: 'Spiez Castle', category: '城堡', address: 'Spiez', country: 'Switzerland', city: 'Spiez', budget: 0 },
+      { name: '拉沃葡萄園', name_zh: '拉沃葡萄園', name_en: 'Lavaux Vineyard', category: '葡萄園', address: 'Lavaux', country: 'Switzerland', city: 'Lavaux', budget: 0 }
+    ];
+    for (let i = 0; i < swissAttractions.length; i++) {
+      const a = swissAttractions[i];
+      const sql = `INSERT INTO Attraction (t_id, name, name_zh, name_en, category, address, country, city, budget, photo, u_id)
+        VALUES (1, '${a.name}', '${a.name_zh}', '${a.name_en}', '${a.category}', '${a.address}', '${a.country}', '${a.city}', ${a.budget}, '${i+1}.jpg', 1)`;
+      await new Promise((resolve, reject) => {
+        connection.query(sql, (err) => {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+    }
+
+    return res.status(200).json({ message: 'User、Trip、Schedule、ScheduleItem、Attraction 假資料插入成功！' });
+  } catch (error) {
+    console.error('❌ 插入假資料失敗：', error);
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
+});
+
+app.get('/api/fake-data-clean', async (req, res) => {
+  try {
+    const tables = [, 'schedule', 'trip', 'user'];
+    for (const table of tables) {
+      await new Promise((resolve, reject) => {
+        connection.query(`DELETE FROM ${table}`, (err) => {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+    }
+    return res.status(200).json({ message: '所有資料已清理！' });
+  } catch (error) {
+    console.error('❌ 清理資料失敗：', error);
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
+});
+
 app.listen(port, () => {
-  console.log(`伺服器啟動於 http://localhost:${port}`);
+  console.log(`✅ 伺服器正在運行於 http://localhost:${port}`);
+});
+
+// 新增測試資料的 API 端點
+app.get('/api/create-test-trip', (req, res) => {
+  const sql = `INSERT INTO Trip (t_id, u_id, s_date, e_date, s_time, e_time, country, stage_date, time, title, stage) 
+               VALUES (1, 1, '2024-01-01', '2024-01-10', '09:00:00', '18:00:00', '台灣', NOW(), '09:00:00', '測試旅程', '規劃中')
+               ON DUPLICATE KEY UPDATE title = '測試旅程'`;
+  
+  connection.query(sql, (err, result) => {
+    if (err) {
+      console.error('❌ 創建測試 Trip 失敗:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    console.log('✅ 測試 Trip 創建成功:', result);
+    res.json({ message: '測試 Trip 創建成功', result });
+  });
 });

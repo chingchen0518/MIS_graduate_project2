@@ -174,9 +174,6 @@ app.get('/api/view2_schedule_list', (req, res) => {
     console.log('📅 按日期過濾 Schedule:', date);
   }
   
-  // 添加排序：先按日期，再按day欄位排序
-  sql += ' ORDER BY date ASC, day ASC';
-  
   console.log('🔍 執行 SQL:', sql, params);
 
   connection.query(sql, params, (err, rows) => {
@@ -213,13 +210,11 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
     const nextDayScheduleNumber = countResult[0].count + 1;
     console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
     
-    const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
-    const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
-    const scheduleDay = day || nextDayScheduleNumber;
+    const sql = 'INSERT INTO Schedule (t_id, date, u_id) VALUES (?, ?, ?)';
     console.log('  - SQL:', sql);
-    console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
+    console.log('  - 參數:', [1, scheduleDate, 1]);
     
-    connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
+    connection.query(sql, [1, scheduleDate, 1], (err, result) => {
       if (err) {
         console.error('❌ 插入 Schedule 時出錯：', err.message);
         return res.status(500).json({ error: err.message });
@@ -231,8 +226,8 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
       // 返回新創建的記錄信息，使用計算出的該日期行程編號
       const response = {
         s_id: result.insertId,
-        title: scheduleTitle,
-        day: scheduleDay,
+        title: title || `行程${nextDayScheduleNumber}`,
+        day: day || nextDayScheduleNumber,
         date: scheduleDate,
         message: 'Schedule created successfully'
       };

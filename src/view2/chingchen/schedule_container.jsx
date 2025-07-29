@@ -89,15 +89,12 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
       return;
     }
 
-    // 取得最大 ID + 1 作為新行程的 ID
-    const newId = schedules.length > 0 
-      ? Math.max(...schedules.map(s => s.id)) + 1 
-      : 1;
+    // 不在前端計算行程編號，完全由後端決定
+    // 後端會查詢資料庫中該日期已有的 Schedule 數量來決定新行程的編號
     
     const newSchedule = {
-      id: newId,
-      title: `行程${newId}`,
-      day: newId,
+      title: '',  // 讓後端決定 title
+      day: '',    // 讓後端決定 day
       date: selectedDate,
       attractions: []
     };
@@ -106,8 +103,8 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
     console.log('正在發送新行程數據，使用 GET 方法');
     console.log('選擇的日期:', selectedDate);
     
-    // 添加參數到 URL，包含日期
-    const url = `http://localhost:3001/api/view2_schedule_list_insert?title=${encodeURIComponent(newSchedule.title)}&day=${encodeURIComponent(newSchedule.day)}&date=${encodeURIComponent(selectedDate)}`;
+    // 添加參數到 URL，包含日期（不傳遞 title 和 day，讓後端計算）
+    const url = `http://localhost:3001/api/view2_schedule_list_insert?date=${encodeURIComponent(selectedDate)}`;
     
     console.log('請求 URL:', url);
     
@@ -140,8 +137,8 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
         if (scheduleId) {
           const createdSchedule = {
             id: scheduleId,
-            title: data.title || `行程${scheduleId}`,
-            day: data.day || scheduleId,
+            title: data.title || `行程1`, // 使用後端計算的 title
+            day: data.day || 1,          // 使用後端計算的 day
             date: data.date || selectedDate,
             attractions: []
           };
@@ -151,16 +148,28 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
         } else {
           console.log('❌ 後端沒有返回有效的ID，使用前端生成的數據');
           console.log('❌ 檢查: data:', data);
-          // 如果後端沒有返回數據，使用前端創建的數據，同樣添加到最前面
-          const scheduleWithDate = { ...newSchedule, date: selectedDate };
-          setSchedules(prev => [scheduleWithDate, ...prev]);
+          // 如果後端沒有返回數據，創建一個臨時的行程
+          const tempSchedule = {
+            id: Date.now(), // 使用時間戳作為臨時ID
+            title: '新行程',
+            day: 1,
+            date: selectedDate,
+            attractions: []
+          };
+          setSchedules(prev => [tempSchedule, ...prev]);
         }
       })
       .catch(error => {
         console.error('創建新行程失敗:', error.message);
-        // 即使 API 調用失敗，也更新 UI，添加到最前面，包含日期
-        const scheduleWithDate = { ...newSchedule, date: selectedDate };
-        setSchedules(prev => [scheduleWithDate, ...prev]);
+        // 即使 API 調用失敗，也更新 UI，添加一個臨時行程
+        const tempSchedule = {
+          id: Date.now(), // 使用時間戳作為臨時ID
+          title: '新行程',
+          day: 1,
+          date: selectedDate,
+          attractions: []
+        };
+        setSchedules(prev => [tempSchedule, ...prev]);
       });
   };
 

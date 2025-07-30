@@ -652,6 +652,7 @@ app.post('/api/view3_reset_password', async (req, res) => {
 });
 
 app.get('/api/fake-data', async (req, res) => {
+  // http://localhost:3001
   try {
     // 插入 User
     const userSql = `INSERT INTO User (u_name, u_email, u_account, u_password, u_img, u_line_id)

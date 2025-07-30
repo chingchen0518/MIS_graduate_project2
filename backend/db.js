@@ -428,7 +428,11 @@ app.post('/api/view3_login', (req, res) => {
       redirect: '/header',
       user: {
         id: user.u_id,
-        name: user.u_name
+        img: user.u_img,
+        name: user.u_name,
+        email: user.u_email,
+        password: user.u_password,
+        account: user.u_account,
       }
     });
   });
@@ -443,7 +447,7 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const avatarFilename = avatarFile ? avatarFile.filename : null;
+    const avatarFilename = avatarFile ? avatarFile.filename : 'avatar.jpg';
 
     const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
     connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err) => {

@@ -647,7 +647,7 @@ app.get('/api/fake-data', async (req, res) => {
     });
     // 插入 join
     const joinSql = `
-      INSERT INTO \`Join\` (u_id, t_id, color)
+      INSERT INTO Join (u_id, t_id, color)
       VALUES
         (1, 1, '#FF5733'),
         (2, 1, '#33A1FF'),
@@ -808,9 +808,15 @@ app.get('/api/fake-data', async (req, res) => {
       });
     });
 
+
+
+
+
+
+
     //weekday
     const weekDaysSql = `
-      INSERT INTO Weekday (w_day)
+      INSERT INTO YourTableName (w_day)
       VALUES
         ('Monday'),
         ('Tuesday'),

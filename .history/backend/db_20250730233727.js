@@ -627,7 +627,7 @@ app.get('/api/fake-data', async (req, res) => {
         (3, 3, 'Senso-ji', '淺草寺', 'Senso-ji Temple', 'temple', '2 Chome-3-1 Asakusa, Taito City', 'Japan', 'Tokyo', 0.0, 'sensoji.jpg', 35.7148, 139.7967),
         (3, 3, 'Shibuya Crossing', '澀谷十字路口', 'Shibuya Crossing', 'crossroad', 'Shibuya City', 'Japan', 'Tokyo', 0.0, 'shibuya.jpg', 35.6595, 139.7004),
         (4, 4, 'Sagrada Familia', '聖家堂', 'Sagrada Familia', 'church', 'Carrer de Mallorca, Barcelona', 'Spain', 'Barcelona', 26.0, 'sagrada.jpg', 41.4036, 2.1744),
-        (4, 4, 'Park Güell', '古埃爾公園', 'Park Güell', 'park', 'Carrer d''Olot, Barcelona', 'Spain', 'Barcelona', 10.0, 'parkguell.jpg', 41.4145, 2.1527),
+        (4, 4, 'Park Güell', '古埃爾公園', 'Park Güell', 'park', 'Carrer d\'Olot, Barcelona', 'Spain', 'Barcelona', 10.0, 'parkguell.jpg', 41.4145, 2.1527),
         (4, 4, 'La Rambla', '蘭布拉大道', 'La Rambla', 'street', 'La Rambla, Barcelona', 'Spain', 'Barcelona', 0.0, 'larambla.jpg', 41.3809, 2.1735),
         (5, 5, 'Sydney Opera House', '雪梨歌劇院', 'Sydney Opera House', 'landmark', 'Bennelong Point, Sydney', 'Australia', 'Sydney', 37.0, 'opera.jpg', -33.8568, 151.2153),
         (5, 5, 'Bondi Beach', '邦迪海灘', 'Bondi Beach', 'beach', 'Bondi Beach, Sydney', 'Australia', 'Sydney', 0.0, 'bondi.jpg', -33.8908, 151.2743),
@@ -647,7 +647,7 @@ app.get('/api/fake-data', async (req, res) => {
     });
     // 插入 join
     const joinSql = `
-      INSERT INTO \`Join\` (u_id, t_id, color)
+      INSERT INTO Join (u_id, t_id, color)
       VALUES
         (1, 1, '#FF5733'),
         (2, 1, '#33A1FF'),
@@ -711,152 +711,41 @@ app.get('/api/fake-data', async (req, res) => {
     });
 
     //evaluate
-    const evaluateSql = `
-      INSERT INTO Evaluate (u_id, s_id, t_id, good, bad)
-      VALUES
-        (1, 1, 1, true, false),
-        (1, 2, 1, true, false),
-        (2, 3, 2, false, true),
-        (2, 4, 2, true, false),
-        (3, 5, 3, true, false),
-        (3, 6, 3, false, true),
-        (4, 7, 4, true, false),
-        (4, 8, 4, false, true),
-        (5, 9, 5, true, false),
-        (5, 10, 5, true, false),
-        (1, 11, 1, false, true),
-        (2, 12, 2, true, false),
-        (3, 13, 3, true, false),
-        (4, 14, 4, true, false),
-        (5, 15, 5, false, true),
-        (1, 16, 1, true, false),
-        (2, 17, 2, false, true),
-        (3, 18, 3, true, false),
-        (4, 19, 4, true, false),
-        (5, 20, 5, true, false)
-        `;
-        await new Promise((resolve, reject) => {
-          connection.query(evaluateSql, (err) => {
-            if (err) return reject(err);
-            resolve();
-          });
-        });
-        
-    // hotel
-    const hotelSql = `
-      INSERT INTO Hotel (h_img, h_address, h_name_zh, h_name_en, h_country, h_city, price)
-      VALUES
-        ('/images/hotel1.jpg', '1 Rue de Paris, Paris', '巴黎香榭旅館', 'Champs Elysees Hotel', 'France', 'Paris', 150.0),
-        ('/images/hotel2.jpg', '10 Rue Lafayette, Paris', '拉法葉精品旅館', 'Lafayette Boutique Hotel', 'France', 'Paris', 200.0),
-        ('/images/hotel3.jpg', 'Via Roma 45, Rome', '羅馬古都旅館', 'Ancient Rome Hotel', 'Italy', 'Rome', 130.0),
-        ('/images/hotel4.jpg', 'Piazza Navona 7, Rome', '納沃納廣場旅館', 'Navona Square Hotel', 'Italy', 'Rome', 180.0),
-        ('/images/hotel5.jpg', 'Shibuya 2-21-1, Tokyo', '澀谷時尚旅館', 'Shibuya Fashion Hotel', 'Japan', 'Tokyo', 160.0),
-        ('/images/hotel6.jpg', 'Ueno 3-5-7, Tokyo', '上野溫馨旅館', 'Ueno Cozy Hotel', 'Japan', 'Tokyo', 110.0),
-        ('/images/hotel7.jpg', 'Gran Via 12, Madrid', '格蘭大道旅館', 'Gran Via Hotel', 'Spain', 'Madrid', 140.0),
-        ('/images/hotel8.jpg', 'Plaza Mayor 9, Madrid', '馬約爾廣場旅館', 'Mayor Plaza Hotel', 'Spain', 'Madrid', 170.0),
-        ('/images/hotel9.jpg', '123 George St, Sydney', '雪梨海港旅館', 'Sydney Harbour Hotel', 'Australia', 'Sydney', 190.0),
-        ('/images/hotel10.jpg', '456 Bondi Rd, Sydney', '邦代海灘旅館', 'Bondi Beach Hotel', 'Australia', 'Sydney', 175.0),
+    const feedbackSql = `
+  INSERT INTO Feedback (u_id, s_id, t_id, good, bad)
+  VALUES
+    (1, 1, 1, true, false),
+    (1, 2, 1, true, false),
+    (2, 3, 2, false, true),
+    (2, 4, 2, true, false),
+    (3, 5, 3, true, false),
+    (3, 6, 3, false, true),
+    (4, 7, 4, true, false),
+    (4, 8, 4, false, true),
+    (5, 9, 5, true, false),
+    (5, 10, 5, true, false),
+    (1, 11, 1, false, true),
+    (2, 12, 2, true, false),
+    (3, 13, 3, true, false),
+    (4, 14, 4, true, false),
+    (5, 15, 5, false, true),
+    (1, 16, 1, true, false),
+    (2, 17, 2, false, true),
+    (3, 18, 3, true, false),
+    (4, 19, 4, true, false),
+    (5, 20, 5, true, false)
+`;
 
-        ('/images/hotel11.jpg', 'Rue Mouffetard 88, Paris', '巴黎街頭旅館', 'Paris Street Inn', 'France', 'Paris', 120.0),
-        ('/images/hotel12.jpg', 'Via del Corso 12, Rome', '羅馬時尚旅館', 'Fashion Rome Inn', 'Italy', 'Rome', 140.0),
-        ('/images/hotel13.jpg', 'Akihabara 1-1-1, Tokyo', '秋葉原電器旅館', 'Akihabara Tech Hotel', 'Japan', 'Tokyo', 100.0),
-        ('/images/hotel14.jpg', 'Puerta del Sol 5, Madrid', '太陽門旅館', 'Sun Gate Hotel', 'Spain', 'Madrid', 160.0),
-        ('/images/hotel15.jpg', '789 Collins St, Melbourne', '墨爾本商務旅館', 'Melbourne Business Hotel', 'Australia', 'Melbourne', 180.0),
-        ('/images/hotel16.jpg', '1 Place Bellecour, Lyon', '里昂中心旅館', 'Lyon Central Hotel', 'France', 'Lyon', 130.0),
-        ('/images/hotel17.jpg', 'Florence St 17, Florence', '佛羅倫斯藝術旅館', 'Florence Art Hotel', 'Italy', 'Florence', 160.0),
-        ('/images/hotel18.jpg', 'Osaka Namba 3-14-1, Osaka', '大阪南海旅館', 'Osaka Namba Hotel', 'Japan', 'Osaka', 120.0),
-        ('/images/hotel19.jpg', 'Barcelona Av 22, Barcelona', '巴塞隆納精品旅館', 'Barcelona Boutique Hotel', 'Spain', 'Barcelona', 150.0),
-        ('/images/hotel20.jpg', 'Queen St 9, Brisbane', '布里斯本觀景旅館', 'Brisbane View Hotel', 'Australia', 'Brisbane', 170.0)
-        `;
-        await new Promise((resolve, reject) => {
-          connection.query(hotelSql, (err) => {
-            if (err) return reject(err);
-            resolve();
-          });
-        });
-        
-    //tripHotel
-    const tripHotelSql = `
-      INSERT INTO TripHotel (h_id, t_id, cin_time, cout_time)
-      VALUES
-        (1, 1, '2025-08-01', '2025-08-03'),
-        (2, 1, '2025-08-03', '2025-08-05'),
-        (3, 2, '2025-09-05', '2025-09-07'),
-        (4, 2, '2025-09-07', '2025-09-10'),
-        (5, 3, '2025-10-10', '2025-10-12'),
-        (6, 3, '2025-10-12', '2025-10-14'),
-        (7, 4, '2025-11-01', '2025-11-04'),
-        (8, 4, '2025-11-04', '2025-11-06'),
-        (9, 5, '2025-12-15', '2025-12-17'),
-        (10, 5, '2025-12-17', '2025-12-19'),
+await new Promise((resolve, reject) => {
+  connection.query(feedbackSql, (err) => {
+    if (err) return reject(err);
+    resolve();
+  });
+});
 
-        (11, 1, '2025-08-05', '2025-08-07'),
-        (12, 2, '2025-09-10', '2025-09-12'),
-        (13, 3, '2025-10-14', '2025-10-16'),
-        (14, 4, '2025-11-06', '2025-11-08'),
-        (15, 5, '2025-12-19', '2025-12-21'),
-        (16, 1, '2025-08-07', '2025-08-09'),
-        (17, 2, '2025-09-12', '2025-09-13'),
-        (18, 3, '2025-10-16', '2025-10-17'),
-        (19, 4, '2025-11-08', '2025-11-10'),
-        (20, 5, '2025-12-21', '2025-12-23')
-    `;
-    await new Promise((resolve, reject) => {
-      connection.query(tripHotelSql, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
 
-    //weekday
-    const weekDaysSql = `
-      INSERT INTO Weekday (w_day)
-      VALUES
-        ('Monday'),
-        ('Tuesday'),
-        ('Wednesday'),
-        ('Thursday'),
-        ('Friday'),
-        ('Saturday'),
-        ('Sunday')
-    `;
 
-    await new Promise((resolve, reject) => {
-      connection.query(weekDaysSql, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
 
-    //business
-    const businessSql = `
-      INSERT INTO Business (a_id, t_id, w_day, period, open_time, close_time)
-      VALUES
-        (1, 1, 'Monday', 1, '09:00:00', '12:00:00'),
-        (1, 1, 'Monday', 2, '13:00:00', '17:00:00'),
-        (1, 1, 'Tuesday', 1, '09:00:00', '12:00:00'),
-        (1, 1, 'Tuesday', 2, '13:00:00', '17:00:00'),
-        (1, 1, 'Wednesday', 1, '09:00:00', '12:00:00'),
-
-        (2, 1, 'Monday', 1, '10:00:00', '13:00:00'),
-        (2, 1, 'Monday', 2, '14:00:00', '18:00:00'),
-        (2, 2, 'Tuesday', 1, '09:30:00', '12:30:00'),
-        (2, 2, 'Tuesday', 2, '13:30:00', '17:30:00'),
-        (2, 2, 'Wednesday', 1, '10:00:00', '14:00:00'),
-
-        (3, 2, 'Monday', 1, '08:00:00', '11:00:00'),
-        (3, 2, 'Monday', 2, '12:00:00', '16:00:00'),
-        (3, 2, 'Tuesday', 1, '08:00:00', '12:00:00'),
-        (3, 2, 'Tuesday', 2, '13:00:00', '17:00:00'),
-        (3, 2, 'Wednesday', 1, '09:00:00', '13:00:00')
-    `;
-
-    await new Promise((resolve, reject) => {
-      connection.query(businessSql, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
 
     return res.status(200).json({ message: '假資料插入成功！' });
   } catch (error) {

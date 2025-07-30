@@ -27,6 +27,7 @@ Schedule.belongsTo(User, { foreignKey: 'u_id' });
 Business.belongsTo(Attraction, { foreignKey: 'a_id' });
 Business.belongsTo(Trip, { foreignKey: 't_id' });  // 假設 t_id 是 Trip 外鍵
 Business.belongsTo(Weekday, { foreignKey: 'w_day' });
+
 Attraction.hasMany(Business, { foreignKey: 'a_id' });
 Trip.hasMany(Business, { foreignKey: 't_id' });
 Weekday.hasMany(Business, { foreignKey: 'w_day' });

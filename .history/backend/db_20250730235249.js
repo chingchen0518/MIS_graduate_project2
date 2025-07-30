@@ -810,7 +810,7 @@ app.get('/api/fake-data', async (req, res) => {
 
     //weekday
     const weekDaysSql = `
-      INSERT INTO Weekday (w_day)
+      INSERT INTO Wee (w_day)
       VALUES
         ('Monday'),
         ('Tuesday'),

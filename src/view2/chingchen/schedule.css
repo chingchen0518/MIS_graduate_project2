@@ -201,6 +201,42 @@
   color: #4A90E2;
 }
 
+.confirm_btn {
+  background: #44e63e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 10%;
+  margin-bottom: 10px;
+}
+
+.confirm_btn:hover {
+  background: #3db83b;
+  transform: scale(1.05);
+}
+
+.cancel_btn {
+  background: #f13f3f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+    margin-bottom: 10px;
+
+}
+
+.cancel_btn:hover {
+  background: #e53e3e;
+  transform: scale(1.05);
+}
+
 .schedule_empty {
   flex: 1;
   min-height: 100px;
@@ -289,4 +325,42 @@
   background: rgba(74, 144, 226, 0.2);
   color: #4A90E2;
   font-weight: bold;
+}
+
+/* 待確認景點的樣式 */
+.pending_attraction {
+  position: absolute;
+  opacity: 0.7;
+  background: linear-gradient(45deg, #ffeb3b, #ffc107);
+  border: 2px dashed #ff9800;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 8px;
+  text-align: center;
+  color: #333;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+/* 草稿狀態的行程樣式 */
+.schedule.draft {
+  border: 2px dashed #ff9800;
+  background-color: #fff8e1;
+}
+
+.schedule.draft .schedule_header {
+  background-color: #ffecb3;
 }

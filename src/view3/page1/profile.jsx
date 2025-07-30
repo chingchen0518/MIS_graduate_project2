@@ -1,16 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import './profile.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faAddressCard, faEdit, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
-
-// 假資料
-const initialProfile = {
-    uid: "U000123",
-    avatar: "img/avatar/logo.jpg",
-    email: "ming@example.com",
-    account: "ming123",
-    password: "******",
-};
+import { useNavigate } from "react-router-dom";
 
 const initialHistory = [
     { "id": 1, "title": "台中藝術文化之旅", "date": "2024-06-15" },
@@ -23,17 +15,26 @@ const initialHistory = [
 ];
 
 function Profile() {
+    const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-        console.log('已登入使用者：', user.name, '，ID:', user.id);
-    } else {
-        console.log('尚未登入');
-    }
 
-    const [profile, setProfile] = useState(initialProfile);
+    useEffect(() => {
+        if (!user) {
+            alert('尚未登入， 即將跳轉至登入頁面');
+            setTimeout(() => {
+                navigate('/Login');
+            }, 500);
+        }
+    }, [user, navigate]);
+
+    const [profile, setProfile] = useState(user);
     const [editing, setEditing] = useState(false);
-    const [form, setForm] = useState(initialProfile);
+    const [form, setForm] = useState(user);
     const [history] = useState(initialHistory);
+
+    if (!profile) {
+        return <div>尚未登入，正在跳轉中...</div>;
+    }
 
     const handleEdit = () => setEditing(true);
     const handleCancel = () => {
@@ -72,7 +73,7 @@ function Profile() {
                     <div className="profile-card-horizontal">
                         <div className="profile-avatar-outer">
                             <div className="profile-avatar-section-horizontal">
-                                <img src={profile.avatar} alt="頭貼" className="profile-avatar-horizontal" />
+                                <img src={`/img/avatar/${profile.img}`} alt="頭貼" className="profile-avatar-horizontal" />
                             </div>
                         </div>
 
@@ -88,11 +89,12 @@ function Profile() {
                                                 id="uid"
                                                 name="uid"
                                                 className="form-control"
-                                                value={form.uid}
+                                                value={form.id}
                                                 onChange={handleChange}
-                                                disabled
+                                                readOnly
                                                 placeholder="UID"
                                             />
+                                            <small className="note">此欄位無法修改</small>
                                         </div>
                                         <div className="input-with-icon">
                                             <FontAwesomeIcon icon={faEnvelope} />
@@ -127,7 +129,7 @@ function Profile() {
                                                 id="password"
                                                 name="password"
                                                 className="form-control"
-                                                value={form.password}
+                                                value="******"
                                                 onChange={handleChange}
                                                 required
                                                 placeholder="密碼"
@@ -144,7 +146,7 @@ function Profile() {
                                 <div className="profile-info-horizontal">
                                     <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faUser} />
-                                        <span>UID：{profile.uid}</span>
+                                        <span>UID：{profile.id}</span>
                                     </div>
                                     <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faEnvelope} />
@@ -156,7 +158,7 @@ function Profile() {
                                     </div>
                                     <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faKey} />
-                                        <span>密碼：{profile.password}</span>
+                                        <span>密碼：******</span>
                                     </div>
                                     <div className="profile-actions-horizontal">
                                         <button className="btn" onClick={handleEdit}>

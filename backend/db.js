@@ -361,6 +361,23 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
   });
 });
 
+//把景點添加到schedule後存入資料庫
+app.post('/api/view2_schedule_include_insert', (req, res) => {
+  const { a_id, t_id, s_id, x, y } = req.body;
+
+  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, sequence) VALUES (?, ?, ?, ?, ?, ?)`;
+  const values = [a_id, t_id, s_id, x, y, 1];
+
+  connection.query(query, values, (err, results) => {
+    if (err) {
+      console.error('Error inserting data into Schedule_include:', err);
+      res.status(500).send('Failed to insert data');
+    } else {
+      res.status(200).send('Data inserted successfully');
+    }
+  });
+});
+
 // 新增 API 端點：獲取指定 trip 的日期範圍
 app.get('/api/trip-dates/:tripId', (req, res) => {
   const tripId = req.params.tripId;

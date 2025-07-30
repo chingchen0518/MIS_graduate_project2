@@ -89,94 +89,88 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
       return;
     }
 
-    // 不在前端計算行程編號，完全由後端決定
-    // 後端會查詢資料庫中該日期已有的 Schedule 數量來決定新行程的編號
-    
-    const newSchedule = {
-      title: '',  // 讓後端決定 title
-      day: '',    // 讓後端決定 day
+    // 創建一個臨時的草稿行程，不立即存到資料庫
+    const tempScheduleId = `temp_${Date.now()}`; // 使用時間戳作為臨時ID
+    const newTempSchedule = {
+      id: tempScheduleId,
+      title: `行程${schedules.length + 1}`,
+      day: schedules.length + 1,
       date: selectedDate,
-      attractions: []
+      attractions: [],
+      isDraft: true // 標記為草稿狀態
     };
 
-    // 使用 GET 方法調用 API，包含選擇的日期
-    console.log('正在發送新行程數據，使用 GET 方法');
-    console.log('選擇的日期:', selectedDate);
+    console.log('✅ 創建草稿行程:', newTempSchedule);
     
-    // 添加參數到 URL，包含日期（不傳遞 title 和 day，讓後端計算）
-    const url = `http://localhost:3001/api/view2_schedule_list_insert?date=${encodeURIComponent(selectedDate)}`;
-    
-    console.log('請求 URL:', url);
-    
-    // 發送 GET 請求
-    fetch(url)
-      .then(response => {
-        console.log('收到伺服器響應:', response.status, response.statusText);
-        if (!response.ok) {
-          throw new Error(`伺服器響應錯誤: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('解析的JSON數據:', data);
-        console.log('完整的 data 對象:', JSON.stringify(data, null, 2));
-        
-        // 檢查不同的響應格式
-        let scheduleId = null;
-        if (data.s_id) {
-          // Sequelize 格式
-          scheduleId = data.s_id;
-          console.log('✅ 使用 Sequelize 格式, s_id:', scheduleId);
-        } else if (data.insertId) {
-          // MySQL 原生格式
-          scheduleId = data.insertId;
-          console.log('✅ 使用 MySQL 原生格式, insertId:', scheduleId);
-        }
-        
-        // 如果後端返回了新創建的行程，使用後端返回的數據
-        if (scheduleId) {
-          const createdSchedule = {
-            id: scheduleId,
-            title: data.title || `行程1`, // 使用後端計算的 title
-            day: data.day || 1,          // 使用後端計算的 day
-            date: data.date || selectedDate,
-            attractions: []
-          };
-          console.log('✅ 使用後端返回的數據創建行程:', createdSchedule);
-          // 在當前行程列表的最前面添加新的行程（而不是末尾）
-          setSchedules(prev => [createdSchedule, ...prev]);
-        } else {
-          console.log('❌ 後端沒有返回有效的ID，使用前端生成的數據');
-          console.log('❌ 檢查: data:', data);
-          // 如果後端沒有返回數據，創建一個臨時的行程
-          const tempSchedule = {
-            id: Date.now(), // 使用時間戳作為臨時ID
-            title: '新行程',
-            day: 1,
-            date: selectedDate,
-            attractions: []
-          };
-          setSchedules(prev => [tempSchedule, ...prev]);
-        }
-      })
-      .catch(error => {
-        console.error('創建新行程失敗:', error.message);
-        // 即使 API 調用失敗，也更新 UI，添加一個臨時行程
-        const tempSchedule = {
-          id: Date.now(), // 使用時間戳作為臨時ID
-          title: '新行程',
-          day: 1,
-          date: selectedDate,
-          attractions: []
-        };
-        setSchedules(prev => [tempSchedule, ...prev]);
-      });
+    // 在前端添加草稿行程，不調用後端API
+    setSchedules(prev => [newTempSchedule, ...prev]);
   };
 
   const handleAttractionUsed = (attractionName) => {
     if (onAttractionUsed) {
       onAttractionUsed(attractionName);
     }
+  };
+
+  // 處理行程確認的函數
+  const handleScheduleConfirm = async (scheduleId, scheduleData) => {
+    try {
+      console.log('📝 確認行程:', scheduleId, scheduleData);
+      
+      // 構建要發送的數據
+      const requestData = {
+        title: scheduleData.title,
+        day: scheduleData.day,
+        date: scheduleData.date,
+        attractions: scheduleData.attractions || []
+      };
+      
+      console.log('📤 發送的數據:', requestData);
+      
+      // 發送到後端API創建正式的行程
+      const response = await fetch('http://localhost:3001/api/view2_schedule_list_insert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      console.log('📥 響應狀態:', response.status, response.statusText);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ 行程保存成功:', data);
+        
+        // 更新前端狀態，將草稿行程替換為正式行程
+        setSchedules(prev => prev.map(schedule => 
+          schedule.id === scheduleId 
+            ? {
+                ...schedule,
+                id: data.s_id || data.insertId,
+                isDraft: false
+              }
+            : schedule
+        ));
+        
+        alert('行程已成功保存！');
+      } else {
+        // 嘗試讀取錯誤訊息
+        const errorData = await response.text();
+        console.error('❌ 響應錯誤:', errorData);
+        throw new Error(`HTTP ${response.status}: ${errorData}`);
+      }
+    } catch (error) {
+      console.error('❌ 保存行程失敗:', error);
+      alert(`保存失敗：${error.message}`);
+    }
+  };
+
+  // 處理行程取消的函數
+  const handleScheduleCancel = (scheduleId) => {
+    console.log('🗑️ 取消行程:', scheduleId);
+    // 從列表中移除草稿行程
+    setSchedules(prev => prev.filter(schedule => schedule.id !== scheduleId));
   };
 
   const timeSlots = [
@@ -225,11 +219,16 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
               key={schedule.id}
               title={schedule.title}
               day={schedule.day}
+              scheduleId={schedule.id}
+              scheduleData={schedule}
               attractions={schedule.attractions}
               isFirst={false}
-              containerHeight={timeColumnHeight} // 傳遞高度
+              isDraft={schedule.isDraft}
+              containerHeight={timeColumnHeight}
               usedAttractions={usedAttractions}
               onAttractionUsed={handleAttractionUsed}
+              onScheduleConfirm={handleScheduleConfirm}
+              onScheduleCancel={handleScheduleCancel}
             />
           ))
         )}

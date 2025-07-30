@@ -243,6 +243,7 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
   });
 });
 
+
 // POST 版本的新增 Schedule API（用於確認行程）
 app.post('/api/view2_schedule_list_insert', (req, res) => {
   const { title, day, date, attractions } = req.body;
@@ -356,6 +357,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
         res.json(response);
       }
     });
+
   });
 });
 

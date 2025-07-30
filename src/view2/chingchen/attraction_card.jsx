@@ -4,10 +4,10 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import './attraction_card.css';
 
-const AttractionCard = ({ name, category, votes, color, isSelected, onClick, isUsed = false }) => {
+const AttractionCard = ({ a_id, name, category, votes, color, isSelected, onClick, isUsed = false }) => {
   const [{ isDragging }, dragRef, dragPreview] = useDrag({
       type: "card",
-      item: { id: name },
+      item: { a_id:a_id}, // 使用資料庫的 a_id 作為拖拽數據的一部分
       canDrag: !isUsed, // 如果已被使用則不能拖動
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),

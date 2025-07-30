@@ -1,7 +1,6 @@
 import Attraction from './models/attraction.js';
 import Business from './models/business.js';
 import Evaluate from './models/evaluate.js';
-import Include2 from './models/include2.js';
 import Join from './models/join.js';
 import Schedule from './models/schedule.js';
 import Support from './models/support.js';
@@ -11,6 +10,7 @@ import Weekday from './models/weekday.js';
 import Hotel from './models/hotel.js';
 import TripHotel from './models/tripHotel.js';
 import ScheduleItem from './models/schedule_item.js';
+import Schedule_include from './models/schedule_include.js';
 
 Trip.hasMany(Attraction, { foreignKey: 't_id' });
 Attraction.belongsTo(Trip, { foreignKey: 't_id' });
@@ -30,8 +30,8 @@ Weekday.belongsToMany(Attraction, { through: Business, foreignKey: 'w_day', othe
 Trip.hasMany(Schedule, { foreignKey: 't_id' });
 Schedule.belongsTo(Trip, { foreignKey: 't_id' });
 
-Schedule.belongsToMany(Attraction, { through: Include2, foreignKey: 's_id', otherKey: 'a_id' });
-Attraction.belongsToMany(Schedule, { through: Include2, foreignKey: 'a_id', otherKey: 's_id' });
+Schedule.belongsToMany(Attraction, { through: Schedule_include, foreignKey: 's_id', otherKey: 'a_id' });
+Attraction.belongsToMany(Schedule, { through: Schedule_include, foreignKey: 'a_id', otherKey: 's_id' });
 
 User.belongsToMany(Trip, { through: Join, foreignKey: 'u_id', otherKey: 't_id' });
 Trip.belongsToMany(User, { through: Join, foreignKey: 't_id', otherKey: 'u_id' });
@@ -56,7 +56,7 @@ export {
   Attraction,
   Business,
   Evaluate,
-  Include2,
+  Schedule_include,
   Join,
   Schedule,
   Support,

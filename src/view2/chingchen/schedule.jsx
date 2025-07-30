@@ -98,9 +98,11 @@ const Schedule = ({
       const t_id = item.id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
       const dropTargetId = dropTarget.getAttribute('data-id'); // 獲取 Drop Target 的 ID
       const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
+      
       // 可能有錯---------------------------------------------------------------------------------
       const a_id = item.a_id || 1; // 景點 ID，默認為 1
 
+      //存入資料庫
       fetch('http://localhost:3001/api/view2_schedule_include_insert', {
         method: 'POST',
         headers: {
@@ -113,10 +115,13 @@ const Schedule = ({
           x: correctedX,
           y: correctedY
         })
+      }).then(data => {
+        console.log('API response:', data);
       })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
+      .catch(error => {
+        console.error('Error executing API:', error);
+      });
+      
 // Hsiu Hui new ---------------------------------------
 //       if (monitor.getItemType() === "card") {
 //         // 只有在草稿狀態下才能添加新景點
@@ -154,20 +159,12 @@ const Schedule = ({
 //             offsetX = initialOffset.x - initialSourceOffset.x;
 //             offsetY = initialOffset.y - initialSourceOffset.y;
 // Hsiu Hui new ---------------------------------------
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('API response:', data);
-        })
-        .catch(error => {
-          console.error('Error executing API:', error);
-        });
+          
 
       setAttractions((prevAttractions) => [
         ...prevAttractions,
         {
-          name: item.id,
+          name: item.name || item.id || '未命名景點', // 确保名称正确设置
           time: null,
           position: { x: correctedX, y: correctedY },
           width: dropTargetRect.width,
@@ -235,6 +232,7 @@ const Schedule = ({
         {attractions && attractions.length > 0 ? (
           <Suspense fallback={<div>Loading...</div>}>
             {attractions.map((attraction, index) => (
+              // console.log('Rendering attraction:', attraction),
               <ScheduleItem
                 key={`attraction-${index}`}
                 name={attraction.name}

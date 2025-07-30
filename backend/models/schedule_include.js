@@ -1,11 +1,21 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../db_settings.js';
 
-const Include2 = sequelize.define('Include2', {
+const Schedule_include = sequelize.define('Schedule_include', {
+  //id of which schedule
   s_id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true },
+  
+  //id of attraction
   a_id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true },
+  
+  //id of trip
   t_id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true },
 
+  // x and y coordinates of the attraction in the schedule
+  x: { type: DataTypes.FLOAT, allowNull: false },
+  y: { type: DataTypes.FLOAT, allowNull: false },
+  
+  // sequence of the attraction in the schedule
   sequence: { type: DataTypes.INTEGER, allowNull: false },
 
   walk_t: { type: DataTypes.TIME, allowNull: true },
@@ -13,8 +23,8 @@ const Include2 = sequelize.define('Include2', {
   motor_t: { type: DataTypes.TIME, allowNull: true },
   public_t: { type: DataTypes.TIME, allowNull: true }
 }, {
-  tableName: 'Include2',
+  tableName: 'Schedule_include',
   timestamps: false
 });
 
-export default Include2;
+export default Schedule_include;

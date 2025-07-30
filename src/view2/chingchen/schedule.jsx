@@ -128,6 +128,8 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
           <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />
         </div>
         <div className="budget_display">$350</div>
+        <button className="confirm_btn">確認</button>
+        <button className="cancel_btn">取消</button>
         <span className="schedule_date">{title}</span>
       </div>
       

@@ -6,9 +6,47 @@ import AttractionCard from './attraction_card';
 // 使用 lazy 進行按需加載
 const ScheduleItem = lazy(() => import('./schedule_item'));
 
-const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, containerHeight, usedAttractions, onAttractionUsed }) => {
+const Schedule = ({ 
+  title, 
+  initialAttractions, 
+  day, 
+  scheduleId,
+  scheduleData,
+  isFirst, 
+  isDraft = false,
+  onAddSchedule, 
+  containerHeight, 
+  usedAttractions, 
+  onAttractionUsed,
+  onScheduleConfirm,
+  onScheduleCancel
+}) => {
   const [attractions, setAttractions] = useState(initialAttractions || []);
   const dropRef = useRef(null);
+
+  // 確認行程按鈕處理函數
+  const handleConfirm = async () => {
+    if (isDraft && onScheduleConfirm) {
+      // 如果是草稿狀態，確認整個行程
+      await onScheduleConfirm(scheduleId, {
+        ...scheduleData,
+        attractions: attractions
+      });
+    } else {
+      alert('此行程已經確認');
+    }
+  };
+
+  // 取消行程按鈕處理函數
+  const handleCancel = () => {
+    if (isDraft && onScheduleCancel) {
+      if (confirm('確定要取消這個行程嗎？所有內容都會被刪除。')) {
+        onScheduleCancel(scheduleId);
+      }
+    } else {
+      alert('已確認的行程無法取消');
+    }
+  };
 
   const [{ isOver }, drop] = useDrop({
     accept: ["card", "schedule_item"],
@@ -37,16 +75,21 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
       const correctedY = Math.max(0, Math.min(y, dropTargetRect.height));
 
       if (monitor.getItemType() === "card") {
+        // 只有在草稿狀態下才能添加新景點
+        if (!isDraft) {
+          console.log('⚠️ 已確認的行程無法添加新景點');
+          return;
+        }
+        
         // 處理從 attraction_card 拖動
-        setAttractions((prevAttractions) => [
-          ...prevAttractions,
-          {
-            name: item.id,
-            time: null,
-            position: { x: correctedX, y: correctedY },
-            width: dropTargetRect.width,
-          },
-        ]);
+        const newAttraction = {
+          name: item.id,
+          time: null,
+          position: { x: correctedX, y: correctedY },
+          width: dropTargetRect.width,
+        };
+        
+        setAttractions((prevAttractions) => [...prevAttractions, newAttraction]);
         
         // 通知父組件該景點已被使用
         if (onAttractionUsed) {
@@ -128,29 +171,36 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
           <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />
         </div>
         <div className="budget_display">$350</div>
-        <button className="confirm_btn">確認</button>
-        <button className="cancel_btn">取消</button>
+        {isDraft && (
+          <>
+            <button className="confirm_btn" onClick={handleConfirm}>確認</button>
+            <button className="cancel_btn" onClick={handleCancel}>取消</button>
+          </>
+        )}
         <span className="schedule_date">{title}</span>
       </div>
       
       <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
         {renderGrid()}
+        
+        {/* 顯示景點 */}
         {attractions && attractions.length > 0 ? (
           <Suspense fallback={<div>Loading...</div>}>
             {attractions.map((attraction, index) => (
               <ScheduleItem
-                key={index}
+                key={`attraction-${index}`}
                 name={attraction.name}
                 position={attraction.position}
                 width={attraction.width}
                 index={index}
-                scheduleId={day}
+                scheduleId={scheduleId}
+                isDraft={isDraft}
               />
             ))}
           </Suspense>
         ) : (
           <div className="schedule_empty">
-            <span>暫無行程安排</span>
+            <span>{isDraft ? '拖拽景點到這裡' : '暫無行程安排'}</span>
           </div>
         )}
       </div>

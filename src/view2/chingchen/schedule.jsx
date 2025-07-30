@@ -6,9 +6,50 @@ import AttractionCard from './attraction_card';
 // 使用 lazy 進行按需加載
 const ScheduleItem = lazy(() => import('./schedule_item'));
 
-const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, containerHeight }) => {
+
+const Schedule = ({ 
+  title, 
+  initialAttractions, 
+  day, 
+  scheduleId,
+  scheduleData,
+  isFirst, 
+  isDraft = false,
+  onAddSchedule, 
+  containerHeight, 
+  usedAttractions, 
+  onAttractionUsed,
+  onScheduleConfirm,
+  onScheduleCancel
+}) => {
+
+  
   const [attractions, setAttractions] = useState(initialAttractions || []);
   const dropRef = useRef(null);
+
+  // 確認行程按鈕處理函數
+  const handleConfirm = async () => {
+    if (isDraft && onScheduleConfirm) {
+      // 如果是草稿狀態，確認整個行程
+      await onScheduleConfirm(scheduleId, {
+        ...scheduleData,
+        attractions: attractions
+      });
+    } else {
+      alert('此行程已經確認');
+    }
+  };
+
+  // 取消行程按鈕處理函數
+  const handleCancel = () => {
+    if (isDraft && onScheduleCancel) {
+      if (confirm('確定要取消這個行程嗎？所有內容都會被刪除。')) {
+        onScheduleCancel(scheduleId);
+      }
+    } else {
+      alert('已確認的行程無法取消');
+    }
+  };
 
   const [{ isOver }, drop] = useDrop({
     accept: "card",
@@ -57,9 +98,11 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
       const t_id = item.id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
       const dropTargetId = dropTarget.getAttribute('data-id'); // 獲取 Drop Target 的 ID
       const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
+      
       // 可能有錯---------------------------------------------------------------------------------
       const a_id = item.a_id || 1; // 景點 ID，默認為 1
 
+      //存入資料庫
       fetch('http://localhost:3001/api/view2_schedule_include_insert', {
         method: 'POST',
         headers: {
@@ -72,24 +115,56 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
           x: correctedX,
           y: correctedY
         })
+      }).then(data => {
+        console.log('API response:', data);
       })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('API response:', data);
-        })
-        .catch(error => {
-          console.error('Error executing API:', error);
-        });
+      .catch(error => {
+        console.error('Error executing API:', error);
+      });
+      
+// Hsiu Hui new ---------------------------------------
+//       if (monitor.getItemType() === "card") {
+//         // 只有在草稿狀態下才能添加新景點
+//         if (!isDraft) {
+//           console.log('⚠️ 已確認的行程無法添加新景點');
+//           return;
+//         }
+        
+//         // 處理從 attraction_card 拖動
+//         const newAttraction = {
+//           name: item.id,
+//           time: null,
+//           position: { x: correctedX, y: correctedY },
+//           width: dropTargetRect.width,
+//         };
+        
+//         setAttractions((prevAttractions) => [...prevAttractions, newAttraction]);
+        
+//         // 通知父組件該景點已被使用
+//         if (onAttractionUsed) {
+//           onAttractionUsed(item.id);
+//         }
+//       } else if (monitor.getItemType() === "schedule_item") {
+//         // 處理 schedule_item 的重新排序（僅限同一個 schedule）
+//         if (item.scheduleId === day) {
+//           // 獲取拖動開始時鼠標相對於元素的偏移
+//           const initialOffset = monitor.getInitialClientOffset();
+//           const initialSourceOffset = monitor.getInitialSourceClientOffset();
+//           const sourceOffset = monitor.getSourceClientOffset();
+          
+//           // 計算鼠標相對於被拖動元素的偏移量
+//           let offsetX = 0;
+//           let offsetY = 0;
+//           if (initialOffset && initialSourceOffset) {
+//             offsetX = initialOffset.x - initialSourceOffset.x;
+//             offsetY = initialOffset.y - initialSourceOffset.y;
+// Hsiu Hui new ---------------------------------------
+          
 
       setAttractions((prevAttractions) => [
         ...prevAttractions,
         {
-          name: item.id,
+          name: item.name || item.id || '未命名景點', // 确保名称正确设置
           time: null,
           position: { x: correctedX, y: correctedY },
           width: dropTargetRect.width,
@@ -141,27 +216,38 @@ const Schedule = ({ title, initialAttractions, day, isFirst, onAddSchedule, cont
           <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />
         </div>
         <div className="budget_display">$350</div>
-        <button className="confirm_btn">確認</button>
-        <button className="cancel_btn">取消</button>
+        {isDraft && (
+          <>
+            <button className="confirm_btn" onClick={handleConfirm}>確認</button>
+            <button className="cancel_btn" onClick={handleCancel}>取消</button>
+          </>
+        )}
         <span className="schedule_date">{title}</span>
       </div>
       
       <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
         {renderGrid()}
+        
+        {/* 顯示景點 */}
         {attractions && attractions.length > 0 ? (
           <Suspense fallback={<div>Loading...</div>}>
             {attractions.map((attraction, index) => (
+              // console.log('Rendering attraction:', attraction),
               <ScheduleItem
-                key={index}
+                key={`attraction-${index}`}
                 name={attraction.name}
                 position={attraction.position}
                 width={attraction.width}
+
+                index={index}
+                scheduleId={scheduleId}
+                isDraft={isDraft}
               />
             ))}
           </Suspense>
         ) : (
           <div className="schedule_empty">
-            <span>暫無行程安排</span>
+            <span>{isDraft ? '拖拽景點到這裡' : '暫無行程安排'}</span>
           </div>
         )}
       </div>

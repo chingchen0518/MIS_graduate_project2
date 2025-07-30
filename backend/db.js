@@ -526,7 +526,93 @@ app.get('/api/fake-data', async (req, res) => {
         resolve();
       });
     });
+    // 再新增 2 筆 User
+const users = [
+  ['Alice', 'alice@example.com', 'alice123', '$2b$10$alicepasswordhash', null, 'line456'],
+  ['Bob', 'bob@example.com', 'bob321', '$2b$10$bobpasswordhash', null, 'line789']
+];
 
+for (let i = 0; i < users.length; i++) {
+  const [name, email, account, password, img, line_id] = users[i];
+  const sql = `INSERT INTO User (u_name, u_email, u_account, u_password, u_img, u_line_id)
+               VALUES (?, ?, ?, ?, ?, ?)`;
+  await new Promise((resolve, reject) => {
+    connection.query(sql, [name, email, account, password, img, line_id], (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+}
+
+// 新增 2 筆 Trip，分別對應 u_id 2 與 3
+const trips = [
+  ['2025-09-01', '2025-09-10', '09:00:00', '18:00:00', 'Italy', '2025-09-01', '10:00:00', '義大利漫遊', 'B', 2],
+  ['2025-10-05', '2025-10-15', '08:30:00', '20:00:00', 'Japan', '2025-10-05', '09:30:00', '日本之旅', 'C', 3]
+];
+
+for (let i = 0; i < trips.length; i++) {
+  const trip = trips[i];
+  const sql = `INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  await new Promise((resolve, reject) => {
+    connection.query(sql, trip, (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+}
+
+// 新增對應的 Schedule（t_id 2 和 3，u_id 2 和 3）
+const schedules = [
+  [2, 2, '2025-09-01'],
+  [3, 3, '2025-10-05']
+];
+
+for (let i = 0; i < schedules.length; i++) {
+  const schedule = schedules[i];
+  const sql = `INSERT INTO Schedule (t_id, u_id, date) VALUES (?, ?, ?)`;
+  await new Promise((resolve, reject) => {
+    connection.query(sql, schedule, (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+}
+
+// 新增 Attraction 假資料對應到 t_id 2 和 3
+const italyAttractions = [
+  { name: '羅馬競技場', name_en: 'Colosseum', city: 'Rome', category: '遺跡' },
+  { name: '比薩斜塔', name_en: 'Leaning Tower of Pisa', city: 'Pisa', category: '建築' }
+];
+
+for (let i = 0; i < italyAttractions.length; i++) {
+  const a = italyAttractions[i];
+  const sql = `INSERT INTO Attraction (t_id, name, name_zh, name_en, category, address, country, city, budget, photo, u_id)
+               VALUES (2, ?, ?, ?, ?, ?, ?, ?, ?, ?, 2)`;
+  await new Promise((resolve, reject) => {
+    connection.query(sql, [a.name, a.name, a.name_en, a.category, a.city, 'Italy', a.city, 0, `ita${i + 1}.jpg`], (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+}
+
+const japanAttractions = [
+  { name: '富士山', name_en: 'Mount Fuji', city: 'Yamanashi', category: '山' },
+  { name: '清水寺', name_en: 'Kiyomizu-dera', city: 'Kyoto', category: '寺廟' }
+];
+
+for (let i = 0; i < japanAttractions.length; i++) {
+  const a = japanAttractions[i];
+  const sql = `INSERT INTO Attraction (t_id, name, name_zh, name_en, category, address, country, city, budget, photo, u_id)
+               VALUES (3, ?, ?, ?, ?, ?, ?, ?, ?, ?, 3)`;
+  await new Promise((resolve, reject) => {
+    connection.query(sql, [a.name, a.name, a.name_en, a.category, a.city, 'Japan', a.city, 0, `jpn${i + 1}.jpg`], (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+}
 
     // 插入 10 筆瑞士景點 Attraction
     const swissAttractions = [
@@ -562,7 +648,7 @@ app.get('/api/fake-data', async (req, res) => {
 
 app.get('/api/fake-data-clean', async (req, res) => {
   try {
-    const tables = [, 'schedule', 'trip', 'user'];
+    const tables = ['attraction', 'schedule', 'trip', 'user'];
     for (const table of tables) {
       await new Promise((resolve, reject) => {
         connection.query(`DELETE FROM ${table}`, (err) => {

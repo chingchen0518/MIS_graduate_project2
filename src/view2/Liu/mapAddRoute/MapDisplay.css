@@ -171,7 +171,7 @@
 /* 地圖容器 */
 .map-container {
   width: 350px;
-  height: 150px;
+  height: 350px;
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);

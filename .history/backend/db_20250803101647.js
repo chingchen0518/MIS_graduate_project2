@@ -247,17 +247,17 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
 // POST 版本的新增 Schedule API（用於確認行程）
 app.post('/api/view2_schedule_list_insert', (req, res) => {
   const { title, day, date, attractions } = req.body;
-
+  
   console.log('📝 收到確認 Schedule 請求 (POST):');
   console.log('  - title:', title);
   console.log('  - day:', day);
   console.log('  - date:', date);
   console.log('  - attractions:', attractions);
-
+  
   // 如果沒有提供日期，使用默認值
   const scheduleDate = date || '2025-08-01';
   console.log('  - 使用的日期:', scheduleDate);
-
+  
   // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
   const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
   connection.query(countSql, [scheduleDate], (countErr, countResult) => {
@@ -265,29 +265,29 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
       console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
       return res.status(500).json({ error: countErr.message });
     }
-
+    
     const nextDayScheduleNumber = countResult[0].count + 1;
     console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
-
+    
     const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
     const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
     const scheduleDay = day || nextDayScheduleNumber;
     console.log('  - SQL:', sql);
     console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
-
+    
     connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
       if (err) {
         console.error('❌ 插入 Schedule 時出錯：', err.message);
         return res.status(500).json({ error: err.message });
       }
-
+      
       const scheduleId = result.insertId;
       console.log('✅ Schedule 插入成功! s_id:', scheduleId);
-
+      
       // 如果有景點，也要插入到 Include2 表
       if (attractions && attractions.length > 0) {
         console.log('📍 開始插入景點關聯...');
-
+        
         const insertAttractionPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
             // 先查找景點ID
@@ -298,15 +298,15 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
                 reject(findErr);
                 return;
               }
-
+              
               if (attrResult.length === 0) {
                 console.log(`⚠️ 景點 ${attraction.name} 不存在，跳過`);
                 resolve();
                 return;
               }
-
+              
               const attractionId = attrResult[0].a_id;
-
+              
               // 插入景點關聯
               const insertSql = 'INSERT INTO Include2 (s_id, a_id, t_id, sequence) VALUES (?, ?, ?, ?)';
               connection.query(insertSql, [scheduleId, attractionId, 1, index + 1], (insertErr) => {
@@ -315,19 +315,19 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
                   reject(insertErr);
                   return;
                 }
-
+                
                 console.log(`✅ 景點關聯插入成功: ${attraction.name}`);
                 resolve();
               });
             });
           });
         });
-
+        
         // 等待所有景點關聯插入完成
         Promise.all(insertAttractionPromises)
           .then(() => {
             console.log('✅ 所有景點關聯插入成功！');
-
+            
             const response = {
               s_id: scheduleId,
               title: scheduleTitle,
@@ -335,7 +335,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
               date: scheduleDate,
               message: 'Schedule and attractions created successfully'
             };
-
+            
             console.log('✅ 準備返回的響應:', response);
             res.json(response);
           })
@@ -352,7 +352,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
           date: scheduleDate,
           message: 'Schedule created successfully'
         };
-
+        
         console.log('✅ 準備返回的響應:', response);
         res.json(response);
       }
@@ -855,13 +855,13 @@ app.get('/api/fake-data', async (req, res) => {
         (4, 19, 4, true, false),
         (5, 20, 5, true, false)
         `;
-    await new Promise((resolve, reject) => {
-      connection.query(evaluateSql, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
-
+        await new Promise((resolve, reject) => {
+          connection.query(evaluateSql, (err) => {
+            if (err) return reject(err);
+            resolve();
+          });
+        });
+        
     // hotel
     const hotelSql = `
       INSERT INTO Hotel (h_img, h_address, h_name_zh, h_name_en, h_country, h_city, price)
@@ -888,13 +888,13 @@ app.get('/api/fake-data', async (req, res) => {
         ('/images/hotel19.jpg', 'Barcelona Av 22, Barcelona', '巴塞隆納精品旅館', 'Barcelona Boutique Hotel', 'Spain', 'Barcelona', 150.0),
         ('/images/hotel20.jpg', 'Queen St 9, Brisbane', '布里斯本觀景旅館', 'Brisbane View Hotel', 'Australia', 'Brisbane', 170.0)
         `;
-    await new Promise((resolve, reject) => {
-      connection.query(hotelSql, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
-
+        await new Promise((resolve, reject) => {
+          connection.query(hotelSql, (err) => {
+            if (err) return reject(err);
+            resolve();
+          });
+        });
+        
     //tripHotel
     const tripHotelSql = `
       INSERT INTO TripHotel (h_id, t_id, cin_time, cout_time)
@@ -1027,15 +1027,15 @@ app.get('/api/create-test-trip', (req, res) => {
 // 保存景點到行程的 API
 app.post('/api/schedule_attractions_save', (req, res) => {
   const { scheduleId, attractions } = req.body;
-
+  
   console.log('📝 收到保存景點到行程請求:');
   console.log('  - scheduleId:', scheduleId);
   console.log('  - attractions:', attractions);
-
+  
   if (!scheduleId || !attractions || !Array.isArray(attractions)) {
     return res.status(400).json({ error: '參數不完整' });
   }
-
+  
   // 先檢查 Schedule 是否存在
   const checkScheduleSql = 'SELECT * FROM Schedule WHERE s_id = ?';
   connection.query(checkScheduleSql, [scheduleId], (checkErr, scheduleResult) => {
@@ -1043,20 +1043,20 @@ app.post('/api/schedule_attractions_save', (req, res) => {
       console.error('❌ 檢查 Schedule 時出錯：', checkErr.message);
       return res.status(500).json({ error: checkErr.message });
     }
-
+    
     if (scheduleResult.length === 0) {
       return res.status(404).json({ error: 'Schedule 不存在' });
     }
-
+    
     console.log('✅ Schedule 存在:', scheduleResult[0]);
-
+    
     // 開始事務，批量插入景點關聯
     connection.beginTransaction((transErr) => {
       if (transErr) {
         console.error('❌ 開始事務時出錯：', transErr.message);
         return res.status(500).json({ error: transErr.message });
       }
-
+      
       // 先清除該 Schedule 的舊景點關聯（可選）
       const clearOldSql = 'DELETE FROM Include2 WHERE s_id = ?';
       connection.query(clearOldSql, [scheduleId], (clearErr) => {
@@ -1066,7 +1066,7 @@ app.post('/api/schedule_attractions_save', (req, res) => {
             res.status(500).json({ error: clearErr.message });
           });
         }
-
+        
         // 準備批量插入
         const insertPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
@@ -1078,34 +1078,34 @@ app.post('/api/schedule_attractions_save', (req, res) => {
                 reject(findErr);
                 return;
               }
-
+              
               if (attrResult.length === 0) {
                 console.log(`⚠️ 景點 ${attraction.name} 不存在於 Attraction 表中，跳過`);
                 resolve();
                 return;
               }
-
+              
               const attractionId = attrResult[0].a_id;
-
+              
               // 插入到 Include2 表（Schedule-Attraction 關聯表）
               const insertSql = 'INSERT INTO Include2 (s_id, a_id, t_id, sequence) VALUES (?, ?, ?, ?)';
               const sequenceOrder = index + 1;
               const tripId = 1; // 假設使用固定的 trip ID，你可能需要根據實際情況調整
-
+              
               connection.query(insertSql, [scheduleId, attractionId, tripId, sequenceOrder], (insertErr, insertResult) => {
                 if (insertErr) {
                   console.error(`❌ 插入景點關聯 ${attraction.name} 時出錯：`, insertErr.message);
                   reject(insertErr);
                   return;
                 }
-
+                
                 console.log(`✅ 成功插入景點關聯: ${attraction.name} (a_id: ${attractionId})`);
                 resolve();
               });
             });
           });
         });
-
+        
         // 等待所有插入完成
         Promise.all(insertPromises)
           .then(() => {
@@ -1117,7 +1117,7 @@ app.post('/api/schedule_attractions_save', (req, res) => {
                   res.status(500).json({ error: commitErr.message });
                 });
               }
-
+              
               console.log('✅ 所有景點關聯保存成功！');
               res.json({
                 success: true,

@@ -247,17 +247,17 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
 // POST 版本的新增 Schedule API（用於確認行程）
 app.post('/api/view2_schedule_list_insert', (req, res) => {
   const { title, day, date, attractions } = req.body;
-
+  
   console.log('📝 收到確認 Schedule 請求 (POST):');
   console.log('  - title:', title);
   console.log('  - day:', day);
   console.log('  - date:', date);
   console.log('  - attractions:', attractions);
-
+  
   // 如果沒有提供日期，使用默認值
   const scheduleDate = date || '2025-08-01';
   console.log('  - 使用的日期:', scheduleDate);
-
+  
   // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
   const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
   connection.query(countSql, [scheduleDate], (countErr, countResult) => {
@@ -265,29 +265,29 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
       console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
       return res.status(500).json({ error: countErr.message });
     }
-
+    
     const nextDayScheduleNumber = countResult[0].count + 1;
     console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
-
+    
     const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
     const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
     const scheduleDay = day || nextDayScheduleNumber;
     console.log('  - SQL:', sql);
     console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
-
+    
     connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
       if (err) {
         console.error('❌ 插入 Schedule 時出錯：', err.message);
         return res.status(500).json({ error: err.message });
       }
-
+      
       const scheduleId = result.insertId;
       console.log('✅ Schedule 插入成功! s_id:', scheduleId);
-
+      
       // 如果有景點，也要插入到 Include2 表
       if (attractions && attractions.length > 0) {
         console.log('📍 開始插入景點關聯...');
-
+        
         const insertAttractionPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
             // 先查找景點ID
@@ -298,15 +298,15 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
                 reject(findErr);
                 return;
               }
-
+              
               if (attrResult.length === 0) {
                 console.log(`⚠️ 景點 ${attraction.name} 不存在，跳過`);
                 resolve();
                 return;
               }
-
+              
               const attractionId = attrResult[0].a_id;
-
+              
               // 插入景點關聯
               const insertSql = 'INSERT INTO Include2 (s_id, a_id, t_id, sequence) VALUES (?, ?, ?, ?)';
               connection.query(insertSql, [scheduleId, attractionId, 1, index + 1], (insertErr) => {
@@ -315,19 +315,19 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
                   reject(insertErr);
                   return;
                 }
-
+                
                 console.log(`✅ 景點關聯插入成功: ${attraction.name}`);
                 resolve();
               });
             });
           });
         });
-
+        
         // 等待所有景點關聯插入完成
         Promise.all(insertAttractionPromises)
           .then(() => {
             console.log('✅ 所有景點關聯插入成功！');
-
+            
             const response = {
               s_id: scheduleId,
               title: scheduleTitle,
@@ -335,7 +335,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
               date: scheduleDate,
               message: 'Schedule and attractions created successfully'
             };
-
+            
             console.log('✅ 準備返回的響應:', response);
             res.json(response);
           })
@@ -352,7 +352,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
           date: scheduleDate,
           message: 'Schedule created successfully'
         };
-
+        
         console.log('✅ 準備返回的響應:', response);
         res.json(response);
       }
@@ -855,13 +855,13 @@ app.get('/api/fake-data', async (req, res) => {
         (4, 19, 4, true, false),
         (5, 20, 5, true, false)
         `;
-    await new Promise((resolve, reject) => {
-      connection.query(evaluateSql, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
-
+        await new Promise((resolve, reject) => {
+          connection.query(evaluateSql, (err) => {
+            if (err) return reject(err);
+            resolve();
+          });
+        });
+        
     // hotel
     const hotelSql = `
       INSERT INTO Hotel (h_img, h_address, h_name_zh, h_name_en, h_country, h_city, price)
@@ -888,13 +888,13 @@ app.get('/api/fake-data', async (req, res) => {
         ('/images/hotel19.jpg', 'Barcelona Av 22, Barcelona', '巴塞隆納精品旅館', 'Barcelona Boutique Hotel', 'Spain', 'Barcelona', 150.0),
         ('/images/hotel20.jpg', 'Queen St 9, Brisbane', '布里斯本觀景旅館', 'Brisbane View Hotel', 'Australia', 'Brisbane', 170.0)
         `;
-    await new Promise((resolve, reject) => {
-      connection.query(hotelSql, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
-
+        await new Promise((resolve, reject) => {
+          connection.query(hotelSql, (err) => {
+            if (err) return reject(err);
+            resolve();
+          });
+        });
+        
     //tripHotel
     const tripHotelSql = `
       INSERT INTO TripHotel (h_id, t_id, cin_time, cout_time)
@@ -1027,15 +1027,15 @@ app.get('/api/create-test-trip', (req, res) => {
 // 保存景點到行程的 API
 app.post('/api/schedule_attractions_save', (req, res) => {
   const { scheduleId, attractions } = req.body;
-
+  
   console.log('📝 收到保存景點到行程請求:');
   console.log('  - scheduleId:', scheduleId);
   console.log('  - attractions:', attractions);
-
+  
   if (!scheduleId || !attractions || !Array.isArray(attractions)) {
     return res.status(400).json({ error: '參數不完整' });
   }
-
+  
   // 先檢查 Schedule 是否存在
   const checkScheduleSql = 'SELECT * FROM Schedule WHERE s_id = ?';
   connection.query(checkScheduleSql, [scheduleId], (checkErr, scheduleResult) => {
@@ -1043,20 +1043,20 @@ app.post('/api/schedule_attractions_save', (req, res) => {
       console.error('❌ 檢查 Schedule 時出錯：', checkErr.message);
       return res.status(500).json({ error: checkErr.message });
     }
-
+    
     if (scheduleResult.length === 0) {
       return res.status(404).json({ error: 'Schedule 不存在' });
     }
-
+    
     console.log('✅ Schedule 存在:', scheduleResult[0]);
-
+    
     // 開始事務，批量插入景點關聯
     connection.beginTransaction((transErr) => {
       if (transErr) {
         console.error('❌ 開始事務時出錯：', transErr.message);
         return res.status(500).json({ error: transErr.message });
       }
-
+      
       // 先清除該 Schedule 的舊景點關聯（可選）
       const clearOldSql = 'DELETE FROM Include2 WHERE s_id = ?';
       connection.query(clearOldSql, [scheduleId], (clearErr) => {
@@ -1066,7 +1066,7 @@ app.post('/api/schedule_attractions_save', (req, res) => {
             res.status(500).json({ error: clearErr.message });
           });
         }
-
+        
         // 準備批量插入
         const insertPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
@@ -1078,34 +1078,175 @@ app.post('/api/schedule_attractions_save', (req, res) => {
                 reject(findErr);
                 return;
               }
-
+              
               if (attrResult.length === 0) {
                 console.log(`⚠️ 景點 ${attraction.name} 不存在於 Attraction 表中，跳過`);
                 resolve();
                 return;
               }
-
+              
               const attractionId = attrResult[0].a_id;
-
+              
               // 插入到 Include2 表（Schedule-Attraction 關聯表）
               const insertSql = 'INSERT INTO Include2 (s_id, a_id, t_id, sequence) VALUES (?, ?, ?, ?)';
               const sequenceOrder = index + 1;
               const tripId = 1; // 假設使用固定的 trip ID，你可能需要根據實際情況調整
-
+              
               connection.query(insertSql, [scheduleId, attractionId, tripId, sequenceOrder], (insertErr, insertResult) => {
                 if (insertErr) {
                   console.error(`❌ 插入景點關聯 ${attraction.name} 時出錯：`, insertErr.message);
                   reject(insertErr);
                   return;
                 }
-
+                
                 console.log(`✅ 成功插入景點關聯: ${attraction.name} (a_id: ${attractionId})`);
                 resolve();
               });
             });
           });
         });
+      });
+    } else {
+      // 使用者不存在 → 寄邀請信
+      const subject = `邀請您加入「${tripTitle}」，請先註冊`;
+      const body =
+        '您好，\n\n' +
+        `您被邀請參與旅程：「${tripTitle}」\n\n` +
+        `👉 加入我們的 LINE 官方帳號：${lineUrl}\n\n` +
+        `👉 先點此註冊並加入旅程：${registerUrl}\n` +
+        '祝您旅途愉快！';
 
+
+      transporter.sendMail({
+        from: 'vistourtravelhelper@gmail.com',
+        to: email,
+        subject,
+        text: body,
+      }, (mailErr) => {
+        if (mailErr) {
+          console.error('❌ 邀請信寄送失敗：', mailErr);
+          return res.status(500).json({ message: '寄送邀請信失敗' });
+        }
+
+        return res.status(200).json({ message: '尚未註冊，邀請信已寄出' });
+      });
+    }
+  });
+
+});
+// 加密驗證 API
+app.post('/api/view3_login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: '缺少帳號或密碼' });
+  }
+
+  const sql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
+  connection.query(sql, [email], async (err, results) => {
+    if (err) {
+      console.error('❌ 查詢錯誤：', err.message);
+      return res.status(500).json({ message: '伺服器錯誤' });
+    }
+
+    if (results.length === 0) {
+      return res.status(401).json({ message: '帳號不存在' });
+    }
+
+    const user = results[0];
+    const isMatch = await bcrypt.compare(password, user.u_password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: '密碼錯誤' });
+    }
+
+    return res.status(200).json({
+      message: '登入成功！',
+      redirect: '/header',
+      user: {
+        id: user.u_id,
+        name: user.u_name
+      }
+    });
+  });
+});
+app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
+  try {
+    const { name, email, account, password } = req.body;
+    const avatarFile = req.file;
+
+    if (!email || !account || !password) {
+      return res.status(400).json({ message: '請填寫完整資訊' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const avatarFilename = avatarFile ? avatarFile.filename : null;
+
+    const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
+    connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err) => {
+      if (err) {
+        console.error('❌ 註冊錯誤:', err);
+        return res.status(500).json({ message: '伺服器錯誤' });
+      }
+      return res.status(200).json({ message: '✅ 註冊成功' });
+    });
+  } catch (error) {
+    console.error('❌ 加密或其他錯誤:', error);
+    return res.status(500).json({ message: '伺服器錯誤' });
+  }
+});
+
+app.post('/api/view3_forgot_password', (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: '缺少電子郵件' });
+  }
+
+  const sql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
+  connection.query(sql, [email], (err, results) => {
+    if (err) {
+      console.error('❌ 查詢錯誤：', err.message);
+      return res.status(500).json({ message: '伺服器錯誤' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: '電子郵件未註冊' });
+    }
+
+    // // 這裡可以加入發送重設密碼郵件的邏輯
+    return res.status(200).json({ message: '查詢到該帳號!' });
+  });
+});
+
+app.post('/api/view3_reset_password', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: '缺少電子郵件或密碼' });
+  }
+
+  try {
+    // 加密密碼
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 更新到資料庫
+    const sql = 'UPDATE User SET u_password = ? WHERE u_email = ?';
+    connection.query(sql, [hashedPassword, email], (err, result) => {
+      if (err) {
+        console.error('❌ 更新密碼錯誤：', err.message);
+        return res.status(500).json({ message: '伺服器錯誤' });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: '找不到該用戶' });
+      }
+
+      return res.status(200).json({ message: '密碼重設成功' });
+    });
+  } catch (err) {
+    console.error('❌ 加密錯誤：', err.message);
+    return res.status(500).json({ message: '密碼加密失敗' });
+  }
+});
         // 等待所有插入完成
         Promise.all(insertPromises)
           .then(() => {
@@ -1117,7 +1258,7 @@ app.post('/api/schedule_attractions_save', (req, res) => {
                   res.status(500).json({ error: commitErr.message });
                 });
               }
-
+              
               console.log('✅ 所有景點關聯保存成功！');
               res.json({
                 success: true,

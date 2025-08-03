@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>旅遊行程比較介面</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Header 樣式 - 模仿 header.jsx */
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      padding: 15px 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .header-icon {
+      display: flex;
+      align-items: center;
+    }
+    
+    .header-icon-img {
+      width: 45px;
+      height: 45px;
+      border-radius: 8px;
+    }
+    
+    .header-title-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      margin: 0 20px;
+    }
+    
+    .header-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    
+    .header-timer {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    
+    .header-timer-icon {
+      font-size: 16px;
+    }
+    
+    .share-button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+    
+    .share-button:hover {
+      background-color: #0056b3;
+    }
+    
+    .flow-steps {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .flow-steps div {
+      padding: 8px 16px;
+      background-color: #f8f9fa;
+      border-radius: 20px;
+      font-size: 13px;
+      color: #666;
+      border: 1px solid #e0e0e0;
+      transition: all 0.3s ease;
+    }
+    
+    .flow-steps div.active {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    
+    /* Modal 樣式 */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      min-width: 300px;
+    }
+    
+    .modal-content h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    
+    .modal-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .modal-buttons button:first-child {
+      background-color: #007bff;
+      color: white;
+    }
+    
+    .modal-buttons button:last-child {
+      background-color: #6c757d;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Container - 模仿 header.jsx 結構 -->
+  <div class="header-container">
+    <div class="header-icon">
+      <img src="img/logo.jpg" class="header-icon-img" alt="logo" />
+    </div>
+    <div class="header-title-block">
+      <span class="header-title">小明的尋寶之旅</span>
+      <span class="header-timer">
+        <span class="header-timer-icon">⏳</span>
+        時間倒數: <span>00:00:00</span>
+      </span>
+      <button class="share-button">
+        分享旅程
+      </button>
+    </div>
+    <div class="flow-steps">
+      <div>行程背景</div>
+      <div>選擇景點</div>
+      <div>建議行程</div>
+      <div class="active">行程比較</div>
+      <div>行程確定</div>
+    </div>
+    <div class="header-icon">
+      <img src="img/logo.jpg" class="header-icon-img" alt="logo" />
+    </div>
+  </div>
+
+  <!-- Modal 結構 -->
+  <div class="modal" style="display: none;">
+    <div class="modal-content">
+      <h3>輸入對方的 Gmail</h3>
+      <input
+        type="email"
+        placeholder="example@gmail.com"
+        required
+      />
+      <div class="modal-buttons">
+        <button>發送邀請</button>
+        <button>取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主要內容區域 -->
+  <div style="padding: 20px; background: white; margin: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <h2 style="color: #333; margin-bottom: 20px;">旅遊行程比較</h2>
+    <p style="color: #666; line-height: 1.6;">這裡是旅遊行程比較的內容區域，採用簡潔的樣式設計，模仿 header.jsx 的風格。</p>
+    <div style="margin-top: 20px;">
+      <h3 style="color: #333;">功能特色</h3>
+      <ul style="color: #666; line-height: 1.8;">
+        <li>清晰的頁面結構</li>
+        <li>簡潔的設計風格</li>
+        <li>響應式佈局</li>
+        <li>用戶友好的界面</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // 簡單的互動功能
+    document.addEventListener('DOMContentLoaded', function() {
+      const shareButton = document.querySelector('.share-button');
+      const modal = document.querySelector('.modal');
+      const modalButtons = document.querySelectorAll('.modal-buttons button');
+      
+      if (shareButton && modal) {
+        shareButton.addEventListener('click', function() {
+          modal.style.display = 'flex';
+        });
+        
+        modalButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            modal.style.display = 'none';
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

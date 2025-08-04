@@ -2,13 +2,13 @@ import React from 'react';
 import { useDrag } from 'react-dnd';
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = ({ name, position, width, index, scheduleId, onMove }) => {
+const ScheduleItem = ({ name, position, width, index, s_id, onMove }) => {
   const [{ isDragging }, dragRef] = useDrag({
     type: "schedule_item",
     item: { 
       name, 
       index, 
-      scheduleId,
+      s_id,
       originalPosition: position 
     },
     collect: (monitor) => ({

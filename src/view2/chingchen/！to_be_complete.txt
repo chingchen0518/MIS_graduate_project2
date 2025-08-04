@@ -1,0 +1,2 @@
+1. page_1.jsx中的<Schedule_container>裡的t_id需要替換
+2. page_1.jsx要如何得知目前在哪一個trip

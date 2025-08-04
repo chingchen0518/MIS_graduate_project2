@@ -378,6 +378,25 @@ app.post('/api/view2_schedule_include_insert', (req, res) => {
   });
 });
 
+app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {
+    const { t_id, s_id } = req.params;
+    
+    const query = `SELECT * FROM schedule_include s
+                   JOIN Attraction a ON s.a_id = a.a_id
+                   WHERE s.t_id = ? AND s.s_id = ?
+                   ORDER BY sequence ASC`;
+    const values = [t_id, s_id];
+
+    connection.query(query, values, (err, results) => {
+        if (err) {
+            console.error('Error fetching data from Schedule_include:', err);
+            res.status(500).send('Failed to fetch data');
+        } else {
+            res.status(200).json(results);
+        }
+    });
+});
+
 // 新增 API 端點：獲取指定 trip 的日期範圍
 app.get('/api/trip-dates/:tripId', (req, res) => {
   const tripId = req.params.tripId;

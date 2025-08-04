@@ -4,7 +4,7 @@ import './schedule_container.css';
 import DateSelector from '../Liu/DateSelector';
 
 
-const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
+const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState('');
@@ -45,13 +45,13 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
     // 從 API 獲取行程數據，如果有選擇日期則按日期過濾
     setLoading(true);
     
-    let url = 'http://localhost:3001/api/view2_schedule_list';
+    let api = 'http://localhost:3001/api/view2_schedule_list';
     if (selectedDate) {
-      url += `?date=${encodeURIComponent(selectedDate)}`;
+      api += `?date=${encodeURIComponent(selectedDate)}`;
       console.log('🔍 按日期載入 Schedule:', selectedDate);
     }
     
-    fetch(url)
+    fetch(api)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -201,7 +201,9 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
         
         {/* 添加行程按鈕永遠顯示在最前面 */}
         <Schedule
-          key="add-schedule"
+          // key
+          s_id="add-schedule"
+          t_id={t_id} // 使用傳入這個page目前在哪一個trip的 t_id
           isFirst={true}
           onAddSchedule={addSchedule}
           containerHeight={timeColumnHeight}
@@ -216,7 +218,9 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
         ) : (
           schedules.map((schedule) => (
             <Schedule
-              key={schedule.id}
+              key={'schedule-' + schedule.id}
+              s_id={schedule.id}
+              t_id={t_id}
               title={schedule.title}
               day={schedule.day}
               scheduleId={schedule.id}

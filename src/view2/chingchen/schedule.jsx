@@ -1,37 +1,84 @@
-import React, { useState, useRef, lazy, Suspense } from 'react';
+import React, { useState,useEffect, useRef, lazy, Suspense } from 'react';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import AttractionCard from './attraction_card';
-
-// 使用 lazy 進行按需加載
-const ScheduleItem = lazy(() => import('./schedule_item'));
-
+import ScheduleItem from './schedule_item.jsx'; // 引入 ScheduleItem 組件
 
 const Schedule = ({ 
-  title, 
-  initialAttractions, 
-  day, 
-  scheduleId,
-  scheduleData,
-  isFirst, 
-  isDraft = false,
-  onAddSchedule, 
-  containerHeight, 
-  usedAttractions, 
-  onAttractionUsed,
-  onScheduleConfirm,
-  onScheduleCancel
-}) => {
-
+                    t_id,
+                    s_id,
+                    title, 
+                    initialAttractions, 
+                    day, 
+                    scheduleId,
+                    scheduleData,
+                    isFirst, 
+                    isDraft = false,
+                    onAddSchedule, 
+                    containerHeight, 
+                    usedAttractions, 
+                    onAttractionUsed,
+                    onScheduleConfirm,
+                    onScheduleCancel
+                  }) => {
   
-  const [attractions, setAttractions] = useState(initialAttractions || []);
-  const dropRef = useRef(null);
+    const [attractions, setAttractions] = useState(initialAttractions || []);
+    const [scheduleItems, setScheduleItems] = useState([]);
+    const [scheduleWidths, setScheduleWidths] = useState(0);
 
-  // 確認行程按鈕處理函數
+    const dropRef = useRef(null);
+                  
+    // 添加一个 useEffect 来计算和更新宽度
+    useEffect(() => {
+      const calculateWidth = () => {
+        if (dropRef.current) {
+          const scheduleTimeline = dropRef.current.querySelector('.schedule_timeline');
+          if (scheduleTimeline) {
+            const rect = scheduleTimeline.getBoundingClientRect();
+            setScheduleWidths(rect.width);
+            console.log('计算宽度:', rect.width);
+            return rect.width; // 返回计算出的宽度值
+          }
+        }
+        return 0; // 如果无法计算，返回默认值
+      };
+      
+      calculateWidth(); // 初始计算宽度
+      
+      // 监听窗口大小变化，重新计算宽度
+      window.addEventListener('resize', calculateWidth);
+      
+      // 清理函数
+      return () => {
+        window.removeEventListener('resize', calculateWidth);
+      };
+    }, []); // 空依赖数组表示只在组件挂载时执行
+
+
+    useEffect(() => {
+        // 從 API 獲取行程數據，如果有選擇日期則按日期過濾
+        let api = `http://localhost:3001/api/view2_schedule_include_show/${t_id}/${s_id}`;
+        console.log('🔍 按日期載入 Schedule:', t_id, s_id);
+        fetch(api)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          }).then(data => {
+            setScheduleItems(data);
+            console.log('API 返回数据:', data); // 检查 API 返回的数据结构
+          })
+          .catch(error => {
+            console.error('Error fetching attractions:', error);
+          });
+    }, [t_id, s_id]);
+
+  // function 1:確認行程按鈕處理函數
   const handleConfirm = async () => {
     if (isDraft && onScheduleConfirm) {
       // 如果是草稿狀態，確認整個行程
-      await onScheduleConfirm(scheduleId, {
+      await onScheduleConfirm(s_id, {
         ...scheduleData,
         attractions: attractions
       });
@@ -40,11 +87,11 @@ const Schedule = ({
     }
   };
 
-  // 取消行程按鈕處理函數
+  // function 2:取消行程按鈕處理函數
   const handleCancel = () => {
     if (isDraft && onScheduleCancel) {
       if (confirm('確定要取消這個行程嗎？所有內容都會被刪除。')) {
-        onScheduleCancel(scheduleId);
+        onScheduleCancel(s_id);
       }
     } else {
       alert('已確認的行程無法取消');
@@ -95,26 +142,20 @@ const Schedule = ({
 
       console.log('Item dropped:', item, 'at position:', { x: correctedX, y: correctedY });
       // 可能有錯誤---------------------------------------------------------------------------------
-      const t_id = item.id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
       const dropTargetId = dropTarget.getAttribute('data-id'); // 獲取 Drop Target 的 ID
-      const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
+      // const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
       
       // 可能有錯---------------------------------------------------------------------------------
       const a_id = item.a_id || 1; // 景點 ID，默認為 1
+      const t_id = item.t_id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
+      // const s_id
 
       //存入資料庫
       fetch('http://localhost:3001/api/view2_schedule_include_insert', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          a_id,
-          t_id,
-          s_id,
-          x: correctedX,
-          y: correctedY
-        })
+        headers: {'Content-Type': 'application/json'},
+        //插入什麽進database
+        body: JSON.stringify({a_id,t_id,s_id,x: correctedX,y: correctedY})
       }).then(data => {
         console.log('API response:', data);
       })
@@ -195,6 +236,8 @@ const Schedule = ({
     return lines;
   };
 
+
+
   if (isFirst) {
     return (
       <div className="schedule add_schedule_column" style={{ height: containerHeight }}>
@@ -229,6 +272,17 @@ const Schedule = ({
         {renderGrid()}
         
         {/* 顯示景點 */}
+        {scheduleItems.map(scheduleItem => (
+          console.log('Rendering schedule item:', scheduleItem),
+          <ScheduleItem
+            key={`schedule-item-${scheduleItem.id}`}
+            s_id={scheduleItem.id}
+            name={scheduleItem.name}
+            position={{ x: scheduleItem.x, y: scheduleItem.y }}
+            width={scheduleWidths}
+          />
+        ))}
+
         {attractions && attractions.length > 0 ? (
           <Suspense fallback={<div>Loading...</div>}>
             {attractions.map((attraction, index) => (
@@ -240,7 +294,7 @@ const Schedule = ({
                 width={attraction.width}
 
                 index={index}
-                scheduleId={scheduleId}
+                s_id={s_id}
                 isDraft={isDraft}
               />
             ))}

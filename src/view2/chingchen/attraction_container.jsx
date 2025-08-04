@@ -53,9 +53,14 @@ const Attraction_container = ({ usedAttractions = [] }) => {
 
       <div className="attraction_cards_wrapper">
         {attractions.map(attraction => (
-          <AttractionCard 
+          <AttractionCard
+            key={attraction.id}
             a_id={attraction.a_id}
+            t_id={attraction.t_id}
             name={attraction.name}
+            latitude={attraction.latitude}
+            longitude={attraction.longitude}
+
             category={attraction.category}
             votes={attraction.votes}
             color={attraction.color}

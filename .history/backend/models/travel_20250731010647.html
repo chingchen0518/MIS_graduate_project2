@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>旅遊行程比較介面</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      border-bottom: 1px solid #000;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+    }
+    .sidebar {
+      width: 280px;
+      background: #f8f8f2;
+      padding: 15px;
+      border-radius: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .filter-section {
+      margin-bottom: 15px;
+    }
+    .filter-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .filter-icon {
+      margin-right: 5px;
+      color: #333;
+    }
+    .range-slider {
+      width: 100%;
+      margin: 15px 0 10px;
+      position: relative;
+    }
+    .range-slider {
+      width: 100%;
+      margin: 15px 0 10px;
+      position: relative;
+      height: 30px;
+    }
+    .multi-range {
+      position: relative;
+      height: 30px;
+    }
+    .multi-range input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 6px;
+      background: none;
+      pointer-events: none;
+      outline: none;
+      z-index: 2;
+    }
+    .track {
+      position: absolute;
+      width: 100%;
+      height: 6px;
+      background: #e6e6e6;
+      border-radius: 10px;
+      overflow: hidden;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    .track-inner {
+      position: absolute;
+      height: 100%;
+      background: #07a7e3;
+      border-radius: 10px;
+      left: 0%;
+      right: 35%;
+    }
+    .multi-range input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border: 2px solid #07a7e3;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      pointer-events: auto;
+      z-index: 3;
+    }
+    .multi-range input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border: 2px solid #07a7e3;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      pointer-events: auto;
+      z-index: 3;
+    }
+    .range-values {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #666;
+    }
+    .current-value {
+      display: inline-block;
+      background: #07a7e3;
+      color: white;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    .users-section {
+      margin-bottom: 15px;
+    }
+    .user-icons {
+      display: flex;
+      margin-top: 10px;
+    }
+    .user-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      margin-right: 8px;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      overflow: hidden;
+      background-size: cover;
+    }
+    .user-icon.user1 {
+      background-color: #FF9800;
+    }
+    .user-icon.user2 {
+      background-color: #E91E63;
+    }
+    .categories-section {
+      margin-top: 15px;
+    }
+    .custom-checkbox {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      margin-right: 8px;
+      position: relative;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    .custom-checkbox:checked {
+      background-color: #07a7e3;
+      border-color: #07a7e3;
+    }
+    .custom-checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 5px;
+      height: 9px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .category {
+      background-color: #ffd1d1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #333;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .category.market {
+      background-color: #ffecd1;
+    }
+    .category.nature {
+      background-color: #d1dfff;
+    }
+    .category.cuisine {
+      background-color: #e8d1ff;
+    }
+    .category:after {
+      content: '+';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      font-weight: normal;
+      transition: transform 0.3s ease;
+    }
+    .category.active:after {
+      transform: translateY(-50%) rotate(45deg);
+    }
+    .sub-categories {
+      display: none;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      padding: 5px;
+      border-radius: 5px;
+      background-color: rgba(255,255,255,0.7);
+    }
+    .sub-categories.active {
+      display: flex;
+    }
+    .sub-category {
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 5px 8px;
+      font-size: 12px;
+      display: inline-block;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    .map {
+      margin-top: 10px;
+      height: 150px;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Tainan_montage.png/640px-Tainan_montage.png');
+      background-size: cover;
+      background-position: center;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      position: relative;
+      overflow: hidden;
+    }
+    .map::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: #2196F3;
+      border-radius: 50%;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .trip-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .trip-title-icon {
+      color: #f5d5d5;
+      font-size: 22px;
+    }
+    .trip-duration {
+      color: #777;
+      font-size: 14px;
+    }
+    .status-indicators {
+      display: flex;
+      gap: 10px;
+    }
+    .status-tag {
+      background-color: #f9f9c6;
+      padding: 5px 15px;
+      border-radius: 15px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .active-tag {
+      background-color: #ffdb58;
+    }
+    .stats-summary {
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      color: #555;
+      margin-left: 20px;
+      background-color: #f5f5f5;
+      padding: 3px 10px;
+      border-radius: 15px;
+    }
+    .stats-summary .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin: 0 5px;
+    }
+    .main-content {
+      flex: 1;
+      background: white;
+      border-radius: 10px;
+      padding: 0;
+      min-height: 600px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .voting-panel {
+      background: #f8f9fa;
+      padding: 15px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .voting-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      min-width: 150px;
+    }
+    .voting-item-title {
+      font-weight: bold;
+      font-size: 14px;
+      color: #333;
+    }
+    .vote-avatars {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      justify-content: center;
+    }
+    .vote-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      background-size: cover;
+      background-position: center;
+    }
+    .vote-avatar.user1 {
+      background-color: #FF9800;
+      background-image: url('https://i.pravatar.cc/48?img=3');
+    }
+    .vote-avatar.user2 {
+      background-color: #E91E63;
+      background-image: url('https://i.pravatar.cc/48?img=4');
+    }
+    .vote-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.9);
+      padding: 5px 10px;
+      border-radius: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .vote-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+    .vote-btn:hover {
+      background: #f0f0f0;
+    }
+    .vote-btn.voted {
+      background: #4caf50;
+      color: white;
+      border-color: #4caf50;
+    }
+    .vote-count {
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+      min-width: 20px;
+      text-align: center;
+    }
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0;
+      background-color: #f8f9fa;
+      padding: 8px 15px;
+      border-radius: 5px 5px 0 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .timeline-header button {
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      padding: 3px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .timeline-page-indicator {
+      background-color: #cce5ff;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #0056b3;
+      display: inline-block;
+      margin-left: 5px;
+    }
+    .legend {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 5px;
+      font-size: 12px;
+      z-index: 10;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin: 3px 0;
+    }
+    .legend-color {
+      width: 15px;
+      height: 3px;
+      margin-right: 5px;
+    }
+    .legend-label {
+      font-size: 11px;
+      color: #555;
+    }
+    .timeline-tools {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      z-index: 10;
+      display: flex;
+      gap: 5px;
+    }
+    .timeline-tool-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #555;
+      font-size: 14px;
+    }
+    .timeline-tool-btn.active {
+      background-color: #cce5ff;
+      color: #0056b3;
+    }
+    .timeline {
+      height: 550px;
+      border: 1px solid #ddd;
+      border-radius: 0 0 10px 10px;
+      overflow: auto;
+      padding: 0;
+      position: relative;
+      background-color: #ffffff;
+      background-image: linear-gradient(#f9f9f9 50%, rgba(255, 255, 255, 0) 0%);
+      background-position: right;
+      background-size: 2px 60px;
+      background-repeat: repeat-y;
+    }
+    .time-block {
+      position: absolute;
+      width: 120px;
+      height: 30px;
+      background: #ffffff;
+      border: none;
+      text-align: center;
+      padding: 5px 10px;
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+      font-size: 13px;
+    }
+    .time-label {
+      position: absolute;
+      bottom: -25px;
+      width: 100%;
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      font-weight: normal;
+    }
+    .time-marker {
+      position: absolute;
+      left: 0;
+      width: 60px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      font-size: 10px;
+      color: #777;
+      justify-content: center;
+      background-color: transparent;
+    }
+    .timeline-column {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 150px;
+      border-right: 1px solid #e0e0e0;
+    }
+    /* 第一排景點 */
+    .block-1 {
+      top: 150px;
+      left: 100px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-2 {
+      top: 150px;
+      left: 300px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-3 {
+      top: 150px;
+      left: 500px;
+      background-color: #ffffff;
+      border: none;
+    }
+    /* 第二排景點 */
+    .block-4 {
+      top: 250px;
+      left: 100px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-5 {
+      top: 250px;
+      left: 300px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-6 {
+      top: 250px;
+      left: 500px;
+      background-color: #ffffff;
+      border: none;
+    }
+    /* 第三排景點 */
+    .block-7 {
+      top: 350px;
+      left: 100px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-8 {
+      top: 350px;
+      left: 300px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-9 {
+      top: 350px;
+      left: 500px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .schedule-bar {
+      position: absolute;
+      height: 5px;
+      border-radius: 3px;
+      background: #ff9800;
+    }
+    .schedule-bar-1 {
+      left: 140px;
+      top: 340px;
+      width: 40px;
+    }
+    .schedule-bar-2 {
+      left: 340px;
+      top: 340px;
+      width: 40px;
+    }
+    .schedule-bar-3 {
+      left: 540px;
+      top: 340px;
+      width: 40px;
+    }
+    /* 移除頭像相關樣式 */
+    .popularity-badge {
+      position: absolute;
+      top: -32px;
+      right: 2px;
+      background-color: #ff4081;
+      color: white;
+      font-size: 10px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid white;
+      font-weight: bold;
+      z-index: 5;
+    }
+    .route-arrow-down {
+      position: absolute;
+      width: 2px;
+      background-color: #aaa;
+      z-index: 1;
+    }
+    .time-column-label {
+      position: absolute;
+      top: 40px;
+      width: 100%;
+      text-align: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #666;
+    }
+    .time-column {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 60px;
+      height: 100%;
+      background-color: #f8f9fa;
+      border-right: 1px solid #e0e0e0;
+      z-index: 0;
+      box-shadow: 1px 0 3px rgba(0,0,0,0.05);
+    }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+    .slider-value {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+    }
+    .price-tag {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ff6b6b;
+      color: white;
+      border-radius: 3px;
+      padding: 2px 4px;
+      font-size: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>旅遊行程</h1>
+  <div class="header-bar">
+    <div class="trip-title">
+      <span class="trip-title-icon">🏖️</span>
+      <span>小明的尋寶之旅</span>
+      <span class="trip-duration">旅程時間: 00:00:00</span>
+      <span class="stats-summary">
+        共同景點: <span class="dot" style="background-color: #ff9800;"></span>2個 
+        <span class="dot" style="background-color: #4caf50;"></span>2個
+      </span>
+    </div>
+    <div class="status-indicators">
+      <span class="status-tag">行程編輯</span>
+      <span class="status-tag">景點新增</span>
+      <span class="status-tag">規劃模式</span>
+      <span class="status-tag active-tag">行程比較</span>
+      <span class="status-tag">行程確定</span>
+    </div>
+  </div>
+  <div class="container">
+    <div class="sidebar">
+      <!-- 預算篩選器 -->
+      <div class="filter-section">
+        <div class="filter-title">
+          <span class="filter-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 6H21M7 12H17M10 18H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input type="checkbox" checked id="filter-budget" class="custom-checkbox" />
+          <label for="filter-budget">預算:</label>
+        </div>
+        <div class="range-slider">
+          <div class="multi-range">
+            <input type="range" min="0" max="1000" value="200" id="lower-range" class="lower-range" />
+            <input type="range" min="0" max="1000" value="700" id="upper-range" class="upper-range" />
+            <div class="track">
+              <div class="track-inner"></div>
+            </div>
+          </div>
+        </div>
+        <div class="range-values">
+          <span class="lower-value">200</span>
+          <span>|</span>
+          <span class="upper-value">700</span>
+        </div>
+      </div>
+      
+      <!-- 使用者比較 -->
+      <div class="filter-section">
+        <div class="filter-title">
+          <input type="checkbox" checked id="compare-users" class="custom-checkbox" />
+          <label for="compare-users">使用者:</label>
+        </div>
+        <div class="user-icons">
+          <div class="user-icon user1" style="background-image: url('https://i.pravatar.cc/56?img=3')"></div>
+          <div class="user-icon user2" style="background-image: url('https://i.pravatar.cc/56?img=4')"></div>
+        </div>
+      </div>
+      
+      <!-- 類別篩選器 -->
+      <div class="filter-section">
+        <div class="filter-title">
+          <input type="checkbox" checked id="filter-categories" class="custom-checkbox" />
+          <label for="filter-categories">類別:</label>
+        </div>
+        
+        <!-- 文化類別 -->
+        <div class="category" id="category-culture">文化</div>
+        <div class="sub-categories" id="sub-culture">
+          <div class="sub-category">十鼓文化村</div>
+          <div class="sub-category">赤崁樓</div>
+          <div class="sub-category">安平古堡</div>
+          <div class="sub-category">奇美博物館</div>
+          <div class="sub-category">臺灣歷史博物館</div>
+          <div class="sub-category">孔廟</div>
+          <div class="sub-category">台南美術館</div>
+        </div>
+        
+        <!-- 市集類別 -->
+        <div class="category market" id="category-market">市集</div>
+        <div class="sub-categories" id="sub-market">
+          <div class="sub-category">安平老街</div>
+          <div class="sub-category">神農街</div>
+          <div class="sub-category">花園夜市</div>
+        </div>
+        
+        <!-- 自然類別 -->
+        <div class="category nature" id="category-nature">自然</div>
+        <div class="sub-categories" id="sub-nature">
+          <div class="sub-category">四草綠色隧道</div>
+          <div class="sub-category">台江國家公園</div>
+          <div class="sub-category">七股鹽山</div>
+        </div>
+        
+        <!-- 美食類別 -->
+        <div class="category cuisine" id="category-cuisine">美食</div>
+        <div class="sub-categories" id="sub-cuisine">
+          <div class="sub-category">擔仔麵</div>
+          <div class="sub-category">棺材板</div>
+          <div class="sub-category">蝦捲</div>
+          <div class="sub-category">豆花</div>
+        </div>
+      </div>
+    </div>
+    <div class="main-content">
+      <!-- 投票面板 -->
+      <div class="voting-panel">
+        <div class="voting-item">
+          <div class="voting-item-title">十鼓文化村</div>
+          <div class="vote-avatars">
+            <div class="vote-avatar user1"></div>
+            <div class="vote-avatar user2"></div>
+          </div>
+          <div class="vote-controls">
+            <div class="vote-btn voted">👍</div>
+            <div class="vote-count">2</div>
+            <div class="vote-btn">👎</div>
+          </div>
+        </div>
+        <div class="voting-item">
+          <div class="voting-item-title">赤崁樓</div>
+          <div class="vote-avatars">
+            <div class="vote-avatar user1"></div>
+          </div>
+          <div class="vote-controls">
+            <div class="vote-btn voted">👍</div>
+            <div class="vote-count">1</div>
+            <div class="vote-btn">👎</div>
+          </div>
+        </div>
+        <div class="voting-item">
+          <div class="voting-item-title">安平古堡</div>
+          <div class="vote-avatars">
+            <div class="vote-avatar user2"></div>
+          </div>
+          <div class="vote-controls">
+            <div class="vote-btn voted">👍</div>
+            <div class="vote-count">1</div>
+            <div class="vote-btn">👎</div>
+          </div>
+        </div>
+      </div>
+      <div class="timeline-header">
+        <div style="display: flex; align-items: center;">
+          <span style="font-weight: bold; font-size: 14px; margin-right: 5px;">旅遊行程</span>
+          <span class="timeline-page-indicator">3/1</span>
+          <img src="https://cdn-icons-png.flaticon.com/512/8988/8988878.png" alt="info" width="18" height="18" style="margin-left: 5px;">
+        </div>
+        <div>
+          <select style="margin-right: 5px; font-size: 12px; padding: 2px 5px; border: 1px solid #ddd;">
+            <option>相同景點優先</option>
+            <option>依時間排序</option>
+            <option>依價格排序</option>
+          </select>
+          <button style="background-color: #ffdb58;">更新</button>
+        </div>
+      </div>
+      <div class="timeline">
+        <!-- 時間列 -->
+        <div class="time-column">
+          <div style="position: absolute; top: 0; left: 0; width: 100%; height: 35px; background-color: #f0f8ff; display: flex; justify-content: center; align-items: center; font-size: 12px; border-bottom: 1px solid #e0e0e0;">
+            時間
+          </div>
+        </div>
+        
+        <!-- 時間軸標記 -->
+        <div class="time-marker" style="top: 60px;">08:00</div>
+        <div class="time-marker" style="top: 110px;">09:00</div>
+        <div class="time-marker" style="top: 160px;">10:00</div>
+        <div class="time-marker" style="top: 210px;">11:00</div>
+        <div class="time-marker" style="top: 260px;">12:00</div>
+        <div class="time-marker" style="top: 310px;">13:00</div>
+        
+        <!-- 時間軸列 -->
+        <div class="timeline-column" style="left: 80px; background-color: #fdfdfd;"></div>
+        <div class="timeline-column" style="left: 280px; background-color: #fdfdfd;"></div>
+        <div class="timeline-column" style="left: 480px; background-color: #fdfdfd;"></div>
+        
+        <!-- 時間區域分隔 -->
+        <div style="position: absolute; left: 0; right: 0; top: 100px; height: 1px; background-color: #f0f0f0;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 150px; height: 1px; background-color: #f0f0f0;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 200px; height: 1px; background-color: #f0f0f0;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 250px; height: 1px; background-color: #f0f0f0;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 300px; height: 1px; background-color: #f0f0f0;"></div>
+        <div style="position: absolute; left: 0; right: 0; top: 350px; height: 1px; background-color: #f0f0f0;"></div>
+        
+        <!-- 工具按鈕 -->
+        <div class="timeline-tools">
+          <div class="timeline-tool-btn active">🔍</div>
+        </div>
+        
+        <!-- 圖例說明 -->
+        <div class="legend" style="top: 40px; left: 65px;">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #007bff;"></div>
+            <div class="legend-label">相同景點連接</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #007bff; height: 1px; border-top: 1px dashed #007bff;"></div>
+            <div class="legend-label">不同用戶相同景點</div>
+          </div>
+          <div class="legend-item">
+            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ff4081; font-size: 8px; color: white; display: flex; align-items: center; justify-content: center; margin-right: 5px;">2</div>
+            <div class="legend-label">熱門度（選擇次數）</div>
+          </div>
+        </div>
+        
+        <!-- 時間軸標題 -->
+        <div class="time-column-label" style="left: 160px; top: 80px;">08:00</div>
+        <div class="time-column-label" style="left: 360px; top: 80px;">08:00</div>
+        <div class="time-column-label" style="left: 560px; top: 80px;">08:00</div>
+        
+        <!-- 旅遊景點方格 - 基於圖片中的景點 -->
+        <!-- 第一排景點 -->
+        <div class="time-block block-1">十鼓文化村
+          <div class="price-tag">300</div>
+          <div class="popularity-badge">2</div>
+          <div class="time-label">10:00</div>
+        </div>
+        <div class="time-block block-2">赤崁樓
+          <div class="price-tag">350</div>
+          <div class="popularity-badge">1</div>
+          <div class="time-label">10:00</div>
+        </div>
+        <div class="time-block block-3">安平古堡
+          <div class="price-tag">200</div>
+          <div class="popularity-badge">1</div>
+          <div class="time-label">10:00</div>
+        </div>
+        
+        <!-- 第二排景點 -->
+        <div class="time-block block-4">赤崁樓
+          <div class="price-tag">350</div>
+          <div class="popularity-badge">1</div>
+          <div class="time-label">13:00</div>
+        </div>
+        <div class="time-block block-5">奇美博物館
+          <div class="price-tag">0</div>
+          <div class="popularity-badge">1</div>
+          <div class="time-label">13:00</div>
+        </div>
+        <div class="time-block block-6">十鼓文化村
+          <div class="price-tag">300</div>
+          <div class="popularity-badge">2</div>
+          <div class="time-label">13:00</div>
+        </div>
+        
+        <!-- 第三排景點 -->
+        <div class="time-block block-7">安平老街
+          <div class="price-tag">250</div>
+          <div class="popularity-badge">2</div>
+          <div class="time-label">16:00</div>
+        </div>
+        <div class="time-block block-8">安平古堡
+          <div class="price-tag">200</div>
+          <div class="popularity-badge">1</div>
+          <div class="time-label">16:00</div>
+        </div>
+        <div class="time-block block-9">安平老街
+          <div class="price-tag">250</div>
+          <div class="popularity-badge">2</div>
+          <div class="time-label">16:00</div>
+        </div>
+        
+        <!-- 行程條 -->
+        <div class="schedule-bar schedule-bar-1"></div>
+        <div class="schedule-bar schedule-bar-2"></div>
+        <div class="schedule-bar schedule-bar-3"></div>
+        
+        <!-- 連接線 -->
+        <svg width="100%" height="500">
+          <!-- 箭頭標記定義 -->
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#007bff" />
+            </marker>
+          </defs>
+          
+          <!-- 水平連接相同景點 - 上端和下端連接 -->
+          <!-- 安平老街連線 (block-7 & block-9) - 上端連接 -->
+          <line x1="160" y1="350" x2="560" y2="350" stroke="#007bff" stroke-width="2" marker-end="url(#arrow)" />
+          <!-- 安平老街連線 (block-7 & block-9) - 下端連接 -->
+          <line x1="160" y1="380" x2="560" y2="380" stroke="#007bff" stroke-width="2" marker-end="url(#arrow)" />
+          
+          <!-- 交叉連接相同景點 - 上端和下端連接 -->
+          <!-- 十鼓文化村連線 (block-1 & block-6) - 上端連接 -->
+          <line x1="160" y1="150" x2="560" y2="250" stroke="#007bff" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,5" />
+          <!-- 十鼓文化村連線 (block-1 & block-6) - 下端連接 -->
+          <line x1="160" y1="180" x2="560" y2="280" stroke="#007bff" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,5" />
+          
+          <!-- 赤崁樓連線 (block-2 & block-4) - 上端連接 -->
+          <line x1="360" y1="150" x2="160" y2="250" stroke="#007bff" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,5" />
+          <!-- 赤崁樓連線 (block-2 & block-4) - 下端連接 -->
+          <line x1="360" y1="180" x2="160" y2="280" stroke="#007bff" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,5" />
+          
+          <!-- 安平古堡連線 (block-3 & block-8) - 上端連接 -->
+          <line x1="560" y1="150" x2="360" y2="350" stroke="#007bff" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,5" />
+          <!-- 安平古堡連線 (block-3 & block-8) - 下端連接 -->
+          <line x1="560" y1="180" x2="360" y2="380" stroke="#007bff" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,5" />
+        </svg>
+      </div>
+    </div>
+  </div>
+  <script>
+    // 價格範圍雙滑塊功能
+    const lowerRange = document.getElementById('lower-range');
+    const upperRange = document.getElementById('upper-range');
+    const trackInner = document.querySelector('.track-inner');
+    const lowerValue = document.querySelector('.lower-value');
+    const upperValue = document.querySelector('.upper-value');
+    
+    // 設置初始值
+    lowerValue.textContent = lowerRange.value;
+    upperValue.textContent = upperRange.value;
+    updateTrackInner();
+    
+    // 更新軌道內部（兩個滑塊之間的高亮部分）
+    function updateTrackInner() {
+      const lower = parseInt(lowerRange.value);
+      const upper = parseInt(upperRange.value);
+      const max = parseInt(lowerRange.max);
+      
+      const lowerPercent = (lower / max) * 100;
+      const upperPercent = (upper / max) * 100;
+      
+      trackInner.style.left = lowerPercent + '%';
+      trackInner.style.right = (100 - upperPercent) + '%';
+    }
+    
+    // 監聽下限滑塊變化
+    lowerRange.addEventListener('input', function() {
+      const lower = parseInt(lowerRange.value);
+      const upper = parseInt(upperRange.value);
+      
+      // 確保下限不超過上限
+      if (lower > upper) {
+        lowerRange.value = upper;
+      }
+      
+      lowerValue.textContent = lowerRange.value;
+      updateTrackInner();
+    });
+    
+    // 監聽上限滑塊變化
+    upperRange.addEventListener('input', function() {
+      const lower = parseInt(lowerRange.value);
+      const upper = parseInt(upperRange.value);
+      
+      // 確保上限不低於下限
+      if (upper < lower) {
+        upperRange.value = lower;
+      }
+      
+      upperValue.textContent = upperRange.value;
+      updateTrackInner();
+    });
+    
+    // 類別展開/折疊功能
+    const categories = document.querySelectorAll('.category');
+    
+    categories.forEach(category => {
+      category.addEventListener('click', function() {
+        // 獲取對應的子類別容器 ID
+        const id = this.id;
+        const subCategoryId = id.replace('category-', 'sub-');
+        const subCategory = document.getElementById(subCategoryId);
+        
+        // 切換類別和子類別的活動狀態
+        this.classList.toggle('active');
+        if (subCategory) {
+          subCategory.classList.toggle('active');
+        }
+      });
+    });
+    
+    // 投票功能
+    const voteButtons = document.querySelectorAll('.vote-btn');
+    
+    voteButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        const votingItem = this.closest('.voting-item');
+        const voteCount = votingItem.querySelector('.vote-count');
+        const allVoteBtns = votingItem.querySelectorAll('.vote-btn');
+        const isLike = this.textContent.includes('👍');
+        const attractionName = votingItem.querySelector('.voting-item-title').textContent;
+        
+        // 重置所有按鈕狀態
+        allVoteBtns.forEach(btn => btn.classList.remove('voted'));
+        
+        // 設置當前按鈕為已投票狀態
+        this.classList.add('voted');
+        
+        // 更新投票數（這裡可以根據實際需求調整邏輯）
+        if (isLike) {
+          console.log(`用戶點讚了${attractionName}`);
+        } else {
+          console.log(`用戶不喜歡${attractionName}`);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

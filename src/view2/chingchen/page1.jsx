@@ -31,7 +31,8 @@ const Page1 = () => {
         <Header />
         <div className="page1_content">
           <Attraction_container usedAttractions={usedAttractions} />
-          <Schedule_container 
+          <Schedule_container
+            t_id={1}//記得換
             usedAttractions={usedAttractions} 
             onAttractionUsed={handleAttractionUsed} 
           />

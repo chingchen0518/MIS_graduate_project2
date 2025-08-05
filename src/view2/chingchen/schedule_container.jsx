@@ -254,7 +254,7 @@ const Schedule_container = ({ usedAttractions = [], onAttractionUsed }) => {
           </div>
         ) : (
           schedules.map((schedule) => (
-            <Schedule
+            <Schedule_insert
               key={schedule.id}
               title={schedule.title}
               day={schedule.day}

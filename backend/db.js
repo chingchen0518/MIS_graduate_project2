@@ -2,7 +2,7 @@
 import express from 'express';
 import mysql from 'mysql2';
 import cors from 'cors';
-import './syncModels.js';
+// import './syncModels.js';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import multer from 'multer';

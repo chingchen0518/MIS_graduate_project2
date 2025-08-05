@@ -50,8 +50,8 @@ class RouteCalculationService {
     try {
       console.log(`計算 ${mode} 路線...`, { fromCoords, toCoords, date, mode });
       
-      const fromPlace = `${fromCoords[0]},${fromCoords[1]}`;
-      const toPlace = `${toCoords[0]},${toCoords[1]}`;
+      const fromPlace = `${fromCoords[0]},${fromCoords[1]}`; //起點的經緯度
+      const toPlace = `${toCoords[0]},${toCoords[1]}`;//終點的經緯度
       const otpDate = this.formatDateForOTP(date);
       
       let urlVariants = [];

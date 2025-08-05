@@ -3,6 +3,8 @@ import Schedule from './schedule.jsx';
 import ScheduleShow from './schedule_show.jsx';
 import './schedule_container.css';
 import DateSelector from '../Liu/DateSelector';
+import Schedule_insert from './schedule_insert.jsx';
+
 
 
 const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
@@ -73,6 +75,26 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
           formattedSchedules.reverse();
           setSchedules(formattedSchedules);
           console.log('✅ 載入的 Schedule 數量:', formattedSchedules.length);
+          
+          // **關鍵修正**: 只將草稿行程中的景點標記為已使用，已確認的行程中的景點不標記為已使用
+          if (onAttractionUsed) {
+            const draftAttractions = new Set();
+            formattedSchedules.forEach(schedule => {
+              // 只處理草稿行程中的景點
+              if (schedule.isDraft && schedule.attractions && schedule.attractions.length > 0) {
+                schedule.attractions.forEach(attraction => {
+                  draftAttractions.add(attraction.name);
+                });
+              }
+            });
+            
+            // 將草稿行程中的景點標記為已使用
+            draftAttractions.forEach(attractionName => {
+              onAttractionUsed(attractionName, true);
+            });
+            
+            console.log('🔄 同步草稿行程的景點狀態:', [...draftAttractions]);
+          }
         }
       })
       .catch(error => {
@@ -107,9 +129,9 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
     setSchedules(prev => [newTempSchedule, ...prev]);
   };
 
-  const handleAttractionUsed = (attractionName) => {
+  const handleAttractionUsed = (attractionName, isUsed = true) => {
     if (onAttractionUsed) {
-      onAttractionUsed(attractionName);
+      onAttractionUsed(attractionName, isUsed);
     }
   };
 
@@ -143,18 +165,35 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
         const data = await response.json();
         console.log('✅ 行程保存成功:', data);
         
-        // 更新前端狀態，將草稿行程替換為正式行程
+        // 獲取當前要確認的行程數據
+        const currentSchedule = schedules.find(s => s.id === scheduleId);
+        console.log('📋 當前行程數據:', currentSchedule);
+        
+        // 更新前端狀態，將草稿行程替換為正式行程，保持景點數據
         setSchedules(prev => prev.map(schedule => 
           schedule.id === scheduleId 
             ? {
                 ...schedule,
                 id: data.s_id || data.insertId,
-                isDraft: false
+                isDraft: false,
+                // 明確保持原有的景點數據
+                attractions: currentSchedule?.attractions || schedule.attractions || []
               }
             : schedule
         ));
         
-        alert('行程已成功保存！');
+        console.log('✅ 行程已確認，景點數據已保留');
+        
+        // 確認行程後，釋放該草稿行程中景點的已使用狀態
+        // 因為已確認的行程中的景點不算"已使用"，可以被拖拽到其他新的草稿行程
+        if (onAttractionUsed && currentSchedule?.attractions) {
+          console.log('🔄 釋放已確認行程的景點使用狀態:', currentSchedule.attractions.map(a => a.name));
+          currentSchedule.attractions.forEach(attraction => {
+            onAttractionUsed(attraction.name, false); // false 表示釋放使用狀態
+          });
+        }
+        
+        alert('行程已成功保存！景點卡片已恢復可選狀態。');
       } else {
         // 嘗試讀取錯誤訊息
         const errorData = await response.text();
@@ -201,6 +240,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
         </div>
         
         {/* 添加行程按鈕永遠顯示在最前面 */}
+
         <Schedule
           // key
           s_id="add-schedule"
@@ -226,7 +266,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
               day={schedule.day}
               scheduleId={schedule.id}
               scheduleData={schedule}
-              attractions={schedule.attractions}
+              initialAttractions={schedule.attractions}
               isFirst={false}
               isDraft={schedule.isDraft}
               containerHeight={timeColumnHeight}

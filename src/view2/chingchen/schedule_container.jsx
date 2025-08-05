@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Schedule from './schedule.jsx';
+import ScheduleShow from './schedule_show.jsx';
 import './schedule_container.css';
 import DateSelector from '../Liu/DateSelector';
 
@@ -217,7 +218,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
           </div>
         ) : (
           schedules.map((schedule) => (
-            <Schedule
+            <ScheduleShow
               key={'schedule-' + schedule.id}
               s_id={schedule.id}
               t_id={t_id}

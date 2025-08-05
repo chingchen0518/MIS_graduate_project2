@@ -12,9 +12,15 @@ import './page1.css';
 const Page1 = () => {
   const [usedAttractions, setUsedAttractions] = useState([]);
 
-  const handleAttractionUsed = (attractionName) => {
-    if (!usedAttractions.includes(attractionName)) {
-      setUsedAttractions(prev => [...prev, attractionName]);
+  const handleAttractionUsed = (attractionName, isUsed = true) => {
+    if (isUsed) {
+      // 標記景點為已使用
+      if (!usedAttractions.includes(attractionName)) {
+        setUsedAttractions(prev => [...prev, attractionName]);
+      }
+    } else {
+      // 釋放景點使用狀態
+      setUsedAttractions(prev => prev.filter(name => name !== attractionName));
     }
   };
 

@@ -24,14 +24,21 @@ const ScheduleItem = ({ name, position, width, index, scheduleId, onMove }) => {
         position: 'absolute',
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: `${width}px`, // Dynamic width
+        width: '180px', // 調整寬度 - 您可以改成您想要的大小
+        minWidth: '100px',
+        maxWidth: '100px',
+        height: '35px', // 調整高度 - 您可以改成您想要的大小
         backgroundColor: '#f0f0f0',
         border: '1px solid black',
         borderRadius: '5px',
         padding: '10px',
         boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
         opacity: isDragging ? 0.5 : 1,
-        cursor: 'move'
+        cursor: 'move',
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
     >
       <div
@@ -39,10 +46,12 @@ const ScheduleItem = ({ name, position, width, index, scheduleId, onMove }) => {
         style={{
           fontWeight: 'bold',
           color: '#333',
-          fontSize: `${Math.min(16, width / 10)}px`, // Adjust font size dynamically
+          fontSize: '14px', // 固定字體大小
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
+          width: '100%',
+          textAlign: 'center'
         }}
       >
         {name}

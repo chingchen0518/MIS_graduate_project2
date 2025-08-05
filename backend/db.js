@@ -179,14 +179,66 @@ app.get('/api/view2_schedule_list', (req, res) => {
   
   console.log('🔍 執行 SQL:', sql, params);
 
-  connection.query(sql, params, (err, rows) => {
+  connection.query(sql, params, (err, schedules) => {
     if (err) {
       console.error('❌ 查詢 Schedule 時出錯：', err.message);
       return res.status(500).json({ error: err.message });
     }
     
-    console.log('✅ 查詢到 Schedule 記錄數:', rows.length);
-    res.json(rows);
+    console.log('✅ 查詢到 Schedule 記錄數:', schedules.length);
+    
+    // 如果沒有 Schedule，直接返回空陣列
+    if (schedules.length === 0) {
+      return res.json([]);
+    }
+    
+    // 為每個 Schedule 查詢相關聯的景點
+    const schedulePromises = schedules.map(schedule => {
+      return new Promise((resolve, reject) => {
+        // 查詢該 Schedule 的景點關聯
+        const attractionSql = `
+          SELECT a.name, a.a_id, si.x, si.y, si.sequence
+          FROM Schedule_include si
+          JOIN Attraction a ON si.a_id = a.a_id
+          WHERE si.s_id = ?
+          ORDER BY si.sequence ASC
+        `;
+        
+        connection.query(attractionSql, [schedule.s_id], (attrErr, attractions) => {
+          if (attrErr) {
+            console.error(`❌ 查詢 Schedule ${schedule.s_id} 的景點時出錯：`, attrErr.message);
+            reject(attrErr);
+            return;
+          }
+          
+          console.log(`📍 Schedule ${schedule.s_id} 找到 ${attractions.length} 個景點`);
+          
+          // 將景點資料格式化為前端需要的格式
+          const formattedAttractions = attractions.map(attr => ({
+            name: attr.name,
+            time: null,
+            position: { x: attr.x || 0, y: attr.y || 0 },
+            width: 200 // 預設寬度
+          }));
+          
+          resolve({
+            ...schedule,
+            attractions: formattedAttractions
+          });
+        });
+      });
+    });
+    
+    // 等待所有 Schedule 的景點查詢完成
+    Promise.all(schedulePromises)
+      .then(schedulesWithAttractions => {
+        console.log('✅ 所有 Schedule 的景點查詢完成');
+        res.json(schedulesWithAttractions);
+      })
+      .catch(error => {
+        console.error('❌ 查詢景點關聯時出錯：', error.message);
+        res.status(500).json({ error: error.message });
+      });
   });
 });
 
@@ -284,14 +336,17 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
       const scheduleId = result.insertId;
       console.log('✅ Schedule 插入成功! s_id:', scheduleId);
       
-      // 如果有景點，也要插入到 Include2 表
+      // 如果有景點，也要插入到 Schedule_include 表
       if (attractions && attractions.length > 0) {
         console.log('📍 開始插入景點關聯...');
+        console.log('📍 景點數據:', JSON.stringify(attractions, null, 2));
         
         const insertAttractionPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
+            console.log(`🔍 處理景點 ${index + 1}:`, attraction);
+            
             // 先查找景點ID
-            const findAttractionSql = 'SELECT a_id FROM Attraction WHERE a_name = ? LIMIT 1';
+            const findAttractionSql = 'SELECT a_id FROM Attraction WHERE name = ? LIMIT 1';
             connection.query(findAttractionSql, [attraction.name], (findErr, attrResult) => {
               if (findErr) {
                 console.error(`❌ 查找景點 ${attraction.name} 時出錯：`, findErr.message);
@@ -307,9 +362,9 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
               
               const attractionId = attrResult[0].a_id;
               
-              // 插入景點關聯
-              const insertSql = 'INSERT INTO Include2 (s_id, a_id, t_id, sequence) VALUES (?, ?, ?, ?)';
-              connection.query(insertSql, [scheduleId, attractionId, 1, index + 1], (insertErr) => {
+              // 插入景點關聯到 Schedule_include 表
+              const insertSql = 'INSERT INTO Schedule_include (s_id, a_id, t_id, sequence, x, y) VALUES (?, ?, ?, ?, ?, ?)';
+              connection.query(insertSql, [scheduleId, attractionId, 1, index + 1, attraction.position?.x || 0, attraction.position?.y || 0], (insertErr) => {
                 if (insertErr) {
                   console.error(`❌ 插入景點關聯 ${attraction.name} 時出錯：`, insertErr.message);
                   reject(insertErr);
@@ -636,6 +691,19 @@ app.post('/api/view3_reset_password', async (req, res) => {
 
 app.get('/api/fake-data', async (req, res) => {
   try {
+    // 檢查是否已有測試資料
+    const checkUserSql = 'SELECT COUNT(*) as count FROM User WHERE u_email = "testuser@example.com"';
+    const userExists = await new Promise((resolve, reject) => {
+      connection.query(checkUserSql, (err, result) => {
+        if (err) return reject(err);
+        resolve(result[0].count > 0);
+      });
+    });
+
+    if (userExists) {
+      return res.status(200).json({ message: '測試資料已存在，無需重複創建' });
+    }
+
     // 插入 User
     const userSql = `INSERT INTO User (u_name, u_email, u_account, u_password, u_img, u_line_id)
       VALUES ('TestUser', 'testuser@example.com', 'testuser', '$2b$10$testpasswordhash', NULL, 'line123')`;
@@ -667,21 +735,37 @@ app.get('/api/fake-data', async (req, res) => {
     });
 
 
-    // 插入 10 筆瑞士景點 Attraction
-    const swissAttractions = [
-      { name: '馬特洪峰', name_zh: '馬特洪峰', name_en: 'Matterhorn', category: '山峰', address: 'Zermatt', country: 'Switzerland', city: 'Zermatt', budget: 0 },
-      { name: '少女峰', name_zh: '少女峰', name_en: 'Jungfrau', category: '山峰', address: 'Bernese Alps', country: 'Switzerland', city: 'Interlaken', budget: 0 },
-      { name: '瑞吉山', name_zh: '瑞吉山', name_en: 'Rigi', category: '山峰', address: 'Lucerne', country: 'Switzerland', city: 'Lucerne', budget: 0 },
-      { name: '日內瓦湖', name_zh: '日內瓦湖', name_en: 'Lake Geneva', category: '湖泊', address: 'Geneva', country: 'Switzerland', city: 'Geneva', budget: 0 },
-      { name: '盧塞恩湖', name_zh: '盧塞恩湖', name_en: 'Lake Lucerne', category: '湖泊', address: 'Lucerne', country: 'Switzerland', city: 'Lucerne', budget: 0 },
-      { name: '策馬特', name_zh: '策馬特', name_en: 'Zermatt', category: '小鎮', address: 'Zermatt', country: 'Switzerland', city: 'Zermatt', budget: 0 },
-      { name: '伯恩老城', name_zh: '伯恩老城', name_en: 'Old City of Bern', category: '古城', address: 'Bern', country: 'Switzerland', city: 'Bern', budget: 0 },
-      { name: '蘇黎世湖', name_zh: '蘇黎世湖', name_en: 'Lake Zurich', category: '湖泊', address: 'Zurich', country: 'Switzerland', city: 'Zurich', budget: 0 },
-      { name: '施皮茨城堡', name_zh: '施皮茨城堡', name_en: 'Spiez Castle', category: '城堡', address: 'Spiez', country: 'Switzerland', city: 'Spiez', budget: 0 },
-      { name: '拉沃葡萄園', name_zh: '拉沃葡萄園', name_en: 'Lavaux Vineyard', category: '葡萄園', address: 'Lavaux', country: 'Switzerland', city: 'Lavaux', budget: 0 }
+    // 插入 10 筆台灣景點 Attraction（增加重複檢查）
+    const taiwanAttractions = [
+      { name: '台北101', name_zh: '台北101', name_en: 'Taipei 101', category: '建築', address: '台北市信義區信義路五段7號', country: 'Taiwan', city: 'Taipei', budget: 0 },
+      { name: '故宮博物院', name_zh: '國立故宮博物院', name_en: 'National Palace Museum', category: '博物館', address: '台北市士林區至善路二段221號', country: 'Taiwan', city: 'Taipei', budget: 0 },
+      { name: '中正紀念堂', name_zh: '中正紀念堂', name_en: 'Chiang Kai-shek Memorial Hall', category: '紀念館', address: '台北市中正區中山南路21號', country: 'Taiwan', city: 'Taipei', budget: 0 },
+      { name: '九份老街', name_zh: '九份老街', name_en: 'Jiufen Old Street', category: '老街', address: '新北市瑞芳區基山街', country: 'Taiwan', city: 'New Taipei', budget: 0 },
+      { name: '日月潭', name_zh: '日月潭', name_en: 'Sun Moon Lake', category: '湖泊', address: '南投縣魚池鄉', country: 'Taiwan', city: 'Nantou', budget: 0 },
+      { name: '阿里山', name_zh: '阿里山', name_en: 'Alishan', category: '山峰', address: '嘉義縣阿里山鄉', country: 'Taiwan', city: 'Chiayi', budget: 0 },
+      { name: '墾丁國家公園', name_zh: '墾丁國家公園', name_en: 'Kenting National Park', category: '國家公園', address: '屏東縣恆春鎮', country: 'Taiwan', city: 'Pingtung', budget: 0 },
+      { name: '太魯閣國家公園', name_zh: '太魯閣國家公園', name_en: 'Taroko National Park', category: '國家公園', address: '花蓮縣秀林鄉', country: 'Taiwan', city: 'Hualien', budget: 0 },
+      { name: '西門町', name_zh: '西門町', name_en: 'Ximending', category: '商圈', address: '台北市萬華區', country: 'Taiwan', city: 'Taipei', budget: 0 },
+      { name: '淡水老街', name_zh: '淡水老街', name_en: 'Tamsui Old Street', category: '老街', address: '新北市淡水區中正路', country: 'Taiwan', city: 'New Taipei', budget: 0 }
     ];
-    for (let i = 0; i < swissAttractions.length; i++) {
-      const a = swissAttractions[i];
+    
+    for (let i = 0; i < taiwanAttractions.length; i++) {
+      const a = taiwanAttractions[i];
+      
+      // 檢查景點是否已存在
+      const checkAttractionSql = 'SELECT COUNT(*) as count FROM Attraction WHERE name = ?';
+      const attractionExists = await new Promise((resolve, reject) => {
+        connection.query(checkAttractionSql, [a.name], (err, result) => {
+          if (err) return reject(err);
+          resolve(result[0].count > 0);
+        });
+      });
+      
+      if (attractionExists) {
+        console.log(`⚠️ 景點 "${a.name}" 已存在，跳過`);
+        continue;
+      }
+      
       const sql = `INSERT INTO Attraction (t_id, name, name_zh, name_en, category, address, country, city, budget, photo, u_id)
         VALUES (1, '${a.name}', '${a.name_zh}', '${a.name_en}', '${a.category}', '${a.address}', '${a.country}', '${a.city}', ${a.budget}, '${i+1}.jpg', 1)`;
       await new Promise((resolve, reject) => {
@@ -690,9 +774,10 @@ app.get('/api/fake-data', async (req, res) => {
           resolve();
         });
       });
+      console.log(`✅ 新增景點: ${a.name}`);
     }
 
-    return res.status(200).json({ message: 'User、Trip、Schedule、ScheduleItem、Attraction 假資料插入成功！' });
+    return res.status(200).json({ message: 'User、Trip、Schedule、Attraction 假資料插入成功！' });
   } catch (error) {
     console.error('❌ 插入假資料失敗：', error);
     return res.status(500).json({ message: '伺服器錯誤' });
@@ -717,8 +802,78 @@ app.get('/api/fake-data-clean', async (req, res) => {
   }
 });
 
+// API for adding attractions to schedule
+app.post('/api/view2_schedule_include_insert', (req, res) => {
+  console.log('📝 收到新增景點到行程的請求:', req.body);
+  
+  const { a_id, t_id, s_id, x, y } = req.body;
+  
+  // 驗證必要參數
+  if (!a_id || !t_id || !s_id) {
+    return res.status(400).json({ 
+      error: '缺少必要參數: a_id, t_id, s_id' 
+    });
+  }
+  
+  // 檢查是否已經存在相同的關聯
+  const checkSql = 'SELECT * FROM Schedule_include WHERE a_id = ? AND s_id = ?';
+  connection.query(checkSql, [a_id, s_id], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error('❌ 檢查重複關聯時出錯：', checkErr.message);
+      return res.status(500).json({ error: checkErr.message });
+    }
+    
+    if (checkResult.length > 0) {
+      console.log('⚠️ 景點已經存在於此行程中');
+      return res.status(409).json({ 
+        error: '景點已經存在於此行程中',
+        existing: checkResult[0]
+      });
+    }
+    
+    // 插入新的關聯記錄，需要提供 sequence 字段
+    // 先查詢該行程中已有的景點數量，作為下一個序號
+    const sequenceSql = 'SELECT COUNT(*) as count FROM Schedule_include WHERE s_id = ?';
+    connection.query(sequenceSql, [s_id], (seqErr, seqResult) => {
+      if (seqErr) {
+        console.error('❌ 查詢序號時出錯：', seqErr.message);
+        return res.status(500).json({ error: seqErr.message });
+      }
+      
+      const nextSequence = seqResult[0].count + 1;
+      
+      const insertSql = `
+        INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, sequence) 
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      
+      connection.query(insertSql, [a_id, t_id, s_id, x || 0, y || 0, nextSequence], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error('❌ 插入景點關聯時出錯：', insertErr.message);
+          return res.status(500).json({ error: insertErr.message });
+        }
+        
+        console.log('✅ 景點成功添加到行程中！插入ID:', insertResult.insertId);
+        res.json({
+          success: true,
+          message: '景點已成功添加到行程中',
+          insertId: insertResult.insertId,
+          data: {
+            a_id,
+            t_id,
+            s_id,
+            x: x || 0,
+            y: y || 0,
+            sequence: nextSequence
+          }
+        });
+      });
+    });
+  });
+});
+
 app.listen(port, () => {
-  console.log(`✅ 伺服器正在運行於 http://localhost:${port}`);
+  console.log(`🚀 伺服器正在 http://localhost:${port} 上運行`);
 });
 
 // 新增測試資料的 API 端點
@@ -785,7 +940,7 @@ app.post('/api/schedule_attractions_save', (req, res) => {
         const insertPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
             // 先查找景點ID（這裡假設景點名稱對應 Attraction 表中的記錄）
-            const findAttractionSql = 'SELECT a_id FROM Attraction WHERE a_name = ? LIMIT 1';
+            const findAttractionSql = 'SELECT a_id FROM Attraction WHERE name = ? LIMIT 1';
             connection.query(findAttractionSql, [attraction.name], (findErr, attrResult) => {
               if (findErr) {
                 console.error(`❌ 查找景點 ${attraction.name} 時出錯：`, findErr.message);

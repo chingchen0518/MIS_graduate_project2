@@ -7,7 +7,7 @@ import AttractionCard from './attraction_card';
 const ScheduleItem = lazy(() => import('./schedule_item'));
 
 
-const Schedule = ({ 
+const Schedule_insert = ({ 
   title, 
   initialAttractions, 
   day, 
@@ -309,6 +309,6 @@ const CustomDragPreview = () => {
   );
 };
 
-export default Schedule;
+export default Schedule_insert;
 
 export { CustomDragPreview };

@@ -2,7 +2,7 @@
 import express from 'express';
 import mysql from 'mysql2';
 import cors from 'cors';
-import './syncModels.js';
+// import './syncModels.js';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import multer from 'multer';
@@ -110,7 +110,7 @@ app.get('/api/travel', (req, res) => {
     connection.query(sql, (err, rows) => {
       if (hasError) return;
 
-      if (err) {
+      if (err)
         hasError = true;
         console.error(`❌ 查詢 ${key} 時出錯：`, err.message);
         return res.status(500).json({ error: `查詢 ${key} 失敗：${err.message}` });
@@ -163,20 +163,20 @@ app.get('/api/view2_attraction_list', (req, res) => {
 
 app.get('/api/view2_schedule_list', (req, res) => {
   const { date } = req.query;
-  
+
   let sql = 'SELECT * FROM Schedule';
   let params = [];
-  
+
   // 如果有提供日期參數，則按日期過濾
   if (date) {
     sql += ' WHERE date = ?';
     params.push(date);
     console.log('📅 按日期過濾 Schedule:', date);
   }
-  
+
   // 添加排序：先按日期，再按day欄位排序
   sql += ' ORDER BY date ASC, day ASC';
-  
+
   console.log('🔍 執行 SQL:', sql, params);
 
   connection.query(sql, params, (err, schedules) => {
@@ -185,75 +185,78 @@ app.get('/api/view2_schedule_list', (req, res) => {
       return res.status(500).json({ error: err.message });
     }
     
-    console.log('✅ 查詢到 Schedule 記錄數:', schedules.length);
+//     console.log('✅ 查詢到 Schedule 記錄數:', schedules.length);
     
-    // 如果沒有 Schedule，直接返回空陣列
-    if (schedules.length === 0) {
-      return res.json([]);
-    }
+//     // 如果沒有 Schedule，直接返回空陣列
+//     if (schedules.length === 0) {
+//       return res.json([]);
+//     }
     
-    // 為每個 Schedule 查詢相關聯的景點
-    const schedulePromises = schedules.map(schedule => {
-      return new Promise((resolve, reject) => {
-        // 查詢該 Schedule 的景點關聯
-        const attractionSql = `
-          SELECT a.name, a.a_id, si.x, si.y, si.sequence
-          FROM Schedule_include si
-          JOIN Attraction a ON si.a_id = a.a_id
-          WHERE si.s_id = ?
-          ORDER BY si.sequence ASC
-        `;
+//     // 為每個 Schedule 查詢相關聯的景點
+//     const schedulePromises = schedules.map(schedule => {
+//       return new Promise((resolve, reject) => {
+//         // 查詢該 Schedule 的景點關聯
+//         const attractionSql = `
+//           SELECT a.name, a.a_id, si.x, si.y, si.sequence
+//           FROM Schedule_include si
+//           JOIN Attraction a ON si.a_id = a.a_id
+//           WHERE si.s_id = ?
+//           ORDER BY si.sequence ASC
+//         `;
         
-        connection.query(attractionSql, [schedule.s_id], (attrErr, attractions) => {
-          if (attrErr) {
-            console.error(`❌ 查詢 Schedule ${schedule.s_id} 的景點時出錯：`, attrErr.message);
-            reject(attrErr);
-            return;
-          }
+//         connection.query(attractionSql, [schedule.s_id], (attrErr, attractions) => {
+//           if (attrErr) {
+//             console.error(`❌ 查詢 Schedule ${schedule.s_id} 的景點時出錯：`, attrErr.message);
+//             reject(attrErr);
+//             return;
+//           }
           
-          console.log(`📍 Schedule ${schedule.s_id} 找到 ${attractions.length} 個景點`);
+//           console.log(`📍 Schedule ${schedule.s_id} 找到 ${attractions.length} 個景點`);
           
-          // 將景點資料格式化為前端需要的格式
-          const formattedAttractions = attractions.map(attr => ({
-            name: attr.name,
-            time: null,
-            position: { x: attr.x || 0, y: attr.y || 0 },
-            width: 200 // 預設寬度
-          }));
+//           // 將景點資料格式化為前端需要的格式
+//           const formattedAttractions = attractions.map(attr => ({
+//             name: attr.name,
+//             time: null,
+//             position: { x: attr.x || 0, y: attr.y || 0 },
+//             width: 200 // 預設寬度
+//           }));
           
-          resolve({
-            ...schedule,
-            attractions: formattedAttractions
-          });
-        });
-      });
-    });
+//           resolve({
+//             ...schedule,
+//             attractions: formattedAttractions
+//           });
+//         });
+//       });
+//     });
     
-    // 等待所有 Schedule 的景點查詢完成
-    Promise.all(schedulePromises)
-      .then(schedulesWithAttractions => {
-        console.log('✅ 所有 Schedule 的景點查詢完成');
-        res.json(schedulesWithAttractions);
-      })
-      .catch(error => {
-        console.error('❌ 查詢景點關聯時出錯：', error.message);
-        res.status(500).json({ error: error.message });
-      });
+//     // 等待所有 Schedule 的景點查詢完成
+//     Promise.all(schedulePromises)
+//       .then(schedulesWithAttractions => {
+//         console.log('✅ 所有 Schedule 的景點查詢完成');
+//         res.json(schedulesWithAttractions);
+//       })
+//       .catch(error => {
+//         console.error('❌ 查詢景點關聯時出錯：', error.message);
+//         res.status(500).json({ error: error.message });
+//       });
+
+    console.log('✅ 查詢到 Schedule 記錄數:', rows.length);
+    res.json(rows);
   });
 });
 
 app.get('/api/view2_schedule_list_insert', (req, res) => {
   const { title, day, date } = req.query;
-  
+
   console.log('📝 收到新增 Schedule 請求:');
   console.log('  - title:', title);
   console.log('  - day:', day);
   console.log('  - date:', date);
-  
+
   // 如果沒有提供日期，使用默認值
   const scheduleDate = date || '2025-08-01';
   console.log('  - 使用的日期:', scheduleDate);
-  
+
   // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
   const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
   connection.query(countSql, [scheduleDate], (countErr, countResult) => {
@@ -261,25 +264,25 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
       console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
       return res.status(500).json({ error: countErr.message });
     }
-    
+
     const nextDayScheduleNumber = countResult[0].count + 1;
     console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
-    
+
     const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
     const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
     const scheduleDay = day || nextDayScheduleNumber;
     console.log('  - SQL:', sql);
     console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
-    
+
     connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
       if (err) {
         console.error('❌ 插入 Schedule 時出錯：', err.message);
         return res.status(500).json({ error: err.message });
       }
-      
+
       console.log('✅ 插入成功! result:', result);
       console.log('✅ insertId:', result.insertId);
-      
+
       // 返回新創建的記錄信息，使用計算出的該日期行程編號
       const response = {
         s_id: result.insertId,
@@ -288,7 +291,7 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
         date: scheduleDate,
         message: 'Schedule created successfully'
       };
-      
+
       console.log('✅ 準備返回的響應:', response);
       res.json(response);
     });
@@ -299,17 +302,17 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
 // POST 版本的新增 Schedule API（用於確認行程）
 app.post('/api/view2_schedule_list_insert', (req, res) => {
   const { title, day, date, attractions } = req.body;
-  
+
   console.log('📝 收到確認 Schedule 請求 (POST):');
   console.log('  - title:', title);
   console.log('  - day:', day);
   console.log('  - date:', date);
   console.log('  - attractions:', attractions);
-  
+
   // 如果沒有提供日期，使用默認值
   const scheduleDate = date || '2025-08-01';
   console.log('  - 使用的日期:', scheduleDate);
-  
+
   // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
   const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
   connection.query(countSql, [scheduleDate], (countErr, countResult) => {
@@ -317,30 +320,30 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
       console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
       return res.status(500).json({ error: countErr.message });
     }
-    
+
     const nextDayScheduleNumber = countResult[0].count + 1;
     console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
-    
+
     const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
     const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
     const scheduleDay = day || nextDayScheduleNumber;
     console.log('  - SQL:', sql);
     console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
-    
+
     connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
       if (err) {
         console.error('❌ 插入 Schedule 時出錯：', err.message);
         return res.status(500).json({ error: err.message });
       }
-      
+
       const scheduleId = result.insertId;
       console.log('✅ Schedule 插入成功! s_id:', scheduleId);
-      
+
       // 如果有景點，也要插入到 Schedule_include 表
       if (attractions && attractions.length > 0) {
         console.log('📍 開始插入景點關聯...');
         console.log('📍 景點數據:', JSON.stringify(attractions, null, 2));
-        
+
         const insertAttractionPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
             console.log(`🔍 處理景點 ${index + 1}:`, attraction);
@@ -353,36 +356,37 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
                 reject(findErr);
                 return;
               }
-              
+
               if (attrResult.length === 0) {
                 console.log(`⚠️ 景點 ${attraction.name} 不存在，跳過`);
                 resolve();
                 return;
               }
-              
+
               const attractionId = attrResult[0].a_id;
               
               // 插入景點關聯到 Schedule_include 表
               const insertSql = 'INSERT INTO Schedule_include (s_id, a_id, t_id, sequence, x, y) VALUES (?, ?, ?, ?, ?, ?)';
               connection.query(insertSql, [scheduleId, attractionId, 1, index + 1, attraction.position?.x || 0, attraction.position?.y || 0], (insertErr) => {
+
                 if (insertErr) {
                   console.error(`❌ 插入景點關聯 ${attraction.name} 時出錯：`, insertErr.message);
                   reject(insertErr);
                   return;
                 }
-                
+
                 console.log(`✅ 景點關聯插入成功: ${attraction.name}`);
                 resolve();
               });
             });
           });
         });
-        
+
         // 等待所有景點關聯插入完成
         Promise.all(insertAttractionPromises)
           .then(() => {
             console.log('✅ 所有景點關聯插入成功！');
-            
+
             const response = {
               s_id: scheduleId,
               title: scheduleTitle,
@@ -390,7 +394,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
               date: scheduleDate,
               message: 'Schedule and attractions created successfully'
             };
-            
+
             console.log('✅ 準備返回的響應:', response);
             res.json(response);
           })
@@ -407,13 +411,49 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
           date: scheduleDate,
           message: 'Schedule created successfully'
         };
-        
+
         console.log('✅ 準備返回的響應:', response);
         res.json(response);
       }
     });
 
   });
+});
+
+//把景點添加到schedule後存入資料庫
+app.post('/api/view2_schedule_include_insert', (req, res) => {
+  const { a_id, t_id, s_id, x, y } = req.body;
+
+  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, sequence) VALUES (?, ?, ?, ?, ?, ?)`;
+  const values = [a_id, t_id, s_id, x, y, 1];
+
+  connection.query(query, values, (err, results) => {
+    if (err) {
+      console.error('Error inserting data into Schedule_include:', err);
+      res.status(500).send('Failed to insert data');
+    } else {
+      res.status(200).send('Data inserted successfully');
+    }
+  });
+});
+
+app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {
+    const { t_id, s_id } = req.params;
+    
+    const query = `SELECT * FROM schedule_include s
+                   JOIN Attraction a ON s.a_id = a.a_id
+                   WHERE s.t_id = ? AND s.s_id = ?
+                   ORDER BY sequence ASC`;
+    const values = [t_id, s_id];
+
+    connection.query(query, values, (err, results) => {
+        if (err) {
+            console.error('Error fetching data from Schedule_include:', err);
+            res.status(500).send('Failed to fetch data');
+        } else {
+            res.status(200).json(results);
+        }
+    });
 });
 
 // 新增 API 端點：獲取指定 trip 的日期範圍
@@ -690,6 +730,7 @@ app.post('/api/view3_reset_password', async (req, res) => {
 });
 
 app.get('/api/fake-data', async (req, res) => {
+  // http://localhost:3001
   try {
     // 檢查是否已有測試資料
     const checkUserSql = 'SELECT COUNT(*) as count FROM User WHERE u_email = "testuser@example.com"';
@@ -705,8 +746,14 @@ app.get('/api/fake-data', async (req, res) => {
     }
 
     // 插入 User
-    const userSql = `INSERT INTO User (u_name, u_email, u_account, u_password, u_img, u_line_id)
-      VALUES ('TestUser', 'testuser@example.com', 'testuser', '$2b$10$testpasswordhash', NULL, 'line123')`;
+    const userSql = `
+      INSERT INTO User (u_name, u_email, u_account, u_password, u_img, u_line_id) VALUES
+        ('TestUser1', 'testuser1@example.com', 'testuser1', '$2b$10$hash1', NULL, 'line1'),
+        ('TestUser2', 'testuser2@example.com', 'testuser2', '$2b$10$hash2', NULL, 'line2'),
+        ('TestUser3', 'testuser3@example.com', 'testuser3', '$2b$10$hash3', NULL, 'line3'),
+        ('TestUser4', 'testuser4@example.com', 'testuser4', '$2b$10$hash4', NULL, 'line4'),
+        ('TestUser5', 'testuser5@example.com', 'testuser5', '$2b$10$hash5', NULL, 'line5');
+    `;
 
     await new Promise((resolve, reject) => {
       connection.query(userSql, (err) => {
@@ -715,9 +762,18 @@ app.get('/api/fake-data', async (req, res) => {
       });
     });
 
-    // 插入 Trip，u_id 設為 1
-    const tripSql = `INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id)
-      VALUES ('2025-08-01', '2025-08-10', '08:00:00', '20:00:00', 'France', '2025-08-01', '10:00:00', '巴黎之旅', 'A', 1)`;
+
+    // 插入 Trip
+    const tripSql = `
+      INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id)
+      VALUES
+        ('2025-08-01', '2025-08-10', '08:00:00', '20:00:00', 'France', '2025-08-01', '10:00:00', '巴黎之旅', 'A', 1),
+        ('2025-09-05', '2025-09-15', '09:00:00', '19:00:00', 'Italy', '2025-09-05', '11:00:00', '義大利探索', 'B', 2),
+        ('2025-10-10', '2025-10-20', '07:30:00', '18:30:00', 'Japan', '2025-10-10', '09:30:00', '日本文化之旅', 'C', 3),
+        ('2025-11-01', '2025-11-10', '08:00:00', '20:00:00', 'Spain', '2025-11-01', '10:00:00', '西班牙風情', 'D', 4),
+        ('2025-12-15', '2025-12-25', '10:00:00', '22:00:00', 'Australia', '2025-12-15', '12:00:00', '澳洲冒險', 'E', 5)
+    `;
+
     await new Promise((resolve, reject) => {
       connection.query(tripSql, (err) => {
         if (err) return reject(err);
@@ -725,8 +781,32 @@ app.get('/api/fake-data', async (req, res) => {
       });
     });
 
-    // 插入 Schedule，t_id 設為 1，u_id 設為 1
-    const scheduleSql = `INSERT INTO Schedule (t_id, u_id, date) VALUES (1, 1, '2025-08-01')`;
+
+    // 插入 Schedule
+    const scheduleSql = `
+      INSERT INTO Schedule (t_id, u_id, date, day, title)
+      VALUES
+        (1, 1, '2025-08-01', 1, '巴黎行程第1天'),
+        (1, 2, '2025-08-02', 2, '巴黎行程第2天'),
+        (1, 1, '2025-08-03', 3, '巴黎行程第3天'),
+
+        (2, 2, '2025-09-05', 1, '義大利行程第1天'),
+        (2, 4, '2025-09-06', 2, '義大利行程第2天'),
+        (2, 2, '2025-09-07', 3, '義大利行程第3天'),
+
+        (3, 3, '2025-10-10', 1, '日本行程第1天'),
+        (3, 1, '2025-10-11', 2, '日本行程第2天'),
+        (3, 2, '2025-10-12', 3, '日本行程第3天'),
+
+        (4, 3, '2025-11-01', 1, '西班牙行程第1天'),
+        (4, 4, '2025-11-02', 2, '西班牙行程第2天'),
+        (4, 5, '2025-11-03', 3, '西班牙行程第3天'),
+
+        (5, 4, '2025-12-15', 1, '澳洲行程第1天'),
+        (5, 5, '2025-12-16', 2, '澳洲行程第2天'),
+        (5, 5, '2025-12-17', 3, '澳洲行程第3天')
+    `;
+
     await new Promise((resolve, reject) => {
       connection.query(scheduleSql, (err) => {
         if (err) return reject(err);
@@ -735,49 +815,261 @@ app.get('/api/fake-data', async (req, res) => {
     });
 
 
-    // 插入 10 筆台灣景點 Attraction（增加重複檢查）
-    const taiwanAttractions = [
-      { name: '台北101', name_zh: '台北101', name_en: 'Taipei 101', category: '建築', address: '台北市信義區信義路五段7號', country: 'Taiwan', city: 'Taipei', budget: 0 },
-      { name: '故宮博物院', name_zh: '國立故宮博物院', name_en: 'National Palace Museum', category: '博物館', address: '台北市士林區至善路二段221號', country: 'Taiwan', city: 'Taipei', budget: 0 },
-      { name: '中正紀念堂', name_zh: '中正紀念堂', name_en: 'Chiang Kai-shek Memorial Hall', category: '紀念館', address: '台北市中正區中山南路21號', country: 'Taiwan', city: 'Taipei', budget: 0 },
-      { name: '九份老街', name_zh: '九份老街', name_en: 'Jiufen Old Street', category: '老街', address: '新北市瑞芳區基山街', country: 'Taiwan', city: 'New Taipei', budget: 0 },
-      { name: '日月潭', name_zh: '日月潭', name_en: 'Sun Moon Lake', category: '湖泊', address: '南投縣魚池鄉', country: 'Taiwan', city: 'Nantou', budget: 0 },
-      { name: '阿里山', name_zh: '阿里山', name_en: 'Alishan', category: '山峰', address: '嘉義縣阿里山鄉', country: 'Taiwan', city: 'Chiayi', budget: 0 },
-      { name: '墾丁國家公園', name_zh: '墾丁國家公園', name_en: 'Kenting National Park', category: '國家公園', address: '屏東縣恆春鎮', country: 'Taiwan', city: 'Pingtung', budget: 0 },
-      { name: '太魯閣國家公園', name_zh: '太魯閣國家公園', name_en: 'Taroko National Park', category: '國家公園', address: '花蓮縣秀林鄉', country: 'Taiwan', city: 'Hualien', budget: 0 },
-      { name: '西門町', name_zh: '西門町', name_en: 'Ximending', category: '商圈', address: '台北市萬華區', country: 'Taiwan', city: 'Taipei', budget: 0 },
-      { name: '淡水老街', name_zh: '淡水老街', name_en: 'Tamsui Old Street', category: '老街', address: '新北市淡水區中正路', country: 'Taiwan', city: 'New Taipei', budget: 0 }
-    ];
-    
-    for (let i = 0; i < taiwanAttractions.length; i++) {
-      const a = taiwanAttractions[i];
-      
-      // 檢查景點是否已存在
-      const checkAttractionSql = 'SELECT COUNT(*) as count FROM Attraction WHERE name = ?';
-      const attractionExists = await new Promise((resolve, reject) => {
-        connection.query(checkAttractionSql, [a.name], (err, result) => {
-          if (err) return reject(err);
-          resolve(result[0].count > 0);
-        });
+    await new Promise((resolve, reject) => {
+      connection.query(scheduleSql, (err) => {
+        if (err) return reject(err);
+        resolve();
       });
-      
-      if (attractionExists) {
-        console.log(`⚠️ 景點 "${a.name}" 已存在，跳過`);
-        continue;
-      }
-      
-      const sql = `INSERT INTO Attraction (t_id, name, name_zh, name_en, category, address, country, city, budget, photo, u_id)
-        VALUES (1, '${a.name}', '${a.name_zh}', '${a.name_en}', '${a.category}', '${a.address}', '${a.country}', '${a.city}', ${a.budget}, '${i+1}.jpg', 1)`;
-      await new Promise((resolve, reject) => {
-        connection.query(sql, (err) => {
-          if (err) return reject(err);
-          resolve();
-        });
-      });
-      console.log(`✅ 新增景點: ${a.name}`);
-    }
+    });
 
-    return res.status(200).json({ message: 'User、Trip、Schedule、Attraction 假資料插入成功！' });
+
+
+    // 插入Attraction
+    const attractionSql = `
+      INSERT INTO Attraction (t_id, u_id, name, name_zh, name_en, category, address, country, city, budget, photo, latitude, longitude)
+      VALUES
+        (1, 1, 'Eiffel Tower', '艾菲爾鐵塔', 'Eiffel Tower', 'landmark', 'Champ de Mars, 5 Avenue Anatole France, Paris', 'France', 'Paris', 25.0, 'eiffel.jpg', 48.8584, 2.2945),
+        (1, 1, 'Louvre Museum', '羅浮宮', 'Louvre Museum', 'museum', 'Rue de Rivoli, Paris', 'France', 'Paris', 20.0, 'louvre.jpg', 48.8606, 2.3376),
+        (1, 1, 'Montmartre', '蒙馬特', 'Montmartre', 'district', '18th arrondissement, Paris', 'France', 'Paris', 0.0, 'montmartre.jpg', 48.8867, 2.3431),
+        (2, 2, 'Colosseum', '羅馬競技場', 'Colosseum', 'landmark', 'Piazza del Colosseo, Rome', 'Italy', 'Rome', 18.0, 'colosseum.jpg', 41.8902, 12.4922),
+        (2, 2, 'Trevi Fountain', '特雷維噴泉', 'Trevi Fountain', 'landmark', 'Piazza di Trevi, Rome', 'Italy', 'Rome', 0.0, 'trevi.jpg', 41.9009, 12.4833),
+        (2, 2, 'Vatican Museums', '梵蒂岡博物館', 'Vatican Museums', 'museum', 'Viale Vaticano, Vatican City', 'Italy', 'Vatican City', 17.0, 'vatican.jpg', 41.9065, 12.4536),
+        (3, 3, 'Tokyo Tower', '東京鐵塔', 'Tokyo Tower', 'landmark', '4 Chome-2-8 Shibakoen, Minato City', 'Japan', 'Tokyo', 15.0, 'tokyotower.jpg', 35.6586, 139.7454),
+        (3, 3, 'Senso-ji', '淺草寺', 'Senso-ji Temple', 'temple', '2 Chome-3-1 Asakusa, Taito City', 'Japan', 'Tokyo', 0.0, 'sensoji.jpg', 35.7148, 139.7967),
+        (3, 3, 'Shibuya Crossing', '澀谷十字路口', 'Shibuya Crossing', 'crossroad', 'Shibuya City', 'Japan', 'Tokyo', 0.0, 'shibuya.jpg', 35.6595, 139.7004),
+        (4, 4, 'Sagrada Familia', '聖家堂', 'Sagrada Familia', 'church', 'Carrer de Mallorca, Barcelona', 'Spain', 'Barcelona', 26.0, 'sagrada.jpg', 41.4036, 2.1744),
+        (4, 4, 'Park Güell', '古埃爾公園', 'Park Güell', 'park', 'Carrer d''Olot, Barcelona', 'Spain', 'Barcelona', 10.0, 'parkguell.jpg', 41.4145, 2.1527),
+        (4, 4, 'La Rambla', '蘭布拉大道', 'La Rambla', 'street', 'La Rambla, Barcelona', 'Spain', 'Barcelona', 0.0, 'larambla.jpg', 41.3809, 2.1735),
+        (5, 5, 'Sydney Opera House', '雪梨歌劇院', 'Sydney Opera House', 'landmark', 'Bennelong Point, Sydney', 'Australia', 'Sydney', 37.0, 'opera.jpg', -33.8568, 151.2153),
+        (5, 5, 'Bondi Beach', '邦迪海灘', 'Bondi Beach', 'beach', 'Bondi Beach, Sydney', 'Australia', 'Sydney', 0.0, 'bondi.jpg', -33.8908, 151.2743),
+        (5, 5, 'Taronga Zoo', '塔龍加動物園', 'Taronga Zoo', 'zoo', 'Bradleys Head Rd, Mosman', 'Australia', 'Sydney', 23.0, 'zoo.jpg', -33.8430, 151.2412),
+        (3, 3, 'Meiji Shrine', '明治神宮', 'Meiji Shrine', 'shrine', '1-1 Yoyogikamizonocho, Shibuya City', 'Japan', 'Tokyo', 0.0, 'meiji.jpg', 35.6764, 139.6993),
+        (2, 2, 'Pantheon', '萬神殿', 'Pantheon', 'landmark', 'Piazza della Rotonda, Rome', 'Italy', 'Rome', 0.0, 'pantheon.jpg', 41.8986, 12.4768),
+        (1, 1, 'Seine River Cruise', '塞納河遊船', 'Seine River Cruise', 'activity', 'Port de la Bourdonnais, Paris', 'France', 'Paris', 14.0, 'seine.jpg', 48.8600, 2.2970),
+        (4, 4, 'Casa Batlló', '巴特婁之家', 'Casa Batlló', 'architecture', 'Passeig de Gràcia, Barcelona', 'Spain', 'Barcelona', 25.0, 'batllo.jpg', 41.3917, 2.1649),
+        (5, 5, 'Blue Mountains', '藍山國家公園', 'Blue Mountains', 'nature', 'Blue Mountains, NSW', 'Australia', 'Blue Mountains', 18.0, 'bluemountains.jpg', -33.7000, 150.3000)
+    `;
+
+    await new Promise((resolve, reject) => {
+      connection.query(attractionSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+    // 插入 join
+    const joinSql = `
+      INSERT INTO \`Join\` (u_id, t_id, color)
+      VALUES
+        (1, 1, '#FF5733'),
+        (2, 1, '#33A1FF'),
+        (3, 1, '#33FF99'),
+
+        (2, 2, '#FFAA33'),
+        (1, 2, '#3399FF'),
+        (4, 2, '#FF33A8'),
+
+        (3, 3, '#66FF33'),
+        (1, 3, '#FF6633'),
+        (5, 3, '#3366FF'),
+
+        (4, 4, '#FF3333'),
+        (2, 4, '#33FFCC'),
+        (5, 4, '#FF9933'),
+
+        (5, 5, '#9966FF'),
+        (3, 5, '#FF6699'),
+        (1, 5, '#66CCFF')
+    `;
+
+    await new Promise((resolve, reject) => {
+      connection.query(joinSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    //support
+    const supportSql = `
+      INSERT INTO Support (u_id, a_id, t_id, reason, onelove, twolove)
+      VALUES
+        (1, 1, 1, '風景超棒，值得一看', 1, 0),
+        (1, 2, 1, '美食非常吸引人', 0, 1),
+        (1, 3, 1, '交通方便，適合安排上午行程', 1, 1),
+        (2, 4, 2, '歷史氣息濃厚，推薦', 1, 0),
+        (2, 5, 2, '拍照地點一流', 0, 1),
+        (2, 6, 2, '氣氛浪漫，適合情侶', 1, 1),
+        (3, 7, 3, '夜景美到爆炸', 1, 0),
+        (3, 8, 3, '動漫迷的朝聖地', 0, 1),
+        (3, 9, 3, '交通便利，附近餐廳多', 1, 1),
+        (4, 10, 4, '建築很特別，拍照很讚', 1, 0),
+        (4, 11, 4, '街頭藝人很多，很有特色', 0, 1),
+        (4, 12, 4, '適合悠閒散步', 1, 1),
+        (5, 13, 5, '陽光海灘太棒了', 1, 0),
+        (5, 14, 5, '戶外活動豐富', 0, 1),
+        (5, 15, 5, '超適合親子旅遊', 1, 1),
+        (1, 16, 1, '有藝術展覽，可一看', 1, 0),
+        (2, 17, 2, '咖啡館林立，適合放鬆', 0, 1),
+        (3, 18, 3, '購物天堂，記得帶卡', 1, 0),
+        (4, 19, 4, '文化活動精彩', 0, 1),
+        (5, 20, 5, '美食市集必逛', 1, 1)
+    `;
+
+    await new Promise((resolve, reject) => {
+      connection.query(supportSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    //evaluate
+    const evaluateSql = `
+      INSERT INTO Evaluate (u_id, s_id, t_id, good, bad)
+      VALUES
+        (1, 1, 1, true, false),
+        (1, 2, 1, true, false),
+        (2, 3, 2, false, true),
+        (2, 4, 2, true, false),
+        (3, 5, 3, true, false),
+        (3, 6, 3, false, true),
+        (4, 7, 4, true, false),
+        (4, 8, 4, false, true),
+        (5, 9, 5, true, false),
+        (5, 10, 5, true, false),
+        (1, 11, 1, false, true),
+        (2, 12, 2, true, false),
+        (3, 13, 3, true, false),
+        (4, 14, 4, true, false),
+        (5, 15, 5, false, true),
+        (1, 16, 1, true, false),
+        (2, 17, 2, false, true),
+        (3, 18, 3, true, false),
+        (4, 19, 4, true, false),
+        (5, 20, 5, true, false)
+        `;
+    await new Promise((resolve, reject) => {
+      connection.query(evaluateSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    // hotel
+    const hotelSql = `
+      INSERT INTO Hotel (h_img, h_address, h_name_zh, h_name_en, h_country, h_city, price)
+      VALUES
+        ('/images/hotel1.jpg', '1 Rue de Paris, Paris', '巴黎香榭旅館', 'Champs Elysees Hotel', 'France', 'Paris', 150.0),
+        ('/images/hotel2.jpg', '10 Rue Lafayette, Paris', '拉法葉精品旅館', 'Lafayette Boutique Hotel', 'France', 'Paris', 200.0),
+        ('/images/hotel3.jpg', 'Via Roma 45, Rome', '羅馬古都旅館', 'Ancient Rome Hotel', 'Italy', 'Rome', 130.0),
+        ('/images/hotel4.jpg', 'Piazza Navona 7, Rome', '納沃納廣場旅館', 'Navona Square Hotel', 'Italy', 'Rome', 180.0),
+        ('/images/hotel5.jpg', 'Shibuya 2-21-1, Tokyo', '澀谷時尚旅館', 'Shibuya Fashion Hotel', 'Japan', 'Tokyo', 160.0),
+        ('/images/hotel6.jpg', 'Ueno 3-5-7, Tokyo', '上野溫馨旅館', 'Ueno Cozy Hotel', 'Japan', 'Tokyo', 110.0),
+        ('/images/hotel7.jpg', 'Gran Via 12, Madrid', '格蘭大道旅館', 'Gran Via Hotel', 'Spain', 'Madrid', 140.0),
+        ('/images/hotel8.jpg', 'Plaza Mayor 9, Madrid', '馬約爾廣場旅館', 'Mayor Plaza Hotel', 'Spain', 'Madrid', 170.0),
+        ('/images/hotel9.jpg', '123 George St, Sydney', '雪梨海港旅館', 'Sydney Harbour Hotel', 'Australia', 'Sydney', 190.0),
+        ('/images/hotel10.jpg', '456 Bondi Rd, Sydney', '邦代海灘旅館', 'Bondi Beach Hotel', 'Australia', 'Sydney', 175.0),
+
+        ('/images/hotel11.jpg', 'Rue Mouffetard 88, Paris', '巴黎街頭旅館', 'Paris Street Inn', 'France', 'Paris', 120.0),
+        ('/images/hotel12.jpg', 'Via del Corso 12, Rome', '羅馬時尚旅館', 'Fashion Rome Inn', 'Italy', 'Rome', 140.0),
+        ('/images/hotel13.jpg', 'Akihabara 1-1-1, Tokyo', '秋葉原電器旅館', 'Akihabara Tech Hotel', 'Japan', 'Tokyo', 100.0),
+        ('/images/hotel14.jpg', 'Puerta del Sol 5, Madrid', '太陽門旅館', 'Sun Gate Hotel', 'Spain', 'Madrid', 160.0),
+        ('/images/hotel15.jpg', '789 Collins St, Melbourne', '墨爾本商務旅館', 'Melbourne Business Hotel', 'Australia', 'Melbourne', 180.0),
+        ('/images/hotel16.jpg', '1 Place Bellecour, Lyon', '里昂中心旅館', 'Lyon Central Hotel', 'France', 'Lyon', 130.0),
+        ('/images/hotel17.jpg', 'Florence St 17, Florence', '佛羅倫斯藝術旅館', 'Florence Art Hotel', 'Italy', 'Florence', 160.0),
+        ('/images/hotel18.jpg', 'Osaka Namba 3-14-1, Osaka', '大阪南海旅館', 'Osaka Namba Hotel', 'Japan', 'Osaka', 120.0),
+        ('/images/hotel19.jpg', 'Barcelona Av 22, Barcelona', '巴塞隆納精品旅館', 'Barcelona Boutique Hotel', 'Spain', 'Barcelona', 150.0),
+        ('/images/hotel20.jpg', 'Queen St 9, Brisbane', '布里斯本觀景旅館', 'Brisbane View Hotel', 'Australia', 'Brisbane', 170.0)
+        `;
+    await new Promise((resolve, reject) => {
+      connection.query(hotelSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    //tripHotel
+    const tripHotelSql = `
+      INSERT INTO TripHotel (h_id, t_id, cin_time, cout_time)
+      VALUES
+        (1, 1, '2025-08-01', '2025-08-03'),
+        (2, 1, '2025-08-03', '2025-08-05'),
+        (3, 2, '2025-09-05', '2025-09-07'),
+        (4, 2, '2025-09-07', '2025-09-10'),
+        (5, 3, '2025-10-10', '2025-10-12'),
+        (6, 3, '2025-10-12', '2025-10-14'),
+        (7, 4, '2025-11-01', '2025-11-04'),
+        (8, 4, '2025-11-04', '2025-11-06'),
+        (9, 5, '2025-12-15', '2025-12-17'),
+        (10, 5, '2025-12-17', '2025-12-19'),
+
+        (11, 1, '2025-08-05', '2025-08-07'),
+        (12, 2, '2025-09-10', '2025-09-12'),
+        (13, 3, '2025-10-14', '2025-10-16'),
+        (14, 4, '2025-11-06', '2025-11-08'),
+        (15, 5, '2025-12-19', '2025-12-21'),
+        (16, 1, '2025-08-07', '2025-08-09'),
+        (17, 2, '2025-09-12', '2025-09-13'),
+        (18, 3, '2025-10-16', '2025-10-17'),
+        (19, 4, '2025-11-08', '2025-11-10'),
+        (20, 5, '2025-12-21', '2025-12-23')
+    `;
+    await new Promise((resolve, reject) => {
+      connection.query(tripHotelSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    //weekday
+    const weekDaysSql = `
+      INSERT INTO Weekday (w_day)
+      VALUES
+        ('Monday'),
+        ('Tuesday'),
+        ('Wednesday'),
+        ('Thursday'),
+        ('Friday'),
+        ('Saturday'),
+        ('Sunday')
+    `;
+
+    await new Promise((resolve, reject) => {
+      connection.query(weekDaysSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    //business
+    const businessSql = `
+      INSERT INTO Business (a_id, t_id, w_day, period, open_time, close_time)
+      VALUES
+        (1, 1, 'Monday', 1, '09:00:00', '12:00:00'),
+        (1, 1, 'Monday', 2, '13:00:00', '17:00:00'),
+        (1, 1, 'Tuesday', 1, '09:00:00', '12:00:00'),
+        (1, 1, 'Tuesday', 2, '13:00:00', '17:00:00'),
+        (1, 1, 'Wednesday', 1, '09:00:00', '12:00:00'),
+
+        (2, 1, 'Monday', 1, '10:00:00', '13:00:00'),
+        (2, 1, 'Monday', 2, '14:00:00', '18:00:00'),
+        (2, 2, 'Tuesday', 1, '09:30:00', '12:30:00'),
+        (2, 2, 'Tuesday', 2, '13:30:00', '17:30:00'),
+        (2, 2, 'Wednesday', 1, '10:00:00', '14:00:00'),
+
+        (3, 2, 'Monday', 1, '08:00:00', '11:00:00'),
+        (3, 2, 'Monday', 2, '12:00:00', '16:00:00'),
+        (3, 2, 'Tuesday', 1, '08:00:00', '12:00:00'),
+        (3, 2, 'Tuesday', 2, '13:00:00', '17:00:00'),
+        (3, 2, 'Wednesday', 1, '09:00:00', '13:00:00')
+    `;
+
+    await new Promise((resolve, reject) => {
+      connection.query(businessSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    return res.status(200).json({ message: '假資料插入成功！' });
   } catch (error) {
     console.error('❌ 插入假資料失敗：', error);
     return res.status(500).json({ message: '伺服器錯誤' });
@@ -881,13 +1173,13 @@ app.get('/api/create-test-trip', (req, res) => {
   const sql = `INSERT INTO Trip (t_id, u_id, s_date, e_date, s_time, e_time, country, stage_date, time, title, stage) 
                VALUES (1, 1, '2024-01-01', '2024-01-10', '09:00:00', '18:00:00', '台灣', NOW(), '09:00:00', '測試旅程', '規劃中')
                ON DUPLICATE KEY UPDATE title = '測試旅程'`;
-  
+
   connection.query(sql, (err, result) => {
     if (err) {
       console.error('❌ 創建測試 Trip 失敗:', err.message);
       return res.status(500).json({ error: err.message });
     }
-    
+
     console.log('✅ 測試 Trip 創建成功:', result);
     res.json({ message: '測試 Trip 創建成功', result });
   });
@@ -896,15 +1188,15 @@ app.get('/api/create-test-trip', (req, res) => {
 // 保存景點到行程的 API
 app.post('/api/schedule_attractions_save', (req, res) => {
   const { scheduleId, attractions } = req.body;
-  
+
   console.log('📝 收到保存景點到行程請求:');
   console.log('  - scheduleId:', scheduleId);
   console.log('  - attractions:', attractions);
-  
+
   if (!scheduleId || !attractions || !Array.isArray(attractions)) {
     return res.status(400).json({ error: '參數不完整' });
   }
-  
+
   // 先檢查 Schedule 是否存在
   const checkScheduleSql = 'SELECT * FROM Schedule WHERE s_id = ?';
   connection.query(checkScheduleSql, [scheduleId], (checkErr, scheduleResult) => {
@@ -912,20 +1204,20 @@ app.post('/api/schedule_attractions_save', (req, res) => {
       console.error('❌ 檢查 Schedule 時出錯：', checkErr.message);
       return res.status(500).json({ error: checkErr.message });
     }
-    
+
     if (scheduleResult.length === 0) {
       return res.status(404).json({ error: 'Schedule 不存在' });
     }
-    
+
     console.log('✅ Schedule 存在:', scheduleResult[0]);
-    
+
     // 開始事務，批量插入景點關聯
     connection.beginTransaction((transErr) => {
       if (transErr) {
         console.error('❌ 開始事務時出錯：', transErr.message);
         return res.status(500).json({ error: transErr.message });
       }
-      
+
       // 先清除該 Schedule 的舊景點關聯（可選）
       const clearOldSql = 'DELETE FROM Include2 WHERE s_id = ?';
       connection.query(clearOldSql, [scheduleId], (clearErr) => {
@@ -935,7 +1227,7 @@ app.post('/api/schedule_attractions_save', (req, res) => {
             res.status(500).json({ error: clearErr.message });
           });
         }
-        
+
         // 準備批量插入
         const insertPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
@@ -947,34 +1239,34 @@ app.post('/api/schedule_attractions_save', (req, res) => {
                 reject(findErr);
                 return;
               }
-              
+
               if (attrResult.length === 0) {
                 console.log(`⚠️ 景點 ${attraction.name} 不存在於 Attraction 表中，跳過`);
                 resolve();
                 return;
               }
-              
+
               const attractionId = attrResult[0].a_id;
-              
+
               // 插入到 Include2 表（Schedule-Attraction 關聯表）
               const insertSql = 'INSERT INTO Include2 (s_id, a_id, t_id, sequence) VALUES (?, ?, ?, ?)';
               const sequenceOrder = index + 1;
               const tripId = 1; // 假設使用固定的 trip ID，你可能需要根據實際情況調整
-              
+
               connection.query(insertSql, [scheduleId, attractionId, tripId, sequenceOrder], (insertErr, insertResult) => {
                 if (insertErr) {
                   console.error(`❌ 插入景點關聯 ${attraction.name} 時出錯：`, insertErr.message);
                   reject(insertErr);
                   return;
                 }
-                
+
                 console.log(`✅ 成功插入景點關聯: ${attraction.name} (a_id: ${attractionId})`);
                 resolve();
               });
             });
           });
         });
-        
+
         // 等待所有插入完成
         Promise.all(insertPromises)
           .then(() => {
@@ -986,7 +1278,7 @@ app.post('/api/schedule_attractions_save', (req, res) => {
                   res.status(500).json({ error: commitErr.message });
                 });
               }
-              
+
               console.log('✅ 所有景點關聯保存成功！');
               res.json({
                 success: true,
@@ -1006,3 +1298,4 @@ app.post('/api/schedule_attractions_save', (req, res) => {
     });
   });
 });
+

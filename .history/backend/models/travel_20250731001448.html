@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>小明的尋寶之旅</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 10px;
+    }
+    h1 {
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin: 0 0 15px 0;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    h1::before {
+      content: "🎯";
+      font-size: 20px;
+    }
+    .container {
+      display: flex;
+      gap: 15px;
+      height: calc(100vh - 120px);
+    }
+    .sidebar {
+      width: 300px;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      height: fit-content;
+    }
+    .filter-section {
+      margin-bottom: 20px;
+    }
+    .filter-title {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      color: #333;
+    }
+    .filter-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+    .range-slider {
+      width: 100%;
+      margin: 15px 0 10px;
+      position: relative;
+    }
+    .range-slider {
+      width: 100%;
+      margin: 15px 0 10px;
+      position: relative;
+      height: 30px;
+    }
+    .multi-range {
+      position: relative;
+      height: 30px;
+    }
+    .multi-range input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 6px;
+      background: none;
+      pointer-events: none;
+      outline: none;
+      z-index: 2;
+    }
+    .track {
+      position: absolute;
+      width: 100%;
+      height: 6px;
+      background: #e6e6e6;
+      border-radius: 10px;
+      overflow: hidden;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    .track-inner {
+      position: absolute;
+      height: 100%;
+      background: #07a7e3;
+      border-radius: 10px;
+      left: 0%;
+      right: 35%;
+    }
+    .multi-range input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border: 2px solid #07a7e3;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      pointer-events: auto;
+      z-index: 3;
+    }
+    .multi-range input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border: 2px solid #07a7e3;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      pointer-events: auto;
+      z-index: 3;
+    }
+    .range-values {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #666;
+    }
+    .current-value {
+      display: inline-block;
+      background: #07a7e3;
+      color: white;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    .users-section {
+      margin-bottom: 15px;
+    }
+    .user-icons {
+      display: flex;
+      margin-top: 10px;
+    }
+    .user-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      margin-right: 8px;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      overflow: hidden;
+      background-size: cover;
+    }
+    .user-icon.user1 {
+      background-color: #FF9800;
+    }
+    .user-icon.user2 {
+      background-color: #E91E63;
+    }
+    .categories-section {
+      margin-top: 15px;
+    }
+    .custom-checkbox {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      margin-right: 8px;
+      position: relative;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    .custom-checkbox:checked {
+      background-color: #07a7e3;
+      border-color: #07a7e3;
+    }
+    .custom-checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 5px;
+      height: 9px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .category {
+      background-color: #ffd1d1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #333;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .category.market {
+      background-color: #ffecd1;
+    }
+    .category.nature {
+      background-color: #d1dfff;
+    }
+    .category.cuisine {
+      background-color: #e8d1ff;
+    }
+    .category:after {
+      content: '+';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      font-weight: normal;
+      transition: transform 0.3s ease;
+    }
+    .category.active:after {
+      transform: translateY(-50%) rotate(45deg);
+    }
+    .sub-categories {
+      display: none;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      padding: 5px;
+      border-radius: 5px;
+      background-color: rgba(255,255,255,0.7);
+    }
+    .sub-categories.active {
+      display: flex;
+    }
+    .sub-category {
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 5px 8px;
+      font-size: 12px;
+      display: inline-block;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    .map {
+      margin-top: 10px;
+      height: 150px;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Tainan_montage.png/640px-Tainan_montage.png');
+      background-size: cover;
+      background-position: center;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      position: relative;
+      overflow: hidden;
+    }
+    .map::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: #2196F3;
+      border-radius: 50%;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .trip-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .trip-title-icon {
+      color: #f5d5d5;
+      font-size: 22px;
+    }
+    .trip-duration {
+      color: #777;
+      font-size: 14px;
+    }
+    .status-indicators {
+      display: flex;
+      gap: 10px;
+    }
+    .status-tag {
+      background-color: #f9f9c6;
+      padding: 5px 15px;
+      border-radius: 15px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .active-tag {
+      background-color: #ffdb58;
+    }
+    .stats-summary {
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      color: #555;
+      margin-left: 20px;
+      background-color: #f5f5f5;
+      padding: 3px 10px;
+      border-radius: 15px;
+    }
+    .stats-summary .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin: 0 5px;
+    }
+    .main-content {
+      flex: 1;
+      background: white;
+      border-radius: 15px;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .timeline-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 15px 15px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .timeline-header .trip-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-weight: 600;
+    }
+    .status-indicators {
+      display: flex;
+      gap: 8px;
+    }
+    .status-tag {
+      background-color: rgba(255,255,255,0.2);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .status-tag.active {
+      background-color: #ffd700;
+      color: #333;
+      font-weight: 600;
+    }
+    .timeline-header button {
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      padding: 3px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .timeline-page-indicator {
+      background-color: #cce5ff;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #0056b3;
+      display: inline-block;
+      margin-left: 5px;
+    }
+    .legend {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 5px;
+      font-size: 12px;
+      z-index: 10;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin: 3px 0;
+    }
+    .legend-color {
+      width: 15px;
+      height: 3px;
+      margin-right: 5px;
+    }
+    .legend-label {
+      font-size: 11px;
+      color: #555;
+    }
+    .timeline-tools {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      z-index: 10;
+      display: flex;
+      gap: 5px;
+    }
+    .timeline-tool-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #555;
+      font-size: 14px;
+    }
+    .timeline-tool-btn.active {
+      background-color: #cce5ff;
+      color: #0056b3;
+    }
+    .timeline {
+      height: calc(100vh - 250px);
+      border: none;
+      border-radius: 0 0 15px 15px;
+      overflow: auto;
+      padding: 20px;
+      position: relative;
+      background: #fafafa;
+    }
+    
+    /* 時間軸列設計 */
+    .day-column {
+      position: absolute;
+      top: 0;
+      bottom: 20px;
+      width: 200px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border: 1px solid #e0e0e0;
+    }
+    .day-column.day1 { left: 50px; }
+    .day-column.day2 { left: 280px; }
+    .day-column.day3 { left: 510px; }
+    
+    .day-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+      border-radius: 10px 10px 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .day-date {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    
+    /* 時間軸標記 */
+    .time-labels {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 40px;
+      height: 100%;
+    }
+    .time-marker {
+      position: absolute;
+      left: 0;
+      width: 40px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #666;
+      background: rgba(255,255,255,0.8);
+      border-radius: 5px;
+      margin: 2px 0;
+    }
+    
+    /* 景點卡片 */
+    .attraction-card {
+      position: absolute;
+      width: 160px;
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 0 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .attraction-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    
+    .attraction-card.culture { border-left-color: #ff6b6b; background: #fff5f5; }
+    .attraction-card.nature { border-left-color: #4ecdc4; background: #f0fffe; }
+    .attraction-card.food { border-left-color: #45b7d1; background: #f0f9ff; }
+    .attraction-card.market { border-left-color: #f9ca24; background: #fffbf0; }
+    
+    .attraction-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    .attraction-time {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    .attraction-price {
+      font-size: 11px;
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    
+    /* 用戶頭像 */
+    .user-avatar {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .user-avatar.user1 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+    .user-avatar.user2 { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+    
+    /* 熱門度標記 */
+    .popularity-badge {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      background: #ff4757;
+      color: white;
+      font-size: 10px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      border: 2px solid white;
+    }
+    .time-block {
+      position: absolute;
+      width: 120px;
+      height: 30px;
+      background: #ffffff;
+      border: none;
+      text-align: center;
+      padding: 5px 10px;
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+      font-size: 13px;
+    }
+    .time-label {
+      position: absolute;
+      bottom: -25px;
+      width: 100%;
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      font-weight: normal;
+    }
+    .time-marker {
+      position: absolute;
+      left: 0;
+      width: 60px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      font-size: 10px;
+      color: #777;
+      justify-content: center;
+      background-color: transparent;
+    }
+    .timeline-column {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 150px;
+      border-right: 1px solid #e0e0e0;
+    }
+    /* 第一排景點 */
+    .block-1 {
+      top: 150px;
+      left: 100px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-2 {
+      top: 150px;
+      left: 300px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-3 {
+      top: 150px;
+      left: 500px;
+      background-color: #ffffff;
+      border: none;
+    }
+    /* 第二排景點 */
+    .block-4 {
+      top: 250px;
+      left: 100px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-5 {
+      top: 250px;
+      left: 300px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-6 {
+      top: 250px;
+      left: 500px;
+      background-color: #ffffff;
+      border: none;
+    }
+    /* 第三排景點 */
+    .block-7 {
+      top: 350px;
+      left: 100px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-8 {
+      top: 350px;
+      left: 300px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .block-9 {
+      top: 350px;
+      left: 500px;
+      background-color: #ffffff;
+      border: none;
+    }
+    .schedule-bar {
+      position: absolute;
+      height: 5px;
+      border-radius: 3px;
+      background: #ff9800;
+    }
+    .schedule-bar-1 {
+      left: 140px;
+      top: 340px;
+      width: 40px;
+    }
+    .schedule-bar-2 {
+      left: 340px;
+      top: 340px;
+      width: 40px;
+    }
+    .schedule-bar-3 {
+      left: 540px;
+      top: 340px;
+      width: 40px;
+    }
+    /* 移除頭像相關樣式 */
+    .popularity-badge {
+      position: absolute;
+      top: -32px;
+      right: 2px;
+      background-color: #ff4081;
+      color: white;
+      font-size: 10px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid white;
+      font-weight: bold;
+      z-index: 5;
+    }
+    .route-arrow-down {
+      position: absolute;
+      width: 2px;
+      background-color: #aaa;
+      z-index: 1;
+    }
+    .time-column-label {
+      position: absolute;
+      top: 40px;
+      width: 100%;
+      text-align: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #666;
+    }
+    .time-column {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 60px;
+      height: 100%;
+      background-color: #f8f9fa;
+      border-right: 1px solid #e0e0e0;
+      z-index: 0;
+      box-shadow: 1px 0 3px rgba(0,0,0,0.05);
+    }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+    .slider-value {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+    }
+    .price-tag {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ff6b6b;
+      color: white;
+      border-radius: 3px;
+      padding: 2px 4px;
+      font-size: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>小明的尋寶之旅</h1>
+  
+  <div class="container">
+    <div class="sidebar">
+      <!-- 預算篩選器 -->
+      <div class="filter-section">
+        <div class="filter-title">
+          <span class="filter-icon">💰</span>
+          預算:
+        </div>
+        <div class="range-slider">
+          <div class="multi-range">
+            <input type="range" min="0" max="1000" value="0" id="lower-range" class="lower-range" />
+            <input type="range" min="0" max="1000" value="650" id="upper-range" class="upper-range" />
+            <div class="track">
+              <div class="track-inner"></div>
+            </div>
+          </div>
+        </div>
+        <div class="range-values">
+          <span class="current-value lower-value">0</span>
+          <span class="current-value upper-value">650</span>
+        </div>
+      </div>
+      
+      <!-- 使用者比較 -->
+      <div class="filter-section">
+        <div class="filter-title">
+          <span class="filter-icon">👥</span>
+          使用者:
+        </div>
+        <div class="user-icons">
+          <div class="user-icon user1"></div>
+          <div class="user-icon user2"></div>
+        </div>
+      </div>
+      
+      <!-- 類別篩選器 -->
+      <div class="filter-section">
+        <div class="filter-title">
+          <span class="filter-icon">📂</span>
+          類別:
+        </div>
+        
+        <!-- 文化類別 -->
+        <div class="category" id="category-culture">
+          <input type="checkbox" checked class="custom-checkbox">
+          文化
+        </div>
+        <div class="sub-categories active" id="sub-culture">
+          <div class="sub-category">十鼓文化村</div>
+          <div class="sub-category">赤崁樓</div>
+          <div class="sub-category">安平古堡</div>
+          <div class="sub-category">奇美博物館</div>
+        </div>
+        
+        <!-- 市集類別 -->
+        <div class="category market" id="category-market">
+          <input type="checkbox" checked class="custom-checkbox">
+          市集
+        </div>
+        <div class="sub-categories active" id="sub-market">
+          <div class="sub-category">安平老街</div>
+          <div class="sub-category">神農街</div>
+        </div>
+      </div>
+      
+      <!-- 地圖區域 -->
+      <div class="map"></div>
+    </div>
+    
+    <div class="main-content">
+      <div class="timeline-header">
+        <div class="trip-info">
+          <span>旅遊行程</span>
+          <span style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 12px; font-size: 11px;">3/1</span>
+        </div>
+        <div class="status-indicators">
+          <span class="status-tag">行程編輯</span>
+          <span class="status-tag">景點新增</span>
+          <span class="status-tag">規劃模式</span>
+          <span class="status-tag active">行程比較</span>
+          <span class="status-tag">行程確定</span>
+        </div>
+      </div>
+      
+      <div class="timeline">
+        <!-- 時間標記 -->
+        <div class="time-labels">
+          <div class="time-marker" style="top: 50px;">09:00</div>
+          <div class="time-marker" style="top: 120px;">10:00</div>
+          <div class="time-marker" style="top: 190px;">11:00</div>
+          <div class="time-marker" style="top: 260px;">12:00</div>
+          <div class="time-marker" style="top: 330px;">13:00</div>
+          <div class="time-marker" style="top: 400px;">14:00</div>
+          <div class="time-marker" style="top: 470px;">15:00</div>
+          <div class="time-marker" style="top: 540px;">16:00</div>
+        </div>
+        
+        <!-- 三天的行程列 -->
+        <div class="day-column day1">
+          <div class="day-header">
+            <div>3/1</div>
+            <div class="day-date">第一天</div>
+          </div>
+          
+          <!-- 第一天的景點 -->
+          <div class="attraction-card culture" style="top: 80px;">
+            <div class="user-avatar user1"></div>
+            <div class="popularity-badge">2</div>
+            <div class="attraction-name">十鼓文化村</div>
+            <div class="attraction-time">09:00</div>
+            <div class="attraction-price">$300</div>
+          </div>
+          
+          <div class="attraction-card nature" style="top: 210px;">
+            <div class="user-avatar user1"></div>
+            <div class="popularity-badge">1</div>
+            <div class="attraction-name">四草綠色隧道</div>
+            <div class="attraction-time">13:00</div>
+            <div class="attraction-price">$200</div>
+          </div>
+          
+          <div class="attraction-card market" style="top: 350px;">
+            <div class="user-avatar user1"></div>
+            <div class="popularity-badge">2</div>
+            <div class="attraction-name">安平老街</div>
+            <div class="attraction-time">16:00</div>
+            <div class="attraction-price">$250</div>
+          </div>
+        </div>
+        
+        <div class="day-column day2">
+          <div class="day-header">
+            <div>3/2</div>
+            <div class="day-date">第二天</div>
+          </div>
+          
+          <!-- 第二天的景點 -->
+          <div class="attraction-card culture" style="top: 80px;">
+            <div class="user-avatar user2"></div>
+            <div class="popularity-badge">1</div>
+            <div class="attraction-name">赤崁樓</div>
+            <div class="attraction-time">09:00</div>
+            <div class="attraction-price">$50</div>
+          </div>
+          
+          <div class="attraction-card culture" style="top: 210px;">
+            <div class="user-avatar user2"></div>
+            <div class="popularity-badge">1</div>
+            <div class="attraction-name">奇美博物館</div>
+            <div class="attraction-time">13:00</div>
+            <div class="attraction-price">$0</div>
+          </div>
+          
+          <div class="attraction-card culture" style="top: 350px;">
+            <div class="user-avatar user2"></div>
+            <div class="popularity-badge">1</div>
+            <div class="attraction-name">安平古堡</div>
+            <div class="attraction-time">16:00</div>
+            <div class="attraction-price">$70</div>
+          </div>
+        </div>
+        
+        <div class="day-column day3">
+          <div class="day-header">
+            <div>3/3</div>
+            <div class="day-date">第三天</div>
+          </div>
+          
+          <!-- 第三天的景點 -->
+          <div class="attraction-card culture" style="top: 80px;">
+            <div class="user-avatar user1"></div>
+            <div class="popularity-badge">2</div>
+            <div class="attraction-name">十鼓文化村</div>
+            <div class="attraction-time">09:00</div>
+            <div class="attraction-price">$300</div>
+          </div>
+          
+          <div class="attraction-card nature" style="top: 210px;">
+            <div class="user-avatar user1"></div>
+            <div class="popularity-badge">1</div>
+            <div class="attraction-name">台江國家公園</div>
+            <div class="attraction-time">13:00</div>
+            <div class="attraction-price">$0</div>
+          </div>
+          
+          <div class="attraction-card market" style="top: 350px;">
+            <div class="user-avatar user1"></div>
+            <div class="popularity-badge">2</div>
+            <div class="attraction-name">安平老街</div>
+            <div class="attraction-time">16:00</div>
+            <div class="attraction-price">$250</div>
+          </div>
+        </div>
+        
+        <!-- 連接線顯示相同景點 -->
+        <svg width="100%" height="600" style="position: absolute; top: 0; left: 0; pointer-events: none;">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L9,3 z" fill="#007bff" />
+            </marker>
+          </defs>
+          
+          <!-- 連接相同景點 -->
+          <!-- 十鼓文化村：第一天到第三天 -->
+          <line x1="230" y1="130" x2="530" y2="130" stroke="#007bff" stroke-width="2" stroke-dasharray="5,5" />
+          
+          <!-- 安平老街：第一天到第三天 -->
+          <line x1="230" y1="400" x2="530" y2="400" stroke="#007bff" stroke-width="2" stroke-dasharray="5,5" />
+        </svg>
+        
+        <!-- 圖例 -->
+        <div style="position: absolute; top: 20px; right: 20px; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 12px;">
+          <div style="margin-bottom: 5px;">
+            <span style="display: inline-block; width: 20px; height: 2px; background: #007bff; margin-right: 8px;"></span>
+            相同景點連接
+          </div>
+          <div style="margin-bottom: 5px;">
+            <span style="display: inline-block; width: 20px; height: 2px; background: linear-gradient(to right, #007bff 5px, transparent 5px); background-size: 10px 2px; margin-right: 8px;"></span>
+            跨日相同景點
+          </div>
+          <div>
+            <span style="display: inline-block; width: 16px; height: 16px; background: #ff4757; border-radius: 50%; color: white; text-align: center; line-height: 16px; font-size: 10px; margin-right: 8px;">2</span>
+            熱門度（選擇次數）
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // 價格範圍雙滑塊功能
+    const lowerRange = document.getElementById('lower-range');
+    const upperRange = document.getElementById('upper-range');
+    const trackInner = document.querySelector('.track-inner');
+    const lowerValue = document.querySelector('.lower-value');
+    const upperValue = document.querySelector('.upper-value');
+    
+    // 設置初始值
+    lowerValue.textContent = lowerRange.value;
+    upperValue.textContent = upperRange.value;
+    updateTrackInner();
+    
+    // 更新軌道內部（兩個滑塊之間的高亮部分）
+    function updateTrackInner() {
+      const lower = parseInt(lowerRange.value);
+      const upper = parseInt(upperRange.value);
+      const max = parseInt(lowerRange.max);
+      
+      const lowerPercent = (lower / max) * 100;
+      const upperPercent = (upper / max) * 100;
+      
+      trackInner.style.left = lowerPercent + '%';
+      trackInner.style.right = (100 - upperPercent) + '%';
+    }
+    
+    // 監聽下限滑塊變化
+    lowerRange.addEventListener('input', function() {
+      const lower = parseInt(lowerRange.value);
+      const upper = parseInt(upperRange.value);
+      
+      if (lower > upper) {
+        lowerRange.value = upper;
+      }
+      
+      lowerValue.textContent = lowerRange.value;
+      updateTrackInner();
+    });
+    
+    // 監聽上限滑塊變化
+    upperRange.addEventListener('input', function() {
+      const lower = parseInt(lowerRange.value);
+      const upper = parseInt(upperRange.value);
+      
+      if (upper < lower) {
+        upperRange.value = lower;
+      }
+      
+      upperValue.textContent = upperRange.value;
+      updateTrackInner();
+    });
+    
+    // 類別展開/折疊功能
+    const categories = document.querySelectorAll('.category');
+    categories.forEach(category => {
+      category.addEventListener('click', function() {
+        const id = this.id;
+        const subCategoryId = id.replace('category-', 'sub-');
+        const subCategory = document.getElementById(subCategoryId);
+        
+        this.classList.toggle('active');
+        if (subCategory) {
+          subCategory.classList.toggle('active');
+        }
+      });
+    });
+    
+    // 景點卡片互動效果
+    const attractionCards = document.querySelectorAll('.attraction-card');
+    attractionCards.forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)';
+      });
+      
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+      });
+    });
+  </script>
+</body>
+</html>

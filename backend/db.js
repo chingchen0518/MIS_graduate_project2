@@ -110,7 +110,7 @@ app.get('/api/travel', (req, res) => {
     connection.query(sql, (err, rows) => {
       if (hasError) return;
 
-      if (err) {
+      if (err)
         hasError = true;
         console.error(`❌ 查詢 ${key} 時出錯：`, err.message);
         return res.status(500).json({ error: `查詢 ${key} 失敗：${err.message}` });
@@ -179,11 +179,66 @@ app.get('/api/view2_schedule_list', (req, res) => {
 
   console.log('🔍 執行 SQL:', sql, params);
 
-  connection.query(sql, params, (err, rows) => {
+  connection.query(sql, params, (err, schedules) => {
     if (err) {
       console.error('❌ 查詢 Schedule 時出錯：', err.message);
       return res.status(500).json({ error: err.message });
     }
+    
+//     console.log('✅ 查詢到 Schedule 記錄數:', schedules.length);
+    
+//     // 如果沒有 Schedule，直接返回空陣列
+//     if (schedules.length === 0) {
+//       return res.json([]);
+//     }
+    
+//     // 為每個 Schedule 查詢相關聯的景點
+//     const schedulePromises = schedules.map(schedule => {
+//       return new Promise((resolve, reject) => {
+//         // 查詢該 Schedule 的景點關聯
+//         const attractionSql = `
+//           SELECT a.name, a.a_id, si.x, si.y, si.sequence
+//           FROM Schedule_include si
+//           JOIN Attraction a ON si.a_id = a.a_id
+//           WHERE si.s_id = ?
+//           ORDER BY si.sequence ASC
+//         `;
+        
+//         connection.query(attractionSql, [schedule.s_id], (attrErr, attractions) => {
+//           if (attrErr) {
+//             console.error(`❌ 查詢 Schedule ${schedule.s_id} 的景點時出錯：`, attrErr.message);
+//             reject(attrErr);
+//             return;
+//           }
+          
+//           console.log(`📍 Schedule ${schedule.s_id} 找到 ${attractions.length} 個景點`);
+          
+//           // 將景點資料格式化為前端需要的格式
+//           const formattedAttractions = attractions.map(attr => ({
+//             name: attr.name,
+//             time: null,
+//             position: { x: attr.x || 0, y: attr.y || 0 },
+//             width: 200 // 預設寬度
+//           }));
+          
+//           resolve({
+//             ...schedule,
+//             attractions: formattedAttractions
+//           });
+//         });
+//       });
+//     });
+    
+//     // 等待所有 Schedule 的景點查詢完成
+//     Promise.all(schedulePromises)
+//       .then(schedulesWithAttractions => {
+//         console.log('✅ 所有 Schedule 的景點查詢完成');
+//         res.json(schedulesWithAttractions);
+//       })
+//       .catch(error => {
+//         console.error('❌ 查詢景點關聯時出錯：', error.message);
+//         res.status(500).json({ error: error.message });
+//       });
 
     console.log('✅ 查詢到 Schedule 記錄數:', rows.length);
     res.json(rows);
@@ -284,14 +339,17 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
       const scheduleId = result.insertId;
       console.log('✅ Schedule 插入成功! s_id:', scheduleId);
 
-      // 如果有景點，也要插入到 Include2 表
+      // 如果有景點，也要插入到 Schedule_include 表
       if (attractions && attractions.length > 0) {
         console.log('📍 開始插入景點關聯...');
+        console.log('📍 景點數據:', JSON.stringify(attractions, null, 2));
 
         const insertAttractionPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
+            console.log(`🔍 處理景點 ${index + 1}:`, attraction);
+            
             // 先查找景點ID
-            const findAttractionSql = 'SELECT a_id FROM Attraction WHERE a_name = ? LIMIT 1';
+            const findAttractionSql = 'SELECT a_id FROM Attraction WHERE name = ? LIMIT 1';
             connection.query(findAttractionSql, [attraction.name], (findErr, attrResult) => {
               if (findErr) {
                 console.error(`❌ 查找景點 ${attraction.name} 時出錯：`, findErr.message);
@@ -306,10 +364,11 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
               }
 
               const attractionId = attrResult[0].a_id;
+              
+              // 插入景點關聯到 Schedule_include 表
+              const insertSql = 'INSERT INTO Schedule_include (s_id, a_id, t_id, sequence, x, y) VALUES (?, ?, ?, ?, ?, ?)';
+              connection.query(insertSql, [scheduleId, attractionId, 1, index + 1, attraction.position?.x || 0, attraction.position?.y || 0], (insertErr) => {
 
-              // 插入景點關聯
-              const insertSql = 'INSERT INTO Include2 (s_id, a_id, t_id, sequence) VALUES (?, ?, ?, ?)';
-              connection.query(insertSql, [scheduleId, attractionId, 1, index + 1], (insertErr) => {
                 if (insertErr) {
                   console.error(`❌ 插入景點關聯 ${attraction.name} 時出錯：`, insertErr.message);
                   reject(insertErr);
@@ -673,6 +732,19 @@ app.post('/api/view3_reset_password', async (req, res) => {
 app.get('/api/fake-data', async (req, res) => {
   // http://localhost:3001
   try {
+    // 檢查是否已有測試資料
+    const checkUserSql = 'SELECT COUNT(*) as count FROM User WHERE u_email = "testuser@example.com"';
+    const userExists = await new Promise((resolve, reject) => {
+      connection.query(checkUserSql, (err, result) => {
+        if (err) return reject(err);
+        resolve(result[0].count > 0);
+      });
+    });
+
+    if (userExists) {
+      return res.status(200).json({ message: '測試資料已存在，無需重複創建' });
+    }
+
     // 插入 User
     const userSql = `
       INSERT INTO User (u_name, u_email, u_account, u_password, u_img, u_line_id) VALUES
@@ -1022,8 +1094,78 @@ app.get('/api/fake-data-clean', async (req, res) => {
   }
 });
 
+// API for adding attractions to schedule
+app.post('/api/view2_schedule_include_insert', (req, res) => {
+  console.log('📝 收到新增景點到行程的請求:', req.body);
+  
+  const { a_id, t_id, s_id, x, y } = req.body;
+  
+  // 驗證必要參數
+  if (!a_id || !t_id || !s_id) {
+    return res.status(400).json({ 
+      error: '缺少必要參數: a_id, t_id, s_id' 
+    });
+  }
+  
+  // 檢查是否已經存在相同的關聯
+  const checkSql = 'SELECT * FROM Schedule_include WHERE a_id = ? AND s_id = ?';
+  connection.query(checkSql, [a_id, s_id], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error('❌ 檢查重複關聯時出錯：', checkErr.message);
+      return res.status(500).json({ error: checkErr.message });
+    }
+    
+    if (checkResult.length > 0) {
+      console.log('⚠️ 景點已經存在於此行程中');
+      return res.status(409).json({ 
+        error: '景點已經存在於此行程中',
+        existing: checkResult[0]
+      });
+    }
+    
+    // 插入新的關聯記錄，需要提供 sequence 字段
+    // 先查詢該行程中已有的景點數量，作為下一個序號
+    const sequenceSql = 'SELECT COUNT(*) as count FROM Schedule_include WHERE s_id = ?';
+    connection.query(sequenceSql, [s_id], (seqErr, seqResult) => {
+      if (seqErr) {
+        console.error('❌ 查詢序號時出錯：', seqErr.message);
+        return res.status(500).json({ error: seqErr.message });
+      }
+      
+      const nextSequence = seqResult[0].count + 1;
+      
+      const insertSql = `
+        INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, sequence) 
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      
+      connection.query(insertSql, [a_id, t_id, s_id, x || 0, y || 0, nextSequence], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error('❌ 插入景點關聯時出錯：', insertErr.message);
+          return res.status(500).json({ error: insertErr.message });
+        }
+        
+        console.log('✅ 景點成功添加到行程中！插入ID:', insertResult.insertId);
+        res.json({
+          success: true,
+          message: '景點已成功添加到行程中',
+          insertId: insertResult.insertId,
+          data: {
+            a_id,
+            t_id,
+            s_id,
+            x: x || 0,
+            y: y || 0,
+            sequence: nextSequence
+          }
+        });
+      });
+    });
+  });
+});
+
 app.listen(port, () => {
-  console.log(`✅ 伺服器正在運行於 http://localhost:${port}`);
+  console.log(`🚀 伺服器正在 http://localhost:${port} 上運行`);
 });
 
 // 新增測試資料的 API 端點
@@ -1090,7 +1232,7 @@ app.post('/api/schedule_attractions_save', (req, res) => {
         const insertPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
             // 先查找景點ID（這裡假設景點名稱對應 Attraction 表中的記錄）
-            const findAttractionSql = 'SELECT a_id FROM Attraction WHERE a_name = ? LIMIT 1';
+            const findAttractionSql = 'SELECT a_id FROM Attraction WHERE name = ? LIMIT 1';
             connection.query(findAttractionSql, [attraction.name], (findErr, attrResult) => {
               if (findErr) {
                 console.error(`❌ 查找景點 ${attraction.name} 時出錯：`, findErr.message);

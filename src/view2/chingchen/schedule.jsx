@@ -5,7 +5,7 @@ import './schedule.css';
 import AttractionCard from './attraction_card';
 import ScheduleItem from './schedule_item.jsx'; // 引入 ScheduleItem 組件
 
-const Schedule = (props) => {
+const ScheduleShow = (props) => {
     var editable = 1;
 
     // state
@@ -226,7 +226,7 @@ const Schedule = (props) => {
 
               {/* 顯示景點（已經在資料庫的） */}
               {scheduleItems.map((scheduleItem) => (
-                    <ScheduleItem {...ScheduleItemProps}
+                    <ScheduleItem
                         key={`schedule-item-${scheduleItem.id}`}
                         s_id={scheduleItem.id}
                         name={scheduleItem.name}
@@ -302,6 +302,6 @@ const CustomDragPreview = () => {
   );
 };
 
-export default Schedule;
+export default ScheduleShow;
 
 export { CustomDragPreview };

@@ -21,6 +21,8 @@ import ForgotPassword from './view3/page1/forgotpassword.jsx';
 import Logout from './view3/page1/logout.jsx'; 
 import Profile from './view3/page1/profile.jsx'; 
 import Schedule_container from './view2/chingchen/schedule_container.jsx';
+import ScheduleNew from './view2/chingchen/scheduleNew.jsx';
+import ScheduleInsert from './view2/chingchen/ScheduleInsert.jsx';
 import './App.css';
 
 function App() {

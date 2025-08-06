@@ -19,12 +19,14 @@ const ScheduleInsert = ({
         isDraft = true,
         // onAddSchedule, 
         containerHeight, 
+        handleNewSchedule,
         // usedAttractions, 
         onAttractionUsed,
         ScheduleInsertShow
     }) => {
     
     var u_id = 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
+    let TheNewSchedule = {};
 
     //state
     const [attractions, setAttractions] = useState(initialAttractions || []); //儲存目前放進schedule的attraction
@@ -33,12 +35,10 @@ const ScheduleInsert = ({
     // 【UseEffect 1】當 initialAttractions 變化時，更新本地狀態
     React.useEffect(() => {
         if (initialAttractions) {
-        console.log('🔄 更新 Schedule 景點資料:', initialAttractions);
-        setAttractions(initialAttractions);
+            console.log('🔄 更新 Schedule 景點資料:', initialAttractions);
+            setAttractions(initialAttractions);
         }
     }, [initialAttractions]);
-
-    // console.log("t_id:", t_id," date:", date, "u_id:", u_id, "day:", day, "title:", title);
 
     // function 1:把新的行程新增到資料庫
     const db_insert_schedule = async () => {
@@ -50,6 +50,8 @@ const ScheduleInsert = ({
             });
             const data = await res.json();
             console.log('🧐🧐API response:', data);
+            //記錄這個新的行程
+            TheNewSchedule = {"date": data.date, "day": 1, "title": data.title, "s_id": data.s_id};
             return data; // 回傳含 s_id 的物件
         } catch (error) {
             console.error('Error executing API:', error);
@@ -88,6 +90,8 @@ const ScheduleInsert = ({
                 const scheduleData = await db_insert_schedule();//插入schedule
                 const s_id = scheduleData.s_id;
                 await db_insert_schedule_item(s_id);//插入schedule中的細項
+                handleNewSchedule(TheNewSchedule);
+                // await ()=>{handleNewSchedule(scheduleData)};//把新增的行程傳回去給schedule_container.jsx
             }
         } else {
             alert('此行程已經確認');
@@ -157,33 +161,6 @@ const ScheduleInsert = ({
         const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
         // 可能有錯---------------------------------------------------------------------------------
         const a_id = item.a_id || 1; // 景點 ID，默認為 1
-
-        //API在資料庫中插入新的schedule_item
-        // fetch('http://localhost:3001/api/view2_schedule_include_insert', {
-        //     method: 'POST',
-        //     headers: {
-        //     'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //     a_id,
-        //     t_id,
-        //     s_id,
-        //     x: correctedX,
-        //     y: correctedY
-        //     })
-        // })
-        // .then(response => {
-        //   if (!response.ok) {
-        //     throw new Error('Network response was not ok');
-        //   }
-        //   return response.json();
-        // })
-        // .then(data => {
-        //   console.log('API response:', data);
-        // })
-        // .catch(error => {
-        //   console.error('Error executing API:', error);
-        // });
 
         if (monitor.getItemType() === "card") {       
             // 處理從 attraction_card 拖動

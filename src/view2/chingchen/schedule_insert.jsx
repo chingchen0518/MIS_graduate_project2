@@ -9,7 +9,7 @@ const ScheduleItem = lazy(() => import('./schedule_item'));
 
 const Schedule_insert = ({ 
   title, 
-  initialAttractions, 
+  initialAttractions,
   day, 
   scheduleId,
   scheduleData,
@@ -222,6 +222,11 @@ const Schedule_insert = ({
     );
   }
 
+  // 如果不是草稿狀態（即已確認的行程），直接返回 null，不渲染任何內容
+  if (!isDraft) {
+    return null;
+  }
+
   return (
     <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
       <div className="schedule_header">
@@ -241,7 +246,7 @@ const Schedule_insert = ({
       <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
         {renderGrid()}
         
-        {/* 顯示景點 */}
+        {/* 顯示景點 - 現在只會在草稿狀態下執行 */}
         {attractions && attractions.length > 0 ? (
           <Suspense fallback={<div>Loading...</div>}>
             {attractions.map((attraction, index) => (
@@ -250,7 +255,6 @@ const Schedule_insert = ({
                 name={attraction.name}
                 position={attraction.position}
                 width={attraction.width}
-
                 index={index}
                 scheduleId={scheduleId}
                 isDraft={isDraft}
@@ -259,7 +263,7 @@ const Schedule_insert = ({
           </Suspense>
         ) : (
           <div className="schedule_empty">
-            <span>{isDraft ? '拖拽景點到這裡' : '暫無行程安排'}</span>
+            <span>拖拽景點到這裡</span>
           </div>
         )}
       </div>

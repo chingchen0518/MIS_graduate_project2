@@ -6,7 +6,6 @@ import AttractionCard from './attraction_card';
 import ScheduleItem from './schedule_item.jsx'; // 引入 ScheduleItem 組件
 
 const ScheduleShow = (props) => {
-
     // state
     const [attractions, setAttractions] = useState(props.initialAttractions || []); //景點
     const [scheduleItems, setScheduleItems] = useState([]);
@@ -82,7 +81,7 @@ const ScheduleShow = (props) => {
     return (
         //層級1：單個schedule 
         <div 
-            className="schedule"
+            className="schedule scheduleShow"
             style={{
                 position: 'relative',
                 height: props.containerHeight,
@@ -114,6 +113,7 @@ const ScheduleShow = (props) => {
                         name={scheduleItem.name}
                         position={{ x: scheduleItem.x, y: scheduleItem.y }} // x和y的位置，傳入object
                         width={scheduleWidths} // 使用計算出的寬度
+                        editable={0} // 不可編輯
                     />
                 ))}
             </div>

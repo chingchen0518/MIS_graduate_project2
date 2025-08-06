@@ -110,7 +110,7 @@ app.get('/api/travel', (req, res) => {
     connection.query(sql, (err, rows) => {
       if (hasError) return;
 
-      if (err)
+      if (err) {
         hasError = true;
         console.error(`❌ 查詢 ${key} 時出錯：`, err.message);
         return res.status(500).json({ error: `查詢 ${key} 失敗：${err.message}` });
@@ -149,8 +149,6 @@ app.get('/api/travel', (req, res) => {
     });
   });
 });
-
-
 
 app.get('/api/view2_attraction_list', (req, res) => {
   const sql = 'SELECT * FROM Attraction';

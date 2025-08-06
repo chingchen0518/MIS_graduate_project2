@@ -160,35 +160,37 @@ app.get('/api/view2_attraction_list', (req, res) => {
 });
 
 app.get('/api/view2_schedule_list', (req, res) => {
-  const { date } = req.query;
+    const { date } = req.query;
 
-  let sql = 'SELECT * FROM Schedule';
-  let params = [];
+    let sql = 'SELECT * FROM Schedule';
+    let params = [];
 
   // 如果有提供日期參數，則按日期過濾
-  if (date) {
-    sql += ' WHERE date = ?';
-    params.push(date);
-    console.log('📅 按日期過濾 Schedule:', date);
-  }
+    if (date) {
+        sql += ' WHERE date = ?';
+        params.push(date);
+        console.log('📅 按日期過濾 Schedule:', date);
+    }
 
   // 添加排序：先按日期，再按day欄位排序
-  sql += ' ORDER BY date ASC, day ASC';
+    sql += ' ORDER BY date ASC, day ASC';
 
-  console.log('🔍 執行 SQL:', sql, params);
+    console.log('🔍 執行 SQL:', sql, params);
 
-  connection.query(sql, params, (err, schedules) => {
+    connection.query(sql, params, (err, schedules) => {
     if (err) {
       console.error('❌ 查詢 Schedule 時出錯：', err.message);
       return res.status(500).json({ error: err.message });
     }
     
-//     console.log('✅ 查詢到 Schedule 記錄數:', schedules.length);
+    console.log('✅ 查詢到 Schedule 記錄數:', schedules.length);
     
-//     // 如果沒有 Schedule，直接返回空陣列
-//     if (schedules.length === 0) {
-//       return res.json([]);
-//     }
+    // 如果沒有 Schedule，直接返回空陣列
+    if (schedules.length === 0) {
+      return res.json([]);
+    }else{
+        return res.json(schedules);
+    }
     
 //     // 為每個 Schedule 查詢相關聯的景點
 //     const schedulePromises = schedules.map(schedule => {
@@ -227,72 +229,70 @@ app.get('/api/view2_schedule_list', (req, res) => {
 //       });
 //     });
     
-//     // 等待所有 Schedule 的景點查詢完成
-//     Promise.all(schedulePromises)
-//       .then(schedulesWithAttractions => {
-//         console.log('✅ 所有 Schedule 的景點查詢完成');
-//         res.json(schedulesWithAttractions);
-//       })
-//       .catch(error => {
-//         console.error('❌ 查詢景點關聯時出錯：', error.message);
-//         res.status(500).json({ error: error.message });
-//       });
+    // // 等待所有 Schedule 的景點查詢完成
+    // Promise.all(schedulePromises)
+    //   .then(schedulesWithAttractions => {
+    //     console.log('✅ 所有 Schedule 的景點查詢完成');
+    //     res.json(schedulesWithAttractions);
+    //   })
+    //   .catch(error => {
+    //     console.error('❌ 查詢景點關聯時出錯：', error.message);
+    //     res.status(500).json({ error: error.message });
+    //   });
 
-    console.log('✅ 查詢到 Schedule 記錄數:', rows.length);
-    res.json(rows);
+    // console.log('✅ 查詢到 Schedule 記錄數:', rows.length);
+    // res.json(rows);
   });
 });
 
 app.get('/api/view2_schedule_list_insert', (req, res) => {
-  const { title, day, date } = req.query;
+    const { t_id, date, u_id, day,  } = req.query;
 
-  console.log('📝 收到新增 Schedule 請求:');
-  console.log('  - title:', title);
-  console.log('  - day:', day);
-  console.log('  - date:', date);
+    // 如果沒有提供日期，使用默認值
+    const scheduleDate = date || '2025-08-01'; // @==@
+    console.log('  - 使用的日期:', scheduleDate);
 
-  // 如果沒有提供日期，使用默認值
-  const scheduleDate = date || '2025-08-01';
-  console.log('  - 使用的日期:', scheduleDate);
+    // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
+    const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
+    connection.query(countSql, [scheduleDate], (countErr, countResult) => {
+        if (countErr) {
+            console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
+            return res.status(500).json({ error: countErr.message });
+        }
 
-  // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
-  const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
-  connection.query(countSql, [scheduleDate], (countErr, countResult) => {
-    if (countErr) {
-      console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
-      return res.status(500).json({ error: countErr.message });
-    }
+        const nextDayScheduleNumber = countResult[0].count + 1;
+        console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
 
-    const nextDayScheduleNumber = countResult[0].count + 1;
-    console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
+        const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
+        const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
+        const scheduleDay = day || nextDayScheduleNumber;
+        // console.log('  - SQL:', sql);
+        // console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
 
-    const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
-    const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
-    const scheduleDay = day || nextDayScheduleNumber;
-    console.log('  - SQL:', sql);
-    console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
+        //正式插入到這兩款
+        connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
+            if (err) {
+                console.error('❌ 插入 Schedule 時出錯：', err.message);
+                return res.status(500).json({ error: err.message });
+            }
 
-    connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
-      if (err) {
-        console.error('❌ 插入 Schedule 時出錯：', err.message);
-        return res.status(500).json({ error: err.message });
-      }
+            console.log('✅ 插入成功! result:', result);
+            console.log('✅ insertId:', result.insertId);
 
-      console.log('✅ 插入成功! result:', result);
-      console.log('✅ insertId:', result.insertId);
+            // 返回新創建的記錄信息，使用計算出的該日期行程編號
+            const response = {
+                s_id: result.insertId,
+                title: scheduleTitle,
+                day: scheduleDay,
+                date: scheduleDate,
+                message: 'Schedule created successfully'
+            };
 
-      // 返回新創建的記錄信息，使用計算出的該日期行程編號
-      const response = {
-        s_id: result.insertId,
-        title: scheduleTitle,
-        day: scheduleDay,
-        date: scheduleDate,
-        message: 'Schedule created successfully'
-      };
-
-      console.log('✅ 準備返回的響應:', response);
-      res.json(response);
-    });
+            console.log('✅ 準備返回的響應:', response);
+            res.json(response);
+            // console.log('✅ ✅ ✅ ✅ ✅ 回傳的結果:', result);
+            // res.json({ s_id: result.insertId })
+        });
   });
 });
 

@@ -7,7 +7,7 @@ import AttractionCard from './attraction_card';
 const ScheduleItem = lazy(() => import('./schedule_item'));
 
 
-const Schedule_insert = ({ 
+const ScheduleInsert = ({ 
   title, 
   initialAttractions,
   day, 
@@ -223,9 +223,9 @@ const Schedule_insert = ({
   }
 
   // 如果不是草稿狀態（即已確認的行程），直接返回 null，不渲染任何內容
-  if (!isDraft) {
-    return null;
-  }
+//   if (!isDraft) {
+//     return null;
+//   }
 
   return (
     <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
@@ -313,6 +313,6 @@ const CustomDragPreview = () => {
   );
 };
 
-export default Schedule_insert;
+export default ScheduleInsert;
 
 export { CustomDragPreview };

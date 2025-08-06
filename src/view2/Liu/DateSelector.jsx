@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './DateSelector.css';
 
-const DateSelector = ({ tripId = 1, onDateChange }) => {
+const DateSelector = ({ t_id = 1, onDateChange }) => {
   const [tripDates, setTripDates] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [loading, setLoading] = useState(true);
@@ -9,7 +9,7 @@ const DateSelector = ({ tripId = 1, onDateChange }) => {
   useEffect(() => {
     const fetchTripDates = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/trip-dates/${tripId}`);
+        const response = await fetch(`http://localhost:3001/api/trip-dates/${t_id}`);
         
         if (response.ok) {
           const data = await response.json();
@@ -31,7 +31,7 @@ const DateSelector = ({ tripId = 1, onDateChange }) => {
     };
 
     fetchTripDates();
-  }, [tripId]);
+  }, [t_id]);
 
   const handleDateChange = (event) => {
     const newDate = event.target.value;

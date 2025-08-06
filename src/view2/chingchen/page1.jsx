@@ -32,7 +32,7 @@ const Page1 = () => {
         <div className="page1_content">
           <Attraction_container usedAttractions={usedAttractions} />
           <Schedule_container
-            t_id={1}//記得換
+            t_id={1}//@==@記得改掉@==@
             usedAttractions={usedAttractions} 
             onAttractionUsed={handleAttractionUsed} 
           />

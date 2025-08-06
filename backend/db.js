@@ -9,6 +9,9 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Schedule from './models/schedule.js';
+import TransportTime from './models/transportTime.js';
+import ScheduleInclude from './models/schedule_include.js';
+import Attraction from './models/attraction.js';
 import { dirname } from 'path';
 
 // 取得 __dirname 的方式（ES Module 環境）

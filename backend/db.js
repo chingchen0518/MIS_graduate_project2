@@ -191,66 +191,68 @@ app.get('/api/view2_schedule_list', (req, res) => {
     }else{
         return res.json(schedules);
     }
-    
-//     // 為每個 Schedule 查詢相關聯的景點
-//     const schedulePromises = schedules.map(schedule => {
-//       return new Promise((resolve, reject) => {
-//         // 查詢該 Schedule 的景點關聯
-//         const attractionSql = `
-//           SELECT a.name, a.a_id, si.x, si.y, si.sequence
-//           FROM Schedule_include si
-//           JOIN Attraction a ON si.a_id = a.a_id
-//           WHERE si.s_id = ?
-//           ORDER BY si.sequence ASC
-//         `;
-        
-//         connection.query(attractionSql, [schedule.s_id], (attrErr, attractions) => {
-//           if (attrErr) {
-//             console.error(`❌ 查詢 Schedule ${schedule.s_id} 的景點時出錯：`, attrErr.message);
-//             reject(attrErr);
-//             return;
-//           }
-          
-//           console.log(`📍 Schedule ${schedule.s_id} 找到 ${attractions.length} 個景點`);
-          
-//           // 將景點資料格式化為前端需要的格式
-//           const formattedAttractions = attractions.map(attr => ({
-//             name: attr.name,
-//             time: null,
-//             position: { x: attr.x || 0, y: attr.y || 0 },
-//             width: 200 // 預設寬度
-//           }));
-          
-//           resolve({
-//             ...schedule,
-//             attractions: formattedAttractions
-//           });
-//         });
-//       });
-//     });
-    
-    // // 等待所有 Schedule 的景點查詢完成
-    // Promise.all(schedulePromises)
-    //   .then(schedulesWithAttractions => {
-    //     console.log('✅ 所有 Schedule 的景點查詢完成');
-    //     res.json(schedulesWithAttractions);
-    //   })
-    //   .catch(error => {
-    //     console.error('❌ 查詢景點關聯時出錯：', error.message);
-    //     res.status(500).json({ error: error.message });
-    //   });
-
-    // console.log('✅ 查詢到 Schedule 記錄數:', rows.length);
-    // res.json(rows);
   });
 });
 
-app.get('/api/view2_schedule_list_insert', (req, res) => {
-    const { t_id, date, u_id, day,  } = req.query;
+// app.get('/api/view2_schedule_list_insert', (req, res) => {
+//     const { t_id, date, u_id, day,  } = req.query;
 
-    // 如果沒有提供日期，使用默認值
-    const scheduleDate = date || '2025-08-01'; // @==@
-    console.log('  - 使用的日期:', scheduleDate);
+//     t_id=1;//@==@記得換成真的t_id
+//     u_id=1;//@==@記得換成真的u_id
+
+//     // 如果沒有提供日期，使用默認值
+//     const scheduleDate = date || '2025-08-01'; // @==@
+//     console.log('  - 使用的日期:', scheduleDate);
+
+//     // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
+//     const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
+//     connection.query(countSql, [scheduleDate], (countErr, countResult) => {
+//         if (countErr) {
+//             console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
+//             return res.status(500).json({ error: countErr.message });
+//         }
+
+//         const nextDayScheduleNumber = countResult[0].count + 1;
+//         console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
+
+//         const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
+//         const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
+//         const scheduleDay = day || nextDayScheduleNumber;
+        
+//         //正式插入到這兩款
+//         connection.query(sql, [t_id, scheduleDate, u_id, scheduleDay, scheduleTitle], (err, result) => {
+//             if (err) {
+//                 console.error('❌ 插入 Schedule 時出錯：', err.message);
+//                 return res.status(500).json({ error: err.message });
+//             }
+
+//             console.log('✅ 插入成功! result:', result);
+//             console.log('✅ insertId:', result.insertId);
+
+//             // 返回新創建的記錄信息，使用計算出的該日期行程編號
+//             const response = {
+//                 t_id: t_id,
+//                 s_id: result.insertId,
+//                 title: scheduleTitle,
+//                 day: scheduleDay,
+//                 date: scheduleDate,
+//                 message: 'Schedule created successfully'
+//             };
+
+//             console.log('✅ 準備返回的響應:', response);
+//             res.json(response);
+//         });
+//   });
+// });
+
+
+// POST 版本的新增 Schedule API（用於確認行程）
+app.post('/api/view2_schedule_list_insert', (req, res) => {
+    let { t_id, u_id,title, day, date, attractions } = req.body;
+
+    t_id=1;//@==@記得換成真的t_id
+    u_id=1;//@==@記得換成真的u_id
+    var scheduleDate = date || '2025-08-01';// 如果沒有提供日期，使用默認值
 
     // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
     const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
@@ -261,7 +263,7 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
         }
 
         const nextDayScheduleNumber = countResult[0].count + 1;
-        console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
+        // console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
 
         const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
         const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
@@ -269,73 +271,14 @@ app.get('/api/view2_schedule_list_insert', (req, res) => {
         // console.log('  - SQL:', sql);
         // console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
 
-        //正式插入到這兩款
         connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
-            if (err) {
-                console.error('❌ 插入 Schedule 時出錯：', err.message);
-                return res.status(500).json({ error: err.message });
-            }
+        if (err) {
+            console.error('❌ 插入 Schedule 時出錯：', err.message);
+            return res.status(500).json({ error: err.message });
+        }
 
-            console.log('✅ 插入成功! result:', result);
-            console.log('✅ insertId:', result.insertId);
-
-            // 返回新創建的記錄信息，使用計算出的該日期行程編號
-            const response = {
-                s_id: result.insertId,
-                title: scheduleTitle,
-                day: scheduleDay,
-                date: scheduleDate,
-                message: 'Schedule created successfully'
-            };
-
-            console.log('✅ 準備返回的響應:', response);
-            res.json(response);
-            // console.log('✅ ✅ ✅ ✅ ✅ 回傳的結果:', result);
-            // res.json({ s_id: result.insertId })
-        });
-  });
-});
-
-
-// POST 版本的新增 Schedule API（用於確認行程）
-app.post('/api/view2_schedule_list_insert', (req, res) => {
-  const { title, day, date, attractions } = req.body;
-
-  console.log('📝 收到確認 Schedule 請求 (POST):');
-  console.log('  - title:', title);
-  console.log('  - day:', day);
-  console.log('  - date:', date);
-  console.log('  - attractions:', attractions);
-
-  // 如果沒有提供日期，使用默認值
-  const scheduleDate = date || '2025-08-01';
-  console.log('  - 使用的日期:', scheduleDate);
-
-  // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
-  const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
-  connection.query(countSql, [scheduleDate], (countErr, countResult) => {
-    if (countErr) {
-      console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
-      return res.status(500).json({ error: countErr.message });
-    }
-
-    const nextDayScheduleNumber = countResult[0].count + 1;
-    console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
-
-    const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
-    const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
-    const scheduleDay = day || nextDayScheduleNumber;
-    console.log('  - SQL:', sql);
-    console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
-
-    connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
-      if (err) {
-        console.error('❌ 插入 Schedule 時出錯：', err.message);
-        return res.status(500).json({ error: err.message });
-      }
-
-      const scheduleId = result.insertId;
-      console.log('✅ Schedule 插入成功! s_id:', scheduleId);
+        const scheduleId = result.insertId;
+        console.log('✅ Schedule 插入成功! s_id:', scheduleId);
 
       // 如果有景點，也要插入到 Schedule_include 表
       if (attractions && attractions.length > 0) {
@@ -403,11 +346,12 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
       } else {
         // 沒有景點，直接返回
         const response = {
-          s_id: scheduleId,
-          title: scheduleTitle,
-          day: scheduleDay,
-          date: scheduleDate,
-          message: 'Schedule created successfully'
+            t_id:t_id,
+            s_id: scheduleId,
+            title: scheduleTitle,
+            day: scheduleDay,
+            date: scheduleDate,
+            message: 'Schedule created successfully'
         };
 
         console.log('✅ 準備返回的響應:', response);

@@ -1,0 +1,333 @@
+import React, { useState, useRef, lazy, Suspense } from 'react';
+import { useDrop, useDragLayer } from 'react-dnd';
+import './schedule.css';
+import AttractionCard from './attraction_card';
+
+console.log('ScheduleInsert.jsx is loaded==========');
+
+// 使用 lazy 進行按需加載
+const ScheduleItem = lazy(() => import('./schedule_item'));
+
+const ScheduleInsert = ({
+        t_id,
+        date, 
+        title, 
+        initialAttractions,
+        day, 
+        scheduleId,
+        scheduleData,
+        isDraft = true,
+        // onAddSchedule, 
+        containerHeight, 
+        handleNewSchedule,
+        // usedAttractions, 
+        onAttractionUsed,
+        ScheduleInsertShow
+    }) => {
+    
+    var u_id = 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
+    let TheNewSchedule = {};
+
+    //state
+    const [attractions, setAttractions] = useState(initialAttractions || []); //儲存目前放進schedule的attraction
+    const dropRef = useRef(null);
+
+    // 【UseEffect 1】當 initialAttractions 變化時，更新本地狀態
+    React.useEffect(() => {
+        if (initialAttractions) {
+            console.log('🔄 更新 Schedule 景點資料:', initialAttractions);
+            setAttractions(initialAttractions);
+        }
+    }, [initialAttractions]);
+
+    // function 1:把新的行程新增到資料庫
+    const db_insert_schedule = async () => {
+        try {
+            const res = await fetch('http://localhost:3001/api/view2_schedule_list_insert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ t_id, date, u_id, day, title }),
+            });
+            const data = await res.json();
+            console.log('🧐🧐API response:', data);
+            //記錄這個新的行程
+            TheNewSchedule = {"date": data.date, "day": 1, "title": data.title, "s_id": data.s_id};
+            return data; // 回傳含 s_id 的物件
+        } catch (error) {
+            console.error('Error executing API:', error);
+            throw error;
+        }
+    };
+
+    // function 2:把單個景點插入到資料庫
+    const db_insert_schedule_item = async (s_id) => {
+        try {
+            for (const attraction of attractions) {
+                await fetch('http://localhost:3001/api/view2_schedule_include_insert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        a_id: attraction.a_id,
+                        t_id: t_id,
+                        s_id: s_id,
+                        x: attraction.position.x,
+                        y: attraction.position.y
+                    }),
+                });
+            }
+        } catch (error) {
+            console.error('Error executing API for item:', error);
+            throw error;
+        }
+    };
+
+    // function 3:確認行程(button點擊事件)
+    const handleConfirm = async () => {
+        if (isDraft && ScheduleInsertShow) {
+            // 如果是草稿狀態，確認整個行程
+            if (confirm('已經確認了嗎，是否還要修改。')) {
+                ScheduleInsertShow(false); //確認了就讓insert的這個消失
+                const scheduleData = await db_insert_schedule();//插入schedule
+                const s_id = scheduleData.s_id;
+                await db_insert_schedule_item(s_id);//插入schedule中的細項
+                handleNewSchedule(TheNewSchedule);
+                // await ()=>{handleNewSchedule(scheduleData)};//把新增的行程傳回去給schedule_container.jsx
+            }
+        } else {
+            alert('此行程已經確認');
+        }
+    };
+
+    // function 4:取消行程(button點擊事件)
+    const handleCancel = () => {
+        if (isDraft && ScheduleInsertShow) {
+            if (confirm('確定要取消這個行程嗎？所有內容都會被刪除。')) {
+                ScheduleInsertShow(false);
+            }
+        } else {
+            alert('已確認的行程無法取消');
+        }
+    };
+
+
+
+    //use Drop(處理drag and drop事件)
+    const [{ isOver }, drop] = useDrop({
+        accept: "card",
+        drop: (item, monitor) => {
+            if (!dropRef.current) {
+                console.error("Drop target not found!");
+                return;
+            }
+
+        // 使用 getClientOffset 獲取拖放預覽的位置，而不是原始元素的位置
+        console.log("Monitor methods:", {
+            getClientOffset: monitor.getClientOffset(),
+            getSourceClientOffset: monitor.getSourceClientOffset(),
+            getDifferenceFromInitialOffset: monitor.getDifferenceFromInitialOffset()
+        });
+        
+        const clientOffset = monitor.getClientOffset();
+        if (!clientOffset) {
+            console.error("Client offset not found!");
+            return;
+        }
+
+        const dropTarget = dropRef.current.querySelector('.schedule_timeline');
+        if (!dropTarget) {
+            console.error("Drop target element not found!");
+            return;
+        }
+
+        const dropTargetRect = dropTarget.getBoundingClientRect();
+
+        // 獲取鼠標相對於drop目標的位置（相對於schedule_timeline的左上角）
+        // 將 x 坐標設為 0，讓元素總是從左邊開始
+        const x = 0; // 固定為 0，總是從左邊開始
+        const y = clientOffset.y - dropTargetRect.top;
+      
+        console.log('clientOffset:', clientOffset);
+        console.log('dropTargetRect:', dropTargetRect);
+
+        // 確保拖放位置不超出容器範圍
+        // x 已經固定為 0，所以不需要修正
+        const correctedX = x;
+        const correctedY = Math.max(0, Math.min(y, dropTargetRect.height));
+
+        console.log('Item dropped:', item, 'at position:', { x: correctedX, y: correctedY });
+        // 可能有錯誤---------------------------------------------------------------------------------
+        const t_id = item.id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
+        const dropTargetId = dropTarget.getAttribute('data-id'); // 獲取 Drop Target 的 ID
+        const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
+        // 可能有錯---------------------------------------------------------------------------------
+        const a_id = item.a_id || 1; // 景點 ID，默認為 1
+
+        if (monitor.getItemType() === "card") {       
+            // 處理從 attraction_card 拖動
+            const newAttraction = {
+                a_id: item.a_id,
+                name: item.name, //把名字也加入Attraction
+                position: { x: correctedX, y: correctedY },
+                height: 35, // 調整高度，與 schedule_item.jsx 保持一致 @==@調整成真正的
+                width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
+            };
+        
+            setAttractions((prevAttractions) => [...prevAttractions, newAttraction]);
+        
+            // 通知父組件該景點已被使用
+            if (onAttractionUsed) {
+                onAttractionUsed(item.name || item.id, true); // true 表示標記為已使用
+            }
+
+        } else if (monitor.getItemType() === "schedule_item") {
+            // 處理 schedule_item 的重新排序（僅限同一個 schedule）
+            if (item.scheduleId === day) {
+                // 獲取拖動開始時鼠標相對於元素的偏移
+                const initialOffset = monitor.getInitialClientOffset();
+                const initialSourceOffset = monitor.getInitialSourceClientOffset();
+                const sourceOffset = monitor.getSourceClientOffset();
+            
+                // 計算鼠標相對於被拖動元素的偏移量
+                let offsetX = 0;
+                let offsetY = 0;
+                if (initialOffset && initialSourceOffset) {
+                    offsetX = initialOffset.x - initialSourceOffset.x;
+                    offsetY = initialOffset.y - initialSourceOffset.y;
+                }
+            
+                setAttractions((prevAttractions) => [
+                    ...prevAttractions,
+                    {
+                    name: item.name || item.id,
+                    time: null,
+                    position: { x: correctedX, y: correctedY },
+                    width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
+                    },
+                ]);
+            }
+        }
+    },
+    collect: (monitor) => ({
+        isOver: monitor.isOver(),
+    }),
+  });
+
+    console.log("attractions:", attractions);
+
+    // 綁定 dropRef
+    drop(dropRef);
+
+    // 渲染時間線格線
+    const renderGrid = () => {
+        const timeColumn = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
+                            '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00', 
+                            '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
+                            ];
+        const lines = [];
+        const intervalHeight = containerHeight / 25; // 調整為空間/25
+
+        timeColumn.forEach((time, index) => {
+            lines.push(
+                <div key={index} style={{ position: "absolute", top: index * intervalHeight, left: 0, width: "100%", height: "1px", backgroundColor: "lightgray" }} />
+            );
+        });
+
+        return lines;
+    };
+
+    console.log("🚖attractions:", attractions);
+    // 如果不是草稿狀態（即已確認的行程），直接返回 null，不渲染任何內容
+    // if (!isDraft) {
+    //     return null;
+    // }
+
+    return (
+        <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
+            <div className="schedule_header">
+                <div className="user_avatar">
+                    <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />
+                </div>
+                <div className="budget_display">$350</div>
+                    {isDraft && (
+                        <>
+                            <button className="confirm_btn" onClick={handleConfirm}>確認</button>
+                            <button className="cancel_btn" onClick={handleCancel}>取消</button>
+                        </>
+                    )}
+                <span className="schedule_date">{title}</span>
+            </div>
+        
+            <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
+                {renderGrid()}
+                
+                {/* 顯示景點 - 現在只會在草稿狀態下執行 */}
+                {attractions && attractions.length > 0 ? (
+                <Suspense fallback={<div>Loading...</div>}>
+                    {attractions.map((attraction, index) => (
+                        <ScheduleItem
+                            key={`attraction-${index}`}
+                            name={attraction.name}
+                            position={attraction.position}
+                            width={attraction.width}
+                            index={index}
+                            scheduleId={scheduleId}
+                            isDraft={isDraft}
+                            editable={1}
+                        />
+                    ))}
+                </Suspense>
+                ) : (
+                <div className="schedule_empty">
+                    <span>拖拽景點到這裡</span>
+                </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const CustomDragPreview = () => {
+    const { item, currentOffset, isDragging } = useDragLayer((monitor) => ({
+        item: monitor.getItem(),
+        currentOffset: monitor.getClientOffset(),
+        isDragging: monitor.isDragging(),
+    }));
+
+    const scheduleRef = document.querySelector('.schedule');
+    const scheduleWidth = scheduleRef ? scheduleRef.offsetWidth : 0;
+
+    if (!isDragging || !currentOffset || scheduleWidth === 0) {
+        return null;
+    }
+
+    // 移除預覽的水平偏移
+    const x = currentOffset.x - (scheduleWidth / 2);
+    const y = currentOffset.y;
+
+    return (
+        <div
+        style={{
+            position: 'fixed',
+            pointerEvents: 'none',
+            transform: `translate(${x}px, ${y}px)`,
+            // left: `${x - scheduleWidth * 0.45}px`, // 調整 x 坐標，讓鼠標位於預覽圖中心
+            // top: `${y - 50}px`, // 調整 y 坐標，讓鼠標位於預覽圖中心
+            width: `${scheduleWidth * 0.9}px`, // 基於 schedule 的寬度
+            backgroundColor: '#f0f0f0',
+            border: '1px solid black',
+            borderRadius: '5px',
+            padding: '10px',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+            zIndex: 100,
+        }}
+        >
+            <div className="attraction_name" style={{ fontWeight: 'bold', color: '#333' }}>
+                {item?.name || item?.id || '景點名稱'}
+            </div>
+        </div>
+    );
+};
+
+export default ScheduleInsert;
+
+export { CustomDragPreview };

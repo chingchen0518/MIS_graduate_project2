@@ -16,7 +16,7 @@ const AttractionDetail = ({ attraction }) => {
     <div className="attraction_details">
       <div className="attraction_card_layout">
         <div className="attraction_image">
-          <img src="https://image.cdn-eztravel.com.tw/ZiZ-FgvBm0Mo6ci3xqfLwvVwwicmC4AUZM2K1Zeg0zQ/g:ce/aHR0cHM6Ly92YWNhdGlvbi5jZG4tZXp0cmF2ZWwuY29tLnR3L2ltZy9WRFIvVFAxXzU2MjUxMjU2NS5qcGc.jpg" alt={attraction.name} />
+          <img src={`../../img/${attraction.photo}`} alt={attraction.name} />
         </div>
         
         <div className="attraction_info">
@@ -42,15 +42,19 @@ const AttractionDetail = ({ attraction }) => {
           <div className="location_info">
             <div className="location">
               <span className="location_icon">📍</span>
-              <span className="address">700台南市中西區大同街35號</span>
+              <span className="address">{attraction.address || '地址未提供'}</span>
             </div>
             <div className="hours">
               <span className="time_icon">🕐</span>
-              <span className="time">Monday: 12 - 2 AM, 8 - 2 AM</span>
+              <span className="time">{attraction.hours || '營業時間未提供'}</span>
             </div>
             <div className="phone">
               <span className="phone_icon">📞</span>
-              <span className="number">06 222 2327</span>
+              <span className="number">{attraction.phone || '電話未提供'}</span>
+            </div>
+            <div className="category">
+              <span className="category_icon">🏷️</span>
+              <span className="category_text">{attraction.category || '類別未分類'}</span>
             </div>
           </div>
           
@@ -59,8 +63,8 @@ const AttractionDetail = ({ attraction }) => {
             <input 
               type="text" 
               className="price_input" 
-              placeholder="$50" 
-              defaultValue="$50"
+              placeholder={`$${attraction.budget || 0}`}
+              defaultValue={`$${attraction.budget || 0}`}
             />
           </div>
         </div>

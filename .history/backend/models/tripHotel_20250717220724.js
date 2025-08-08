@@ -1,0 +1,14 @@
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../db_settings.js';
+
+const TripHotel = sequelize.define('TripHotel', {
+    h_id:       { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+
+    cin_time:   { type: DataTypes.DATE, allowNull: true },
+    cout_time: { type: DataTypes.DATE, allowNull: true }
+}, {
+    tableName: 'TripHotel',
+    timestamps: false,
+});
+
+export default TripHotel;

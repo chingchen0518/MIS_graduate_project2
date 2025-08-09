@@ -4,7 +4,7 @@ import './schedule.css';
 import AttractionCard from './attraction_card';
 
 // 使用 lazy 進行按需加載
-const ScheduleItem = lazy(() => import('./schedule_item'));
+const ScheduleItem = lazy(() => import('./ScheduleItem'));
 
 
 const ScheduleNew = ({

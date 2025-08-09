@@ -364,10 +364,10 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
 
 //把景點添加到schedule後存入資料庫
 app.post('/api/view2_schedule_include_insert', (req, res) => {
-  const { a_id, t_id, s_id, x, y } = req.body;
+  const { a_id, t_id, s_id, x, y,height } = req.body;
 
-  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, sequence) VALUES (?, ?, ?, ?, ?, ?)`;
-  const values = [a_id, t_id, s_id, x, y, 1];
+  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height) VALUES (?, ?, ?, ?, ?, ?)`;
+  const values = [a_id, t_id, s_id, x, y, height];
 
   connection.query(query, values, (err, results) => {
     if (err) {
@@ -384,8 +384,7 @@ app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {
     
     const query = `SELECT * FROM schedule_include s
                    JOIN Attraction a ON s.a_id = a.a_id
-                   WHERE s.t_id = ? AND s.s_id = ?
-                   ORDER BY sequence ASC`;
+                   WHERE s.t_id = ? AND s.s_id = ?`;
     const values = [t_id, s_id];
 
     connection.query(query, values, (err, results) => {
@@ -1037,74 +1036,74 @@ app.get('/api/fake-data-clean', async (req, res) => {
 });
 
 // API for adding attractions to schedule
-app.post('/api/view2_schedule_include_insert', (req, res) => {
-  console.log('📝 收到新增景點到行程的請求:', req.body);
+// app.post('/api/view2_schedule_include_insert', (req, res) => {
+//   console.log('📝 收到新增景點到行程的請求:', req.body);
+
+//   const { a_id, t_id, s_id, x, y, height } = req.body;
+
+//   // 驗證必要參數
+//   if (!a_id || !t_id || !s_id) {
+//     return res.status(400).json({ 
+//       error: '缺少必要參數: a_id, t_id, s_id' 
+//     });
+//   }
   
-  const { a_id, t_id, s_id, x, y } = req.body;
-  
-  // 驗證必要參數
-  if (!a_id || !t_id || !s_id) {
-    return res.status(400).json({ 
-      error: '缺少必要參數: a_id, t_id, s_id' 
-    });
-  }
-  
-  // 檢查是否已經存在相同的關聯
-  const checkSql = 'SELECT * FROM Schedule_include WHERE a_id = ? AND s_id = ?';
-  connection.query(checkSql, [a_id, s_id], (checkErr, checkResult) => {
-    if (checkErr) {
-      console.error('❌ 檢查重複關聯時出錯：', checkErr.message);
-      return res.status(500).json({ error: checkErr.message });
-    }
+//   // 檢查是否已經存在相同的關聯
+//   const checkSql = 'SELECT * FROM Schedule_include WHERE a_id = ? AND s_id = ?';
+//   connection.query(checkSql, [a_id, s_id], (checkErr, checkResult) => {
+//     if (checkErr) {
+//       console.error('❌ 檢查重複關聯時出錯：', checkErr.message);
+//       return res.status(500).json({ error: checkErr.message });
+//     }
     
-    if (checkResult.length > 0) {
-      console.log('⚠️ 景點已經存在於此行程中');
-      return res.status(409).json({ 
-        error: '景點已經存在於此行程中',
-        existing: checkResult[0]
-      });
-    }
+//     if (checkResult.length > 0) {
+//       console.log('⚠️ 景點已經存在於此行程中');
+//       return res.status(409).json({ 
+//         error: '景點已經存在於此行程中',
+//         existing: checkResult[0]
+//       });
+//     }
     
-    // 插入新的關聯記錄，需要提供 sequence 字段
-    // 先查詢該行程中已有的景點數量，作為下一個序號
-    const sequenceSql = 'SELECT COUNT(*) as count FROM Schedule_include WHERE s_id = ?';
-    connection.query(sequenceSql, [s_id], (seqErr, seqResult) => {
-      if (seqErr) {
-        console.error('❌ 查詢序號時出錯：', seqErr.message);
-        return res.status(500).json({ error: seqErr.message });
-      }
+//     // 插入新的關聯記錄，需要提供 sequence 字段
+//     // 先查詢該行程中已有的景點數量，作為下一個序號
+//     const sequenceSql = 'SELECT COUNT(*) as count FROM Schedule_include WHERE s_id = ?';
+//     connection.query(sequenceSql, [s_id], (seqErr, seqResult) => {
+//       if (seqErr) {
+//         console.error('❌ 查詢序號時出錯：', seqErr.message);
+//         return res.status(500).json({ error: seqErr.message });
+//       }
       
-      const nextSequence = seqResult[0].count + 1;
+//       const nextSequence = seqResult[0].count + 1;
       
-      const insertSql = `
-        INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, sequence) 
-        VALUES (?, ?, ?, ?, ?, ?)
-      `;
-      
-      connection.query(insertSql, [a_id, t_id, s_id, x || 0, y || 0, nextSequence], (insertErr, insertResult) => {
-        if (insertErr) {
-          console.error('❌ 插入景點關聯時出錯：', insertErr.message);
-          return res.status(500).json({ error: insertErr.message });
-        }
+//       const insertSql = `
+//         INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height) 
+//         VALUES (?, ?, ?, ?, ?, ?)
+//       `;
+
+//       connection.query(insertSql, [a_id, t_id, s_id, x || 0, y || 0, height || 0], (insertErr, insertResult) => {
+//         if (insertErr) {
+//           console.error('❌ 插入景點關聯時出錯：', insertErr.message);
+//           return res.status(500).json({ error: insertErr.message });
+//         }
         
-        console.log('✅ 景點成功添加到行程中！插入ID:', insertResult.insertId);
-        res.json({
-          success: true,
-          message: '景點已成功添加到行程中',
-          insertId: insertResult.insertId,
-          data: {
-            a_id,
-            t_id,
-            s_id,
-            x: x || 0,
-            y: y || 0,
-            sequence: nextSequence
-          }
-        });
-      });
-    });
-  });
-});
+//         console.log('✅ 景點成功添加到行程中！插入ID:', insertResult.insertId);
+//         res.json({
+//           success: true,
+//           message: '景點已成功添加到行程中',
+//           insertId: insertResult.insertId,
+//           data: {
+//             a_id,
+//             t_id,
+//             s_id,
+//             x: x || 0,
+//             y: y || 0,
+//             height: height
+//           }
+//         });
+//       });
+//     });
+//   });
+// });
 
 app.listen(port, () => {
   console.log(`🚀 伺服器正在 http://localhost:${port} 上運行`);

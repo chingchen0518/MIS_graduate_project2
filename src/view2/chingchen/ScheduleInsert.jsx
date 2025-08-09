@@ -6,7 +6,7 @@ import AttractionCard from './attraction_card';
 console.log('ScheduleInsert.jsx is loaded==========');
 
 // 使用 lazy 進行按需加載
-const ScheduleItem = lazy(() => import('./schedule_item'));
+const ScheduleItem = lazy(() => import('./ScheduleItem'));
 
 const ScheduleInsert = ({
         t_id,
@@ -15,14 +15,11 @@ const ScheduleInsert = ({
         initialAttractions,
         day, 
         scheduleId,
-        scheduleData,
         isDraft = true,
-        // onAddSchedule, 
         containerHeight, 
         handleNewSchedule,
-        // usedAttractions, 
         onAttractionUsed,
-        ScheduleInsertShow
+        ScheduleInsertShow,
     }) => {
     
     var u_id = 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
@@ -30,7 +27,10 @@ const ScheduleInsert = ({
 
     //state
     const [attractions, setAttractions] = useState(initialAttractions || []); //儲存目前放進schedule的attraction
+    var finalScheduleItems = {}; // 儲存最終的行程項目
     const dropRef = useRef(null);
+
+    // const ScheduleItemRefs = useRef({});
 
     // 【UseEffect 1】當 initialAttractions 變化時，更新本地狀態
     React.useEffect(() => {
@@ -62,26 +62,35 @@ const ScheduleInsert = ({
     // function 2:把單個景點插入到資料庫
     const db_insert_schedule_item = async (s_id) => {
         try {
-            for (const attraction of attractions) {
-                await fetch('http://localhost:3001/api/view2_schedule_include_insert', {
+            await Promise.all(
+                Object.keys(finalScheduleItems).map(async (a_id) => {
+                    const finalScheduleItem = finalScheduleItems[a_id];
+                    console.log('🚖🚖🚖 finalScheduleItem:', finalScheduleItem);
+                    await fetch('http://localhost:3001/api/view2_schedule_include_insert', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        a_id: attraction.a_id,
+                        a_id: a_id,
                         t_id: t_id,
                         s_id: s_id,
-                        x: attraction.position.x,
-                        y: attraction.position.y
+                        x: finalScheduleItem.x,
+                        y: finalScheduleItem.y,
+                        height: finalScheduleItem.height,
                     }),
                 });
-            }
+            }));
         } catch (error) {
             console.error('Error executing API for item:', error);
             throw error;
         }
     };
 
-    // function 3:確認行程(button點擊事件)
+    // function 3:取得Schedule Item的資料
+    const getChildData = (height, x, y,a_id) => {
+        finalScheduleItems[a_id] = { height, x, y };
+    };
+
+    // function 4:確認行程(button點擊事件)
     const handleConfirm = async () => {
         if (isDraft && ScheduleInsertShow) {
             // 如果是草稿狀態，確認整個行程
@@ -89,7 +98,8 @@ const ScheduleInsert = ({
                 ScheduleInsertShow(false); //確認了就讓insert的這個消失
                 const scheduleData = await db_insert_schedule();//插入schedule
                 const s_id = scheduleData.s_id;
-                await db_insert_schedule_item(s_id);//插入schedule中的細項
+                
+                db_insert_schedule_item(s_id);//插入schedule中的細項
                 handleNewSchedule(TheNewSchedule);
                 // await ()=>{handleNewSchedule(scheduleData)};//把新增的行程傳回去給schedule_container.jsx
             }
@@ -98,7 +108,7 @@ const ScheduleInsert = ({
         }
     };
 
-    // function 4:取消行程(button點擊事件)
+    // function 5:取消行程(button點擊事件)
     const handleCancel = () => {
         if (isDraft && ScheduleInsertShow) {
             if (confirm('確定要取消這個行程嗎？所有內容都會被刪除。')) {
@@ -168,7 +178,7 @@ const ScheduleInsert = ({
                 a_id: item.a_id,
                 name: item.name, //把名字也加入Attraction
                 position: { x: correctedX, y: correctedY },
-                height: 35, // 調整高度，與 schedule_item.jsx 保持一致 @==@調整成真正的
+                height: 35, // 調整高度，與 schedule_item.jsx 保持一致 @==@調整成真正的高度
                 width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
             };
         
@@ -212,8 +222,6 @@ const ScheduleInsert = ({
     }),
   });
 
-    console.log("attractions:", attractions);
-
     // 綁定 dropRef
     drop(dropRef);
 
@@ -236,10 +244,6 @@ const ScheduleInsert = ({
     };
 
     console.log("🚖attractions:", attractions);
-    // 如果不是草稿狀態（即已確認的行程），直接返回 null，不渲染任何內容
-    // if (!isDraft) {
-    //     return null;
-    // }
 
     return (
         <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
@@ -265,14 +269,17 @@ const ScheduleInsert = ({
                 <Suspense fallback={<div>Loading...</div>}>
                     {attractions.map((attraction, index) => (
                         <ScheduleItem
+                            // ref={el => { ScheduleItemRefs.current[attraction.a_id] = el; }}
+                            a_id={attraction.a_id}
                             key={`attraction-${index}`}
                             name={attraction.name}
                             position={attraction.position}
                             width={attraction.width}
-                            index={index}
+                            index={index} //目前第幾個，暫時用的（用於後面識別schedule_item）
                             scheduleId={scheduleId}
                             isDraft={isDraft}
-                            editable={1}
+                            onValueChange={(height, x, y,a_id) => getChildData(height, x, y,a_id)}
+                            editable={true}
                         />
                     ))}
                 </Suspense>

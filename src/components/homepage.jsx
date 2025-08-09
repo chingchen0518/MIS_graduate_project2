@@ -22,6 +22,8 @@ const HomePage = () => {
         <li className="homepage_li"><a href="/signin">signin</a></li>
         <li className="homepage_li"><a href="/forgotPassword">forgotPassword</a></li>
         <li className="homepage_li"><a href="/Profile">Profile</a></li>
+        <li className="homepage_li"><a href="/ResizableBox">ResizableBox</a></li>
+
       </ul>
     </div>
 

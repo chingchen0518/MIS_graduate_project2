@@ -38,11 +38,89 @@ const Schedule_insert = ({
   // 確認行程按鈕處理函數
   const handleConfirm = async () => {
     if (isDraft && onScheduleConfirm) {
-      // 如果是草稿狀態，確認整個行程
-      await onScheduleConfirm(scheduleId, {
-        ...scheduleData,
-        attractions: attractions
-      });
+      try {
+        // 如果是草稿狀態，確認整個行程
+        await onScheduleConfirm(scheduleId, {
+          ...scheduleData,
+          attractions: attractions
+        });
+        
+        // 行程確認後，計算所有景點間的交通時間
+        if (attractions && attractions.length >= 2) {
+          console.log('🔄 開始計算行程交通時間...');
+          console.log('📊 Attractions 陣列內容:', attractions);
+          console.log('📊 Attractions 長度:', attractions.length);
+          
+          // 檢查每個景點的結構
+          attractions.forEach((attraction, index) => {
+            console.log(`景點 ${index}:`, attraction);
+            console.log(`  - id: ${attraction.id}`);
+            console.log(`  - a_id: ${attraction.a_id}`);
+            console.log(`  - name: ${attraction.name}`);
+            console.log(`  - latitude: ${attraction.latitude}`);
+            console.log(`  - longitude: ${attraction.longitude}`);
+            
+            // 警告：如果沒有經緯度
+            if (!attraction.latitude || !attraction.longitude) {
+              console.warn(`⚠️  警告：景點 ${attraction.name} 缺少經緯度資訊！`);
+            }
+          });
+          
+          // 提取景點 ID 陣列（確保使用數字格式的 a_id）
+          const attractionIds = attractions.map(attraction => {
+            const id = attraction.a_id || attraction.id;
+            return typeof id === 'string' ? parseInt(id) : id;
+          }).filter(id => !isNaN(id) && id > 0); // 過濾掉無效的 ID
+          
+          console.log('📊 提取的景點 IDs:', attractionIds);
+          console.log('📊 景點 IDs 類型:', attractionIds.map(id => typeof id));
+          
+          if (attractionIds.length >= 2) {
+            try {
+              const requestData = {
+                attractionIds: attractionIds,
+                scheduleId: scheduleId,
+                date: new Date().toISOString().split('T')[0] // 使用今天的日期
+              };
+              
+              console.log('📤 發送 API 請求資料:', requestData);
+              
+              const response = await fetch('http://localhost:3001/api/calculate-schedule-transport-times', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+              });
+              
+              console.log('📡 API 回應狀態:', response.status);
+              
+              const result = await response.json();
+              console.log('📥 API 回應內容:', result);
+              
+              if (result.success) {
+                console.log('✅ 交通時間計算完成:', result.message);
+                alert(`行程確認成功！\n交通時間計算結果: ${result.message}`);
+              } else {
+                console.error('❌ 交通時間計算失敗:', result.error);
+                alert('行程確認成功，但交通時間計算失敗: ' + result.error);
+              }
+            } catch (error) {
+              console.error('❌ 調用交通時間計算 API 失敗:', error);
+              alert('行程確認成功，但交通時間計算 API 調用失敗');
+            }
+          } else {
+            console.log('⚠️ 景點數量不足，跳過交通時間計算');
+            alert('行程確認成功！（景點數量不足，未計算交通時間）');
+          }
+        } else {
+          alert('行程確認成功！（無景點，未計算交通時間）');
+        }
+        
+      } catch (error) {
+        console.error('❌ 確認行程時發生錯誤:', error);
+        alert('確認行程時發生錯誤: ' + error.message);
+      }
     } else {
       alert('此行程已經確認');
     }

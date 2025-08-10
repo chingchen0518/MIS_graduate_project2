@@ -9,6 +9,9 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Schedule from './models/schedule.js';
+import TransportTime from './models/transportTime.js';
+import ScheduleInclude from './models/schedule_include.js';
+import Attraction from './models/attraction.js';
 import { dirname } from 'path';
 
 // 取得 __dirname 的方式（ES Module 環境）
@@ -72,19 +75,19 @@ function formatDate(dateStr) {
 //   const studentId = req.params.id; // 取得 URL 上的 id
 
 
-// function formatFullDateTime(dateTimeStr) {
-//   if (!dateTimeStr) return null;
-//   const d = new Date(dateTimeStr);
+function formatFullDateTime(dateTimeStr) {
+  if (!dateTimeStr) return null;
+  const d = new Date(dateTimeStr);
 
-//   const year = d.getFullYear();
-//   const month = `${d.getMonth() + 1}`.padStart(2, '0');
-//   const day = `${d.getDate()}`.padStart(2, '0');
-//   const hours = `${d.getHours()}`.padStart(2, '0');
-//   const minutes = `${d.getMinutes()}`.padStart(2, '0');
-//   const seconds = `${d.getSeconds()}`.padStart(2, '0');
+  const year = d.getFullYear();
+  const month = `${d.getMonth() + 1}`.padStart(2, '0');
+  const day = `${d.getDate()}`.padStart(2, '0');
+  const hours = `${d.getHours()}`.padStart(2, '0');
+  const minutes = `${d.getMinutes()}`.padStart(2, '0');
+  const seconds = `${d.getSeconds()}`.padStart(2, '0');
 
-//   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-// }
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
 
 app.get('/api/travel', (req, res) => {
   const results = {};
@@ -1105,6 +1108,186 @@ app.get('/api/fake-data-clean', async (req, res) => {
 //   });
 // });
 
+// ==================== 交通時間計算 API ====================
+import { calculateAndStoreTransportTime, calculateScheduleTransportTimes, getTransportTime } from './transportTimeService.js';
+
+/**
+ * POST /api/calculate-transport-time
+ * 計算兩個景點之間的交通時間
+ */
+app.post('/api/calculate-transport-time', async (req, res) => {
+  try {
+    console.log('🔥 收到單一路線交通時間計算請求');
+    console.log('📥 請求 body:', req.body);
+    
+    const { fromAId, toAId, scheduleId, date } = req.body;
+    
+    if (!fromAId || !toAId || !scheduleId) {
+      return res.status(400).json({ 
+        error: '缺少必要參數: fromAId, toAId, scheduleId' 
+      });
+    }
+
+    const result = await calculateAndStoreTransportTime(fromAId, toAId, scheduleId, date);
+    
+    if (result.success) {
+      console.log('✅ 單一路線交通時間計算成功');
+      res.json(result);
+    } else {
+      console.log('❌ 單一路線交通時間計算失敗:', result.error);
+      res.status(500).json(result);
+    }
+
+  } catch (error) {
+    console.error('❌ 計算交通時間 API 錯誤:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * POST /api/calculate-schedule-transport-times
+ * 計算整個行程的交通時間
+ */
+app.post('/api/calculate-schedule-transport-times', async (req, res) => {
+  try {
+    console.log('🔥 收到交通時間計算請求');
+    console.log('📥 請求 body:', req.body);
+    
+    const { attractionIds, scheduleId, date } = req.body;
+    
+    console.log('📊 解析的參數:');
+    console.log('  - attractionIds:', attractionIds, '(類型:', typeof attractionIds, ')');
+    console.log('  - scheduleId:', scheduleId, '(類型:', typeof scheduleId, ')');
+    console.log('  - date:', date);
+
+    if (!attractionIds || !Array.isArray(attractionIds) || attractionIds.length < 2) {
+      console.log('❌ 景點 ID 陣列驗證失敗');
+      return res.status(400).json({ 
+        error: '需要至少兩個景點ID的陣列' 
+      });
+    }
+
+    if (!scheduleId) {
+      console.log('❌ 行程 ID 驗證失敗');
+      return res.status(400).json({ 
+        error: '缺少行程ID' 
+      });
+    }
+
+    console.log('✅ 參數驗證通過，開始計算交通時間...');
+    const result = await calculateScheduleTransportTimes(attractionIds, scheduleId, date);
+    console.log('📊 計算結果:', result);
+
+    if (result.success) {
+      console.log('✅ 交通時間計算成功');
+      res.json({
+        success: true,
+        message: `行程交通時間計算完成: ${result.successCount}/${result.totalRoutes} 成功`,
+        data: result
+      });
+    } else {
+      console.log('❌ 交通時間計算失敗:', result.error);
+      res.status(500).json({
+        success: false,
+        error: result.error,
+        data: result
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ 計算行程交通時間 API 錯誤:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/transport-time/:fromAId/:toAId/:scheduleId
+ * 獲取特定路線的交通時間
+ */
+app.get('/api/transport-time/:fromAId/:toAId/:scheduleId', async (req, res) => {
+  try {
+    const { fromAId, toAId, scheduleId } = req.params;
+    
+    console.log(`🔍 查詢交通時間: ${fromAId} → ${toAId} (行程 ${scheduleId})`);
+    
+    const result = await getTransportTime(parseInt(fromAId), parseInt(toAId), parseInt(scheduleId));
+    
+    if (result) {
+      console.log('✅ 找到交通時間資料');
+      res.json({
+        success: true,
+        data: result
+      });
+    } else {
+      console.log('❌ 未找到交通時間資料');
+      res.status(404).json({
+        success: false,
+        error: '未找到該路線的交通時間資料'
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ 查詢交通時間 API 錯誤:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/schedule-transport-times/:scheduleId
+ * 獲取整個行程的所有交通時間
+ */
+app.get('/api/schedule-transport-times/:scheduleId', async (req, res) => {
+  try {
+    const { scheduleId } = req.params;
+    
+    console.log(`🔍 查詢行程 ${scheduleId} 的所有交通時間`);
+    
+    const query = `
+      SELECT tt.*, 
+             a1.name as from_name, a1.latitude as from_lat, a1.longitude as from_lng,
+             a2.name as to_name, a2.latitude as to_lat, a2.longitude as to_lng
+      FROM transport_time tt
+      JOIN Attraction a1 ON tt.from_a_id = a1.a_id
+      JOIN Attraction a2 ON tt.to_a_id = a2.a_id
+      WHERE tt.s_id = ?
+      ORDER BY tt.id
+    `;
+    
+    connection.query(query, [scheduleId], (err, results) => {
+      if (err) {
+        console.error('❌ 查詢行程交通時間錯誤:', err);
+        return res.status(500).json({ 
+          success: false, 
+          error: err.message 
+        });
+      }
+      
+      console.log(`✅ 找到 ${results.length} 條交通時間記錄`);
+      res.json({
+        success: true,
+        data: results
+      });
+    });
+
+  } catch (error) {
+    console.error('❌ 查詢行程交通時間 API 錯誤:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+// ==================== 啟動服務器 ====================
 app.listen(port, () => {
   console.log(`🚀 伺服器正在 http://localhost:${port} 上運行`);
 });

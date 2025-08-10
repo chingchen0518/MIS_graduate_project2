@@ -15,6 +15,7 @@ async function syncModels() {
     await models.Business.sync({ alter: true });
     await models.Hotel.sync({ alter: true });
     await models.TripHotel.sync({ alter: true });
+    await models.TransportTime.sync({ alter: true });
 
     console.log('✅ 所有模型已依指定順序同步（如不存在則自動建表）');
   } catch (err) {

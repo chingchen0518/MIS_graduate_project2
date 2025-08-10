@@ -94,11 +94,18 @@
 }
 
 .schedule_header {
-  text-align: center;
-  margin-bottom: 8px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 6px;
-  position: relative;
+    height: 10%;
+    text-align: center;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 6px;
+    position: relative;
+}
+
+.button_display{
+    margin-top: 20px;
+
+
 }
 
 .user_avatar {

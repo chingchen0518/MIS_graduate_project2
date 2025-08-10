@@ -248,16 +248,14 @@ const ScheduleInsert = ({
     return (
         <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
             <div className="schedule_header">
-                <div className="user_avatar">
-                    <img src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" alt="User" />
-                </div>
+
                 <div className="budget_display">$350</div>
-                    {isDraft && (
-                        <>
-                            <button className="confirm_btn" onClick={handleConfirm}>確認</button>
-                            <button className="cancel_btn" onClick={handleCancel}>取消</button>
-                        </>
-                    )}
+                
+                <div class="button_display">
+                    <button className="confirm_btn" onClick={handleConfirm}>確認</button>
+                    <button className="cancel_btn" onClick={handleCancel}>取消</button>
+                </div>
+
                 <span className="schedule_date">{title}</span>
             </div>
         

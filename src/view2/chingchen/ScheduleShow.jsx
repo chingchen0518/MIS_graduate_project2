@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import AttractionCard from './attraction_card';
-import ScheduleItem from './schedule_item.jsx'; // 引入 ScheduleItem 組件
+import ScheduleItem from './ScheduleItem.jsx'; // 引入 ScheduleItem 組件
 
 const ScheduleShow = (props) => {
     // state
@@ -113,7 +113,7 @@ const ScheduleShow = (props) => {
                         name={scheduleItem.name}
                         position={{ x: scheduleItem.x, y: scheduleItem.y }} // x和y的位置，傳入object
                         width={scheduleWidths} // 使用計算出的寬度
-                        editable={0} // 不可編輯
+                        editable={false} // 不可編輯
                     />
                 ))}
             </div>

@@ -20,7 +20,7 @@ import Signin from './view3/page1/signin.jsx';
 import ForgotPassword from './view3/page1/forgotpassword.jsx'; 
 import Logout from './view3/page1/logout.jsx'; 
 import Profile from './view3/page1/profile.jsx'; 
-import Schedule_container from './view2/chingchen/schedule_container.jsx';
+import ResizableBox from './view2/chingchen/ResizableBox.jsx';
 import ScheduleNew from './view2/chingchen/scheduleNew.jsx';
 import ScheduleInsert from './view2/chingchen/ScheduleInsert.jsx';
 import './App.css';
@@ -45,7 +45,7 @@ function App() {
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/Profile" element={<Profile />} />
         <Route path="/logout" element={<Logout />} />
-        <Route path="/Schedule_container" element={<Schedule_container />} />
+        <Route path="/ResizableBox" element={<ResizableBox />} />
 
 
       </Routes>

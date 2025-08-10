@@ -85,7 +85,7 @@ const ScheduleInsert = ({
         }
     };
 
-    // function 3:取得Schedule Item的資料
+    // function 3:取得Schedule Item的資料（這是callback function更新後馬上取得）
     const getChildData = (height, x, y,a_id) => {
         finalScheduleItems[a_id] = { height, x, y };
     };
@@ -156,21 +156,21 @@ const ScheduleInsert = ({
         const x = 0; // 固定為 0，總是從左邊開始
         const y = clientOffset.y - dropTargetRect.top;
       
-        console.log('clientOffset:', clientOffset);
-        console.log('dropTargetRect:', dropTargetRect);
+        // console.log('clientOffset:', clientOffset);
+        // console.log('dropTargetRect:', dropTargetRect);
 
         // 確保拖放位置不超出容器範圍
         // x 已經固定為 0，所以不需要修正
         const correctedX = x;
         const correctedY = Math.max(0, Math.min(y, dropTargetRect.height));
 
-        console.log('Item dropped:', item, 'at position:', { x: correctedX, y: correctedY });
+        // console.log('Item dropped:', item, 'at position:', { x: correctedX, y: correctedY });
         // 可能有錯誤---------------------------------------------------------------------------------
-        const t_id = item.id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
+        // const t_id = item.id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
         const dropTargetId = dropTarget.getAttribute('data-id'); // 獲取 Drop Target 的 ID
-        const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
+        // const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
         // 可能有錯---------------------------------------------------------------------------------
-        const a_id = item.a_id || 1; // 景點 ID，默認為 1
+        // const a_id = item.a_id || 1; // 景點 ID，默認為 1
 
         if (monitor.getItemType() === "card") {       
             // 處理從 attraction_card 拖動
@@ -190,31 +190,31 @@ const ScheduleInsert = ({
             }
 
         } else if (monitor.getItemType() === "schedule_item") {
-            // 處理 schedule_item 的重新排序（僅限同一個 schedule）
-            if (item.scheduleId === day) {
-                // 獲取拖動開始時鼠標相對於元素的偏移
-                const initialOffset = monitor.getInitialClientOffset();
-                const initialSourceOffset = monitor.getInitialSourceClientOffset();
-                const sourceOffset = monitor.getSourceClientOffset();
+            // // 處理 schedule_item 的重新排序（僅限同一個 schedule）
+            // if (item.scheduleId === day) {
+            //     // 獲取拖動開始時鼠標相對於元素的偏移
+            //     const initialOffset = monitor.getInitialClientOffset();
+            //     const initialSourceOffset = monitor.getInitialSourceClientOffset();
+            //     // const sourceOffset = monitor.getSourceClientOffset();
             
-                // 計算鼠標相對於被拖動元素的偏移量
-                let offsetX = 0;
-                let offsetY = 0;
-                if (initialOffset && initialSourceOffset) {
-                    offsetX = initialOffset.x - initialSourceOffset.x;
-                    offsetY = initialOffset.y - initialSourceOffset.y;
-                }
+            //     // 計算鼠標相對於被拖動元素的偏移量
+            //     let offsetX = 0;
+            //     // let offsetY = 0;
+            //     if (initialOffset && initialSourceOffset) {
+            //         offsetX = initialOffset.x - initialSourceOffset.x;
+            //         offsetY = initialOffset.y - initialSourceOffset.y;
+            //     }
             
-                setAttractions((prevAttractions) => [
-                    ...prevAttractions,
-                    {
-                    name: item.name || item.id,
-                    time: null,
-                    position: { x: correctedX, y: correctedY },
-                    width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
-                    },
-                ]);
-            }
+            //     setAttractions((prevAttractions) => [
+            //         ...prevAttractions,
+            //         {
+            //         name: item.name || item.id,
+            //         time: null,
+            //         position: { x: correctedX, y: correctedY },
+            //         width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
+            //         },
+            //     ]);
+            // }
         }
     },
     collect: (monitor) => ({

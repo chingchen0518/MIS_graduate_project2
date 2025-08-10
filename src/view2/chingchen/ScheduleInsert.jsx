@@ -110,7 +110,7 @@ const ScheduleInsert = ({
                     //     }
                     // });
                     
-                    // 提取景點 ID 陣列（確保使用數字格式的 a_id）
+                    // 提取景點 ID，從前端的 attractions 陣列中提取所有景點的 ID
                     const attractionIds = attractions.map(attraction => {
                         const id = attraction.a_id || attraction.id;
                         return typeof id === 'string' ? parseInt(id) : id;
@@ -121,6 +121,7 @@ const ScheduleInsert = ({
                     
                     if (attractionIds.length >= 2) {
                         try {
+                            //用這三個資料給aAPI，去計算交通
                             const requestData = {
                                 attractionIds: attractionIds,
                                 scheduleId: s_id, // 使用剛插入的 schedule ID
@@ -129,6 +130,7 @@ const ScheduleInsert = ({
                             
                             console.log(' 發送交通時間計算 API 請求資料:', requestData);
                             
+                            //發送 API 請求，調用後端的交通時間計算 API
                             const response = await fetch('http://localhost:3001/api/calculate-schedule-transport-times', {
                                 method: 'POST',
                                 headers: {

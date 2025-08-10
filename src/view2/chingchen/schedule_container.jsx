@@ -166,6 +166,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
                     date = {selectedDate}
                     ScheduleInsertShow={handleShowScheduleInsert}
                     handleNewSchedule={getNewSchedule}
+                    containerHeight={timeColumnHeight}
                 />)
             }
 

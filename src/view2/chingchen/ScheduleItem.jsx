@@ -53,7 +53,6 @@ const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editabl
         marginLeft: '40%',
 
         border: '1px solid black',
-        borderRadius: '5px',
         background: '#f0f0f0',
         borderRadius: '5px',
         cursor: 'ns-resize',
@@ -62,7 +61,6 @@ const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editabl
     return (
         <Rnd
             disableDragging={!editable} // 如果不可編輯，則不允許拖拽
-
             default={{x: 100,y: 100,width: '100%',height: 35}}
             position={{ x: x, y: y }}//用state，因爲可能會更新
             size={{ width: 100, height: editable ? heightEdit : height }}

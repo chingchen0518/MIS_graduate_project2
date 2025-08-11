@@ -147,7 +147,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
             </div>
 
             <div className="schedule_list">
-                <div className="time_column" ref={timeColumnRef}>
+                <div className="time_column" ref={timeColumnRef} style={{ height: timeColumnHeight}}>
                 {timeSlots.map((time) => (
                     <div key={time} className="time_slot">
                         {time}

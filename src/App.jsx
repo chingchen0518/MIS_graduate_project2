@@ -8,10 +8,12 @@ import Page1 from './view2/chingchen/page1.jsx'
 import Header from './components/header.jsx'
 import MapDisplay from './view2/Liu/mapAddRoute/MapDisplay.jsx'
 
+//========================testing area==========================================
 import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
 import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
-
 import DragAndDropExample2 from './view2/chingchen/DragAndDropExample2.jsx';
+import MyRndList from './view2/chingchen/test_MyRndList.jsx';
+//==========================================================================
 
 import UserProfile from './view2/chingchen/user.jsx'; 
 
@@ -46,6 +48,8 @@ function App() {
         <Route path="/Profile" element={<Profile />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/ResizableBox" element={<ResizableBox />} />
+
+        <Route path="/MyRndList" element={<MyRndList />} />
 
 
       </Routes>

@@ -3,8 +3,6 @@ import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import AttractionCard from './attraction_card';
 
-console.log('ScheduleInsert.jsx is loaded==========');
-
 // 使用 lazy 進行按需加載
 const ScheduleItem = lazy(() => import('./ScheduleItem'));
 
@@ -18,7 +16,7 @@ const ScheduleInsert = ({
         isDraft = true,
         containerHeight, 
         handleNewSchedule,
-        onAttractionUsed,
+        onAttractionUsed,//處理已經被使用的景點（回傳父組件）
         ScheduleInsertShow,
     }) => {
     
@@ -26,19 +24,19 @@ const ScheduleInsert = ({
     let TheNewSchedule = {};
 
     //state
-    const [attractions, setAttractions] = useState(initialAttractions || []); //儲存目前放進schedule的attraction
+    const [attractions, setAttractions] = useState([]); //儲存目前放進schedule的attraction
     var finalScheduleItems = {}; // 儲存最終的行程項目
     const dropRef = useRef(null);
 
     // const ScheduleItemRefs = useRef({});
 
     // 【UseEffect 1】當 initialAttractions 變化時，更新本地狀態
-    React.useEffect(() => {
-        if (initialAttractions) {
-            console.log('🔄 更新 Schedule 景點資料:', initialAttractions);
-            setAttractions(initialAttractions);
-        }
-    }, [initialAttractions]);
+    // React.useEffect(() => {
+    //     if (initialAttractions) {
+    //         console.log('🔄 更新 Schedule 景點資料:', initialAttractions);
+    //         setAttractions(initialAttractions);
+    //     }
+    // }, [initialAttractions]);
 
     // function 1:把新的行程新增到資料庫
     const db_insert_schedule = async () => {
@@ -61,24 +59,25 @@ const ScheduleInsert = ({
 
     // function 2:把單個景點插入到資料庫
     const db_insert_schedule_item = async (s_id) => {
+        // 用 attractions 陣列 map 方式插入資料
         try {
             await Promise.all(
-                Object.keys(finalScheduleItems).map(async (a_id) => {
-                    const finalScheduleItem = finalScheduleItems[a_id];
-                    console.log('🚖🚖🚖 finalScheduleItem:', finalScheduleItem);
+                attractions.map(async (attraction) => {
+                    console.log('🚖🚖🚖 attraction:', attraction);
                     await fetch('http://localhost:3001/api/view2_schedule_include_insert', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        a_id: a_id,
-                        t_id: t_id,
-                        s_id: s_id,
-                        x: finalScheduleItem.x,
-                        y: finalScheduleItem.y,
-                        height: finalScheduleItem.height,
-                    }),
-                });
-            }));
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            a_id: attraction.a_id,
+                            t_id: t_id,
+                            s_id: s_id,
+                            x: attraction.x,
+                            y: attraction.y,
+                            height: attraction.height,
+                        }),
+                    });
+                })
+            );
         } catch (error) {
             console.error('Error executing API for item:', error);
             throw error;
@@ -86,8 +85,14 @@ const ScheduleInsert = ({
     };
 
     // function 3:取得Schedule Item的資料（這是callback function更新後馬上取得）
-    const getChildData = (height, x, y,a_id) => {
-        finalScheduleItems[a_id] = { height, x, y };
+    const getChildData = (func_height, func_x, func_y,func_a_id) => {
+        // finalScheduleItems[func_a_id] = { height: func_height, x: func_x, y: func_y };
+        // console.log("更新行程項目:", finalScheduleItems);
+        //renew y axis
+        setAttractions(prev =>
+            prev.map(item => item.a_id === func_a_id ? { ...item, y: func_y, height: func_height } : item)
+        );
+        console.log(attractions);
     };
 
     // function 4:確認行程(button點擊事件)
@@ -99,8 +104,16 @@ const ScheduleInsert = ({
                 const scheduleData = await db_insert_schedule();//插入schedule
                 const s_id = scheduleData.s_id;
 
+                //顯示最新的schedule
+                handleNewSchedule(TheNewSchedule);
+
                 await db_insert_schedule_item(s_id);//插入schedule中的細項
                 
+                //告訴attraction_card恢復可drag
+                attractions.forEach(attraction => {
+                    onAttractionUsed(attraction.a_id,false); // false 表示標記為未使用
+                });
+
                 // 行程確認後，計算所有景點間的交通時間
                 if (attractions && attractions.length >= 2) {
                     // console.log(' 開始計算行程交通時間...');
@@ -172,8 +185,8 @@ const ScheduleInsert = ({
                 }
 
                 
-//                 db_insert_schedule_item(s_id);//插入schedule中的細項
-//                 handleNewSchedule(TheNewSchedule);
+                // db_insert_schedule_item(s_id);//插入schedule中的細項
+                
                 // await ()=>{handleNewSchedule(scheduleData)};//把新增的行程傳回去給schedule_container.jsx
 
             }
@@ -186,16 +199,29 @@ const ScheduleInsert = ({
     const handleCancel = () => {
         if (isDraft && ScheduleInsertShow) {
             if (confirm('確定要取消這個行程嗎？所有內容都會被刪除。')) {
+                //告訴attraction_card恢復可drag
+                attractions.forEach(attraction => {
+                    onAttractionUsed(attraction.a_id,false); // false 表示標記為未使用
+                });
                 ScheduleInsertShow(false);
+                
             }
         } else {
             alert('已確認的行程無法取消');
         }
     };
 
+    // function 6:重新排序行程
+    const handleReorder = () => {
+        console.log("Dragging");
+        const sorted = [...attractions].sort((a, b) => a.y - b.y);
+        console.log("目前attractions：", attractions);
+        console.log("目前順序：", sorted);
+        
+        
+    };
 
-
-    //use Drop(處理drag and drop事件)
+    //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({
         accept: "card",
         drop: (item, monitor) => {
@@ -251,16 +277,21 @@ const ScheduleInsert = ({
             const newAttraction = {
                 a_id: item.a_id,
                 name: item.name, //把名字也加入Attraction
+                x: correctedX, // 固定為 0，總是從左邊開始
+                y: correctedY, // 使用計算後的 y 坐標
                 position: { x: correctedX, y: correctedY },
                 height: 35, // 調整高度，與 schedule_item.jsx 保持一致 @==@調整成真正的高度
                 width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
+                sequence: attractions.length + 1, // 新增的景點序號
             };
-        
+            
             setAttractions((prevAttractions) => [...prevAttractions, newAttraction]);
-        
+            
+            // handleReorder(); // 重新排序行程
+
             // 通知父組件該景點已被使用
             if (onAttractionUsed) {
-                onAttractionUsed(item.name || item.id, true); // true 表示標記為已使用
+                onAttractionUsed(item.a_id,true); // true 表示標記為已使用
             }
 
         } else if (monitor.getItemType() === "schedule_item") {
@@ -317,7 +348,7 @@ const ScheduleInsert = ({
         return lines;
     };
 
-    console.log("🚖attractions:", attractions);
+    // console.log("🚖attractions:", attractions);
 
     return (
         <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
@@ -325,7 +356,7 @@ const ScheduleInsert = ({
 
                 <div className="budget_display">$350</div>
                 
-                <div class="button_display">
+                <div className="button_display">
                     <button className="confirm_btn" onClick={handleConfirm}>確認</button>
                     <button className="cancel_btn" onClick={handleCancel}>取消</button>
                 </div>
@@ -352,6 +383,7 @@ const ScheduleInsert = ({
                             isDraft={isDraft}
                             onValueChange={(height, x, y,a_id) => getChildData(height, x, y,a_id)}
                             editable={true}
+                            onDragStop={handleReorder}
                         />
                     ))}
                 </Suspense>

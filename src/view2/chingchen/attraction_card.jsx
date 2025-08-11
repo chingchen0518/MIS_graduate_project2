@@ -8,12 +8,6 @@ const AttractionCard = ({ a_id,t_id, name,latitude,longitude, category, votes, c
   const [{ isDragging }, dragRef, dragPreview] = useDrag({
       type: "card",
     
-//       item: { 
-//         a_id: a_id,
-//         id: name, // 添加 id 屬性，使用 name 作為顯示名稱
-//         name: name // 也添加 name 屬性以保持一致性
-//       }, 
-    
       //要傳什麽過去
       item: { a_id:a_id,
               t_id:t_id,

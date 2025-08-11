@@ -22,7 +22,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
     // function 1：處理日期選擇變更
     const handleDateChange = (date) => {
         setSelectedDate(date);
-        console.log('選擇的日期:', date);
+        // console.log('選擇的日期:', date);
         // 這裡可以根據選擇的日期來篩選或更新行程資料
     };
 
@@ -69,7 +69,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
         let api = 'http://localhost:3001/api/view2_schedule_list';
         if (selectedDate) {
             api += `?date=${encodeURIComponent(selectedDate)}`;
-            console.log('🔍 按日期載入 Schedule:', selectedDate);
+            // console.log('🔍 按日期載入 Schedule:', selectedDate);
         }
         
         fetch(api)
@@ -94,8 +94,8 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
                 formattedSchedules.reverse();
                 setSchedules(formattedSchedules);
 
-                console.log('✅ 載入的 Schedule 數量:', formattedSchedules.length);
-                console.log('📋 載入的行程數據:', formattedSchedules);
+                // console.log('✅ 載入的 Schedule 數量:', formattedSchedules.length);
+                // console.log('📋 載入的行程數據:', formattedSchedules);
             // **關鍵修正**: 只將草稿行程中的景點標記為已使用，已確認的行程中的景點不標記為已使用
             if (onAttractionUsed) {
                 const draftAttractions = new Set();
@@ -113,7 +113,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
                     onAttractionUsed(attractionName, true);
                 });
                 
-                console.log('🔄 同步草稿行程的景點狀態:', [...draftAttractions]);
+                // console.log('🔄 同步草稿行程的景點狀態:', [...draftAttractions]);
             }
             }
         })
@@ -131,7 +131,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
         '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
     ];
 
-    console.log('🔍 當前行程:', schedules.length);
+    // console.log('🔍 當前行程:', schedules.length);
 
     //components的最終return
     return (
@@ -167,6 +167,9 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
                     ScheduleInsertShow={handleShowScheduleInsert}
                     handleNewSchedule={getNewSchedule}
                     containerHeight={timeColumnHeight}
+
+                    //用於告訴attraction_container哪一些景點已被使用
+                    onAttractionUsed={onAttractionUsed} 
                 />)
             }
 

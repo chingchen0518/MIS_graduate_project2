@@ -3,8 +3,6 @@ import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import AttractionCard from './attraction_card';
 
-console.log('ScheduleInsert.jsx is loaded==========');
-
 // 使用 lazy 進行按需加載
 const ScheduleItem = lazy(() => import('./ScheduleItem'));
 
@@ -18,7 +16,7 @@ const ScheduleInsert = ({
         isDraft = true,
         containerHeight, 
         handleNewSchedule,
-        onAttractionUsed,
+        onAttractionUsed,//處理已經被使用的景點（回傳父組件）
         ScheduleInsertShow,
     }) => {
     
@@ -100,6 +98,11 @@ const ScheduleInsert = ({
                 const s_id = scheduleData.s_id;
 
                 await db_insert_schedule_item(s_id);//插入schedule中的細項
+                
+                //告訴attraction_card恢復可drag
+                attractions.forEach(attraction => {
+                    onAttractionUsed(attraction.a_id,false); // false 表示標記為未使用
+                });
                 
                 // 行程確認後，計算所有景點間的交通時間
                 if (attractions && attractions.length >= 2) {
@@ -186,7 +189,12 @@ const ScheduleInsert = ({
     const handleCancel = () => {
         if (isDraft && ScheduleInsertShow) {
             if (confirm('確定要取消這個行程嗎？所有內容都會被刪除。')) {
+                //告訴attraction_card恢復可drag
+                attractions.forEach(attraction => {
+                    onAttractionUsed(attraction.a_id,false); // false 表示標記為未使用
+                });
                 ScheduleInsertShow(false);
+                
             }
         } else {
             alert('已確認的行程無法取消');
@@ -195,7 +203,7 @@ const ScheduleInsert = ({
 
 
 
-    //use Drop(處理drag and drop事件)
+    //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({
         accept: "card",
         drop: (item, monitor) => {
@@ -260,7 +268,9 @@ const ScheduleInsert = ({
         
             // 通知父組件該景點已被使用
             if (onAttractionUsed) {
-                onAttractionUsed(item.name || item.id, true); // true 表示標記為已使用
+                console.log("已經被使用", item.a_id, item.name);
+                onAttractionUsed(item.a_id,true); // true 表示標記為已使用
+                // handleAttractionUsed(item.name || item.id, true); // true 表示標記為已使用
             }
 
         } else if (monitor.getItemType() === "schedule_item") {
@@ -317,7 +327,7 @@ const ScheduleInsert = ({
         return lines;
     };
 
-    console.log("🚖attractions:", attractions);
+    // console.log("🚖attractions:", attractions);
 
     return (
         <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
@@ -325,7 +335,7 @@ const ScheduleInsert = ({
 
                 <div className="budget_display">$350</div>
                 
-                <div class="button_display">
+                <div className="button_display">
                     <button className="confirm_btn" onClick={handleConfirm}>確認</button>
                     <button className="cancel_btn" onClick={handleCancel}>取消</button>
                 </div>

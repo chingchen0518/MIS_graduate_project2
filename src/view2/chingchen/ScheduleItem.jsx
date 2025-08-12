@@ -4,8 +4,10 @@ import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight }) => {
-    
+const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId }) => {
+    if(editmode){
+        console.log("name:", name,"aId:", a_id,"nextAid",nextAId);
+    }
     const [heightEdit, setheightEdit] = React.useState(35); // 初始高度
     const [x, setX] = React.useState(position.x); // 初始 X 座標
     const [y, setY] = React.useState(position.y); // 初始 Y 座標
@@ -41,18 +43,11 @@ const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editabl
     const handleDragStop = (e, d) => {
         setX(d.x); // 更新 x 座標
         setY(d.y); // 更新 y 座標
-
+        console.log(d.y);
         onValueChange(heightEdit, d.x, d.y,a_id);//回傳到ScheduleInsert
 
-        onDragStop();//回到ScheduleInset做handleReorder
+        // onDragStop();//回到ScheduleInset做handleReorder
     };
-
-    // if(editable) {
-    //     useEffect(() => {
-    //         onValueChange(heightEdit, x, y,a_id);
-    //     }, [heightEdit, x, y, onValueChange]);
-    // }
-
 
     const handleStyle = {
         height: '8px',

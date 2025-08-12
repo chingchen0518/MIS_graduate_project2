@@ -317,19 +317,21 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
 
 //把景點添加到schedule後存入資料庫
 app.post('/api/view2_schedule_include_insert', (req, res) => {
-  const { a_id, t_id, s_id, x, y,height } = req.body;
+    const { a_id, t_id, s_id, x, y, height, sequence=1 } = req.body;
 
-  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height) VALUES (?, ?, ?, ?, ?, ?)`;
-  const values = [a_id, t_id, s_id, x, y, height];
+    // sequence=1;//default value
 
-  connection.query(query, values, (err, results) => {
-    if (err) {
-      console.error('Error inserting data into Schedule_include:', err);
-      res.status(500).send('Failed to insert data');
-    } else {
-      res.status(200).send('Data inserted successfully');
-    }
-  });
+    const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height, sequence) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    const values = [a_id, t_id, s_id, x, y, height, sequence];
+
+    connection.query(query, values, (err, results) => {
+        if (err) {
+        console.error('Error inserting data into Schedule_include:', err);
+        res.status(500).send('Failed to insert data');
+        } else {
+        res.status(200).send('Data inserted successfully');
+        }
+    });
 });
 
 app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {

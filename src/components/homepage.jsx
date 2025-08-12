@@ -10,7 +10,7 @@ const HomePage = () => {
     }
   return (
 
-    <div id ="home_page">
+    <div id ="home_page" style={{ paddingLeft: '20px' }}>
       <ul>
         <li className="homepage_li"><a href="/attraction">attraction</a></li>
         <li className="homepage_li"><a href="/page1">page1</a></li>

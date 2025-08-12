@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import AttractionCard from './attraction_card.jsx';
-import AttractionDetail from './attraction_detail.jsx';
+import AttractionCard from './AttractionCard.jsx';
+import AttractionDetail from './AttractionDetail.jsx';
 import MapDisplay from '../Liu/mapAddRoute/MapDisplay.jsx'; // 導入地圖組件
 
-import './attraction_container.css';
+import './AttractionContainer.css';
 
-const Attraction_container = ({ usedAttractions = [] }) => {
+const AttractionContainer = ({ usedAttractions = [] }) => {
     //state
     const [selectedTab, setSelectedTab] = useState('選擇文化村');
     const [showTripPlanning, setShowTripPlanning] = useState(false); // 控制是否顯示行程規劃區域
@@ -91,4 +91,4 @@ const Attraction_container = ({ usedAttractions = [] }) => {
     );
 };
 
-export default Attraction_container;
+export default AttractionContainer;

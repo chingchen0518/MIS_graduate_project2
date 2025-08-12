@@ -39,14 +39,12 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
         onValueChange(ref.offsetHeight, position.x, position.y,a_id);//回傳到ScheduleInsert
     };
 
-    //function 2:當拖拽停止時
+    // function 2: 當拖拽停止時
     const handleDragStop = (e, d) => {
         setX(d.x); // 更新 x 座標
         setY(d.y); // 更新 y 座標
         console.log(d.y);
         onValueChange(heightEdit, d.x, d.y,a_id);//回傳到ScheduleInsert
-
-        // onDragStop();//回到ScheduleInset做handleReorder
     };
 
     const handleStyle = {
@@ -111,7 +109,14 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
                     {name}
                 </div>
             </div>
-            <TransportTime intervalHeight={intervalHeight} a_id={a_id}/>
+
+            {/* 交通時間 */}
+            <TransportTime 
+                intervalHeight={intervalHeight} 
+                a_id={a_id}
+                nextAId={nextAId}
+                editmode={editmode}
+            />
 
         </Rnd>
     );

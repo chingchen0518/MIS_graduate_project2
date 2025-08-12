@@ -153,6 +153,7 @@ app.get('/api/travel', (req, res) => {
   });
 });
 
+// ====================================view 2===========================
 app.get('/api/view2_attraction_list', (req, res) => {
   const sql = 'SELECT * FROM Attraction';
 
@@ -352,6 +353,25 @@ app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {
     });
 });
 
+app.get('/api/view2_get_transport_time/:a_id/:nextAid', (req, res) => {
+    const { a_id, nextAid } = req.params;
+    
+    const query = `SELECT * FROM transport_time t
+                   WHERE t.from_a_id = ? AND t.to_a_id = ?`;
+    const values = [a_id, nextAid];
+
+    connection.query(query, values, (err, results) => {
+        if (err) {
+            console.error('Error fetching data from transport_time:', err);
+            res.status(500).send('Failed to fetch data');
+        } else {
+            res.status(200).json(results);
+        }
+    });
+});
+
+
+//=======================view 3===================================
 // 新增 API 端點：獲取指定 trip 的日期範圍
 app.get('/api/trip-dates/:tripId', (req, res) => {
   const tripId = req.params.tripId;

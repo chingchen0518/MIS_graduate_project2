@@ -2,14 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import Schedule from './schedule.jsx';
 import ScheduleNew from './scheduleNew.jsx';    
 import ScheduleInsert from './ScheduleInsert.jsx';
 import ScheduleShow from './ScheduleShow.jsx';
-import './schedule_container.css';
 import DateSelector from '../Liu/DateSelector';
+import './ScheduleContainer.css';
 
-const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
+const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
     //State
     const [schedules, setSchedules] = useState([]); //儲存DB讀取的schedule
     const [loading, setLoading] = useState(true);
@@ -208,4 +207,4 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
     );
 };
 
-export default Schedule_container;
+export default ScheduleContainer;

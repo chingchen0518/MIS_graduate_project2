@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import Attraction_container from '../chingchen/attraction_container.jsx';
-import Schedule_container from '../chingchen/schedule_container.jsx';
-import { CustomDragPreview } from './schedule.jsx';
+import AttractionContainer from '../chingchen/AttractionContainer.jsx';
+import ScheduleContainer from '../chingchen/scheduleContainer.jsx';
+import { CustomDragPreview } from './ScheduleInsert.jsx';
 import Header from '../../components/header.jsx'
 // import MapDisplay from '../Liu/mapAddRoute/MapDisplay.jsx'
 
-import './page1.css';
+import './Page1.css';
 
 const Page1 = () => {
     //state
@@ -37,8 +37,8 @@ const Page1 = () => {
 
                 <div className="page1_content">
 
-                    <Attraction_container usedAttractions={usedAttractions} />
-                    <Schedule_container
+                    <AttractionContainer usedAttractions={usedAttractions} />
+                    <ScheduleContainer
                         t_id={1}//@==@記得改掉@==@
                         usedAttractions={usedAttractions} 
                         onAttractionUsed={handleAttractionUsed} 

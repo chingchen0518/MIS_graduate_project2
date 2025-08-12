@@ -6,9 +6,10 @@ import { Rnd } from "react-rnd";
 const TransportTime = ({ intervalHeight }) => {
     var HourIntervalHeight = intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
     var transport={car:20,bicycle:21,public:50,walk:70};
+    var maxtime = Math.max(transport.car, transport.bicycle, transport.public, transport.walk);
 
     return (
-        <div className="transport_time" style={{ display: 'flex', height: '100%', justifyContent: 'space-evenly' }}>
+        <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly' }}>
             <div className="car" style={{ height: `${transport.car * HourIntervalHeight}px`, border: '1px solid red', backgroundColor: 'red', width: '10%' }}></div>
             <div className="bicycle" style={{ height: `${transport.bicycle * HourIntervalHeight}px`, border: '1px solid green', backgroundColor: 'green', width: '10%' }}></div>
             <div className="walk" style={{ height: `${transport.walk * HourIntervalHeight}px`, border: '1px solid blue', backgroundColor: 'blue', width: '10%' }}></div>

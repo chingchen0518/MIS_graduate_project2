@@ -51,7 +51,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
         // Optional: Add a resize observer to handle dynamic changes
         const resizeObserver = new ResizeObserver(updateTimeColumnHeight);
         if (timeColumnRef.current) {
-        resizeObserver.observe(timeColumnRef.current);
+            resizeObserver.observe(timeColumnRef.current);
         }
 
         return () => {
@@ -125,12 +125,12 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
     }, [selectedDate]); // 當 selectedDate 變更時重新載入
 
     const timeSlots = [
-        '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
-        '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00',
-        '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
+        '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00', 
+        '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00','16:00', '16:00', 
+        '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
     ];
 
-    // console.log('🔍 當前行程:', schedules.length);
+
 
     //components的最終return
     return (
@@ -155,7 +155,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
             </div>
 
             <ScheduleNew 
-                containerHeight={timeColumnHeight} 
+                containerHeight = {timeColumnHeight} 
                 onAddNewSchedule={handleShowScheduleInsert}
             />
             
@@ -166,7 +166,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
                     ScheduleInsertShow={handleShowScheduleInsert}
                     handleNewSchedule={getNewSchedule}
                     containerHeight={timeColumnHeight}
-
+                    intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
                     //用於告訴attraction_container哪一些景點已被使用
                     onAttractionUsed={onAttractionUsed} 
                 />)
@@ -189,6 +189,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
                     t_id={t_id}
                     title={schedule.title}
                     day={schedule.day}
+                    intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
+                    
                     // scheduleId={schedule.s_id}
                     // scheduleData={schedule}
                     // initialAttractions={schedule.attractions}

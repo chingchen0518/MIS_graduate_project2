@@ -59,10 +59,11 @@ const ScheduleInsert = ({
     // function 2:把單個景點插入到資料庫
     const db_insert_schedule_item = async (s_id) => {
         // 用 attractions 陣列 map 方式插入資料
+        console.log('🚖🚖🚖 attraction:', attractions);
         try {
             await Promise.all(
                 attractions.map(async (attraction) => {
-                    console.log('🚖🚖🚖 attraction:', attraction);
+                    // console.log('🚖🚖🚖 attraction:', attraction);
                     await fetch('http://localhost:3001/api/view2_schedule_include_insert', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -91,7 +92,7 @@ const ScheduleInsert = ({
         setAttractions(prev =>
             prev.map(item => item.a_id === func_a_id ? { ...item, y: func_y, height: func_height } : item)
         );
-        console.log(attractions);
+        
     };
 
     // function 4:確認行程(button點擊事件)

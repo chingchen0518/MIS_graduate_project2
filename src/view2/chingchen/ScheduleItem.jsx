@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useImperativeHandle, useState, forwardRef, useEffect } from "react";
 import { useDrag } from 'react-dnd';
 import { Rnd } from "react-rnd";
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
 const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editable=false,height=35,onValueChange,onDragStop }) => {
-    // editable = true //測試用
     const [heightEdit, setheightEdit] = React.useState(35); // 初始高度
     const [x, setX] = React.useState(position.x); // 初始 X 座標
     const [y, setY] = React.useState(position.y); // 初始 Y 座標
@@ -33,7 +32,7 @@ const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editabl
             setY(position.y); // 更新 y 座標
         }
 
-        onValueChange(ref.offsetHeight, x, y,a_id);//回傳到ScheduleInsert
+        onValueChange(ref.offsetHeight, position.x, position.y,a_id);//回傳到ScheduleInsert
     };
 
     //function 2:當拖拽停止時
@@ -41,9 +40,9 @@ const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editabl
         setX(d.x); // 更新 x 座標
         setY(d.y); // 更新 y 座標
 
-        onValueChange(heightEdit, x, y,a_id);//回傳到ScheduleInsert
+        onValueChange(heightEdit, d.x, d.y,a_id);//回傳到ScheduleInsert
 
-        onDragStop();//回到ScheduleInset做handleReorder
+        // onDragStop();//回到ScheduleInset做handleReorder
     };
 
     // if(editable) {

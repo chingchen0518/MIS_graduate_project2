@@ -42,7 +42,7 @@ const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editabl
 
         onValueChange(heightEdit, d.x, d.y,a_id);//回傳到ScheduleInsert
 
-        // onDragStop();//回到ScheduleInset做handleReorder
+        onDragStop();//回到ScheduleInset做handleReorder
     };
 
     // if(editable) {

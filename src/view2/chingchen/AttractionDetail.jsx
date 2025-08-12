@@ -1,5 +1,5 @@
 import React from 'react';
-import './attraction_detail.css';
+import './AttractionDetail.css';
 
 const AttractionDetail = ({ attraction }) => {
   if (!attraction) {

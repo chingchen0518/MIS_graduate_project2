@@ -17,15 +17,17 @@ const ScheduleInsert = ({
         handleNewSchedule,
         onAttractionUsed,//處理已經被使用的景點（回傳父組件）
         ScheduleInsertShow,
+        intervalHeight,
     }) => {
     
     var u_id = 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
-    var HourIntervalHeight;//計算每個小時這些schedule中的高度（會在render grid里修改）
+    var HourIntervalHeight = intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
+    
     let TheNewSchedule = {};
 
     //state
     const [attractions, setAttractions] = useState([]); //儲存目前放進schedule的attraction
-    var finalScheduleItems = {}; // 儲存最終的行程項目
+    // var finalScheduleItems = {}; // 儲存最終的行程項目
     const dropRef = useRef(null);
 
     // function 1:把新的行程新增到資料庫
@@ -202,15 +204,19 @@ const ScheduleInsert = ({
         }
     };
 
-    // function 6:重新排序行程
+    // function 6:重新排序行程（還沒套用）
     const handleReorder = () => {
         console.log("Dragging");
         const sorted = [...attractions].sort((a, b) => a.y - b.y);
         console.log("目前attractions：", attractions);
         console.log("目前順序：", sorted);
-        
-        
     };
+
+    //function 7:顯示某個景點的營業時間
+    const showOperatingTime = () => {
+        //還沒收到前面的時間
+    };
+
 
     //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({
@@ -329,7 +335,7 @@ const ScheduleInsert = ({
                             ];
         const lines = [];
         const intervalHeight = containerHeight / 25; // 調整為空間/25
-        HourIntervalHeight = intervalHeight;
+        // HourIntervalHeight = intervalHeight;
 
         timeColumn.forEach((time, index) => {
             lines.push(
@@ -376,6 +382,7 @@ const ScheduleInsert = ({
                             onValueChange={(height, x, y,a_id) => getChildData(height, x, y,a_id)}
                             editable={true}
                             onDragStop={handleReorder}
+                            intervalHeight={intervalHeight}
                         />
                     ))}
                 </Suspense>

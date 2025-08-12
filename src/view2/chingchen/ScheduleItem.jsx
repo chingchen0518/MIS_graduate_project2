@@ -3,7 +3,7 @@ import { useDrag } from 'react-dnd';
 import { Rnd } from "react-rnd";
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editable=false,height=35,onValueChange,onDragStop }) => {
+const ScheduleItem = ({ a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop }) => {
     const [heightEdit, setheightEdit] = React.useState(35); // 初始高度
     const [x, setX] = React.useState(position.x); // 初始 X 座標
     const [y, setY] = React.useState(position.y); // 初始 Y 座標

@@ -20,22 +20,13 @@ const ScheduleInsert = ({
     }) => {
     
     var u_id = 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
+    var HourIntervalHeight;//計算每個小時這些schedule中的高度（會在render grid里修改）
     let TheNewSchedule = {};
 
     //state
     const [attractions, setAttractions] = useState([]); //儲存目前放進schedule的attraction
     var finalScheduleItems = {}; // 儲存最終的行程項目
     const dropRef = useRef(null);
-
-    // const ScheduleItemRefs = useRef({});
-
-    // 【UseEffect 1】當 initialAttractions 變化時，更新本地狀態
-    // React.useEffect(() => {
-    //     if (initialAttractions) {
-    //         console.log('🔄 更新 Schedule 景點資料:', initialAttractions);
-    //         setAttractions(initialAttractions);
-    //     }
-    // }, [initialAttractions]);
 
     // function 1:把新的行程新增到資料庫
     const db_insert_schedule = async () => {
@@ -338,6 +329,7 @@ const ScheduleInsert = ({
                             ];
         const lines = [];
         const intervalHeight = containerHeight / 25; // 調整為空間/25
+        HourIntervalHeight = intervalHeight;
 
         timeColumn.forEach((time, index) => {
             lines.push(
@@ -372,7 +364,7 @@ const ScheduleInsert = ({
                 <Suspense fallback={<div>Loading...</div>}>
                     {attractions.map((attraction, index) => (
                         <ScheduleItem
-                            // ref={el => { ScheduleItemRefs.current[attraction.a_id] = el; }}
+                            height={HourIntervalHeight} // 使用計算的高度
                             a_id={attraction.a_id}
                             key={`attraction-${index}`}
                             name={attraction.name}

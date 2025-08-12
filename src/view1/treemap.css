@@ -1,0 +1,76 @@
+/* ===== Treemap ===== ------------------------------------------------ */
+#treemap-container{
+  padding: 0 10px;
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+#treemap{
+  flex: 1 1 auto;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* -------- node -------- */
+#treemap .node{
+  position: absolute;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* 文字與圖片置中 */
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 12px 6px;        /* 內距撐開標題 */
+  transition: transform .15s, box-shadow .15s;
+  cursor: pointer;
+}
+#treemap .node:hover{
+  transform: scale(1.03);
+  box-shadow: 0 6px 18px #0002;
+}
+
+/* 標題永遠在上方，允許換行 */
+#treemap .node-title{
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* 圖片改為正方形縮在中間（不鋪滿） */
+#treemap .node-img{
+  width: 60%;               /* 依需求調整大小 */
+  aspect-ratio: 1 / 1;      /* 強制正方形 */
+  object-fit: cover;
+  border-radius: 8px;
+  flex: 0 0 auto;           /* 不被 flex 撐開 */
+  box-shadow: 0 2px 6px #0002;   /* (選) 讓圖片浮起來 */
+}
+#treemap .node:hover .node-img{
+  filter: brightness(1);    /* 去掉舊的淡化／模糊效果 */
+}
+
+/* -------- Tooltip -------- */
+.tm-tip{
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  background: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  box-shadow: 0 4px 12px #0003;
+  transition: opacity .1s;
+}
+
+.placeholder{
+  color:#999;
+  font-size:15px;
+  text-align:center;
+  line-height:140%;
+  padding-top:20px;
+}

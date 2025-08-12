@@ -9,10 +9,11 @@ const ScheduleItem = sequelize.define('ScheduleItem', {
   s_id: { type: DataTypes.INTEGER, references: { model: Schedule, key: 'id' }, allowNull: false },
   x: { type: DataTypes.FLOAT, allowNull: false },
   y: { type: DataTypes.FLOAT, allowNull: false },
-  motor: { type: DataTypes.INTEGER, allowNull: false },
-  car: { type: DataTypes.INTEGER, allowNull: false },
-  bus: { type: DataTypes.INTEGER, allowNull: false },
-  walk: { type: DataTypes.INTEGER, allowNull: false }
+  height: { type: DataTypes.INTEGER }
+//   motor: { type: DataTypes.INTEGER, allowNull: false },
+//   car: { type: DataTypes.INTEGER, allowNull: false },
+//   bus: { type: DataTypes.INTEGER, allowNull: false },
+//   walk: { type: DataTypes.INTEGER, allowNull: false }
 });
 
 export default ScheduleItem;

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import AttractionCard from './attraction_card';
-import ScheduleItem from './ScheduleItem.jsx'; // 引入 ScheduleItem 組件
+import ScheduleItem from './schedule_item.jsx'; // 引入 ScheduleItem 組件
 
 const ScheduleShow = (props) => {
     var editable = 1;

@@ -8,10 +8,12 @@ import Page1 from './view2/chingchen/page1.jsx'
 import Header from './components/header.jsx'
 import MapDisplay from './view2/Liu/mapAddRoute/MapDisplay.jsx'
 
+//========================testing area==========================================
 import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
 import DragAndDropWithPosition from './view2/chingchen/DragAndDropWithPosition.jsx';
-
 import DragAndDropExample2 from './view2/chingchen/DragAndDropExample2.jsx';
+import MyRndList from './view2/chingchen/test_MyRndList.jsx';
+//==========================================================================
 
 import UserProfile from './view2/chingchen/user.jsx'; 
 
@@ -20,7 +22,9 @@ import Signin from './view3/page1/signin.jsx';
 import ForgotPassword from './view3/page1/forgotpassword.jsx'; 
 import Logout from './view3/page1/logout.jsx'; 
 import Profile from './view3/page1/profile.jsx'; 
-import Schedule_container from './view2/chingchen/schedule_container.jsx';
+import ResizableBox from './view2/chingchen/ResizableBox.jsx';
+import ScheduleNew from './view2/chingchen/scheduleNew.jsx';
+import ScheduleInsert from './view2/chingchen/ScheduleInsert.jsx';
 import './App.css';
 
 function App() {
@@ -43,7 +47,9 @@ function App() {
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/Profile" element={<Profile />} />
         <Route path="/logout" element={<Logout />} />
-        <Route path="/Schedule_container" element={<Schedule_container />} />
+        <Route path="/ResizableBox" element={<ResizableBox />} />
+
+        <Route path="/MyRndList" element={<MyRndList />} />
 
 
       </Routes>

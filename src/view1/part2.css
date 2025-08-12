@@ -1,0 +1,657 @@
+/* 首次載入的預設值（等 JS 算好會覆寫） */
+:root{ 
+  --vh: 1vh;
+  --page-pad-y: 15px;
+  --grid-gap-y: 2px;
+  --topbar-chipbar-gap: 30px;
+}
+
+/* ===== 全螢幕：以視窗為畫布，Flex 撐滿 ===== */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Noto Sans TC";
+  background: #fff;
+  color: #000;
+  overflow: hidden;            /* 外層不滾動，內部區塊各自滾動 */
+}
+* { box-sizing: border-box; }
+
+.page {
+  width: 100vw;
+  height: 100vh;
+  padding: var(--page-pad-y) 10px var(--page-pad-y);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 左上角膠囊（保留一鍵收合） */
+.collapse-btn {
+  position: absolute;
+  left: -6px;
+  top: 22px;
+  width: 34px;
+  height: 28px;
+  border-radius: 12px;
+  background: #ecf7f9;
+  border: 1px solid #aebfe2;
+  color: #2a4469;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* === Topbar / Chipbar / Sidebar / Treemap 用同一個 Grid，確保左右對齊 === */
+.content-grid {
+  display: grid;
+  grid-template-columns: clamp(56px, 26vw, 360px) 10px 1fr;
+  grid-template-rows: auto auto 1fr;
+  align-items: start;
+  row-gap: var(--grid-gap-y);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* ===== Topbar（第 3 欄第 1 列） ===== */
+.topbar {
+  grid-column: 3;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.title { 
+  margin: 0; 
+  font-size: 38px; 
+  font-weight: 800; 
+}
+.top-actions { 
+  margin-left: auto; 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+}
+.ribbon {
+  font-size: 12px;
+  padding: 6px 30px;
+  background: #f4ddb8;
+  color: #000;
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 50%, calc(100% - 24px) 100%, 0 100%, 24px 50%);
+  white-space: nowrap;
+  font-weight: 500;
+}
+.countdown { 
+  display: inline-flex; 
+  gap: 6px; 
+}
+.tbox {
+  min-width: 40px;
+  height: 28px;
+  padding: 0 6px;
+  background: #d6e6f7;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+/* ===== Segmented Switch（景點投票人數 / "偏好程度"） ===== */
+.seg-switch {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  background: #ecf7f9;
+  border-radius: 10px;
+  padding: 4px;
+  min-width: 260px;
+  user-select: none;
+  font-weight: 500;
+}
+.seg-switch .seg {
+  position: relative;
+  z-index: 1;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  background: transparent;
+}
+.seg-switch .seg.active { 
+  font-weight: 800; 
+  color: #1f2a37; 
+}
+.seg-switch .seg-indicator {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 3px);
+  border-radius: 10px;
+  background: #d6e6f7;
+  transition: left .18s ease;
+  box-shadow: inset 0 1px 0 #ffffffaa;
+}
+.seg-switch .seg-indicator.right { 
+  left: calc(50% + 0px); 
+}
+.seg-switch .seg-hit {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* ===== 全部分類 ===== */
+.chipbar {
+  grid-column: 3;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+  margin-top: calc(var(--topbar-chipbar-gap) - var(--grid-gap-y));
+  gap: 10px;
+  align-items: center;
+  justify-items: start;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.chipbar > :nth-child(3) { grid-column: 4; }
+.chipbar > :nth-child(4) { grid-column: 5; }
+
+/* 【關鍵修改】調整 .chip 的樣式 */
+.chip {
+  /* 新增 Flexbox 屬性來置中內容 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; /* 可選：確保水平方向也置中 */
+
+  height: 36px;
+  padding: 0 14px;
+  
+  background: #ecf7f9;
+  border: 1px solid #aebfe2;
+  color: #2a4469;
+  
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  
+  cursor: pointer;
+  user-select: none;
+  
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+
+/* 滑鼠移入時的效果 */
+.chip:hover {
+  background-color: #e0f1f5;
+  border-color: #9cb0d8;
+}
+
+.chip.quoted { font-weight: 700; }
+
+/* 當下拉選單打開時，按鈕保持高亮狀態 */
+.chip.active, .chip.dropdown.open { 
+  border-color: #1f6feb; 
+  color: #1f6feb; 
+  background-color: #e8f0ff;
+  box-shadow: 0 0 0 3px #1f6feb22; 
+}
+
+/* 讓「更新」靠最右（與 treemap 右邊對齊） */
+.chipbar .btn-ghost { justify-self: end; }
+
+/* 再保險，按鈕與 chip 寬度一律由內容決定 */
+.chipbar .btn-primary,
+.chipbar .btn-ghost,
+.chipbar .chip,
+.chipbar .seg-switch {
+  width: auto;
+  max-width: none;
+  justify-self: start;
+}
+
+/* ===== 新增景點 ===== */
+.btn-primary {
+  background: #f4ddb8;
+  color: #222;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.btn-primary .plus {
+  margin-left: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #edd39d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-ghost {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: #d6e6f7;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+}
+/* ===== 分類下拉 ===== */
+.chip.dropdown .caret { 
+  margin-left: 8px; /* 稍微增加一點間距 */
+  font-size: 14px; 
+  transition: transform 0.2s ease; /* 為小箭頭增加旋轉動畫 */
+}
+
+/* 當下拉選單打開時，讓小箭頭旋轉向上 */
+.chip.dropdown.open .caret {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 200px;
+  background: #fff;
+  border: 1px solid #d7dbe2;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px #0002;
+  padding: 6px;
+  z-index: 20;
+}
+
+/* ===== Sidebar（第 1 欄第 3 列） ===== */
+#sidebar {
+  grid-column: 1;
+  grid-row: 2 / 4;
+  margin-top: 0;
+  align-self: stretch;
+  width: auto;
+  min-height: 0;
+  position: relative;
+  transition: width .2s ease;
+}
+#sidebar.collapsed > *:not(#resizer) { display: none; }
+#sidebar .sidebar-inner { 
+  height: 100%; 
+  display: flex; 
+  flex-direction: column; 
+  min-height: 0;
+}
+.avatar-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.avatar-row .arrow {
+  margin-bottom: 16px;
+}
+
+/* ── 大頭貼 ── */
+.avatar-large {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px #976666;
+  cursor: pointer;
+}
+.avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;    /* 填滿且自動裁剪 */
+  display: block;
+}
+
+/* ── Slider 容器 ── */
+.avatar-strip-wrap {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  
+}
+.avatar-strip {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  position: relative;
+  left: 0;
+  transition: left .15s ease;
+  padding-top: 10px;
+  padding-bottom: 4px;
+}
+
+/* ── 小頭貼 ── */
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #fff;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── 箭頭 ── */
+.avatar-strip-wrap .slider {
+  width: 100%;
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+}
+
+.arrow { 
+  width: 24px; 
+  height: 24px; 
+  font-size: 20px; 
+  color: #757575; 
+  background: none; 
+  border: none; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  padding: 0;
+}
+.arrow:hover{
+  color: #eca6a6;
+}
+.arrow-left::before { content: "◀"; }
+.arrow-right::before { content: "▶"; }
+.arrow:focus { outline: none; }
+.thumb { background: #757575; border-radius: 8px; top: 0; left: 0; width: 35px; height: 100%; cursor: grab; position: absolute; transition: background .1s; }
+.thumb.dragging { cursor: grabbing; background: #7777; }
+
+/* =========================
+   Card：列表容器（可滾動）
+   ========================= */
+.rec-list {
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0; /* 讓 overflow 生效，避免把 layout 撐開 */
+  scrollbar-color: #b7c3d8 transparent;
+}
+
+.rec-list::-webkit-scrollbar { 
+  width: 8px; 
+}
+.rec-list::-webkit-scrollbar-track { 
+  background: transparent; 
+  border-radius: 999px; 
+}
+.rec-list::-webkit-scrollbar-thumb { 
+  background: #cbd5e1; 
+  border-radius: 999px; 
+  border: 2px solid transparent; 
+  background-clip: padding-box; 
+}
+.rec-list::-webkit-scrollbar-thumb:hover { 
+  background: #94a3b8; 
+}
+.rec-list::-webkit-scrollbar-button { 
+  width: 0; 
+  height: 0; 
+  display: none; 
+}
+/* =========================
+   Card：外框
+   ========================= */
+.rec-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid #cfd5dd;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 8px;
+  isolation: isolate; 
+
+  /* 照片尺寸 / 與文字間距（集中管理） */
+  --photo-w: 130px;
+  --photo-h: 86px;
+  --photo-gap: 10px;
+}
+
+/* =========================
+   1) 標題 + 地址 + 照片
+   ========================= */
+.rec-head {
+  position: relative;
+  /* 為右上角的照片預留空間，以免文字被覆蓋 */
+  padding-right: calc(var(--photo-w) + var(--photo-gap));
+  min-height: var(--photo-h);
+}
+
+.rec-title {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.rec-title .sep { opacity: .5; margin: 0 4px; }
+
+.rec-addr {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 4px 0 8px;
+}
+
+/* 可選：若你還會顯示投票等小字 */
+.rec-meta {
+  font-size: 12px;
+  color: #4b5563;
+  margin-bottom: 6px;
+}
+
+/* 照片固定在右上角，與卡片右緣對齊 */
+.rec-head .rec-photo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--photo-w);
+  height: var(--photo-h);
+  z-index: 1;
+}
+.rec-head .rec-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e6e8ee;
+}
+
+/* 讓右上角照片位於較低層，避免蓋住關閉鈕 */
+.rec-head .rec-photo {
+  z-index: 1;              /* 新增 */
+}
+
+/* 卡片右上角的關閉鈕（刪除此景點） */
+/* 卡片右上角的關閉鈕（刪除此景點） */
+.rec-card .rec-close{
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 10;              /* 高於照片 */
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;       /* 圓形 */
+  background: rgba(17, 16, 16, 0.4);
+  color: #fff;
+
+  /* 讓「×」完全置中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;           /* 避免字體行高影響垂直置中 */
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: background .15s ease, transform .05s ease, opacity .15s ease;
+}
+.rec-card .rec-close:hover  { background: rgba(243, 11, 11, 0.4); }
+.rec-card .rec-close:active { transform: scale(.96); }
+.rec-card .rec-close:focus,
+.rec-card .rec-close:focus-visible{
+  outline:none !important;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+.rec-card .rec-close::-moz-focus-inner{ border:0; }
+
+
+
+/* =========================
+   2) 留言
+   ========================= */
+.rec-comment {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-top: 6px;  /* 與上方 rec-head 保持一點間距 */
+}
+
+.rec-comment .avatar {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #d7dde8 url('https://i.pravatar.cc/28?img=22') center/cover no-repeat;
+}
+
+/* 關鍵：讓留言文字延伸到卡片最右（會與照片右緣對齊） */
+.rec-comment .cmt {
+  flex: 1 1 auto;
+  min-width: 0;                 /* 避免因長字造成撐寬 */
+}
+.rec-comment .cmt .name {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.rec-comment .cmt .txt {
+  font-size: 12px;
+  color: #4b5563;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* =========================
+   3) 按鈕（靠右）
+   ========================= */
+.rec-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;   /* 兩顆按鈕向右對齊 */
+  margin-top: 10px;
+}
+
+.btn-sm {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #fff;
+  color: #333;
+}
+.btn-sm.primary {
+  background: #ecf7f9;
+  color: #000;
+  font-weight: 700;
+}
+.btn-sm.ghost {
+  background: #f4ddb8;            /* 保留透明/白底樣式 */
+}
+
+/* ===== Treemap 容器（第 3 欄第 3 列） ===== */
+.board{
+  grid-column: 3;
+  grid-row: 3;
+  height: 100%;
+  border-radius: 12px;
+  
+  min-height: 0;                /* 防止被子元素撐爆 */
+}
+/* treemap 的實際掛點（ID）也給滿高 */
+#treemap-container { width: 100%; height: 100%; }
+
+/* ===== Modal / 搜尋 / 清單 / 表單 ===== */
+.modal-mask { position: fixed; inset: 0; background: #0005; display: flex; justify-content: center; align-items: center; z-index: 999; }
+.modal { width: 480px; max-height: 80vh; background: #e4f1ff; border: 1px solid #8ca4c7; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px #0004; overflow: hidden; }
+.modal-title { margin: 0 0 12px; text-align: center; font-size: 22px; }
+
+.attraction-list::-webkit-scrollbar { width: 6px; height: 6px; }
+.attraction-list::-webkit-scrollbar-track { background: #e4e7ea; border-radius: 999px; }
+.attraction-list::-webkit-scrollbar-thumb { border-radius: 999px; border: 1px solid #e4e7ea; }
+.attraction-list { height: 55vh; overflow-y: auto; display: flex; flex-direction: column; }
+.attraction-card { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #b1acb3; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; position: relative; }
+.attraction-card:hover { background: #eef6ff; }
+.attraction-card.active { border-color: #3a5aa0; }
+.attraction-card img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+.attraction-card .info { flex: 1; display: flex; flex-direction: column; }
+.attraction-card .name { font-weight: 600; margin-bottom: 4px; }
+.attraction-card .addr { font-size: 12px; color: #555; }
+.attraction-card .tick { color: #3a5aa0; font-size: 24px; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
+
+.search-bar { width: 100%; max-width: 480px; margin: 0 auto 12px; position: relative; }
+.search-bar input { width: 100%; height: 40px; padding: 0 44px 0 14px; border: 1px solid #cbd3da; border-radius: 8px; font-size: 16px; background: #fff; color: #000; }
+.search-bar .icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 20px; pointer-events: none; }
+
+.manual-form { display: flex; flex-direction: column; gap: 12px; max-height: 55vh; overflow-y: auto; margin: 20px 0; }
+.manual-form label { font-size: 16px; color: #000; display: flex; flex-direction: column; }
+.manual-form input { margin-top: 4px; height: 36px; padding: 0 10px; border: 1px solid #b1acb3; border-radius: 6px; font-size: 14px; background: #fff; color: #000; }
+.manual-form input:focus { outline: none; border-color: #3a5aa0; }
+.manual-form .row { display: flex; gap: 12px; }
+.manual-form .row label { flex: 1; }
+
+.btn-group { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+.hand-btn { padding: 8px 24px; background: #fff; color: #3a5aa0; border: 1px solid #b7c3d8; border-radius: 8px; font-size: 16px; cursor: pointer; }
+.home-btn { padding: 8px 24px; background: #8592A2; color: #fff; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+.confirm-btn { padding: 8px 24px; background: #3a5aa0; color: #fff; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+.confirm-btn:hover { filter: brightness(0.95); }
+/* ===== 新增評論 Modal 的文字輸入樣式 ===== */
+.comment-form {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+}
+.comment-form textarea {
+  width: 100%;
+  height: 120px;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  background: #fff;
+  color: #000;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+}

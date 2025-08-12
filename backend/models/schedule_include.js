@@ -12,10 +12,10 @@ const Schedule_include = sequelize.define('Schedule_include', {
   t_id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true },
 
   // x and y coordinates of the attraction in the schedule
-  
+  x: { type: DataTypes.FLOAT, allowNull: false },
   y: { type: DataTypes.FLOAT, allowNull: false },
 
-  // height of the attraction item in a schedule
+  // height and sequence of the attraction item in a schedule
   height: { type: DataTypes.FLOAT, allowNull: false },
   sequence: { type: DataTypes.INTEGER, allowNull: false },
 

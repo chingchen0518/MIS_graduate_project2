@@ -15,8 +15,9 @@ const Schedule_include = sequelize.define('Schedule_include', {
   x: { type: DataTypes.FLOAT, allowNull: false },
   y: { type: DataTypes.FLOAT, allowNull: false },
 
-  // height of the attraction item in a schedule
+  // height and sequence of the attraction item in a schedule
   height: { type: DataTypes.FLOAT, allowNull: false },
+  sequence: { type: DataTypes.INTEGER, allowNull: false },
 
 //   walk_t: { type: DataTypes.TIME, allowNull: true },
 //   car_t: { type: DataTypes.TIME, allowNull: true },

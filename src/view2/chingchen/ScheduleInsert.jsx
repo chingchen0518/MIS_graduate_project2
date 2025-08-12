@@ -17,15 +17,17 @@ const ScheduleInsert = ({
         handleNewSchedule,
         onAttractionUsed,//處理已經被使用的景點（回傳父組件）
         ScheduleInsertShow,
+        intervalHeight,
     }) => {
     
     var u_id = 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
-    var HourIntervalHeight;//計算每個小時這些schedule中的高度（會在render grid里修改）
+    var HourIntervalHeight = intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
+    
     let TheNewSchedule = {};
 
     //state
     const [attractions, setAttractions] = useState([]); //儲存目前放進schedule的attraction
-    var finalScheduleItems = {}; // 儲存最終的行程項目
+    // var finalScheduleItems = {}; // 儲存最終的行程項目
     const dropRef = useRef(null);
 
     // function 1:把新的行程新增到資料庫
@@ -65,6 +67,7 @@ const ScheduleInsert = ({
                             x: attraction.x,
                             y: attraction.y,
                             height: attraction.height,
+                            sequence:attraction.sequence,
                         }),
                     });
                 })
@@ -77,13 +80,17 @@ const ScheduleInsert = ({
 
     // function 3:取得Schedule Item的資料（這是callback function更新後馬上取得）
     const getChildData = (func_height, func_x, func_y,func_a_id) => {
-        // finalScheduleItems[func_a_id] = { height: func_height, x: func_x, y: func_y };
-        // console.log("更新行程項目:", finalScheduleItems);
-        //renew y axis
-        setAttractions(prev =>
-            prev.map(item => item.a_id === func_a_id ? { ...item, y: func_y, height: func_height } : item)
-        );
-        
+        // 更新指定 a_id 的 y/height，並排序+sequence
+        setAttractions(prev => {
+            // 先更新 y/height
+            const updated = prev.map(item => item.a_id === func_a_id ? { ...item, y: func_y, height: func_height } : item);
+            // 依照 y 值大小，依序給 sequence（但不改陣列順序）
+            const sorted = [...updated].sort((a, b) => a.y - b.y);
+            const seqMap = new Map(sorted.map((item, idx) => [item.a_id, idx + 1]));
+            return updated.map(item => ({ ...item, sequence: seqMap.get(item.a_id) }));
+        });
+
+        // console.log(attractions);
     };
 
     // function 4:確認行程(button點擊事件)
@@ -202,15 +209,21 @@ const ScheduleInsert = ({
         }
     };
 
-    // function 6:重新排序行程
+    // function 6:重新排序行程（還沒套用）
     const handleReorder = () => {
         console.log("Dragging");
         const sorted = [...attractions].sort((a, b) => a.y - b.y);
-        console.log("目前attractions：", attractions);
-        console.log("目前順序：", sorted);
-        
-        
+        console.log("目前attractions：", sorted.map(a => ({ y: a.y, name: a.name, sequence: a.sequence })));
+        // 按照排序結果更新 sequence
+        const updated = sorted.map((item, idx) => ({ ...item, sequence: idx + 1 }));
+        setAttractions(updated);
     };
+
+    //function 7:顯示某個景點的營業時間
+    const showOperatingTime = () => {
+        //還沒收到前面的時間
+    };
+
 
     //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({
@@ -276,42 +289,22 @@ const ScheduleInsert = ({
                 sequence: attractions.length + 1, // 新增的景點序號
             };
             
-            setAttractions((prevAttractions) => [...prevAttractions, newAttraction]);
+            // setAttractions((prevAttractions) => [...prevAttractions, newAttraction]);
             
-            // handleReorder(); // 重新排序行程
+            setAttractions((prevAttractions) => {
+                let new_attraction_list = [...prevAttractions, newAttraction];
+                // 依照 y 值大小，依序給 sequence（但不改陣列順序）
+                const sorted = [...new_attraction_list].sort((a, b) => a.y - b.y);
+                const seqMap = new Map(sorted.map((item, idx) => [item.a_id, idx + 1]));
+                return new_attraction_list.map(item => ({ ...item, sequence: seqMap.get(item.a_id) }));
+            });
 
             // 通知父組件該景點已被使用
             if (onAttractionUsed) {
                 onAttractionUsed(item.a_id,true); // true 表示標記為已使用
             }
 
-        } else if (monitor.getItemType() === "schedule_item") {
-            // // 處理 schedule_item 的重新排序（僅限同一個 schedule）
-            // if (item.scheduleId === day) {
-            //     // 獲取拖動開始時鼠標相對於元素的偏移
-            //     const initialOffset = monitor.getInitialClientOffset();
-            //     const initialSourceOffset = monitor.getInitialSourceClientOffset();
-            //     // const sourceOffset = monitor.getSourceClientOffset();
-            
-            //     // 計算鼠標相對於被拖動元素的偏移量
-            //     let offsetX = 0;
-            //     // let offsetY = 0;
-            //     if (initialOffset && initialSourceOffset) {
-            //         offsetX = initialOffset.x - initialSourceOffset.x;
-            //         offsetY = initialOffset.y - initialSourceOffset.y;
-            //     }
-            
-            //     setAttractions((prevAttractions) => [
-            //         ...prevAttractions,
-            //         {
-            //         name: item.name || item.id,
-            //         time: null,
-            //         position: { x: correctedX, y: correctedY },
-            //         width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
-            //         },
-            //     ]);
-            // }
-        }
+        } 
     },
     collect: (monitor) => ({
         isOver: monitor.isOver(),
@@ -329,7 +322,7 @@ const ScheduleInsert = ({
                             ];
         const lines = [];
         const intervalHeight = containerHeight / 25; // 調整為空間/25
-        HourIntervalHeight = intervalHeight;
+        // HourIntervalHeight = intervalHeight;
 
         timeColumn.forEach((time, index) => {
             lines.push(
@@ -375,7 +368,10 @@ const ScheduleInsert = ({
                             isDraft={isDraft}
                             onValueChange={(height, x, y,a_id) => getChildData(height, x, y,a_id)}
                             editable={true}
-                            onDragStop={handleReorder}
+                            onDragStop={() => handleReorder}
+                            intervalHeight={intervalHeight}
+                            nextAId={attractions.find(a => a.sequence === attraction.sequence + 1)?.a_id ?? null}
+                            editmode={true}
                         />
                     ))}
                 </Suspense>

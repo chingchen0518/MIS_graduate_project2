@@ -113,6 +113,7 @@ const ScheduleShow = (props) => {
                         width={scheduleWidths} // 使用計算出的寬度
                         height={scheduleItem.height} // 使用從資料庫獲取的高度
                         editable={false} // 不可編輯
+                        intervalHeight={props.intervalHeight}
                     />
                 ))}
             </div>

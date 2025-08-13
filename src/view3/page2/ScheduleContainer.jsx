@@ -8,7 +8,7 @@ import ScheduleShow from './ScheduleShow.jsx';
 import DateSelector from './DateSelector.jsx';
 import './ScheduleContainer.css';
 
-const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
+const ScheduleContainer = ({ t_id, usedAttractions = [], onAttractionUsed }) => {
     //State
     const [schedules, setSchedules] = useState([]); //儲存DB讀取的schedule
     const [loading, setLoading] = useState(true);
@@ -146,8 +146,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
 
             <div className="schedule_list">
                 <div className="time_column" ref={timeColumnRef} style={{ height: timeColumnHeight}}>
-                {timeSlots.map((time) => (
-                    <div key={time} className="time_slot">
+                {timeSlots.map((time, idx) => (
+                    <div key={time + '-' + idx} className="time_slot">
                         {time}
                     </div>
                 ))}

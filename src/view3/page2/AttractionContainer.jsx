@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import AttractionDetail from './AttractionDetail.jsx';
+import Filter from './Filter.jsx';
 
 import './AttractionContainer.css';
 
@@ -21,14 +22,14 @@ const AttractionContainer = ({ usedAttractions = [] }) => {
 
     return (
         <div className="attraction_container">
-
+            <div className="map_small_container">
+                <MapDisplay selectedAttraction={selectedAttraction} />
+            </div>
+            <Filter />
             <div className="map_small_container">
                 <MapDisplay selectedAttraction={selectedAttraction} />
             </div>
 
-            {/* <div className="map_small_container">
-            <MapDisplay />
-            </div> */}
             <AttractionDetail attraction={selectedAttraction} />
         </div>
 

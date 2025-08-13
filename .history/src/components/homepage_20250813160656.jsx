@@ -24,7 +24,7 @@ const HomePage = () => {
         <li className="homepage_li"><a href="/Profile">Profile</a></li>
         <li className="homepage_li"><a href="/ResizableBox">ResizableBox</a></li>
         <li className="homepage_li"><a href="/MyRndList">MyRndList</a></li>
-        <li className="homepage_li"><a href="/page2">page2</a></li>
+        <li className="homepage_li"><a href="/MyRndList">MyRndList</a></li>
       </ul>
     </div>
 

@@ -164,36 +164,36 @@ app.get('/api/view2_attraction_list', (req, res) => {
 });
 
 app.get('/api/view2_schedule_list', (req, res) => {
-    const { date } = req.query;
+  const { date } = req.query;
 
-    let sql = 'SELECT * FROM Schedule';
-    let params = [];
+  let sql = 'SELECT * FROM Schedule';
+  let params = [];
 
   // 如果有提供日期參數，則按日期過濾
-    if (date) {
-        sql += ' WHERE date = ?';
-        params.push(date);
-        console.log('📅 按日期過濾 Schedule:', date);
-    }
+  if (date) {
+    sql += ' WHERE date = ?';
+    params.push(date);
+    console.log('📅 按日期過濾 Schedule:', date);
+  }
 
   // 添加排序：先按日期，再按day欄位排序
-    sql += ' ORDER BY date ASC, day ASC';
+  sql += ' ORDER BY date ASC, day ASC';
 
-    console.log('🔍 執行 SQL:', sql, params);
+  console.log('🔍 執行 SQL:', sql, params);
 
-    connection.query(sql, params, (err, schedules) => {
+  connection.query(sql, params, (err, schedules) => {
     if (err) {
       console.error('❌ 查詢 Schedule 時出錯：', err.message);
       return res.status(500).json({ error: err.message });
     }
-    
+
     console.log('✅ 查詢到 Schedule 記錄數:', schedules.length);
-    
+
     // 如果沒有 Schedule，直接返回空陣列
     if (schedules.length === 0) {
       return res.json([]);
-    }else{
-        return res.json(schedules);
+    } else {
+      return res.json(schedules);
     }
   });
 });
@@ -202,37 +202,37 @@ app.get('/api/view2_schedule_list', (req, res) => {
 
 // POST 版本的新增 Schedule API（用於確認行程）
 app.post('/api/view2_schedule_list_insert', (req, res) => {
-    let { t_id, u_id,title, day, date, attractions } = req.body;
+  let { t_id, u_id, title, day, date, attractions } = req.body;
 
-    t_id=1;//@==@記得換成真的t_id
-    u_id=1;//@==@記得換成真的u_id
-    var scheduleDate = date || '2025-08-01';// 如果沒有提供日期，使用默認值
+  t_id = 1;//@==@記得換成真的t_id
+  u_id = 1;//@==@記得換成真的u_id
+  var scheduleDate = date || '2025-08-01';// 如果沒有提供日期，使用默認值
 
-    // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
-    const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
-    connection.query(countSql, [scheduleDate], (countErr, countResult) => {
-        if (countErr) {
-            console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
-            return res.status(500).json({ error: countErr.message });
-        }
+  // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
+  const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
+  connection.query(countSql, [scheduleDate], (countErr, countResult) => {
+    if (countErr) {
+      console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
+      return res.status(500).json({ error: countErr.message });
+    }
 
-        const nextDayScheduleNumber = countResult[0].count + 1;
-        // console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
+    const nextDayScheduleNumber = countResult[0].count + 1;
+    // console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
 
-        const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
-        const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
-        const scheduleDay = day || nextDayScheduleNumber;
-        // console.log('  - SQL:', sql);
-        // console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
+    const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
+    const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
+    const scheduleDay = day || nextDayScheduleNumber;
+    // console.log('  - SQL:', sql);
+    // console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
 
-        connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
-        if (err) {
-            console.error('❌ 插入 Schedule 時出錯：', err.message);
-            return res.status(500).json({ error: err.message });
-        }
+    connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
+      if (err) {
+        console.error('❌ 插入 Schedule 時出錯：', err.message);
+        return res.status(500).json({ error: err.message });
+      }
 
-        const scheduleId = result.insertId;
-        console.log('✅ Schedule 插入成功! s_id:', scheduleId);
+      const scheduleId = result.insertId;
+      console.log('✅ Schedule 插入成功! s_id:', scheduleId);
 
       // 如果有景點，也要插入到 Schedule_include 表
       if (attractions && attractions.length > 0) {
@@ -242,7 +242,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
         const insertAttractionPromises = attractions.map((attraction, index) => {
           return new Promise((resolve, reject) => {
             console.log(`🔍 處理景點 ${index + 1}:`, attraction);
-            
+
             // 先查找景點ID
             const findAttractionSql = 'SELECT a_id FROM Attraction WHERE name = ? LIMIT 1';
             connection.query(findAttractionSql, [attraction.name], (findErr, attrResult) => {
@@ -259,7 +259,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
               }
 
               const attractionId = attrResult[0].a_id;
-              
+
               // 插入景點關聯到 Schedule_include 表
               const insertSql = 'INSERT INTO Schedule_include (s_id, a_id, t_id, sequence, x, y) VALUES (?, ?, ?, ?, ?, ?)';
               connection.query(insertSql, [scheduleId, attractionId, 1, index + 1, attraction.position?.x || 0, attraction.position?.y || 0], (insertErr) => {
@@ -300,12 +300,12 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
       } else {
         // 沒有景點，直接返回
         const response = {
-            t_id:t_id,
-            s_id: scheduleId,
-            title: scheduleTitle,
-            day: scheduleDay,
-            date: scheduleDate,
-            message: 'Schedule created successfully'
+          t_id: t_id,
+          s_id: scheduleId,
+          title: scheduleTitle,
+          day: scheduleDay,
+          date: scheduleDate,
+          message: 'Schedule created successfully'
         };
 
         console.log('✅ 準備返回的響應:', response);
@@ -318,56 +318,56 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
 
 //把景點添加到schedule後存入資料庫
 app.post('/api/view2_schedule_include_insert', (req, res) => {
-    const { a_id, t_id, s_id, x, y, height, sequence=1 } = req.body;
+  const { a_id, t_id, s_id, x, y, height, sequence = 1 } = req.body;
 
-    // sequence=1;//default value
+  // sequence=1;//default value
 
-    const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height, sequence) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    const values = [a_id, t_id, s_id, x, y, height, sequence];
+  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height, sequence) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  const values = [a_id, t_id, s_id, x, y, height, sequence];
 
-    connection.query(query, values, (err, results) => {
-        if (err) {
-        console.error('Error inserting data into Schedule_include:', err);
-        res.status(500).send('Failed to insert data');
-        } else {
-        res.status(200).send('Data inserted successfully');
-        }
-    });
+  connection.query(query, values, (err, results) => {
+    if (err) {
+      console.error('Error inserting data into Schedule_include:', err);
+      res.status(500).send('Failed to insert data');
+    } else {
+      res.status(200).send('Data inserted successfully');
+    }
+  });
 });
 
 app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {
-    const { t_id, s_id } = req.params;
-    
-    const query = `SELECT * FROM schedule_include s
+  const { t_id, s_id } = req.params;
+
+  const query = `SELECT * FROM schedule_include s
                    JOIN Attraction a ON s.a_id = a.a_id
                    WHERE s.t_id = ? AND s.s_id = ?`;
-    const values = [t_id, s_id];
+  const values = [t_id, s_id];
 
-    connection.query(query, values, (err, results) => {
-        if (err) {
-            console.error('Error fetching data from Schedule_include:', err);
-            res.status(500).send('Failed to fetch data');
-        } else {
-            res.status(200).json(results);
-        }
-    });
+  connection.query(query, values, (err, results) => {
+    if (err) {
+      console.error('Error fetching data from Schedule_include:', err);
+      res.status(500).send('Failed to fetch data');
+    } else {
+      res.status(200).json(results);
+    }
+  });
 });
 
 app.get('/api/view2_get_transport_time/:a_id/:nextAid', (req, res) => {
-    const { a_id, nextAid } = req.params;
-    
-    const query = `SELECT * FROM transport_time t
-                   WHERE t.from_a_id = ? AND t.to_a_id = ?`;
-    const values = [a_id, nextAid];
+  const { a_id, nextAid } = req.params;
 
-    connection.query(query, values, (err, results) => {
-        if (err) {
-            console.error('Error fetching data from transport_time:', err);
-            res.status(500).send('Failed to fetch data');
-        } else {
-            res.status(200).json(results);
-        }
-    });
+  const query = `SELECT * FROM transport_time t
+                   WHERE t.from_a_id = ? AND t.to_a_id = ?`;
+  const values = [a_id, nextAid];
+
+  connection.query(query, values, (err, results) => {
+    if (err) {
+      console.error('Error fetching data from transport_time:', err);
+      res.status(500).send('Failed to fetch data');
+    } else {
+      res.status(200).json(results);
+    }
+  });
 });
 
 
@@ -1022,17 +1022,17 @@ app.post('/api/calculate-transport-time', async (req, res) => {
   try {
     console.log('🔥 收到單一路線交通時間計算請求');
     console.log('📥 請求 body:', req.body);
-    
+
     const { fromAId, toAId, scheduleId, date } = req.body;
-    
+
     if (!fromAId || !toAId || !scheduleId) {
-      return res.status(400).json({ 
-        error: '缺少必要參數: fromAId, toAId, scheduleId' 
+      return res.status(400).json({
+        error: '缺少必要參數: fromAId, toAId, scheduleId'
       });
     }
 
     const result = await calculateAndStoreTransportTime(fromAId, toAId, scheduleId, date);
-    
+
     if (result.success) {
       console.log('✅ 單一路線交通時間計算成功');
       res.json(result);
@@ -1043,9 +1043,9 @@ app.post('/api/calculate-transport-time', async (req, res) => {
 
   } catch (error) {
     console.error('❌ 計算交通時間 API 錯誤:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1058,9 +1058,9 @@ app.post('/api/calculate-schedule-transport-times', async (req, res) => {
   try {
     console.log('🔥 收到交通時間計算請求');
     console.log('📥 請求 body:', req.body);
-    
+
     const { attractionIds, scheduleId, date } = req.body;
-    
+
     console.log('📊 解析的參數:');
     console.log('  - attractionIds:', attractionIds, '(類型:', typeof attractionIds, ')');
     console.log('  - scheduleId:', scheduleId, '(類型:', typeof scheduleId, ')');
@@ -1068,15 +1068,15 @@ app.post('/api/calculate-schedule-transport-times', async (req, res) => {
 
     if (!attractionIds || !Array.isArray(attractionIds) || attractionIds.length < 2) {
       console.log('❌ 景點 ID 陣列驗證失敗');
-      return res.status(400).json({ 
-        error: '需要至少兩個景點ID的陣列' 
+      return res.status(400).json({
+        error: '需要至少兩個景點ID的陣列'
       });
     }
 
     if (!scheduleId) {
       console.log('❌ 行程 ID 驗證失敗');
-      return res.status(400).json({ 
-        error: '缺少行程ID' 
+      return res.status(400).json({
+        error: '缺少行程ID'
       });
     }
 
@@ -1102,9 +1102,9 @@ app.post('/api/calculate-schedule-transport-times', async (req, res) => {
 
   } catch (error) {
     console.error('❌ 計算行程交通時間 API 錯誤:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1116,11 +1116,11 @@ app.post('/api/calculate-schedule-transport-times', async (req, res) => {
 app.get('/api/transport-time/:fromAId/:toAId/:scheduleId', async (req, res) => {
   try {
     const { fromAId, toAId, scheduleId } = req.params;
-    
+
     console.log(`🔍 查詢交通時間: ${fromAId} → ${toAId} (行程 ${scheduleId})`);
-    
+
     const result = await getTransportTime(parseInt(fromAId), parseInt(toAId), parseInt(scheduleId));
-    
+
     if (result) {
       console.log('✅ 找到交通時間資料');
       res.json({
@@ -1137,9 +1137,9 @@ app.get('/api/transport-time/:fromAId/:toAId/:scheduleId', async (req, res) => {
 
   } catch (error) {
     console.error('❌ 查詢交通時間 API 錯誤:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1151,9 +1151,9 @@ app.get('/api/transport-time/:fromAId/:toAId/:scheduleId', async (req, res) => {
 app.get('/api/schedule-transport-times/:scheduleId', async (req, res) => {
   try {
     const { scheduleId } = req.params;
-    
+
     console.log(`🔍 查詢行程 ${scheduleId} 的所有交通時間`);
-    
+
     const query = `
       SELECT tt.*, 
              a1.name as from_name, a1.latitude as from_lat, a1.longitude as from_lng,
@@ -1164,16 +1164,16 @@ app.get('/api/schedule-transport-times/:scheduleId', async (req, res) => {
       WHERE tt.s_id = ?
       ORDER BY tt.id
     `;
-    
+
     connection.query(query, [scheduleId], (err, results) => {
       if (err) {
         console.error('❌ 查詢行程交通時間錯誤:', err);
-        return res.status(500).json({ 
-          success: false, 
-          error: err.message 
+        return res.status(500).json({
+          success: false,
+          error: err.message
         });
       }
-      
+
       console.log(`✅ 找到 ${results.length} 條交通時間記錄`);
       res.json({
         success: true,
@@ -1183,9 +1183,9 @@ app.get('/api/schedule-transport-times/:scheduleId', async (req, res) => {
 
   } catch (error) {
     console.error('❌ 查詢行程交通時間 API 錯誤:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1324,5 +1324,56 @@ app.post('/api/schedule_attractions_save', (req, res) => {
       });
     });
   });
+});
+
+app.get('/api/trip/:id', (req, res) => {
+  const tripId = req.params.id;
+
+  if (!tripId) {
+    return res.status(400).json({ message: '缺少旅程 ID' });
+  }
+
+  const sql = 'SELECT * FROM trip WHERE t_id = ? LIMIT 1';
+  connection.query(sql, [tripId], (err, results) => {
+    if (err) {
+      console.error('❌ 查詢錯誤：', err.message);
+      return res.status(500).json({ message: '伺服器錯誤' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: '找不到該旅程資料' });
+    }
+
+    const trip = results[0];
+
+    // ✅ 使用 stage_date 和 time 組成本地時間，避免時區偏移
+    const stageDate = new Date(trip.stage_date);
+    const [hours, minutes, seconds] = trip.time.split(':').map(Number);
+    const stageDateTime = new Date(
+      stageDate.getFullYear(),
+      stageDate.getMonth(),
+      stageDate.getDate(),
+      hours,
+      minutes,
+      seconds
+    );
+
+    const now = new Date();
+    const remainingTime = Math.max(0, Math.floor((stageDateTime - now) / 1000));
+
+    res.status(200).json({
+      tripId: trip.t_id,
+      tripTitle: trip.trip_title,
+      stage: trip.stage,
+      stage_date: trip.stage_date, // 仍然回傳原始資料
+      time: trip.time,
+      remainingTime
+    });
+  });
+});
+
+
+app.listen(3001, () => {
+  console.log('Server is running on port 3001');
 });
 

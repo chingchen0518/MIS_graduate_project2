@@ -3,33 +3,61 @@ import './header.css';
 
 function Header() {
   const [stage, setStage] = useState(1);
-  const [deadline, setDeadline] = useState(new Date('2025-07-16T19:40:00'));
+  const [deadline, setDeadline] = useState(new Date());
   const [now, setNow] = useState(new Date());
 
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState('');
 
-  // ⛳ 假設從某處取得旅程資料
-  const tripId = 5; // ← 改成你實際的 tripId
-  const tripTitle = '小明的尋寶之旅'; // ← 改成實際旅程標題
+  const [tripId, setTripId] = useState(2); // 預設值
+  const [tripTitle, setTripTitle] = useState('');
+
+  // A~E 對應成 1~5
+  const mapStageToNumber = (stage) => {
+    const stageOrder = { A: 1, B: 2, C: 3, D: 4, E: 5 };
+    return stageOrder[stage] || 1;
+  };
+
+  // 每秒更新 now，讓倒數計時動起來
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const current = new Date();
-      setNow(current);
+    (async () => {
+      try {
+        const res = await fetch('/api/trip/1');
+        const data = await res.json();
 
-      const diff = Math.max(0, Math.floor((deadline - current) / 1000));
-      if (diff === 0 && stage < 5) {
-        const nextStage = stage + 1;
-        setStage(nextStage);
+        console.log('stage_date:', data.stage_date);
+        console.log('time:', data.time);
 
-        const newDeadline = new Date(deadline.getTime() + 5000);
-        setDeadline(newDeadline);
+        setTripId(data.tripId);
+        setTripTitle(data.tripTitle);
+        setStage(mapStageToNumber(data.stage));
+
+        // ✅ 將 stage_date 與 time 合成本地時間（台灣時間）
+        const stageDate = new Date(data.stage_date); // stage_date 本身就是台灣時間
+        const [hours, minutes, seconds] = data.time.split(':').map(Number);
+
+        const stageDateTime = new Date(
+          stageDate.getFullYear(),
+          stageDate.getMonth(),
+          stageDate.getDate(),
+          hours,
+          minutes,
+          seconds
+        );
+
+        setDeadline(stageDateTime);
+        console.log('deadline:', stageDateTime);
+
+      } catch (e) {
+        console.error('API 錯誤:', e);
       }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [stage, deadline]);
+    })();
+  }, []);
 
   const pad = (n) => (n < 10 ? '0' + n : n);
 

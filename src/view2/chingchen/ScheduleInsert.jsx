@@ -49,6 +49,17 @@ const ScheduleInsert = ({
         }
     };
 
+    // const { item: draggingItem, isDragging } = useDragLayer((monitor) => ({
+    //     item: monitor.getItem(),
+    //     isDragging: monitor.isDragging(),
+    // }));
+
+    // // 取得 a_id
+    // const draggingAId = isDragging && draggingItem ? draggingItem.a_id : null;
+
+    // // 你可以把 draggingAId 傳給子組件或用於 UI
+    // console.log('目前拖拽的 a_id:', draggingAId);
+
     // function 2:把單個景點插入到資料庫
     const db_insert_schedule_item = async (s_id) => {
         // 用 attractions 陣列 map 方式插入資料
@@ -229,6 +240,8 @@ const ScheduleInsert = ({
     const [{ isOver }, drop] = useDrop({
         accept: "card",
         drop: (item, monitor) => {
+            console.log('拖拽的 a_id:', item.a_id);
+
             if (!dropRef.current) {
                 console.error("Drop target not found!");
                 return;
@@ -391,7 +404,7 @@ const CustomDragPreview = () => {
         currentOffset: monitor.getClientOffset(),
         isDragging: monitor.isDragging(),
     }));
-
+    
     const scheduleRef = document.querySelector('.schedule');
     const scheduleWidth = scheduleRef ? scheduleRef.offsetWidth : 0;
 

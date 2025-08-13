@@ -49,10 +49,13 @@ const TransportTime = ({ editmode=false, intervalHeight,a_id,nextAId }) => {
 
     return (
         <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly' }}>
-            <div className="car" style={{ height: `${transport.car * HourIntervalHeight}px`, backgroundColor: 'red', width: '10%' }}></div>
-            <div className="bicycle" style={{ height: `${transport.bicycle * HourIntervalHeight}px`, backgroundColor: 'green', width: '10%' }}></div>
-            <div className="walk" style={{ height: `${transport.walk * HourIntervalHeight}px`, backgroundColor: 'blue', width: '10%' }}></div>
-            <div className="public" style={{ height: `${transport.bus * HourIntervalHeight}px`, backgroundColor: 'orange', width: '10%' }}></div>
+            <div className="car" style={{ height: `${transport.car * HourIntervalHeight}px`, backgroundColor: '#ff914d', width: '10%' }}></div>
+            <div className="bicycle" style={{ height: `${transport.bicycle * HourIntervalHeight}px`, backgroundColor: '#65cdca', width: '10%' }}></div>
+            <div className="public" style={{ height: `${transport.bus * HourIntervalHeight}px`, backgroundColor: '#428cef', width: '10%' }}></div>
+            <div className="walk" style={{ height: `${transport.walk * HourIntervalHeight}px`, backgroundColor: '#7ed957', width: '10%' }}></div>
+
+
+
         </div>
     );
 };

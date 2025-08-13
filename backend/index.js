@@ -9,8 +9,9 @@ import User from './models/user.js';
 import Weekday from './models/weekday.js';
 import Hotel from './models/hotel.js';
 import TripHotel from './models/tripHotel.js';
-import ScheduleItem from './models/schedule_item.js';
+// import ScheduleItem from './models/schedule_item.js';
 import Schedule_include from './models/schedule_include.js';
+import TransportTime from './models/transportTime.js';
 
 Trip.hasMany(Attraction, { foreignKey: 't_id' });
 Attraction.belongsTo(Trip, { foreignKey: 't_id' });
@@ -50,11 +51,21 @@ Schedule.belongsToMany(User, { through: Evaluate, foreignKey: 's_id', otherKey: 
 Hotel.belongsToMany(Trip, { through: TripHotel, foreignKey: 'h_id', otherKey: 't_id' });
 Trip.belongsToMany(Hotel, { through: TripHotel, foreignKey: 't_id', otherKey: 'h_id' });
 
-Schedule.hasMany(ScheduleItem, { foreignKey: 's_id' });
-ScheduleItem.belongsTo(Schedule, { foreignKey: 's_id' });
+// Schedule.hasMany(ScheduleItem, { foreignKey: 's_id' });
+// ScheduleItem.belongsTo(Schedule, { foreignKey: 's_id' });
 
-Attraction.hasMany(ScheduleItem, { foreignKey: 'a_id' });
-ScheduleItem.belongsTo(Attraction, { foreignKey: 'a_id' });
+// Attraction.hasMany(ScheduleItem, { foreignKey: 'a_id' });
+// ScheduleItem.belongsTo(Attraction, { foreignKey: 'a_id' });
+
+// TransportTime 與 Attraction 的關聯
+TransportTime.belongsTo(Attraction, { foreignKey: 'from_a_id', as: 'FromAttraction' });
+TransportTime.belongsTo(Attraction, { foreignKey: 'to_a_id', as: 'ToAttraction' });
+Attraction.hasMany(TransportTime, { foreignKey: 'from_a_id', as: 'OutgoingTransports' });
+Attraction.hasMany(TransportTime, { foreignKey: 'to_a_id', as: 'IncomingTransports' });
+
+// TransportTime 與 Schedule 的關聯
+TransportTime.belongsTo(Schedule, { foreignKey: 's_id' });
+Schedule.hasMany(TransportTime, { foreignKey: 's_id' });
 
 
 export {
@@ -70,5 +81,6 @@ export {
   Weekday,
   Hotel,
   TripHotel,
-  ScheduleItem
+//   ScheduleItem,
+  TransportTime
 };

@@ -1,0 +1,11 @@
+可以search「@==@」
+1. page_1.jsx中的<Schedule_container>裡的t_id需要替換
+2. page_1.jsx要如何得知目前在哪一個trip
+3. Schedule_container.jsx里的<DateSelector>的t_id要替換
+4. Schedule_container.jsx里的<ScheduleInsert>的t_id要替換
+5. ScheduleInsert的newAttraction中的height
+6. ScheduleInsert的t_id
+7. ScheduleInsert里db_insert_schedule_item的u_id
+8. db.js中的/api/view2_schedule_list_insert的scheduleDate的默認值
+9. db.js中的/api/view2_schedule_list_insert的t_id和u_id的值
+10.ScheduleInsert的function 6:重新排序行程還沒套用

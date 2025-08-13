@@ -26,6 +26,7 @@ const AttractionContainer = ({ usedAttractions = [] }) => {
             <div className="map_small_container">
                 <MapDisplay selectedAttraction={selectedAttraction} />
             </div>
+
             <AttractionDetail attraction={selectedAttraction} />
         </div>
 

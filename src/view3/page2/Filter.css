@@ -26,11 +26,59 @@
     margin-left: 10px;
 }
 
-.filter-budget-value {
-    font-weight: 600;
-    color: #2563eb;
-    min-width: 36px;
-    text-align: center;
+.filter-budget-sliders {
+    position: relative;
+    width: 180px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+}
+
+.filter-budget-range {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 180px;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    pointer-events: auto;
+    appearance: none;
+    accent-color: #2563eb;
+}
+
+.filter-budget-range:first-child {
+    z-index: 2;
+}
+.filter-budget-range:last-child {
+    z-index: 3;
+}
+
+.filter-budget-range::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(59,130,246,0.15);
+    cursor: pointer;
+    appearance: none;
+}
+
+.filter-budget-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(59,130,246,0.15);
+    cursor: pointer;
+}
+
+.filter-budget-range:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .filter-users {

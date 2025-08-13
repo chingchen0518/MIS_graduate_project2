@@ -1346,14 +1346,16 @@ app.get('/api/trip/:id', (req, res) => {
 
     const trip = results[0];
 
-    // ✅ 使用 stage_date 和 time 組成本地時間，避免時區偏移
+    // 計算剩餘時
     const stageDate = new Date(trip.stage_date);
     const [hours, minutes, seconds] = trip.time.split(':').map(Number);
+
+    // 將 stage_date + time + 8 小時
     const stageDateTime = new Date(
       stageDate.getFullYear(),
       stageDate.getMonth(),
       stageDate.getDate(),
-      hours,
+      hours + 8, // 加上台灣時區
       minutes,
       seconds
     );
@@ -1365,13 +1367,12 @@ app.get('/api/trip/:id', (req, res) => {
       tripId: trip.t_id,
       tripTitle: trip.trip_title,
       stage: trip.stage,
-      stage_date: trip.stage_date, // 仍然回傳原始資料
+      stage_date: trip.stage_date,
       time: trip.time,
       remainingTime
     });
   });
 });
-
 
 app.listen(3001, () => {
   console.log('Server is running on port 3001');

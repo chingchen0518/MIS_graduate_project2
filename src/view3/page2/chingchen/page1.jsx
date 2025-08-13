@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import AttractionContainer from './AttractionContainer.jsx';
-import ScheduleContainer from './ScheduleContainer.jsx';
-import { CustomDragPreview } from '../../view2/chingchen/ScheduleInsert.jsx';
+import AttractionContainer from '../chingchen/AttractionContainer.jsx';
+import ScheduleContainer from '../chingchen/scheduleContainer.jsx';
+import { CustomDragPreview } from './ScheduleInsert.jsx';
 import Header from '../../components/header.jsx'
+// import MapDisplay from '../Liu/mapAddRoute/MapDisplay.jsx'
 
-import './Page2.css';
+import './Page1.css';
 
-const Page2 = () => {
+const Page1 = () => {
     //state
     const [usedAttractions, setUsedAttractions] = useState([]);
 
@@ -31,10 +32,10 @@ const Page2 = () => {
             {/* 自定義拖拽預覽組件 */}
             <CustomDragPreview />
             
-            <div className="page2">
+            <div className="page1">
                 <Header/>
 
-                <div className="page2_content">
+                <div className="page1_content">
 
                     <AttractionContainer usedAttractions={usedAttractions} />
                     <ScheduleContainer
@@ -48,4 +49,4 @@ const Page2 = () => {
     );
 };
 
-export default Page2;
+export default Page1;

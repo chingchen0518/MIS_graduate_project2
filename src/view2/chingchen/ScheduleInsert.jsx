@@ -229,6 +229,8 @@ const ScheduleInsert = ({
     const [{ isOver }, drop] = useDrop({
         accept: "card",
         drop: (item, monitor) => {
+            console.log('拖拽的 a_id:', item.a_id);
+
             if (!dropRef.current) {
                 console.error("Drop target not found!");
                 return;
@@ -391,7 +393,7 @@ const CustomDragPreview = () => {
         currentOffset: monitor.getClientOffset(),
         isDragging: monitor.isDragging(),
     }));
-
+    
     const scheduleRef = document.querySelector('.schedule');
     const scheduleWidth = scheduleRef ? scheduleRef.offsetWidth : 0;
 

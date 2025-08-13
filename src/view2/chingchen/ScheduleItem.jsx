@@ -1,31 +1,44 @@
 import React, { useImperativeHandle, useState, forwardRef, useEffect } from "react";
-import { useDrag } from 'react-dnd';
+import { useDrag,useDragLayer } from 'react-dnd';
 import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
 const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId }) => {
-    if(editmode){
-        console.log("name:", name,"aId:", a_id,"nextAid",nextAId);
-    }
+    // if(editmode){
+    //     console.log("name:", name,"aId:", a_id,"nextAid",nextAId);
+    // }
+    //state
     const [heightEdit, setheightEdit] = React.useState(35); // 初始高度
     const [x, setX] = React.useState(position.x); // 初始 X 座標
     const [y, setY] = React.useState(position.y); // 初始 Y 座標
-
-    const [{ isDragging }, dragRef] = useDrag({
-        type: "schedule_item",
-        item: { 
-        name, 
-        index, 
-        s_id,
-        originalPosition: position 
-        },
-        canDrag: editable, // 根據 editable 決定是否可以拖拽
-        collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-        }),
-    });
-  
+    //variables
+    var draggingAId = null;
+    // const [{ isDragging }, dragRef] = useDrag({
+    //     type: "schedule_item",
+    //     item: { 
+    //     name, 
+    //     index, 
+    //     s_id,
+    //     originalPosition: position 
+    //     },
+    //     canDrag: editable, // 根據 editable 決定是否可以拖拽
+    //     collect: (monitor) => ({
+    //     isDragging: monitor.isDragging(),
+    //     }),
+    // });
+    //獲取目前拖拽中的物件的aId
+    if(editmode){
+        const { item: draggingItem, isDragging } = useDragLayer((monitor) => ({
+            item: monitor.getItem(),
+            isDragging: monitor.isDragging(),
+        }));
+    
+        // 取得 a_id
+        draggingAId = isDragging && draggingItem ? draggingItem.a_id : null;
+        // 你可以把 draggingAId 傳給子組件或用於 UI
+        console.log('目前拖拽的 a_id:', draggingAId);
+    }
 
     //function 1:當調整高度停止時
     const handleResizeStop = (e, direction, ref, delta, position) => {
@@ -58,6 +71,7 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
         cursor: 'ns-resize',
     };
 
+    
     return (
         <Rnd
             disableDragging={!editable}
@@ -82,7 +96,7 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
                     borderRadius: '5px',
                     padding: '10px',
                     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-                    opacity: isDragging ? 0.5 : 1,
+                    // opacity: isDragging ? 0.5 : 1,
                     cursor: editable ? 'move' : 'default',
                     boxSizing: 'border-box',
                     display: 'flex',
@@ -114,7 +128,7 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
             <TransportTime 
                 intervalHeight={intervalHeight} 
                 a_id={a_id}
-                nextAId={nextAId}
+                nextAId={nextAId ? nextAId : (draggingAId ? draggingAId : null)}
                 editmode={editmode}
             />
 

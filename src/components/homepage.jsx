@@ -10,7 +10,7 @@ const HomePage = () => {
     }
   return (
 
-    <div id ="home_page">
+    <div id ="home_page" style={{ paddingLeft: '20px' }}>
       <ul>
         <li className="homepage_li"><a href="/attraction">attraction</a></li>
         <li className="homepage_li"><a href="/page1">page1</a></li>
@@ -23,7 +23,7 @@ const HomePage = () => {
         <li className="homepage_li"><a href="/forgotPassword">forgotPassword</a></li>
         <li className="homepage_li"><a href="/Profile">Profile</a></li>
         <li className="homepage_li"><a href="/ResizableBox">ResizableBox</a></li>
-
+        <li className="homepage_li"><a href="/MyRndList">MyRndList</a></li>
       </ul>
     </div>
 

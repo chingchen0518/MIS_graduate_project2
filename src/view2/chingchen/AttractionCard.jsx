@@ -1,18 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { DndProvider, useDrag } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import React, {useEffect } from "react";
+import {useDrag } from "react-dnd";
 
-import './attraction_card.css';
+import './AttractionCard.css';
 
 const AttractionCard = ({ a_id,t_id, name,latitude,longitude, category, votes, color, isSelected, onClick, isUsed = false }) => {
   const [{ isDragging }, dragRef, dragPreview] = useDrag({
       type: "card",
-    
-//       item: { 
-//         a_id: a_id,
-//         id: name, // 添加 id 屬性，使用 name 作為顯示名稱
-//         name: name // 也添加 name 屬性以保持一致性
-//       }, 
     
       //要傳什麽過去
       item: { a_id:a_id,

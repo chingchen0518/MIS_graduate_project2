@@ -2,14 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import Schedule from './schedule.jsx';
 import ScheduleNew from './scheduleNew.jsx';    
 import ScheduleInsert from './ScheduleInsert.jsx';
 import ScheduleShow from './ScheduleShow.jsx';
-import './schedule_container.css';
 import DateSelector from '../Liu/DateSelector';
+import './ScheduleContainer.css';
 
-const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
+const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
     //State
     const [schedules, setSchedules] = useState([]); //儲存DB讀取的schedule
     const [loading, setLoading] = useState(true);
@@ -22,7 +21,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
     // function 1：處理日期選擇變更
     const handleDateChange = (date) => {
         setSelectedDate(date);
-        console.log('選擇的日期:', date);
+        // console.log('選擇的日期:', date);
         // 這裡可以根據選擇的日期來篩選或更新行程資料
     };
 
@@ -52,7 +51,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
         // Optional: Add a resize observer to handle dynamic changes
         const resizeObserver = new ResizeObserver(updateTimeColumnHeight);
         if (timeColumnRef.current) {
-        resizeObserver.observe(timeColumnRef.current);
+            resizeObserver.observe(timeColumnRef.current);
         }
 
         return () => {
@@ -69,7 +68,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
         let api = 'http://localhost:3001/api/view2_schedule_list';
         if (selectedDate) {
             api += `?date=${encodeURIComponent(selectedDate)}`;
-            console.log('🔍 按日期載入 Schedule:', selectedDate);
+            // console.log('🔍 按日期載入 Schedule:', selectedDate);
         }
         
         fetch(api)
@@ -94,8 +93,8 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
                 formattedSchedules.reverse();
                 setSchedules(formattedSchedules);
 
-                console.log('✅ 載入的 Schedule 數量:', formattedSchedules.length);
-                console.log('📋 載入的行程數據:', formattedSchedules);
+                // console.log('✅ 載入的 Schedule 數量:', formattedSchedules.length);
+                // console.log('📋 載入的行程數據:', formattedSchedules);
             // **關鍵修正**: 只將草稿行程中的景點標記為已使用，已確認的行程中的景點不標記為已使用
             if (onAttractionUsed) {
                 const draftAttractions = new Set();
@@ -113,7 +112,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
                     onAttractionUsed(attractionName, true);
                 });
                 
-                console.log('🔄 同步草稿行程的景點狀態:', [...draftAttractions]);
+                // console.log('🔄 同步草稿行程的景點狀態:', [...draftAttractions]);
             }
             }
         })
@@ -126,12 +125,12 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
     }, [selectedDate]); // 當 selectedDate 變更時重新載入
 
     const timeSlots = [
-        '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00',
-        '08:00', '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00',
-        '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
+        '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00', 
+        '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00','16:00', '16:00', 
+        '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
     ];
 
-    console.log('🔍 當前行程:', schedules.length);
+
 
     //components的最終return
     return (
@@ -147,7 +146,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
             </div>
 
             <div className="schedule_list">
-                <div className="time_column" ref={timeColumnRef}>
+                <div className="time_column" ref={timeColumnRef} style={{ height: timeColumnHeight}}>
                 {timeSlots.map((time) => (
                     <div key={time} className="time_slot">
                         {time}
@@ -156,7 +155,7 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
             </div>
 
             <ScheduleNew 
-                containerHeight={timeColumnHeight} 
+                containerHeight = {timeColumnHeight} 
                 onAddNewSchedule={handleShowScheduleInsert}
             />
             
@@ -166,6 +165,10 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
                     date = {selectedDate}
                     ScheduleInsertShow={handleShowScheduleInsert}
                     handleNewSchedule={getNewSchedule}
+                    containerHeight={timeColumnHeight}
+                    intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
+                    //用於告訴attraction_container哪一些景點已被使用
+                    onAttractionUsed={onAttractionUsed} 
                 />)
             }
 
@@ -186,6 +189,8 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
                     t_id={t_id}
                     title={schedule.title}
                     day={schedule.day}
+                    intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
+                    
                     // scheduleId={schedule.s_id}
                     // scheduleData={schedule}
                     // initialAttractions={schedule.attractions}
@@ -204,4 +209,4 @@ const Schedule_container = ({ t_id,usedAttractions = [], onAttractionUsed }) => 
     );
 };
 
-export default Schedule_container;
+export default ScheduleContainer;

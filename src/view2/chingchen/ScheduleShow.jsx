@@ -1,8 +1,6 @@
 //不可編輯的schedule
-import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { useDrop, useDragLayer } from 'react-dnd';
+import React, { useState, useEffect} from 'react';
 import './schedule.css';
-import AttractionCard from './attraction_card';
 import ScheduleItem from './ScheduleItem.jsx'; // 引入 ScheduleItem 組件
 
 const ScheduleShow = (props) => {
@@ -113,7 +111,11 @@ const ScheduleShow = (props) => {
                         name={scheduleItem.name}
                         position={{ x: scheduleItem.x, y: scheduleItem.y }} // x和y的位置，傳入object
                         width={scheduleWidths} // 使用計算出的寬度
+                        height={scheduleItem.height} // 使用從資料庫獲取的高度
                         editable={false} // 不可編輯
+                        intervalHeight={props.intervalHeight}
+                        nextAId={attractions.find(a => a.sequence === attraction.sequence + 1)?.a_id ?? null}
+
                     />
                 ))}
             </div>

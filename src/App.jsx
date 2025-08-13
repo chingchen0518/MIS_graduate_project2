@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { createContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 
 //==============================testing area==================================
 // import DragAndDropExample from './view2/chingchen/DragAndDropExample.jsx';
@@ -32,7 +33,35 @@ import HomePage from './components/homepage.jsx'
 import Header from './components/header.jsx'
 import './App.css';
 
+//create context
+export const MyContext = createContext();
+
 function App() {
+    const [hourInterval, setHourInterval] = useState(35/60);
+
+    return (
+        <MyContext.Provider value={{ hourInterval, setHourInterval }}>
+            <Router>
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/AttractionContainer" element={<AttractionContainer />} />
+                    <Route path="/map" element={<InteractiveMap />} />
+                    <Route path="/page1" element={<Page1 />} />
+                    <Route path="/header" element={<Header />} />
+                    {/* <Route path="/attraction" element={<AttractionContainer />} /> */}
+                    <Route path="/MapDisplay" element={<MapDisplay />} />
+                    <Route path="/UserProfile" element={<UserProfile />} />
+                    <Route path="/Login" element={<Login />} />
+                    <Route path="/Signin" element={<Signin />} />
+                    <Route path="/ForgotPassword" element={<ForgotPassword />} />
+                    <Route path="/Profile" element={<Profile />} />
+                    <Route path="/logout" element={<Logout />} />
+                    <Route path="/ResizableBox" element={<ResizableBox />} />
+                    <Route path="/MyRndList" element={<MyRndList />} />
+                </Routes>
+            </Router>
+        </MyContext.Provider>
+    );
   return (
     <Router>
       <Routes>

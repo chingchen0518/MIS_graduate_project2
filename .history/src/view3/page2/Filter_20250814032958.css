@@ -373,7 +373,8 @@
         opacity: 1;
         transform: scaleY(1);
     }
-}.filter {
+}
+.filter {
     background: #fff;
     border-radius: 16px;
     box-shadow: 0 4px 16px rgba(59,130,246,0.08);

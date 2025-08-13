@@ -2,16 +2,16 @@
 import express from 'express';
 import mysql from 'mysql2';
 import cors from 'cors';
-// import './syncModels.js';
+import './syncModels.js';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Schedule from './models/schedule.js';
-import TransportTime from './models/transportTime.js';
-import ScheduleInclude from './models/schedule_include.js';
-import Attraction from './models/attraction.js';
+// import Schedule from './models/schedule.js';
+// import TransportTime from './models/transportTime.js';
+// import ScheduleInclude from './models/schedule_include.js';
+// import Attraction from './models/attraction.js';
 import { dirname } from 'path';
 
 // 取得 __dirname 的方式（ES Module 環境）
@@ -153,6 +153,7 @@ app.get('/api/travel', (req, res) => {
   });
 });
 
+// ====================================view 2===========================
 app.get('/api/view2_attraction_list', (req, res) => {
   const sql = 'SELECT * FROM Attraction';
 
@@ -197,56 +198,6 @@ app.get('/api/view2_schedule_list', (req, res) => {
   });
 });
 
-// app.get('/api/view2_schedule_list_insert', (req, res) => {
-//     const { t_id, date, u_id, day,  } = req.query;
-
-//     t_id=1;//@==@記得換成真的t_id
-//     u_id=1;//@==@記得換成真的u_id
-
-//     // 如果沒有提供日期，使用默認值
-//     const scheduleDate = date || '2025-08-01'; // @==@
-//     console.log('  - 使用的日期:', scheduleDate);
-
-//     // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
-//     const countSql = 'SELECT COUNT(*) as count FROM Schedule WHERE date = ?';
-//     connection.query(countSql, [scheduleDate], (countErr, countResult) => {
-//         if (countErr) {
-//             console.error('❌ 查詢該日期 Schedule 數量時出錯：', countErr.message);
-//             return res.status(500).json({ error: countErr.message });
-//         }
-
-//         const nextDayScheduleNumber = countResult[0].count + 1;
-//         console.log(`📊 ${scheduleDate} 的下一個行程編號: ${nextDayScheduleNumber}`);
-
-//         const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
-//         const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
-//         const scheduleDay = day || nextDayScheduleNumber;
-        
-//         //正式插入到這兩款
-//         connection.query(sql, [t_id, scheduleDate, u_id, scheduleDay, scheduleTitle], (err, result) => {
-//             if (err) {
-//                 console.error('❌ 插入 Schedule 時出錯：', err.message);
-//                 return res.status(500).json({ error: err.message });
-//             }
-
-//             console.log('✅ 插入成功! result:', result);
-//             console.log('✅ insertId:', result.insertId);
-
-//             // 返回新創建的記錄信息，使用計算出的該日期行程編號
-//             const response = {
-//                 t_id: t_id,
-//                 s_id: result.insertId,
-//                 title: scheduleTitle,
-//                 day: scheduleDay,
-//                 date: scheduleDate,
-//                 message: 'Schedule created successfully'
-//             };
-
-//             console.log('✅ 準備返回的響應:', response);
-//             res.json(response);
-//         });
-//   });
-// });
 
 
 // POST 版本的新增 Schedule API（用於確認行程）
@@ -367,19 +318,21 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
 
 //把景點添加到schedule後存入資料庫
 app.post('/api/view2_schedule_include_insert', (req, res) => {
-  const { a_id, t_id, s_id, x, y,height } = req.body;
+    const { a_id, t_id, s_id, x, y, height, sequence=1 } = req.body;
 
-  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height) VALUES (?, ?, ?, ?, ?, ?)`;
-  const values = [a_id, t_id, s_id, x, y, height];
+    // sequence=1;//default value
 
-  connection.query(query, values, (err, results) => {
-    if (err) {
-      console.error('Error inserting data into Schedule_include:', err);
-      res.status(500).send('Failed to insert data');
-    } else {
-      res.status(200).send('Data inserted successfully');
-    }
-  });
+    const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height, sequence) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    const values = [a_id, t_id, s_id, x, y, height, sequence];
+
+    connection.query(query, values, (err, results) => {
+        if (err) {
+        console.error('Error inserting data into Schedule_include:', err);
+        res.status(500).send('Failed to insert data');
+        } else {
+        res.status(200).send('Data inserted successfully');
+        }
+    });
 });
 
 app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {
@@ -400,6 +353,25 @@ app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {
     });
 });
 
+app.get('/api/view2_get_transport_time/:a_id/:nextAid', (req, res) => {
+    const { a_id, nextAid } = req.params;
+    
+    const query = `SELECT * FROM transport_time t
+                   WHERE t.from_a_id = ? AND t.to_a_id = ?`;
+    const values = [a_id, nextAid];
+
+    connection.query(query, values, (err, results) => {
+        if (err) {
+            console.error('Error fetching data from transport_time:', err);
+            res.status(500).send('Failed to fetch data');
+        } else {
+            res.status(200).json(results);
+        }
+    });
+});
+
+
+//=======================view 3===================================
 // 新增 API 端點：獲取指定 trip 的日期範圍
 app.get('/api/trip-dates/:tripId', (req, res) => {
   const tripId = req.params.tripId;
@@ -1038,75 +1010,6 @@ app.get('/api/fake-data-clean', async (req, res) => {
   }
 });
 
-// API for adding attractions to schedule
-// app.post('/api/view2_schedule_include_insert', (req, res) => {
-//   console.log('📝 收到新增景點到行程的請求:', req.body);
-
-//   const { a_id, t_id, s_id, x, y, height } = req.body;
-
-//   // 驗證必要參數
-//   if (!a_id || !t_id || !s_id) {
-//     return res.status(400).json({ 
-//       error: '缺少必要參數: a_id, t_id, s_id' 
-//     });
-//   }
-  
-//   // 檢查是否已經存在相同的關聯
-//   const checkSql = 'SELECT * FROM Schedule_include WHERE a_id = ? AND s_id = ?';
-//   connection.query(checkSql, [a_id, s_id], (checkErr, checkResult) => {
-//     if (checkErr) {
-//       console.error('❌ 檢查重複關聯時出錯：', checkErr.message);
-//       return res.status(500).json({ error: checkErr.message });
-//     }
-    
-//     if (checkResult.length > 0) {
-//       console.log('⚠️ 景點已經存在於此行程中');
-//       return res.status(409).json({ 
-//         error: '景點已經存在於此行程中',
-//         existing: checkResult[0]
-//       });
-//     }
-    
-//     // 插入新的關聯記錄，需要提供 sequence 字段
-//     // 先查詢該行程中已有的景點數量，作為下一個序號
-//     const sequenceSql = 'SELECT COUNT(*) as count FROM Schedule_include WHERE s_id = ?';
-//     connection.query(sequenceSql, [s_id], (seqErr, seqResult) => {
-//       if (seqErr) {
-//         console.error('❌ 查詢序號時出錯：', seqErr.message);
-//         return res.status(500).json({ error: seqErr.message });
-//       }
-      
-//       const nextSequence = seqResult[0].count + 1;
-      
-//       const insertSql = `
-//         INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height) 
-//         VALUES (?, ?, ?, ?, ?, ?)
-//       `;
-
-//       connection.query(insertSql, [a_id, t_id, s_id, x || 0, y || 0, height || 0], (insertErr, insertResult) => {
-//         if (insertErr) {
-//           console.error('❌ 插入景點關聯時出錯：', insertErr.message);
-//           return res.status(500).json({ error: insertErr.message });
-//         }
-        
-//         console.log('✅ 景點成功添加到行程中！插入ID:', insertResult.insertId);
-//         res.json({
-//           success: true,
-//           message: '景點已成功添加到行程中',
-//           insertId: insertResult.insertId,
-//           data: {
-//             a_id,
-//             t_id,
-//             s_id,
-//             x: x || 0,
-//             y: y || 0,
-//             height: height
-//           }
-//         });
-//       });
-//     });
-//   });
-// });
 
 // ==================== 交通時間計算 API ====================
 import { calculateAndStoreTransportTime, calculateScheduleTransportTimes, getTransportTime } from './transportTimeService.js';

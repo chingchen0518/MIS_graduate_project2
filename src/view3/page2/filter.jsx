@@ -50,22 +50,28 @@ function Filter({ onFilterChange }) {
                 <span>預算:</span>
                 <div className="filter-budget">
                     <span className="filter-budget-value">{budget[0]}</span>
-                    <input
-                        type="range"
-                        min={0}
-                        max={1000}
-                        value={budget[0]}
-                        onChange={e => handleBudgetChange(e, 0)}
-                        disabled={!budgetChecked}
-                    />
-                    <input
-                        type="range"
-                        min={0}
-                        max={1000}
-                        value={budget[1]}
-                        onChange={e => handleBudgetChange(e, 1)}
-                        disabled={!budgetChecked}
-                    />
+                    <div className="filter-budget-sliders">
+                        <input
+                            type="range"
+                            min={0}
+                            max={1000}
+                            value={budget[0]}
+                            onChange={e => handleBudgetChange(e, 0)}
+                            disabled={!budgetChecked}
+                            className="filter-budget-range"
+                            style={{ position: 'absolute', left: 0, width: '180px', pointerEvents: 'auto', zIndex: 2 }}
+                        />
+                        <input
+                            type="range"
+                            min={0}
+                            max={1000}
+                            value={budget[1]}
+                            onChange={e => handleBudgetChange(e, 1)}
+                            disabled={!budgetChecked}
+                            className="filter-budget-range"
+                            style={{ position: 'absolute', left: 0, width: '180px', pointerEvents: 'auto', zIndex: 3 }}
+                        />
+                    </div>
                     <span className="filter-budget-value">{budget[1]}</span>
                 </div>
             </div>

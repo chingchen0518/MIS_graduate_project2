@@ -24,6 +24,11 @@ const HomePage = () => {
         <li className="homepage_li"><a href="/Profile">Profile</a></li>
         <li className="homepage_li"><a href="/ResizableBox">ResizableBox</a></li>
         <li className="homepage_li"><a href="/MyRndList">MyRndList</a></li>
+<<<<<<< Updated upstream
+=======
+        <li className="homepage_li"><a href="/page2">page2</a></li>
+        <li className="homepage_li"><a href="/page3">page3</a></li>
+>>>>>>> Stashed changes
       </ul>
     </div>
 

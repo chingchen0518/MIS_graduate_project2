@@ -20,12 +20,12 @@ import Page1 from './view2/chingchen/Page1.jsx'
 
 //=================================view 3============================
 
-import UserProfile from './view2/chingchen/user.jsx';
-import Login from './view3/page1/login.jsx';
-import Signin from './view3/page1/signin.jsx';
-import ForgotPassword from './view3/page1/forgotpassword.jsx';
-import Logout from './view3/page1/logout.jsx';
-import Profile from './view3/page1/profile.jsx';
+import UserProfile from './view2/chingchen/user.jsx'; 
+import Login from './view3/page1/login.jsx'; 
+import Signin from './view3/page1/signin.jsx'; 
+import ForgotPassword from './view3/page1/forgotpassword.jsx'; 
+import Logout from './view3/page1/logout.jsx'; 
+import Profile from './view3/page1/profile.jsx'; 
 import Page2 from './view3/page2/page2.jsx';
 //=====================================================================
 import HomePage from './components/homepage.jsx'

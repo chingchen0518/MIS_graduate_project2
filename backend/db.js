@@ -1372,7 +1372,7 @@ app.get('/api/trip/:id', (req, res) => {
 
     res.status(200).json({
       tripId: trip.t_id,
-      tripTitle: trip.trip_title,
+      tripTitle: trip.title,
       stage: trip.stage,
       stage_date: trip.stage_date_str, // 原始資料
       time: trip.time,

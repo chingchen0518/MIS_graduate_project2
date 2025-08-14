@@ -3,7 +3,7 @@ import './header.css';
 
 function Header() {
   const [stage, setStage] = useState(1);
-  const [deadline, setDeadline] = useState(new Date());
+  const [deadline, setDeadline] = useState(''); // 字串形式
   const [now, setNow] = useState(new Date());
 
   const [showModal, setShowModal] = useState(false);
@@ -24,49 +24,50 @@ function Header() {
     return () => clearInterval(timer);
   }, []);
 
-useEffect(() => {
-  (async () => {
-    try {
-      const res = await fetch('/api/trip/1');
-      const data = await res.json();
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/trip/2');
+        const data = await res.json();
 
-      console.log('stage_date:', data.stage_date);
-      console.log('time:', data.time);
+        setTripId(data.tripId);
+        setTripTitle(data.tripTitle);
+        setStage(mapStageToNumber(data.stage));
 
-      setTripId(data.tripId);
-      setTripTitle(data.tripTitle);
-      setStage(mapStageToNumber(data.stage));
+        // 先拆 stage_date
+        const [datePart, stageTimePart] = data.stage_date.split(' ');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [stageHour, stageMinute, stageSecond] = stageTimePart.split(':').map(Number);
 
-      // 先拆 stage_date
-      const [datePart, stageTimePart] = data.stage_date.split(' '); // e.g. 2025-08-14, 12:00:00
-      const [year, month, day] = datePart.split('-').map(Number);
-      const [stageHour, stageMinute, stageSecond] = stageTimePart.split(':').map(Number);
+        // 拆 time
+        const [addH, addM, addS] = data.time.split(':').map(Number);
 
-      // 拆 time (要加上的時間)
-      const [addH, addM, addS] = data.time.split(':').map(Number);
+        // 建立 Date
+        const deadlineDate = new Date(year, month - 1, day, stageHour, stageMinute, stageSecond);
+        deadlineDate.setHours(deadlineDate.getHours() + addH);
+        deadlineDate.setMinutes(deadlineDate.getMinutes() + addM);
+        deadlineDate.setSeconds(deadlineDate.getSeconds() + addS);
 
-      // 先用 stage_date 時間建立 Date
-      const deadlineDate = new Date(year, month - 1, day, stageHour, stageMinute, stageSecond);
+        // 格式化成字串
+        const pad = (n) => (n < 10 ? '0' + n : n);
+        const deadlineStr = `${deadlineDate.getFullYear()}-${pad(deadlineDate.getMonth() + 1)}-${pad(deadlineDate.getDate())} ${pad(deadlineDate.getHours())}:${pad(deadlineDate.getMinutes())}:${pad(deadlineDate.getSeconds())}`;
 
-      // 加上 time
-      deadlineDate.setHours(deadlineDate.getHours() + addH);
-      deadlineDate.setMinutes(deadlineDate.getMinutes() + addM);
-      deadlineDate.setSeconds(deadlineDate.getSeconds() + addS);
+        setDeadline(deadlineStr);
 
-      setDeadline(deadlineDate);
+        console.log('計算後的 deadline:', deadlineStr);
 
-      console.log('計算後的 deadline:', deadlineDate);
-
-    } catch (e) {
-      console.error('API 錯誤:', e);
-    }
-  })();
-}, []);
+      } catch (e) {
+        console.error('API 錯誤:', e);
+      }
+    })();
+  }, []);
 
   const pad = (n) => (n < 10 ? '0' + n : n);
 
+  // 計算倒數
   const getCountdown = () => {
-    const diff = Math.max(0, Math.floor((deadline - now) / 1000));
+    if (!deadline) return '00:00:00';
+    const diff = Math.max(0, Math.floor((new Date(deadline) - now) / 1000));
     const h = Math.floor(diff / 3600);
     const m = Math.floor((diff % 3600) / 60);
     const s = diff % 60;
@@ -109,10 +110,7 @@ useEffect(() => {
       </div>
       <div className="flow-steps">
         {stepNames.map((step, index) => (
-          <div
-            key={index}
-            className={`step${index + 1 === stage ? ' active' : ''}`}
-          >
+          <div key={index} className={`step${index + 1 === stage ? ' active' : ''}`}>
             {step}
           </div>
         ))}

@@ -1382,39 +1382,23 @@ app.get('/api/trip/:id', (req, res) => {
 });
 
 app.post('/api/update-stage-date', (req, res) => {
-  const { tripId, stage_date, deadline } = req.body;
+  const { tripId, stage_date } = req.body; // 前端傳的 deadline 字串放到 stage_date
 
   if (!tripId || !stage_date) {
     return res.status(400).json({ message: '缺少 tripId 或 stage_date' });
   }
 
-  // 先查詢目前的 stage
   const selectSql = 'SELECT stage FROM trip WHERE t_id = ? LIMIT 1';
   connection.query(selectSql, [tripId], (err, results) => {
-    if (err) {
-      console.error('❌ 查詢錯誤：', err.message);
-      return res.status(500).json({ message: '伺服器錯誤' });
-    }
+    if (err) return res.status(500).json({ message: '伺服器錯誤' });
+    if (results.length === 0) return res.status(404).json({ message: '找不到該旅程資料' });
 
-    if (results.length === 0) {
-      return res.status(404).json({ message: '找不到該旅程資料' });
-    }
+    let currentStage = results[0].stage;
+    let nextStage = currentStage !== 'E' ? String.fromCharCode(currentStage.charCodeAt(0) + 1) : currentStage;
 
-    let currentStage = results[0].stage; // 例如 "A"
-    let nextStage = currentStage;
-
-    if (currentStage !== 'E') {
-      // 將 stage 往下一個字母
-      nextStage = String.fromCharCode(currentStage.charCodeAt(0) + 1);
-    }
-
-    // 更新 stage_date 與 stage
     const updateSql = 'UPDATE trip SET stage_date = ?, stage = ? WHERE t_id = ?';
-    connection.query(updateSql, [deadline, nextStage, tripId], (err, result) => {
-      if (err) {
-        console.error('❌ 更新錯誤：', err.message);
-        return res.status(500).json({ message: '伺服器錯誤' });
-      }
+    connection.query(updateSql, [stage_date, nextStage, tripId], (err, result) => {
+      if (err) return res.status(500).json({ message: '伺服器錯誤' });
 
       res.status(200).json({
         message: '更新成功',
@@ -1425,6 +1409,7 @@ app.post('/api/update-stage-date', (req, res) => {
     });
   });
 });
+
 
 
 app.listen(3001, () => {

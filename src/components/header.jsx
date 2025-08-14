@@ -3,14 +3,14 @@ import './header.css';
 
 function Header() {
   const [stage, setStage] = useState(1);
-  const [deadline, setDeadline] = useState(''); 
+  const [deadline, setDeadline] = useState('');
   const [now, setNow] = useState(new Date());
   const [hasUpdated, setHasUpdated] = useState(false); // ✅ 只更新一次
 
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState('');
 
-  const [tripId, setTripId] = useState(1); 
+  const [tripId, setTripId] = useState(1);
   const [tripTitle, setTripTitle] = useState('');
 
   const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
@@ -76,8 +76,9 @@ function Header() {
           const res = await fetch('/api/update-stage-date', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tripId, stage_date }),
+            body: JSON.stringify({ tripId, stage_date: deadline }), // 用 deadline 代替 stage_date
           });
+
           const result = await res.json();
           console.log('更新 stage_date:', result);
 

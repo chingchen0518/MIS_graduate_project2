@@ -3,68 +3,51 @@ import './header.css';
 
 function Header() {
   const [stage, setStage] = useState(1);
-  const [deadline, setDeadline] = useState(''); // 字串形式
+  const [deadline, setDeadline] = useState(''); 
   const [now, setNow] = useState(new Date());
+  const [hasUpdated, setHasUpdated] = useState(false); // ✅ 只更新一次
 
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState('');
 
-  const [tripId, setTripId] = useState(2); // 預設值
+  const [tripId, setTripId] = useState(1); 
   const [tripTitle, setTripTitle] = useState('');
 
-  // A~E 對應成 1~5
+  const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
+
   const mapStageToNumber = (stage) => {
     const stageOrder = { A: 1, B: 2, C: 3, D: 4, E: 5 };
     return stageOrder[stage] || 1;
   };
 
-  // 每秒更新 now，讓倒數計時動起來
+  const pad = (n) => (n < 10 ? '0' + n : n);
+
+  // 每秒更新 now
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+  // 取得旅程資料
+  const fetchTripData = async () => {
+    try {
+      const res = await fetch(`/api/trip/${tripId}`);
+      const data = await res.json();
+
+      setTripId(data.tripId);
+      setTripTitle(data.tripTitle);
+      setStage(mapStageToNumber(data.stage));
+      setDeadline(data.deadline);
+      setHasUpdated(false); // 重置 flag
+    } catch (e) {
+      console.error('API 錯誤:', e);
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/trip/2');
-        const data = await res.json();
-
-        setTripId(data.tripId);
-        setTripTitle(data.tripTitle);
-        setStage(mapStageToNumber(data.stage));
-
-        // 先拆 stage_date
-        const [datePart, stageTimePart] = data.stage_date.split(' ');
-        const [year, month, day] = datePart.split('-').map(Number);
-        const [stageHour, stageMinute, stageSecond] = stageTimePart.split(':').map(Number);
-
-        // 拆 time
-        const [addH, addM, addS] = data.time.split(':').map(Number);
-
-        // 建立 Date
-        const deadlineDate = new Date(year, month - 1, day, stageHour, stageMinute, stageSecond);
-        deadlineDate.setHours(deadlineDate.getHours() + addH);
-        deadlineDate.setMinutes(deadlineDate.getMinutes() + addM);
-        deadlineDate.setSeconds(deadlineDate.getSeconds() + addS);
-
-        // 格式化成字串
-        const pad = (n) => (n < 10 ? '0' + n : n);
-        const deadlineStr = `${deadlineDate.getFullYear()}-${pad(deadlineDate.getMonth() + 1)}-${pad(deadlineDate.getDate())} ${pad(deadlineDate.getHours())}:${pad(deadlineDate.getMinutes())}:${pad(deadlineDate.getSeconds())}`;
-
-        setDeadline(deadlineStr);
-
-        console.log('計算後的 deadline:', deadlineStr);
-
-      } catch (e) {
-        console.error('API 錯誤:', e);
-      }
-    })();
+    fetchTripData();
   }, []);
 
-  const pad = (n) => (n < 10 ? '0' + n : n);
-
-  // 計算倒數
   const getCountdown = () => {
     if (!deadline) return '00:00:00';
     const diff = Math.max(0, Math.floor((new Date(deadline) - now) / 1000));
@@ -74,7 +57,39 @@ function Header() {
     return `${pad(h)}:${pad(m)}:${pad(s)}`;
   };
 
-  const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
+  // 倒數到 0 時只執行一次
+  useEffect(() => {
+    if (!deadline || hasUpdated) return;
+    console.log('deadline:', deadline);
+
+    const diff = Math.floor((new Date(deadline) - now) / 1000);
+    if (diff <= 0) {
+      const updateStageDate = async () => {
+        try {
+          const nowDateTime = new Date();
+          const stage_date = `${nowDateTime.getFullYear()}-${pad(
+            nowDateTime.getMonth() + 1
+          )}-${pad(nowDateTime.getDate())} ${pad(nowDateTime.getHours())}:${pad(
+            nowDateTime.getMinutes()
+          )}:${pad(nowDateTime.getSeconds())}`;
+
+          const res = await fetch('/api/update-stage-date', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tripId, stage_date }),
+          });
+          const result = await res.json();
+          console.log('更新 stage_date:', result);
+
+          fetchTripData(); // 重新抓最新資料
+          setHasUpdated(true); // ✅ 標記已更新
+        } catch (err) {
+          console.error('更新 stage_date 失敗:', err);
+        }
+      };
+      updateStageDate();
+    }
+  }, [now, deadline, hasUpdated, tripId]);
 
   const handleSendEmail = async () => {
     try {

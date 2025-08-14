@@ -24,40 +24,44 @@ function Header() {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/trip/1');
-        const data = await res.json();
+useEffect(() => {
+  (async () => {
+    try {
+      const res = await fetch('/api/trip/1');
+      const data = await res.json();
 
-        console.log('stage_date:', data.stage_date);
-        console.log('time:', data.time);
+      console.log('stage_date:', data.stage_date);
+      console.log('time:', data.time);
 
-        setTripId(data.tripId);
-        setTripTitle(data.tripTitle);
-        setStage(mapStageToNumber(data.stage));
+      setTripId(data.tripId);
+      setTripTitle(data.tripTitle);
+      setStage(mapStageToNumber(data.stage));
 
-        // ✅ 將 stage_date 與 time 合成本地時間（台灣時間）
-        const stageDate = new Date(data.stage_date); // stage_date 本身就是台灣時間
-        const [hours, minutes, seconds] = data.time.split(':').map(Number);
+      // 先拆 stage_date
+      const [datePart, stageTimePart] = data.stage_date.split(' '); // e.g. 2025-08-14, 12:00:00
+      const [year, month, day] = datePart.split('-').map(Number);
+      const [stageHour, stageMinute, stageSecond] = stageTimePart.split(':').map(Number);
 
-        const stageDateTime = new Date(
-          stageDate.getFullYear(),
-          stageDate.getMonth(),
-          stageDate.getDate(),
-          hours,
-          minutes,
-          seconds
-        );
+      // 拆 time (要加上的時間)
+      const [addH, addM, addS] = data.time.split(':').map(Number);
 
-        setDeadline(stageDateTime);
-        console.log('deadline:', stageDateTime);
+      // 先用 stage_date 時間建立 Date
+      const deadlineDate = new Date(year, month - 1, day, stageHour, stageMinute, stageSecond);
 
-      } catch (e) {
-        console.error('API 錯誤:', e);
-      }
-    })();
-  }, []);
+      // 加上 time
+      deadlineDate.setHours(deadlineDate.getHours() + addH);
+      deadlineDate.setMinutes(deadlineDate.getMinutes() + addM);
+      deadlineDate.setSeconds(deadlineDate.getSeconds() + addS);
+
+      setDeadline(deadlineDate);
+
+      console.log('計算後的 deadline:', deadlineDate);
+
+    } catch (e) {
+      console.error('API 錯誤:', e);
+    }
+  })();
+}, []);
 
   const pad = (n) => (n < 10 ? '0' + n : n);
 

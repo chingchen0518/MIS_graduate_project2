@@ -1333,7 +1333,13 @@ app.get('/api/trip/:id', (req, res) => {
     return res.status(400).json({ message: '缺少旅程 ID' });
   }
 
-  const sql = 'SELECT * FROM trip WHERE t_id = ? LIMIT 1';
+  const sql = `
+    SELECT *,
+      DATE_FORMAT(stage_date, "%Y-%m-%d %H:%i:%s") AS stage_date_str
+    FROM trip
+    WHERE t_id = ? LIMIT 1
+  `;
+
   connection.query(sql, [tripId], (err, results) => {
     if (err) {
       console.error('❌ 查詢錯誤：', err.message);
@@ -1346,30 +1352,31 @@ app.get('/api/trip/:id', (req, res) => {
 
     const trip = results[0];
 
-    // 計算剩餘時
-    const stageDate = new Date(trip.stage_date);
-    const [hours, minutes, seconds] = trip.time.split(':').map(Number);
+    // 分解 stage_date_str
+    const [datePart, timePart] = trip.stage_date_str.split(' '); // e.g. "2025-08-14" "12:00:00"
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute, second] = timePart.split(':').map(Number);
 
-    // 將 stage_date + time + 8 小時
-    const stageDateTime = new Date(
-      stageDate.getFullYear(),
-      stageDate.getMonth(),
-      stageDate.getDate(),
-      hours + 8, // 加上台灣時區
-      minutes,
-      seconds
-    );
+    // 分解 trip.time
+    const [addH, addM, addS] = trip.time.split(':').map(Number);
 
-    const now = new Date();
-    const remainingTime = Math.max(0, Math.floor((stageDateTime - now) / 1000));
+    // 直接加上時間
+    const deadline = new Date(year, month - 1, day, hour, minute, second);
+    deadline.setHours(deadline.getHours() + addH);
+    deadline.setMinutes(deadline.getMinutes() + addM);
+    deadline.setSeconds(deadline.getSeconds() + addS);
+
+    // 格式化 deadline
+    const two = n => (n < 10 ? '0' + n : n);
+    const deadlineStr = `${deadline.getFullYear()}-${two(deadline.getMonth() + 1)}-${two(deadline.getDate())} ${two(deadline.getHours())}:${two(deadline.getMinutes())}:${two(deadline.getSeconds())}`;
 
     res.status(200).json({
       tripId: trip.t_id,
       tripTitle: trip.trip_title,
       stage: trip.stage,
-      stage_date: trip.stage_date,
+      stage_date: trip.stage_date_str, // 原始資料
       time: trip.time,
-      remainingTime
+      deadline: deadlineStr // ✅ 直接計算好的時間
     });
   });
 });

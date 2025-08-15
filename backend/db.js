@@ -485,9 +485,7 @@ app.get('/api/schedule_votes/:t_id/:s_id/:date', (req, res) => {
     });
   });
 });
-    });
-  });
-});
+
 
 // 新增API：投票給行程
 app.post('/api/schedule_vote/:t_id/:s_id/:u_id/:date', (req, res) => {
@@ -1621,4 +1619,3 @@ app.get('/api/view3_trip_budget_range/:t_id', (req, res) => {
     });
   });
 });
-

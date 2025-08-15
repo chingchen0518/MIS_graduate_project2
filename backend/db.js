@@ -353,18 +353,75 @@ app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {
     });
 });
 
-app.get('/api/view2_get_transport_time/:a_id/:nextAid', (req, res) => {
+app.get('/api/view2_get_transport_time/:a_id/:nextAid', async (req, res) => {
     const { a_id, nextAid } = req.params;
+    
+    console.log(`🔍 查詢交通時間: from_a_id=${a_id}, to_a_id=${nextAid}`);
     
     const query = `SELECT * FROM transport_time t
                    WHERE t.from_a_id = ? AND t.to_a_id = ?`;
     const values = [a_id, nextAid];
 
-    connection.query(query, values, (err, results) => {
+    console.log(`📝 SQL查詢: ${query}`);
+    console.log(`📝 參數: [${values.join(', ')}]`);
+
+    connection.query(query, values, async (err, results) => {
         if (err) {
-            console.error('Error fetching data from transport_time:', err);
+            console.error('❌ 查詢失敗:', err);
             res.status(500).send('Failed to fetch data');
+            return;
+        }
+
+        console.log(`✅ 查詢結果數量: ${results.length}`);
+
+        // 如果沒有找到資料，自動計算並存儲
+        if (!results || results.length === 0) {
+            console.log(`🚀 沒有找到交通時間資料，開始自動計算...`);
+            
+            try {
+                // 動態引入交通時間計算服務
+                const { calculateAndStoreTransportTime } = await import('./transportTimeService.js');
+                
+                // 使用預設的行程ID (可以後續優化為動態獲取)
+                const defaultScheduleId = 1;
+                const today = new Date().toISOString().split('T')[0];
+                
+                console.log(`📊 開始計算: 景點 ${a_id} → ${nextAid}`);
+                
+                // 計算並存儲交通時間
+                const result = await calculateAndStoreTransportTime(
+                    parseInt(a_id), 
+                    parseInt(nextAid), 
+                    defaultScheduleId, 
+                    today
+                );
+                
+                console.log(`🎉 計算完成:`, result);
+                
+                if (result.success) {
+                    // 重新查詢剛剛存儲的資料
+                    connection.query(query, values, (err2, newResults) => {
+                        if (err2) {
+                            console.error('❌ 重新查詢失敗:', err2);
+                            res.status(500).send('Failed to fetch calculated data');
+                        } else {
+                            console.log(`✅ 新計算的資料:`, newResults);
+                            res.status(200).json(newResults);
+                        }
+                    });
+                } else {
+                    console.error('❌ 計算失敗:', result.error);
+                    res.status(200).json([]);
+                }
+                
+            } catch (calculateError) {
+                console.error('💥 交通時間計算失敗:', calculateError);
+                // 即使計算失敗，也返回空陣列而不是錯誤，讓前端可以正常處理
+                res.status(200).json([]);
+            }
         } else {
+            // 找到資料，直接返回
+            console.log(`✅ 找到現有資料:`, results);
             res.status(200).json(results);
         }
     });

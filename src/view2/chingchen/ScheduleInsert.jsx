@@ -1,6 +1,7 @@
 import React, { useState, useRef, lazy, Suspense } from 'react';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
+import { function1 } from './TransportTime';
 
 // 使用 lazy 進行按需加載
 const ScheduleItem = lazy(() => import('./ScheduleItem'));
@@ -48,7 +49,7 @@ const ScheduleInsert = ({
             throw error;
         }
     };
-
+   
     // const { item: draggingItem, isDragging } = useDragLayer((monitor) => ({
     //     item: monitor.getItem(),
     //     isDragging: monitor.isDragging(),
@@ -124,73 +125,11 @@ const ScheduleInsert = ({
                 });
 
                 // 行程確認後，計算所有景點間的交通時間
-                if (attractions && attractions.length >= 2) {
-                    // console.log(' 開始計算行程交通時間...');
-                    // console.log(' Attractions 陣列內容:', attractions);
-                    // console.log(' Attractions 長度:', attractions.length);
-                    
-                    // // 檢查每個景點的結構
-                    // attractions.forEach((attraction, index) => {
-                    //     console.log(`景點 ${index}:`, attraction);
-                    //     console.log(`  - id: ${attraction.id}`);
-                    //     console.log(`  - a_id: ${attraction.a_id}`);
-                    //     console.log(`  - name: ${attraction.name}`);
-                    //     console.log(`  - latitude: ${attraction.latitude}`);
-                    //     console.log(`  - longitude: ${attraction.longitude}`);
-                        
-                    //     // 警告：如果沒有經緯度
-                    //     if (!attraction.latitude || !attraction.longitude) {
-                    //         console.warn(`⚠️  警告：景點 ${attraction.name} 缺少經緯度資訊！`);
-                    //     }
-                    // });
-                    
-                    // 提取景點 ID，從前端的 attractions 陣列中提取所有景點的 ID
-                    const attractionIds = attractions.map(attraction => {
-                        const id = attraction.a_id || attraction.id;
-                        return typeof id === 'string' ? parseInt(id) : id;
-                    }).filter(id => !isNaN(id) && id > 0); // 過濾掉無效的 ID
-                    
-                    console.log(' 提取的景點 IDs:', attractionIds);
-                    console.log(' 景點 IDs 類型:', attractionIds.map(id => typeof id));
-                    
-                    if (attractionIds.length >= 2) {
-                        try {
-                            //用這三個資料給aAPI，去計算交通
-                            const requestData = {
-                                attractionIds: attractionIds,
-                                scheduleId: s_id, // 使用剛插入的 schedule ID
-                                date: date || new Date().toISOString().split('T')[0] // 使用行程日期或今天的日期
-                            };
-                            
-                            console.log(' 發送交通時間計算 API 請求資料:', requestData);
-                            
-                            //發送 API 請求，調用後端的交通時間計算 API
-                            const response = await fetch('http://localhost:3001/api/calculate-schedule-transport-times', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(requestData)
-                            });
-                            
-                            console.log(' 交通時間 API 回應狀態:', response.status);
-                            
-                            const result = await response.json();
-                            console.log(' 交通時間 API 回應內容:', result);
-                            
-                            if (result.success) {
-                                console.log('交通時間計算完成:', result.message);
-                            } else {
-                                console.error('交通時間計算失敗:', result.error);
-                            }
-                        } catch (error) {
-                            console.error('調用交通時間計算 API 失敗:', error);
-                        }
-                    } else {
-                        console.log('景點數量不足，跳過交通時間計算');
-                    }
+                const result = await function1(attractions, s_id, date);
+                if (result.success) {
+                    console.log('交通時間計算完成:', result.message);
                 } else {
-                    console.log('⚠️ 無景點或景點數量不足，跳過交通時間計算');
+                    console.error('交通時間計算失敗:', result.error);
                 }
 
                 

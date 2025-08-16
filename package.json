@@ -14,6 +14,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@google/genai": "^1.14.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "crypt": "^0.0.2",

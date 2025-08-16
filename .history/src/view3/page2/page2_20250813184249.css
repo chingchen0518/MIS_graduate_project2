@@ -1,0 +1,104 @@
+.page2 {
+  width: 100vw;
+  height: 100vh;
+  max-width: 1366px;
+  max-height: 766px;
+  background-color: #f5f7fa;
+  padding: 8px;
+  box-sizing: border-box;
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.page2_header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 80px;
+  box-sizing: border-box;
+}
+
+.page2_title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.page2_subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.page2_content {
+  display: flex;
+  padding: 10px;
+  gap: 10px;
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.page2_main_layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.page2_filter_section {
+  width: 100%;
+  min-height: 60px; /* 最小高度用於收縮狀態 */
+  transition: all 0.3s ease;
+}
+
+.page2_filter_section.collapsed {
+  min-height: 60px;
+  max-height: 60px;
+}
+
+.page2_filter_section.expanded {
+  min-height: 200px;
+  max-height: 400px;
+}
+
+.page2_content_section {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+/* 移除響應式設計，固定大小 */
+/* @media (max-width: 1200px) {
+  .page1_content {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .schedule_container,
+  .attraction_container {
+    width: 100% !important;
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page1 {
+    padding: 10px;
+  }
+  
+  .page1_title {
+    font-size: 24px;
+  }
+  
+  .page1_subtitle {
+    font-size: 14px;
+  }
+} */

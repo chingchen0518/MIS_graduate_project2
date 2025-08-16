@@ -41,6 +41,7 @@ import Page3 from './view3/page3/Page3.jsx';
 import HomePage from './components/homepage.jsx'
 import Header from './components/header.jsx'
 import './App.css';
+import GeminiChat from './view2/chingchen/TEST API';
 
 //create context
 export const MyContext = createContext();
@@ -71,6 +72,7 @@ function App() {
                     <Route path="/logout" element={<Logout />} />
                     <Route path="/ResizableBox" element={<ResizableBox />} />
                     <Route path="/MyRndList" element={<MyRndList />} />
+                    <Route path="/TEST_API" element={<GeminiChat />} />
                 </Routes>
             </Router>
         </MyContext.Provider>

@@ -21,6 +21,13 @@ import Page1 from './view2/chingchen/Page1.jsx'
 
 //=================================view 3============================
 
+import UserProfile from './view2/chingchen/user.jsx'; 
+import Login from './view3/page1/login.jsx'; 
+import Signin from './view3/page1/signin.jsx'; 
+import ForgotPassword from './view3/page1/forgotpassword.jsx'; 
+import Logout from './view3/page1/logout.jsx'; 
+import Profile from './view3/page1/profile.jsx'; 
+
 import UserProfile from './view2/chingchen/user.jsx';
 import Login from './view3/page1/login.jsx';
 import Signin from './view3/page1/signin.jsx';
@@ -28,6 +35,8 @@ import ForgotPassword from './view3/page1/forgotpassword.jsx';
 import Logout from './view3/page1/logout.jsx';
 import Profile from './view3/page1/profile.jsx';
 import Page2 from './view3/page2/page2.jsx';
+import Page3 from './view3/page3/Page3.jsx';
+
 //=====================================================================
 import HomePage from './components/homepage.jsx'
 import Header from './components/header.jsx'
@@ -47,7 +56,10 @@ function App() {
                     <Route path="/AttractionContainer" element={<AttractionContainer />} />
                     <Route path="/map" element={<InteractiveMap />} />
                     <Route path="/page1" element={<Page1 />} />
+
                     <Route path="/page2" element={<Page2 />} />
+                    <Route path="/page3" element={<Page3 />} />
+
                     <Route path="/header" element={<Header />} />
                     {/* <Route path="/attraction" element={<AttractionContainer />} /> */}
                     <Route path="/MapDisplay" element={<MapDisplay />} />

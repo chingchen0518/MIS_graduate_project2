@@ -1,13 +1,15 @@
 .date-selector {
-  padding: 4px 8px;
+  padding: 6px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 14px;
   background-color: white;
   cursor: pointer;
-  min-width: 50px;
+  min-width: 80px;
   flex-shrink: 0;
   width: auto;
+  color: #333;
+  font-weight: 500;
 }
 
 .date-selector:hover {

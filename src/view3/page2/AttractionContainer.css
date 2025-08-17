@@ -12,35 +12,40 @@
     overflow: hidden;
 }
 
-/* .attraction_cards_wrapper {
-    flex: 1;
-    padding: 6px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-    justify-content: flex-start;
-    align-content: flex-start;
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-height: 0;
-} */
+.filter_section {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: white;
+    flex-shrink: 0;
+    /* 不允許縮小 */
+}
 
+/* 新增一個容器來包含地圖和詳情，讓它們平均分配剩餘空間 */
+.content_wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
 
 .map_small_container {
     width: calc(100% - 16px);
-    height: 150px;
+    flex: 1;
     padding: 8px;
     box-sizing: border-box;
     border: 1px solid black;
     border-radius: 8px;
     overflow-y: hidden;
     overflow-x: hidden;
-    margin: 0px 0px 0px 8px;
+    margin: 10px 0px 8px 8px;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 10px;
+    min-height: 100px;
+    /* 設定最小高度避免太小 */
 }
 
 /* .attraction_card {
@@ -57,7 +62,7 @@
 
 .attraction_details {
     width: calc(100% - 16px);
-    height: 150px;
+    flex: 1;
     padding: 8px;
     box-sizing: border-box;
     background-color: #ffffff;
@@ -65,9 +70,10 @@
     border-radius: 8px;
     overflow-y: auto;
     overflow-x: hidden;
-    margin: 8px 0px 0px 8px;
+    margin: 8px 0px 8px 8px;
     position: relative;
-    flex-shrink: 0;
+    min-height: 100px;
+    /* 設定最小高度避免太小 */
 }
 
 

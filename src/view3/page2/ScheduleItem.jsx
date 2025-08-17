@@ -4,9 +4,9 @@ import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId }) => {
-    if(editmode){
-        console.log("name:", name,"aId:", a_id,"nextAid",nextAId);
+const ScheduleItem = ({ editmode = false, a_id, name, position, width, index, s_id, onMove, editable = false, height, onValueChange, onDragStop, intervalHeight, nextAId, isSelected = false }) => {
+    if (editmode) {
+        console.log("name:", name, "aId:", a_id, "nextAid", nextAId);
     }
     const [heightEdit, setheightEdit] = React.useState(35); // 初始高度
     const [x, setX] = React.useState(position.x); // 初始 X 座標
@@ -14,18 +14,18 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
 
     const [{ isDragging }, dragRef] = useDrag({
         type: "schedule_item",
-        item: { 
-        name, 
-        index, 
-        s_id,
-        originalPosition: position 
+        item: {
+            name,
+            index,
+            s_id,
+            originalPosition: position
         },
         canDrag: editable, // 根據 editable 決定是否可以拖拽
         collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
+            isDragging: monitor.isDragging(),
         }),
     });
-  
+
 
     //function 1:當調整高度停止時
     const handleResizeStop = (e, direction, ref, delta, position) => {
@@ -36,7 +36,7 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
             setY(position.y); // 更新 y 座標
         }
 
-        onValueChange(ref.offsetHeight, position.x, position.y,a_id);//回傳到ScheduleInsert
+        onValueChange(ref.offsetHeight, position.x, position.y, a_id);//回傳到ScheduleInsert
     };
 
     // function 2: 當拖拽停止時
@@ -44,7 +44,7 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
         setX(d.x); // 更新 x 座標
         setY(d.y); // 更新 y 座標
         console.log(d.y);
-        onValueChange(heightEdit, d.x, d.y,a_id);//回傳到ScheduleInsert
+        onValueChange(heightEdit, d.x, d.y, a_id);//回傳到ScheduleInsert
     };
 
     const handleStyle = {
@@ -90,8 +90,26 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
                     justifyContent: 'center',
                     width: '100%',
                     height: '100%',
+                    position: 'relative',
                 }}
             >
+                {/* 星星標記 - 當景點被選中時顯示 */}
+                {isSelected && (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: '-5px',
+                            left: '-5px',
+                            fontSize: '16px',
+                            color: '#FFD700',
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+                            zIndex: 10,
+                        }}
+                    >
+                        ⭐
+                    </div>
+                )}
+
                 {/* 内容 */}
                 <div
                     className="attraction_name"
@@ -111,8 +129,8 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
             </div>
 
             {/* 交通時間 */}
-            <TransportTime 
-                intervalHeight={intervalHeight} 
+            <TransportTime
+                intervalHeight={intervalHeight}
                 a_id={a_id}
                 nextAId={nextAId}
                 editmode={editmode}

@@ -37,7 +37,7 @@
 
 .page2_content {
   display: flex;
-  padding:10px;
+  padding: 10px;
   gap: 10px;
   height: calc(100vh - 50px);
   max-height: calc(766px - 50px);

@@ -1,19 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useSearchParams } from 'react-router-dom';
 import AttractionContainer from './AttractionContainer.jsx';
 import ScheduleContainer from './ScheduleContainer.jsx';
 import { CustomDragPreview } from '../../view2/chingchen/ScheduleInsert.jsx';
-import Header from '../../components/header.jsx'
+import Header from '../../components/header.jsx';
 
 import './Page2.css';
 
 const Page2 = () => {
     //state
     const [usedAttractions, setUsedAttractions] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [filterConditions, setFilterConditions] = useState({
+        costRange: [0, 1000],
+        selectedAttractions: [],
+        selectedUsers: []
+    });
+    const [searchParams] = useSearchParams();
+    const [t_id, setT_id] = useState(null);
+
+    // 從URL參數獲取t_id
+    useEffect(() => {
+        const tripId = searchParams.get('t_id');
+        if (tripId) {
+            setT_id(parseInt(tripId));
+        } else {
+            // 如果沒有t_id參數，使用默認值
+            setT_id(1);
+        }
+    }, [searchParams]);
 
     //function 1: 處理景點被使用的狀態
-    const handleAttractionUsed = (a_id,isUsed = true) => {
+    const handleAttractionUsed = (a_id, isUsed = true) => {
 
         // 標記景點為已使用
         if (isUsed) {
@@ -26,21 +46,41 @@ const Page2 = () => {
         }
     };
 
+    //function 2: 處理篩選類別變更
+    const handleCategoryFilter = (categories) => {
+        setSelectedCategories(categories);
+    };
+
+    //function 3: 處理篩選條件變更
+    const handleFilterChange = (costRange, selectedAttractions, selectedUsers) => {
+        setFilterConditions({
+            costRange,
+            selectedAttractions,
+            selectedUsers
+        });
+    };
+
     return (
         <DndProvider backend={HTML5Backend}>
             {/* 自定義拖拽預覽組件 */}
             <CustomDragPreview />
-            
+
             <div className="page2">
-                <Header/>
+                <Header />
 
                 <div className="page2_content">
-
-                    <AttractionContainer usedAttractions={usedAttractions} />
+                    <AttractionContainer
+                        usedAttractions={usedAttractions}
+                        selectedCategories={selectedCategories}
+                        onCategoryChange={handleCategoryFilter}
+                        onFilterChange={handleFilterChange}
+                        t_id={t_id}
+                    />
                     <ScheduleContainer
-                        t_id={1}//@==@記得改掉@==@
-                        usedAttractions={usedAttractions} 
-                        onAttractionUsed={handleAttractionUsed} 
+                        t_id={t_id}
+                        usedAttractions={usedAttractions}
+                        onAttractionUsed={handleAttractionUsed}
+                        filterConditions={filterConditions}
                     />
                 </div>
             </div>

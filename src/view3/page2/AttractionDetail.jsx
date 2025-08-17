@@ -6,7 +6,7 @@ const AttractionDetail = ({ attraction }) => {
     return (
       <div className="attraction_details">
         <div className="no_selection">
-          <p>請點擊左側的景點卡片來查看詳細資訊</p>
+          <p>請點擊右側的景點卡片來查看詳細資訊</p>
         </div>
       </div>
     );

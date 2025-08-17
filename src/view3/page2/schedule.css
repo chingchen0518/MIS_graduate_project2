@@ -94,16 +94,59 @@
 }
 
 .schedule_header {
-    height: 10%;
-    text-align: center;
-    margin-bottom: 8px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 6px;
-    position: relative;
+  height: 10%;
+  text-align: center;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+  position: relative;
 }
 
-.button_display{
-    margin-top: 20px;
+.user_info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.vote_buttons {
+  display: flex;
+  gap: 4px;
+  margin-top: -6px;
+}
+
+.vote_button {
+  background: none;
+  border: none;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 30px;
+  text-align: center;
+}
+
+.like_button {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.like_button:hover {
+  background-color: #c8e6c9;
+}
+
+.dislike_button {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.dislike_button:hover {
+  background-color: #ffcdd2;
+}
+
+.button_display {
+  margin-top: 20px;
 
 
 }
@@ -225,7 +268,7 @@
   font-size: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 
 }
 
@@ -344,9 +387,11 @@
   0% {
     opacity: 0.7;
   }
+
   50% {
     opacity: 1;
   }
+
   100% {
     opacity: 0.7;
   }

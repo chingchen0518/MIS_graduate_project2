@@ -19,6 +19,12 @@ function Header() {
     const stageOrder = { A: 1, B: 2, C: 3, D: 4, E: 5 };
     return stageOrder[stage] || 1;
   };
+  const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        console.log('已登入使用者：', user.name, '，ID:', user.id);
+    } else {
+        console.log('尚未登入');
+    }
 
   const pad = (n) => (n < 10 ? '0' + n : n);
 

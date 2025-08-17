@@ -353,7 +353,6 @@ app.get('/api/view2_schedule_include_show/:t_id/:s_id', (req, res) => {
   });
 });
 
-// 合併後的完整 API 端點代碼
 app.get('/api/view2_get_transport_time/:a_id/:nextAid', async (req, res) => {
     const { a_id, nextAid } = req.params;
     
@@ -426,7 +425,6 @@ app.get('/api/view2_get_transport_time/:a_id/:nextAid', async (req, res) => {
             res.status(200).json(results);
         }
     });
-});
 
 // 新增API：計算特定行程的總預算
 app.get('/api/schedule_budget/:s_id/:date', (req, res) => {
@@ -1618,4 +1616,39 @@ app.get('/api/view3_trip_budget_range/:t_id', (req, res) => {
       });
     });
   });
+});
+
+app.post('/api/update-stage-date', (req, res) => {
+  const { tripId, stage_date } = req.body; // 前端傳的 deadline 字串放到 stage_date
+
+  if (!tripId || !stage_date) {
+    return res.status(400).json({ message: '缺少 tripId 或 stage_date' });
+  }
+
+  const selectSql = 'SELECT stage FROM trip WHERE t_id = ? LIMIT 1';
+  connection.query(selectSql, [tripId], (err, results) => {
+    if (err) return res.status(500).json({ message: '伺服器錯誤' });
+    if (results.length === 0) return res.status(404).json({ message: '找不到該旅程資料' });
+
+    let currentStage = results[0].stage;
+    let nextStage = currentStage !== 'E' ? String.fromCharCode(currentStage.charCodeAt(0) + 1) : currentStage;
+
+    const updateSql = 'UPDATE trip SET stage_date = ?, stage = ? WHERE t_id = ?';
+    connection.query(updateSql, [stage_date, nextStage, tripId], (err, result) => {
+      if (err) return res.status(500).json({ message: '伺服器錯誤' });
+
+      res.status(200).json({
+        message: '更新成功',
+        tripId,
+        stage: nextStage,
+        stage_date
+      });
+    });
+  });
+});
+
+
+
+app.listen(3001, () => {
+  console.log('Server is running on port 3001');
 });

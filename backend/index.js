@@ -13,6 +13,8 @@ import TripHotel from './models/tripHotel.js';
 import Schedule_include from './models/schedule_include.js';
 import TransportTime from './models/transportTime.js';
 
+// hi
+
 Trip.hasMany(Attraction, { foreignKey: 't_id' });
 Attraction.belongsTo(Trip, { foreignKey: 't_id' });
 

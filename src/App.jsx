@@ -49,7 +49,6 @@ function App() {
                     <Route path="/AttractionContainer" element={<AttractionContainer />} />
                     <Route path="/map" element={<InteractiveMap />} />
                     <Route path="/page1" element={<Page1 />} />
-
                     {/* <Route path="/page2" element={<Page2 />} />
                     <Route path="/page3" element={<Page3 />} /> */}
                     <Route path="/header" element={<Header />} />

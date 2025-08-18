@@ -5,9 +5,8 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 // 直接重用你 page2 的行程元件與樣式（路徑依你的專案調整）
 import ScheduleContainer from "../page2/ScheduleContainer.jsx";
-import "../page2/chingchen/schedule.css";
-import "../page2/chingchen/ScheduleContainer.css";
-
+import "..\..\view2\chingchen/schedule.css";
+import "..\..\view2\chingchen/ScheduleContainer.css";
 // 右側骰子
 import DiceSelector from "./DiceSelector.jsx";
 import "./DiceSelector.css";

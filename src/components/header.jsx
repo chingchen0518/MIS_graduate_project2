@@ -4,11 +4,6 @@ import './header.css';
 
 function Header() {
   const user = JSON.parse(localStorage.getItem('user'));
-  // if (user) {
-  //   console.log('已登入使用者：', user.name, ',ID:', user.img);
-  // } else {
-  //   console.log('尚未登入');
-  // }
   const navigate = useNavigate();
   const [stage, setStage] = useState(1);
   const [deadline, setDeadline] = useState('');

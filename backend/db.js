@@ -425,6 +425,7 @@ app.get('/api/view2_get_transport_time/:a_id/:nextAid', async (req, res) => {
             res.status(200).json(results);
         }
     });
+});
 
 // 新增API：計算特定行程的總預算
 app.get('/api/schedule_budget/:s_id/:date', (req, res) => {
@@ -826,7 +827,7 @@ app.post('/api/view3_reset_password', async (req, res) => {
 });
 
 app.get('/api/fake-data', async (req, res) => {
-  // http://localhost:3001
+  // http://localhost:3001/api/fake-data
   try {
     // 檢查是否已有測試資料
     const checkUserSql = 'SELECT COUNT(*) as count FROM User WHERE u_email = "testuser@example.com"';

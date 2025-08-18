@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './header.css';
 
 function Header() {
+  const user = JSON.parse(localStorage.getItem('user'));
+  // if (user) {
+  //   console.log('已登入使用者：', user.name, ',ID:', user.img);
+  // } else {
+  //   console.log('尚未登入');
+  // }
+  const navigate = useNavigate();
   const [stage, setStage] = useState(1);
   const [deadline, setDeadline] = useState('');
   const [now, setNow] = useState(new Date());
@@ -134,6 +142,16 @@ function Header() {
       <div className="header-icon">
         <img src="img/logo.jpg" className="header-icon-img" alt="logo" />
       </div>
+      {/* <div className="header-icon">
+        <button
+          className="header-icon-btn"
+          style={{ border: 'none', background: 'none', padding: 0, cursor: 'pointer' }}
+          onClick={() => navigate('/Profile')}
+        >
+          <img src={`/img/avatar/${user.img}`} className="header-icon-img" alt="logo" />
+        </button>
+      </div> */}
+
 
       {showModal && (
         <div className="modal">

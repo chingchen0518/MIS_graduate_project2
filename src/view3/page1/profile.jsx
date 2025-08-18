@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import './profile.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faAddressCard, faEdit, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faAddressCard, faEdit, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
 const initialHistory = [
@@ -161,8 +161,11 @@ function Profile() {
                                         <span>密碼：******</span>
                                     </div>
                                     <div className="profile-actions-horizontal">
-                                        <button className="btn" onClick={handleEdit}>
+                                        {/* <button className="btn" onClick={handleEdit}>
                                             <FontAwesomeIcon icon={faEdit} /> 編輯
+                                        </button> */}
+                                        <button className="btn" onClick={() => navigate('/logout')}>
+                                            <FontAwesomeIcon icon={faSignOutAlt} /> 登出
                                         </button>
                                     </div>
                                 </div>

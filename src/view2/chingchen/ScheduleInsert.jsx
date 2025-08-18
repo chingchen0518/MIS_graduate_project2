@@ -69,6 +69,7 @@ const ScheduleInsert = ({
                             y: attraction.y,
                             height: attraction.height,
                             sequence:attraction.sequence,
+                            transport_method: attraction.transport_method, // 新增交通方式
                         }),
                     });
                 })
@@ -120,12 +121,6 @@ const ScheduleInsert = ({
                 } else {
                     console.error('交通時間計算失敗:', result.error);
                 }
-
-                
-                // db_insert_schedule_item(s_id);//插入schedule中的細項
-                
-                // await ()=>{handleNewSchedule(scheduleData)};//把新增的行程傳回去給schedule_container.jsx
-
             }
         } else {
             alert('此行程已經確認');
@@ -158,11 +153,21 @@ const ScheduleInsert = ({
         setAttractions(updated);
     };
 
-    //function 7:顯示某個景點的營業時間
+    // function 7:取得某個景點的交通方式
+    const getTransportMethod = (a_id_for_function, value) => {
+        setAttractions(prev => prev.map(item =>
+            item.a_id === a_id_for_function
+                ? { ...item, transport_method: value }
+                : item
+        ));
+        console.log('🅰️景點', a_id_for_function);
+        console.log('🚖目前選擇的交通方式:', value);
+    };
+
+    //function 8:顯示某個景點的營業時間
     const showOperatingTime = () => {
         //還沒收到前面的時間
     };
-
 
     //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({
@@ -228,6 +233,7 @@ const ScheduleInsert = ({
                 height: 35, // 調整高度，與 schedule_item.jsx 保持一致 @==@調整成真正的高度
                 width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
                 sequence: attractions.length + 1, // 新增的景點序號
+                transport_method: 0 // 初始交通方式為 0
             };
             
             // setAttractions((prevAttractions) => [...prevAttractions, newAttraction]);
@@ -310,9 +316,11 @@ const ScheduleInsert = ({
                             onValueChange={(height, x, y,a_id) => getChildData(height, x, y,a_id)}
                             editable={true}
                             onDragStop={() => handleReorder}
+                            getTransportMethod={(a_id,value) => getTransportMethod(a_id,value)}
                             intervalHeight={intervalHeight}
                             nextAId={attractions.find(a => a.sequence === attraction.sequence + 1)?.a_id ?? null}
                             editmode={true}
+                            transport_method={attraction.transport_method} // 傳遞交通方式
                         />
                     ))}
                 </Suspense>

@@ -20,7 +20,7 @@ const Schedule_include = sequelize.define('Schedule_include', {
     sequence: { type: DataTypes.INTEGER, allowNull: false },
 
     //transportation type(1:car,2:bicycle,3:public,4:walk)
-    transport: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true },
+    transport_method: { type: DataTypes.INTEGER, allowNull: false},
 
 }, {
   tableName: 'Schedule_include',

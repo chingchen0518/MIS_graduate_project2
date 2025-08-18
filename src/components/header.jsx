@@ -23,7 +23,7 @@ function Header() {
     if (user) {
         console.log('已登入使用者：', user.name, '，ID:', user.id);
     } else {
-        console.log('尚未登入');
+        // console.log('尚未登入');
     }
 
   const pad = (n) => (n < 10 ? '0' + n : n);

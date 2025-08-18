@@ -4,11 +4,8 @@ import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId }) => {
-    // if(editmode){
-    //     console.log("name:", name,"aId:", a_id,"nextAid",nextAId);
-    // }
-    //state
+const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method}) => {
+    
     const [heightEdit, setheightEdit] = React.useState(35); // 初始高度
     const [x, setX] = React.useState(position.x); // 初始 X 座標
     const [y, setY] = React.useState(position.y); // 初始 Y 座標
@@ -96,6 +93,7 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
                     borderRadius: '5px',
                     padding: '10px',
                     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+                    zIndex: 2,
                     // opacity: isDragging ? 0.5 : 1,
                     cursor: editable ? 'move' : 'default',
                     boxSizing: 'border-box',
@@ -130,6 +128,8 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
                 a_id={a_id}
                 nextAId={nextAId ? nextAId : (draggingAId ? draggingAId : null)}
                 editmode={editmode}
+                transport_method={transport_method}
+                getTransportMethod={getTransportMethod}
             />
 
         </Rnd>

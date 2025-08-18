@@ -1702,7 +1702,25 @@ app.post('/api/update-stage-date', (req, res) => {
   });
 });
 
-
+app.get('/api/user/:uid', (req, res) => {
+  const { uid } = req.params;
+  const sql = `
+    SELECT *
+    FROM User
+    WHERE u_id = ?
+    LIMIT 1
+  `;
+  connection.query(sql, [uid], (err, results) => {
+    if (err) {
+      console.error('❌ 查詢使用者失敗：', err.message);
+      return res.status(500).json({ error: '伺服器錯誤' });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: '找不到該使用者' });
+    }
+    res.json(results[0]);
+  });
+});
 
 app.listen(3001, () => {
   console.log('Server is running on port 3001');

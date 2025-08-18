@@ -17,6 +17,10 @@ const initialHistory = [
 function Profile() {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user'));
+    const [profile, setProfile] = useState(null);
+    const [editing, setEditing] = useState(false);
+    const [form, setForm] = useState(user);
+    const [history] = useState(initialHistory);
 
     useEffect(() => {
         if (!user) {
@@ -27,14 +31,13 @@ function Profile() {
         }
     }, [user, navigate]);
 
-    const [profile, setProfile] = useState(user);
-    const [editing, setEditing] = useState(false);
-    const [form, setForm] = useState(user);
-    const [history] = useState(initialHistory);
-
-    if (!profile) {
-        return <div>尚未登入，正在跳轉中...</div>;
-    }
+    useEffect(() => {
+        if (user?.uid) {
+            fetch(`/api/user/${user.uid}`)
+                .then(res => res.json())
+                .then(data => setProfile(data));
+        }
+    }, [user]);
 
     const handleEdit = () => setEditing(true);
     const handleCancel = () => {
@@ -73,7 +76,7 @@ function Profile() {
                     <div className="profile-card-horizontal">
                         <div className="profile-avatar-outer">
                             <div className="profile-avatar-section-horizontal">
-                                <img src={`/img/avatar/${profile.img}`} alt="頭貼" className="profile-avatar-horizontal" />
+                                <img src={`/img/avatar/${profile.u_img}`} alt="頭貼" className="profile-avatar-horizontal" />
                             </div>
                         </div>
 
@@ -146,15 +149,15 @@ function Profile() {
                                 <div className="profile-info-horizontal">
                                     <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faUser} />
-                                        <span>UID：{profile.id}</span>
+                                        <span>UID：{profile.u_id}</span>
                                     </div>
                                     <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faEnvelope} />
-                                        <span>信箱：{profile.email}</span>
+                                        <span>信箱：{profile.u_email}</span>
                                     </div>
                                     <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faAddressCard} />
-                                        <span>帳號：{profile.account}</span>
+                                        <span>帳號：{profile.u_account}</span>
                                     </div>
                                     <div className="input-with-icon">
                                         <FontAwesomeIcon icon={faKey} />

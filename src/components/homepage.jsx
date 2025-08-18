@@ -4,7 +4,7 @@ import './homepage.css';
 const HomePage = () => {
   const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
-        console.log('已登入使用者：', user.name, ',ID:', user.id);
+        console.log('已登入使用者：', user.name, ',ID:', user.uid);
     } else {
         console.log('尚未登入');
     }

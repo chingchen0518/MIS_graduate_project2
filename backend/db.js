@@ -737,7 +737,7 @@ app.post('/api/view3_login', (req, res) => {
       message: '登入成功！',
       redirect: '/header',
       user: {
-        id: user.u_id,
+        uid: user.u_id,
         img: user.u_img,
         name: user.u_name,
         email: user.u_email,

@@ -4,6 +4,7 @@ import './header.css';
 
 function Header() {
   const user = JSON.parse(localStorage.getItem('user'));
+  const trip = JSON.parse(localStorage.getItem('trip'));
   const navigate = useNavigate();
   const [stage, setStage] = useState(1);
   const [deadline, setDeadline] = useState('');
@@ -13,8 +14,8 @@ function Header() {
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState('');
 
-  const [tripId, setTripId] = useState(1);
-  const [tripTitle, setTripTitle] = useState('');
+  const [tripId, setTripId] = useState(trip.tid);
+  const [tripTitle, setTripTitle] = useState(trip.title);
 
   const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
 

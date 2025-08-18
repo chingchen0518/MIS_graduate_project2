@@ -185,12 +185,12 @@ function Profile() {
                                             onClick={() => {
                                                 // 存入最新的 trip 資料
                                                 localStorage.setItem('trip', JSON.stringify({
-                                                    t_id: trip.t_id,
+                                                    tid: trip.t_id,
                                                     title: trip.title,
                                                     stage: trip.stage,
                                                     s_date: trip.s_date
                                                 }));
-                                                // 你可以選擇導頁，例如 navigate('/TripDetail')
+                                                navigate('/header');
                                             }}
                                         >
                                             {trip.title}

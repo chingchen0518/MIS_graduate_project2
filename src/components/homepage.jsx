@@ -10,7 +10,7 @@ const HomePage = () => {
         console.log('尚未登入');
     }
     if (trip) {
-        console.log('已登入行程：', trip.title, ',ID:', trip.stage, ',開始日期:', trip.s_date);
+        console.log('已登入行程：', trip.title, ',stage:', trip.stage, ',開始日期:', trip.s_date);
     } else {
         console.log('尚未參與行程');
     }

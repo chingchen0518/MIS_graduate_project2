@@ -55,7 +55,7 @@ const Login = () => {
 
                 // 使用 React Router 導頁
                 setTimeout(() => {
-                    navigate(data.redirect || '/');
+                    navigate(data.redirect || '/profile');
                 }, 1500);
             } else {
                 setError(data.message || '登入失敗！');

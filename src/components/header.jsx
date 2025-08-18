@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './header.css';
 
 function Header() {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const trip = JSON.parse(localStorage.getItem('trip')) || {};
+  const navigate = useNavigate();
   const [stage, setStage] = useState(1);
   const [deadline, setDeadline] = useState('');
   const [now, setNow] = useState(new Date());
@@ -9,9 +13,8 @@ function Header() {
 
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState('');
-
-  const [tripId, setTripId] = useState(1);
-  const [tripTitle, setTripTitle] = useState('');
+  const [tripId, setTripId] = useState(trip.tid || 1);//之後要修改
+  const [tripTitle, setTripTitle] = useState(trip.title);
 
   const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
 
@@ -19,12 +22,6 @@ function Header() {
     const stageOrder = { A: 1, B: 2, C: 3, D: 4, E: 5 };
     return stageOrder[stage] || 1;
   };
-  const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-        console.log('已登入使用者：', user.name, '，ID:', user.id);
-    } else {
-        console.log('尚未登入');
-    }
 
   const pad = (n) => (n < 10 ? '0' + n : n);
 
@@ -140,6 +137,16 @@ function Header() {
       <div className="header-icon">
         <img src="img/logo.jpg" className="header-icon-img" alt="logo" />
       </div>
+      {/* <div className="header-icon">
+        <button
+          className="header-icon-btn"
+          style={{ border: 'none', background: 'none', padding: 0, cursor: 'pointer' }}
+          onClick={() => navigate('/Profile')}
+        >
+          <img src={`/img/avatar/${user.img}`} className="header-icon-img" alt="logo" />
+        </button>
+      </div> */}
+
 
       {showModal && (
         <div className="modal">

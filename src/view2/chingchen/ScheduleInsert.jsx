@@ -164,7 +164,14 @@ const ScheduleInsert = ({
         console.log('🚖目前選擇的交通方式:', value);
     };
 
-    //function 8:顯示某個景點的營業時間
+    // function8:AI
+    const AIgenerateSchedule = () => {
+        // AI生成行程的邏輯
+        
+    };
+
+
+    //function 9:顯示某個景點的營業時間
     const showOperatingTime = () => {
         //還沒收到前面的時間
     };

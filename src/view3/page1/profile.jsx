@@ -39,6 +39,11 @@ function Profile() {
         }
     }, [user]);
 
+    
+    if (!profile) {
+        return <div>尚未登入，正在跳轉中...</div>;
+    }
+
     const handleEdit = () => setEditing(true);
     const handleCancel = () => {
         setEditing(false);

@@ -4,7 +4,7 @@ import './header.css';
 
 function Header() {
   const user = JSON.parse(localStorage.getItem('user'));
-  const trip = JSON.parse(localStorage.getItem('trip'));
+const trip = JSON.parse(localStorage.getItem('trip')) || {};
   const navigate = useNavigate();
   const [stage, setStage] = useState(1);
   const [deadline, setDeadline] = useState('');

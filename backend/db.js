@@ -1618,6 +1618,60 @@ app.get('/api/view3_trip_budget_range/:t_id', (req, res) => {
     });
   });
 });
+app.get('/api/trip/:id', (req, res) => {
+  const tripId = req.params.id;
+
+  if (!tripId) {
+    return res.status(400).json({ message: '缺少旅程 ID' });
+  }
+
+  const sql = `
+    SELECT *,
+      DATE_FORMAT(stage_date, "%Y-%m-%d %H:%i:%s") AS stage_date_str
+    FROM trip
+    WHERE t_id = ? LIMIT 1
+  `;
+
+  connection.query(sql, [tripId], (err, results) => {
+    if (err) {
+      console.error('❌ 查詢錯誤：', err.message);
+      return res.status(500).json({ message: '伺服器錯誤' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: '找不到該旅程資料' });
+    }
+
+    const trip = results[0];
+
+    // 分解 stage_date_str
+    const [datePart, timePart] = trip.stage_date_str.split(' '); // e.g. "2025-08-14" "12:00:00"
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute, second] = timePart.split(':').map(Number);
+
+    // 分解 trip.time
+    const [addH, addM, addS] = trip.time.split(':').map(Number);
+
+    // 直接加上時間
+    const deadline = new Date(year, month - 1, day, hour, minute, second);
+    deadline.setHours(deadline.getHours() + addH);
+    deadline.setMinutes(deadline.getMinutes() + addM);
+    deadline.setSeconds(deadline.getSeconds() + addS);
+
+    // 格式化 deadline
+    const two = n => (n < 10 ? '0' + n : n);
+    const deadlineStr = `${deadline.getFullYear()}-${two(deadline.getMonth() + 1)}-${two(deadline.getDate())} ${two(deadline.getHours())}:${two(deadline.getMinutes())}:${two(deadline.getSeconds())}`;
+
+    res.status(200).json({
+      tripId: trip.t_id,
+      tripTitle: trip.title,
+      stage: trip.stage,
+      stage_date: trip.stage_date_str, // 原始資料
+      time: trip.time,
+      deadline: deadlineStr // ✅ 直接計算好的時間
+    });
+  });
+});
 
 app.post('/api/update-stage-date', (req, res) => {
   const { tripId, stage_date } = req.body; // 前端傳的 deadline 字串放到 stage_date

@@ -4,10 +4,14 @@ import './schedule.css';
 import ScheduleItem from './ScheduleItem.jsx'; // 引入 ScheduleItem 組件
 
 const ScheduleShow = (props) => {
+    
     // state
     const [attractions, setAttractions] = useState(props.initialAttractions || []); //景點
     const [scheduleItems, setScheduleItems] = useState([]);
     const [scheduleWidths, setScheduleWidths] = useState(0);
+    
+    var HourIntervalHeight = props.intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
+
 
     // useEffect 1：計算schedule_item需要的寬度
     useEffect(() => {
@@ -107,6 +111,7 @@ const ScheduleShow = (props) => {
                 {scheduleItems.map((scheduleItem) => (
                     <ScheduleItem
                         key={`schedule-item-${scheduleItem.id}-${scheduleItem.a_id}`}
+                        a_id={scheduleItem.a_id}
                         s_id={scheduleItem.id}
                         name={scheduleItem.name}
                         position={{ x: scheduleItem.x, y: scheduleItem.y }} // x和y的位置，傳入object
@@ -114,7 +119,7 @@ const ScheduleShow = (props) => {
                         height={scheduleItem.height} // 使用從資料庫獲取的高度
                         editable={false} // 不可編輯
                         intervalHeight={props.intervalHeight}
-                        nextAId={attractions.find(a => a.sequence === attraction.sequence + 1)?.a_id ?? null}
+                        nextAId={scheduleItems.find(a => a.sequence === scheduleItem.sequence + 1)?.a_id ?? null}
 
                     />
                 ))}

@@ -3,10 +3,16 @@ import './homepage.css';
 
 const HomePage = () => {
   const user = JSON.parse(localStorage.getItem('user'));
+  const trip = JSON.parse(localStorage.getItem('trip'));
     if (user) {
         console.log('已登入使用者：', user.name, ',ID:', user.uid);
     } else {
         console.log('尚未登入');
+    }
+    if (trip) {
+        console.log('已登入行程：', trip.title, ',ID:', trip.stage, ',開始日期:', trip.s_date);
+    } else {
+        console.log('尚未參與行程');
     }
   return (
 

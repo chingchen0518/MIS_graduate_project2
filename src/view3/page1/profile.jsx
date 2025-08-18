@@ -4,23 +4,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faAddressCard, faEdit, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
-const initialHistory = [
-    { "id": 1, "title": "台中藝術文化之旅", "date": "2024-06-15" },
-    { "id": 2, "title": "墾丁海邊假期", "date": "2024-06-05" },
-    { "id": 3, "title": "台南古蹟巡禮", "date": "2024-05-20" },
-    { "id": 4, "title": "宜蘭溫泉放鬆", "date": "2024-05-12" },
-    { "id": 5, "title": "新竹科學園區探索", "date": "2024-04-25" },
-    { "id": 6, "title": "澎湖海島冒險", "date": "2024-04-18" },
-    { "id": 7, "title": "小琉球海島冒險", "date": "2024-04-15" }
-];
-
 function Profile() {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user'));
+    const trip = JSON.parse(localStorage.getItem('trip')) || null;
     const [profile, setProfile] = useState(null);
     const [editing, setEditing] = useState(false);
     const [form, setForm] = useState(user);
-    const [history] = useState(initialHistory);
 
     useEffect(() => {
         if (!user) {
@@ -39,7 +29,6 @@ function Profile() {
         }
     }, [user]);
 
-    
     if (!profile) {
         return <div>尚未登入，正在跳轉中...</div>;
     }
@@ -180,20 +169,36 @@ function Profile() {
                             )}
                         </div>
                     </div>
+
                     <div className="profile-history-card">
                         <div className="profile-history-title">
-                            <FontAwesomeIcon icon={faHistory} /> 歷史紀錄
+                            <FontAwesomeIcon icon={faHistory} /> 參加過的行程
                         </div>
                         <ul className="profile-history-list">
-                            {history.length === 0 ? (
-                                <li className="profile-history-empty">目前沒有參加過的行程</li>
-                            ) : (
-                                history.map(item => (
-                                    <li key={item.id} className="profile-history-item">
-                                        <span className="profile-history-date">{item.date}</span>
-                                        <span className="profile-history-title">{item.title}</span>
+                            {profile.trips && profile.trips.length > 0 ? (
+                                profile.trips.map(trip => (
+                                    <li key={trip.t_id} className="profile-history-item">
+                                        <span className="profile-history-date">{trip.s_date}</span>
+                                        <button
+                                            className="profile-history-title"
+                                            style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0 }}
+                                            onClick={() => {
+                                                // 存入最新的 trip 資料
+                                                localStorage.setItem('trip', JSON.stringify({
+                                                    t_id: trip.t_id,
+                                                    title: trip.title,
+                                                    stage: trip.stage,
+                                                    s_date: trip.s_date
+                                                }));
+                                                // 你可以選擇導頁，例如 navigate('/TripDetail')
+                                            }}
+                                        >
+                                            {trip.title}
+                                        </button>
                                     </li>
                                 ))
+                            ) : (
+                                <li className="profile-history-empty">目前沒有參加過的行程</li>
                             )}
                         </ul>
                     </div>

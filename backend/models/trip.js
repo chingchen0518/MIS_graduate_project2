@@ -15,9 +15,5 @@ const Trip = sequelize.define('Trip', {
     color:       { type: DataTypes.STRING, allowNull: true },
     UserUId:     { type: DataTypes.INTEGER, allowNull: true },
     CreatorUId:  { type: DataTypes.INTEGER, allowNull: true }
-}, {
-    tableName: 'Trip',
-    timestamps: false,
-});
 
 export default Trip;

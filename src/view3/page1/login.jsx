@@ -7,13 +7,11 @@ import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const user = JSON.parse(localStorage.getItem('user'));
-
     if (user) {
-        console.log('已登入使用者：', user.name, '，ID:', user.id);
+        console.log('已登入使用者：', user.name, '，ID:', user.uid);
     } else {
         console.log('尚未登入');
     }
-    
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -57,7 +55,7 @@ const Login = () => {
 
                 // 使用 React Router 導頁
                 setTimeout(() => {
-                    navigate(data.redirect || '/');
+                    navigate(data.redirect || '/profile');
                 }, 1500);
             } else {
                 setError(data.message || '登入失敗！');

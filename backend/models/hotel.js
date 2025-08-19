@@ -3,13 +3,17 @@ import { sequelize } from '../db_settings.js';
 
 const Hotel = sequelize.define('Hotel', {
     h_id:       { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    h_img:      { type: DataTypes.STRING, allowNull: true },
-    h_address:  { type: DataTypes.STRING, allowNull: true },
-    h_name_zh:  { type: DataTypes.STRING, allowNull: false },
-    h_name_en:  { type: DataTypes.STRING, allowNull: false },
-    h_country:  { type: DataTypes.STRING, allowNull: false },
-    h_city:     { type: DataTypes.STRING, allowNull: false },
-    price:      { type: DataTypes.FLOAT, allowNull: true }
+    name_zh:    { type: DataTypes.STRING(255), allowNull: true },
+    name:       { type: DataTypes.STRING(255), allowNull: true },
+    address:    { type: DataTypes.STRING(255), allowNull: true },
+    country:    { type: DataTypes.STRING(255), allowNull: true },
+    city:       { type: DataTypes.STRING(255), allowNull: true },
+    cin_time:   { type: DataTypes.STRING(255), allowNull: true },
+    cout_time:  { type: DataTypes.STRING(255), allowNull: true },
+    rate:       { type: DataTypes.STRING(255), allowNull: true },
+    price:      { type: DataTypes.INTEGER,    allowNull: true },
+    description:{ type: DataTypes.TEXT,       allowNull: true },
+    image_url:  { type: DataTypes.STRING(500),allowNull: true },
 }, {
     tableName: 'Hotel',
     timestamps: false,

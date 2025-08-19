@@ -2,47 +2,96 @@ import React, { useState } from "react";
 import "./DiceSelector.css";
 
 const DiceSelector = () => {
-  // 寫死的平手行程（瑞士景點英文）
-  const tiedTrips = [
+  // 仍用瑞士景點做最後結果，但不顯示左邊清單
+  const candidates = [
     "Matterhorn",
     "Jungfraujoch",
     "Lake Geneva",
     "Chapel Bridge",
-    "Rhine Falls"
+    "Rhine Falls",
   ];
 
   const [result, setResult] = useState(null);
   const [rolling, setRolling] = useState(false);
+  const [face, setFace] = useState(1); // 1~6，控制骰子朝向
 
   const rollDice = () => {
+    if (rolling) return;
+
     setRolling(true);
+    // 隨機出一個 1~6 的面
+    const nextFace = Math.floor(Math.random() * 6) + 1;
+
+    // 動畫跑 1.2 秒後停在對應的面，並選出結果
     setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * tiedTrips.length);
-      setResult(tiedTrips[randomIndex]);
+      setFace(nextFace);
+      const winner = candidates[(nextFace - 1) % candidates.length];
+      setResult(winner);
       setRolling(false);
-    }, 1000);
+    }, 1200);
   };
 
   return (
-    <div className="dice-container">
-      {/* 左邊：平手行程列表 */}
-      <div className="tied-trips">
-        <h2>Tied Trips</h2>
-        <ul>
-          {tiedTrips.map((trip, index) => (
-            <li key={index}>{trip}</li>
-          ))}
-        </ul>
-      </div>
+    <div className="dice-only-wrapper">
+      <div className="panel">
+        <div className="title">Final Tiebreak</div>
 
-      {/* 右邊：骰子區 */}
-      <div className="dice-area">
-        <button onClick={rollDice} disabled={rolling} className="roll-btn">
-          {rolling ? "Rolling..." : "Roll the Dice"}
-        </button>
+        <div className="dice-stage">
+          {/* 3D 骰子 */}
+          <div
+            className={`dice ${rolling ? "rolling" : `show-${face}`}`}
+            aria-label={`dice showing ${face}`}
+          >
+            <div className="face one">
+              <span className="pip center" />
+            </div>
+            <div className="face two">
+              <span className="pip tl" />
+              <span className="pip br" />
+            </div>
+            <div className="face three">
+              <span className="pip tl" />
+              <span className="pip center" />
+              <span className="pip br" />
+            </div>
+            <div className="face four">
+              <span className="pip tl" />
+              <span className="pip tr" />
+              <span className="pip bl" />
+              <span className="pip br" />
+            </div>
+            <div className="face five">
+              <span className="pip tl" />
+              <span className="pip tr" />
+              <span className="pip center" />
+              <span className="pip bl" />
+              <span className="pip br" />
+            </div>
+            <div className="face six">
+              <span className="pip tl" />
+              <span className="pip ml" />
+              <span className="pip bl" />
+              <span className="pip tr" />
+              <span className="pip mr" />
+              <span className="pip br" />
+            </div>
+          </div>
+        </div>
+
+        <div className="controls">
+          <button
+            className="roll-btn"
+            onClick={rollDice}
+            disabled={rolling}
+            title="Roll the dice"
+          >
+            {rolling ? "Rolling..." : "Roll the Dice"}
+          </button>
+        </div>
+
         {result && (
-          <div className="result">
-            🎉 Final Choice: <strong>{result}</strong>
+          <div className="result-badge">
+            🎉 Final Choice:&nbsp;<strong>{result}</strong>
           </div>
         )}
       </div>

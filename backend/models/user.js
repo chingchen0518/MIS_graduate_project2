@@ -8,7 +8,8 @@ const User = sequelize.define('User', {
     u_email:    { type: DataTypes.STRING, allowNull: false },
     u_password: { type: DataTypes.STRING, allowNull: false },
     u_account:  { type: DataTypes.STRING, allowNull: false },
-    u_line_id:  { type: DataTypes.STRING, allowNull: true }
+    u_line_id:  { type: DataTypes.STRING, allowNull: true },
+    into_trip:  { type: DataTypes.INTEGER, allowNull: true }
 }, {
     tableName: 'User',
     timestamps: false,

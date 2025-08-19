@@ -8,7 +8,27 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // import DragAndDropExample2 from './view2/chingchen/DragAndDropExample2.jsx';
 import MyRndList from './view2/chingchen/test_MyRndList.jsx';
 import ResizableBox from './view2/chingchen/ResizableBox.jsx';
-//==========================================================================
+
+
+//==============================view 1==================================
+import Part1 from './view1/part1.jsx';
+import Part2 from './view1/part2.jsx';
+import TripList from './view1/tripList.jsx';
+import TravelGantt from './view1/test.jsx';         // test.jsx 預設輸出 TravelGantt
+/*
+import { Toaster } from 'react-hot-toast';     // 給 part2 的 toast
+// ③ 因為 Part2 需要 tripId / country 兩個 props，做一個小包裝 Route 元件
+
+import { useParams, useSearchParams } from 'react-router-dom';
+const Part2Route = () => {
+    const { tId } = useParams();
+    const [sp] = useSearchParams();
+    const country = sp.get('country') || '瑞士'; // /part2/123?country=瑞士
+    return <Part2 tripId={Number(tId)} country={country} />;
+};
+*/
+
+
 
 //==============================view 2==================================
 import InteractiveMap from './view2/Liu/map/InteractiveMap.jsx'
@@ -27,8 +47,10 @@ import Signin from './view3/page1/signin.jsx';
 import ForgotPassword from './view3/page1/forgotpassword.jsx';
 import Logout from './view3/page1/logout.jsx';
 import Profile from './view3/page1/profile.jsx';
-// import Page2 from './view3/page2/page2.jsx';
-// import Page3 from './view3/page3/Page3.jsx';
+import Page2 from './view3/page2/page2.jsx';
+
+import Page3 from './view3/page3/Page3.jsx';
+
 //=====================================================================
 import HomePage from './components/homepage.jsx'
 import Header from './components/header.jsx'
@@ -44,14 +66,23 @@ function App() {
     return (
         <MyContext.Provider value={{ hourInterval, setHourInterval }}>
             <Router>
+                {/* <Toaster position="top-center" /> */}
+
                 <Routes>
                     <Route path="/" element={<HomePage />} />
+                    
+                    <Route path="/part1" element={<Part1 />} />
+                    {/* <Route path="/part2/:tId" element={<Part2Route />} /> */}
+                    <Route path="/trips" element={<TripList />} />
+                    <Route path="/gantt" element={<TravelGantt />} />
+
                     <Route path="/AttractionContainer" element={<AttractionContainer />} />
                     <Route path="/map" element={<InteractiveMap />} />
                     <Route path="/page1" element={<Page1 />} />
+                    <Route path="/page2" element={<Page2 />} />
 
-                    {/* <Route path="/page2" element={<Page2 />} />
-                    <Route path="/page3" element={<Page3 />} /> */}
+                    <Route path="/page3" element={<Page3 />} /> 
+
                     <Route path="/header" element={<Header />} />
                     {/* <Route path="/attraction" element={<AttractionContainer />} /> */}
                     <Route path="/MapDisplay" element={<MapDisplay />} />

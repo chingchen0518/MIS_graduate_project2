@@ -1,13 +1,11 @@
 
 import React, { useState } from "react";
-import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: 'AIzaSyCwl0J0v-7AUXevBNQZZEnwVIiq-dndFV4' });
-
-const RecommendTrip = () => {
+const TEST_API_GPT = () => {
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [elapsed, setElapsed] = useState(null);
+  const [attractions, setAttractions] = useState([]);
 
   // 获取景点列表
   const fetchAttractions = async () => {
@@ -15,6 +13,7 @@ const RecommendTrip = () => {
     if (!res.ok) throw new Error("无法获取景点数据");
     return await res.json();
   };
+
 
   // 组装prompt，只让AI从所有景点中挑选5~8个适合一天行程的景点
   const buildPrompt = (attractions) => {
@@ -30,6 +29,27 @@ const RecommendTrip = () => {
     );
   };
 
+  // 封装AI请求为独立函数
+  async function fetchAITripRecommendation(prompt) {
+    const openrouterRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer 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",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-oss-20b:free",
+        messages: [
+          { role: "system", content: "你是一位專業的台灣旅遊行程規劃師。" },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7
+      })
+    });
+    const openrouterData = await openrouterRes.json();
+    return openrouterData.choices?.[0]?.message?.content || JSON.stringify(openrouterData);
+  }
+
   // 直接显示AI回传的原始内容
   const showRawAIResponse = (text) => text;
 
@@ -39,15 +59,28 @@ const RecommendTrip = () => {
     setElapsed(null);
     const start = Date.now();
     try {
+      // 先讀取資料庫內容
       const attractions = await fetchAttractions();
+      // 組 prompt
       const prompt = buildPrompt(attractions);
-      const res = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-      });
-      const text = res.text || JSON.stringify(res);
-  // 直接显示AI回传的原始内容
-  setResponse(showRawAIResponse(text));
+      // 呼叫AI
+      const text = await fetchAITripRecommendation(prompt);
+      setResponse(showRawAIResponse(text));
+      // 解析AI回傳的JSON結果
+      try {
+        // 提取第一個 [ ... ] 區塊
+        const match = text.match(/\[([\s\S]*?)\]/);
+        let arr = [];
+        if (match) {
+          arr = JSON.parse(match[0]);
+        } else {
+          arr = JSON.parse(text);
+        }
+        setAttractions(arr);
+        console.log('AI推薦行程:', arr);
+      } catch (e) {
+        console.warn('解析AI回傳行程失敗', e);
+      }
     } catch (err) {
       setResponse("Error: " + err.message);
     }
@@ -75,4 +108,4 @@ const RecommendTrip = () => {
   );
 };
 
-export default RecommendTrip;
+export default TEST_API_GPT;

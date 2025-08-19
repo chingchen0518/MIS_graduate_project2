@@ -56,6 +56,7 @@ import HomePage from './components/homepage.jsx'
 import Header from './components/header.jsx'
 import './App.css';
 import GeminiChat from './view2/chingchen/TEST API';
+import TEST_API_GPT from './view2/chingchen/TEST_API_GPT';
 
 //create context
 export const MyContext = createContext();
@@ -95,6 +96,7 @@ function App() {
                     <Route path="/ResizableBox" element={<ResizableBox />} />
                     <Route path="/MyRndList" element={<MyRndList />} />
                     <Route path="/TEST_API" element={<GeminiChat />} />
+                    <Route path="/TEST_API_GPT" element={<TEST_API_GPT />} />
                 </Routes>
             </Router>
         </MyContext.Provider>

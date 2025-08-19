@@ -190,17 +190,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
                     title={schedule.title}
                     day={schedule.day}
                     intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
-                    
-                    // scheduleId={schedule.s_id}
-                    // scheduleData={schedule}
-                    // initialAttractions={schedule.attractions}
-                    // isFirst={false}
-                    // isDraft={schedule.isDraft}
                     containerHeight={timeColumnHeight}
-                    // usedAttractions={usedAttractions}
-                    // onAttractionUsed={handleAttractionUsed}
-                    // onScheduleConfirm={handleScheduleConfirm}
-                    // onScheduleCancel={handleScheduleCancel}
                 />
             ))
             )}

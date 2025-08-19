@@ -23,7 +23,7 @@ function Header() {
     return stageOrder[stage] || 1;
   };
 
-  const user = JSON.parse(localStorage.getItem('user'));
+//   const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
         console.log('已登入使用者：', user.name, '，ID:', user.id);
     } else {

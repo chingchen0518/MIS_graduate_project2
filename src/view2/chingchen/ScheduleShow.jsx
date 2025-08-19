@@ -120,7 +120,7 @@ const ScheduleShow = (props) => {
                         editable={false} // 不可編輯
                         intervalHeight={props.intervalHeight}
                         nextAId={scheduleItems.find(a => a.sequence === scheduleItem.sequence + 1)?.a_id ?? null}
-
+                        transport_method={scheduleItem.transport_method}
                     />
                 ))}
             </div>

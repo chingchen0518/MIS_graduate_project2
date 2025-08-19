@@ -11,19 +11,7 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
     const [y, setY] = React.useState(position.y); // 初始 Y 座標
     //variables
     var draggingAId = null;
-    // const [{ isDragging }, dragRef] = useDrag({
-    //     type: "schedule_item",
-    //     item: { 
-    //     name, 
-    //     index, 
-    //     s_id,
-    //     originalPosition: position 
-    //     },
-    //     canDrag: editable, // 根據 editable 決定是否可以拖拽
-    //     collect: (monitor) => ({
-    //     isDragging: monitor.isDragging(),
-    //     }),
-    // });
+    
     //獲取目前拖拽中的物件的aId
     if(editmode){
         const { item: draggingItem, isDragging } = useDragLayer((monitor) => ({
@@ -59,13 +47,15 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
 
     const handleStyle = {
         height: '8px',
-        width: '20%',
+        width: '15%',
         marginLeft: '40%',
+        // marginTop: '8px',
 
         border: '1px solid black',
         background: '#f0f0f0',
         borderRadius: '5px',
         cursor: 'ns-resize',
+        zIndex: 3,
     };
 
     
@@ -93,7 +83,7 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
                     borderRadius: '5px',
                     padding: '10px',
                     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-                    zIndex: 2,
+                    zIndex: 100,
                     // opacity: isDragging ? 0.5 : 1,
                     cursor: editable ? 'move' : 'default',
                     boxSizing: 'border-box',

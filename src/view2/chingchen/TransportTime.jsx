@@ -188,7 +188,7 @@ const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,ne
     };
 
     return (
-        <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly', position: 'relative', zIndex: 20 }}>
+        <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly', position: 'relative', zIndex: 1 }}>
           <TransportBar type="car" value={barValues.car} color="#ff914d" height={transport.car * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 1} a_id={a_id}/>
           <TransportBar type="bicycle" value={barValues.bicycle} color="#65cdca" height={transport.bicycle * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 2} a_id={a_id}/>
           <TransportBar type="bus" value={barValues.bus} color="#428cef" height={transport.bus * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 3} a_id={a_id}/>

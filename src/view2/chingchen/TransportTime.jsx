@@ -77,36 +77,53 @@ const TransportBar = ({ a_id,type, value, color, height, unit = '分鐘', onBarC
         <div
             className={`transport_method ${type}`}
             style={{
-                height: `${height}px`,
-                backgroundColor: color,
-                width: '10%',
-                position: 'relative',
-                cursor: value > 0 ? 'pointer' : 'default',
-                // borderRadius: 4,
-                margin: '0 2px',
-                opacity: selected ? 1 : 0.2
-            }}
-            onMouseEnter={() => value > 0 && setShowTip(true)}
-            onMouseLeave={() => setShowTip(false)}
-            onClick={handleBarClick}
+                    height: `${height}px`,
+                    // backgroundColor: color,
+                    width: '10%',
+                    position: 'relative',
+                    cursor: value > 0 ? 'pointer' : 'default',
+                    margin: '0 2px',
+                }}
+                onMouseEnter={() => value > 0 && setShowTip(true)}
+                onMouseLeave={() => setShowTip(false)}
+                onClick={handleBarClick}
         >
+            {/* bar */}
+            <div
+                className={`bar`}
+                style={{
+                    height: `${height}px`,
+                    backgroundColor: color,
+                    width: '100%',
+                    position: 'relative',
+                    cursor: value > 0 ? 'pointer' : 'default',
+                    margin: '0 2px',
+                    opacity: selected ? 1 : 0.2
+                }}
+            >
+            </div>
+
+            {/* tooltip */}
             {showTip && value > 0 && (
-                        <div style={{
-                            position: 'absolute',
-                            top: -28,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            background: '#222',
-                            color: '#fff',
-                            padding: '2px 8px',
-                            borderRadius: 4,
-                            fontSize: 13,
-                            whiteSpace: 'nowrap',
-                            zIndex: 100
-                        }}>
+                <div style={{
+                    position: 'absolute',
+                    top: -28,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: '#222',
+                    color: '#fff',
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    fontSize: 13,
+                    whiteSpace: 'nowrap',
+                    zIndex: 100,
+                    opacity: 1
+
+                }}>
                     {value}m
                 </div>
             )}
+
         </div>
     );
 };

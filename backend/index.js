@@ -12,6 +12,7 @@ import TripHotel from './models/tripHotel.js';
 // import ScheduleItem from './models/schedule_item.js';
 import Schedule_include from './models/schedule_include.js';
 import TransportTime from './models/transportTime.js';
+import ReAttraction from './models/re_attractions.js';
 
 Trip.hasMany(Attraction, { foreignKey: 't_id' });
 Attraction.belongsTo(Trip, { foreignKey: 't_id' });
@@ -67,6 +68,15 @@ Attraction.hasMany(TransportTime, { foreignKey: 'to_a_id', as: 'IncomingTranspor
 TransportTime.belongsTo(Schedule, { foreignKey: 's_id' });
 Schedule.hasMany(TransportTime, { foreignKey: 's_id' });
 
+// ReAttraction 與 Attraction 的關聯
+ReAttraction.belongsTo(Attraction, { foreignKey: 'a_id' });
+Attraction.hasMany(ReAttraction, { foreignKey: 'a_id' });
+
+// ReAttraction 與 Trip 的關聯
+ReAttraction.belongsTo(Trip, { foreignKey: 't_id' });
+Trip.hasMany(ReAttraction, { foreignKey: 't_id' });
+
+
 
 export {
   Attraction,
@@ -82,5 +92,6 @@ export {
   Hotel,
   TripHotel,
 //   ScheduleItem,
-  TransportTime
+  TransportTime,
+  ReAttraction
 };

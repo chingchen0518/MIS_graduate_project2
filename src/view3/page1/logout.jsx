@@ -6,6 +6,7 @@ const Logout = () => {
 
   useEffect(() => {
     localStorage.removeItem('user'); // 清除登入資料
+    localStorage.removeItem('trip'); // 清除行程資料
     navigate('/login');              // 自動導向回登入頁
   }, [navigate]);
 

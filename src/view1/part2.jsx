@@ -1,4 +1,3 @@
-// part2.jsx
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
@@ -6,11 +5,8 @@ import axios from 'axios';
 import './part2.css';
 import Treemap from './treemap.jsx';
 
-/* hooks */
-import { useSlider }  from './slider';     // ./slider.js
-import { useResizer } from './resize01';   // ./resize01.js
+import { useSlider }  from './slider';
 
-// 後端資料用的是英文國名，這裡做對照
 const COUNTRY_MAP = { '瑞士': 'Switzerland', '日本': 'Japan', '台灣': 'Taiwan' };
 
 /* ───────────────── Segmented Switch（景點投票人數 / 偏好程度） ───────────────── */
@@ -28,107 +24,437 @@ function SegSwitch({ value, onChange }) {
     const onKey = (e) => {
       if (e.key === 'ArrowLeft')  { e.preventDefault(); setLeft(); }
       if (e.key === 'ArrowRight') { e.preventDefault(); setRight(); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
     };
     el.addEventListener('keydown', onKey);
     return () => el.removeEventListener('keydown', onKey);
-  }, []);
+  }, [isRight, value]);
 
   return (
-    <div className="seg-switch" ref={ref} role="tablist" aria-label="排序切換" tabIndex={0}>
-      <span className={`seg ${!isRight ? 'active' : ''}`} role="tab" aria-selected={!isRight} onClick={setLeft}>
+    <div
+      className={`seg-switch ${isRight ? 'is-right' : 'is-left'}`}
+      ref={ref}
+      role="tablist"
+      aria-label="排序切換"
+      tabIndex={0}
+    >
+      <span
+        className={`seg ${!isRight ? 'active' : ''}`}
+        role="tab"
+        aria-selected={!isRight}
+        onClick={setLeft}
+      >
+        <svg className="seg-ico" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 20h3V10H4v10zm6 0h3V4h-3v16zm6 0h3v-7h-3v7z" />
+        </svg>
         景點投票人數
       </span>
-      <span className={`seg ${isRight ? 'active' : ''}`} role="tab" aria-selected={isRight} onClick={setRight}>
+
+      <span
+        className={`seg ${isRight ? 'active' : ''}`}
+        role="tab"
+        aria-selected={isRight}
+        onClick={setRight}
+      >
+        <svg className="seg-ico" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12.1 21.35l-1.1-1.02C5.4 15.36 2 12.28 2 8.5A4.5 4.5 0 0 1 6.5 4c1.74 0 3.41.81 4.5 2.09A6 6 0 0 1 22 8.5c0 3.78-3.4 6.86-8.9 11.83l-1 .92z" />
+        </svg>
         偏好程度
       </span>
-      <span className={`seg-indicator ${isRight ? 'right' : 'left'}`} aria-hidden="true" />
-      <button className="seg-hit" aria-label="切換排序" onClick={toggle} />
+
+      <span
+        className={`seg-indicator ${isRight ? 'right' : 'left'}`}
+        aria-hidden="true"
+      />
+      <button
+        className="seg-hit"
+        aria-label="切換排序"
+        onClick={toggle}
+        tabIndex={-1}
+      />
     </div>
   );
 }
 
+// ───────── 與 Treemap 一致的類別漸層色 ─────────
+function neonStops(cat) {
+  let startColor = '#ddd';
+  let endColor   = '#aaa';
+  switch ((cat || '').trim()) {
+    case 'Culture & Heritage': startColor = '#ffdfba'; endColor = '#ffbf69'; break;
+    case 'Scenic Spots':       startColor = '#bae1ff'; endColor = '#baffc9'; break;
+    case 'Transport Rides':    startColor = '#f9a1bc'; endColor = '#fbc4ab'; break;
+    case 'Discovery Spaces':   startColor = '#dcd6f7'; endColor = '#a6b1e1'; break;
+    case 'Public Squares':     startColor = '#c77dff'; endColor = '#ffd6ff'; break;
+  }
+  return { startColor, endColor };
+}
+
 export default function Part2({ tripId, country }) {
-  const [d3Data, setD3Data] = useState([]);              // Treemap 資料（依 picked 合併票數）
-  const [selectedItems, setSelectedItems] = useState([]); // Sidebar 顯示（由 treemap 點擊決定，最多 3 個）
-  const [activeUserId, setActiveUserId] = useState(null);
 
-  // 在 function Part2({ tripId, country }) 裡面：
-  const [fullD3Data, setFullD3Data] = useState([]);
-
-
-  const [commentsMap, setCommentsMap] = useState({});
-  const [expandedComments, setExpandedComments] = useState({});
-  const [commentModalOpen, setCommentModalOpen] = useState(false);
-
+  /* === const === */
   const fetchCtrl = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
-
-  /* ───────── Layout constants ───────── */
-  const { trackRef, thumbRef, prevRef, nextRef, stripRef, wrapRef } = useSlider();
-  const SB_MIN = 56;
-  const SB_MAX = 360;
-  const SB_COLLAPSE = 72;
-  const { sidebarRef } = useResizer(SB_MIN, SB_MAX, SB_COLLAPSE);
-
-  const allAvatars = Array.from({ length: 12 }, (_, i) => i + 1);
-  const firstAvatar = allAvatars[0];
-  const restAvatars = allAvatars.slice(1);
 
   /* ───────── Refs ───────── */
   const gridRef    = useRef(null);
   const topbarRef  = useRef(null);
   const chipbarRef = useRef(null);
 
-  /* ───────── Data states ───────── */
+  /* ───────── 讀取旅程標題 ───────── */
   const [tripTitle, setTripTitle] = useState('讀取中…');
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const [originAttractions, setOriginAttractions] = useState([]); // modal 原始清單（依 country）
-  const [attractions, setAttractions] = useState([]);             // modal 顯示清單
-  const [selected, setSelected] = useState(new Set());            // modal 勾選
-  const [picked, setPicked] = useState([]);                       // 使用者挑選完成後的清單（驅動 Treemap）
-
-  const [search, setSearch] = useState('');
-  const [manualMode, setManualMode] = useState(false);
-  const [form, setForm] = useState({
-    name_zh:'', name_en:'', category:'', address:'', budget:'', photo:''
-  });
-
-  /* ───────── 排序與分類（僅影響 Sidebar） ───────── */
-  const [sortKey, setSortKey] = useState('votes');  // 'votes' | 'pref'
-  const [categoryFilter, setCategoryFilter] = useState('ALL');
-  const [catOpen, setCatOpen] = useState(false);
-  const catBtnRef = useRef(null);
 
   /* ───────── 倒數計時 ───────── */
   const [secLeft, setSecLeft] = useState(19 * 60 + 28);
+  const hh = String(Math.floor(secLeft / 3600)).padStart(2, '0');
+  const mm = String(Math.floor((secLeft % 3600) / 60)).padStart(2, '0');
+  const ss = String(secLeft % 60).padStart(2, '0');
+
+  /* ───────── Refresh ───────── */
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 800);
+  };
+
+  /* ───────── Layout constants (Sidebar) ───────── */
+  const { thumbRef, prevRef, nextRef, stripRef, wrapRef } = useSlider();
+  const sidebarRef = useRef(null);   
+
+  /* ───────── 排序與分類（僅影響 Sidebar） ───────── */
+  const [sortKey, setSortKey] = useState('votes');
+  const [categoryFilters, setCategoryFilters] = useState(new Set(['ALL']));
+  const [catOpen, setCatOpen] = useState(false);
+  const catBtnRef = useRef(null);
+
+  /* ───────── 頭像（支援多選） ───────── */
+  const allAvatars = Array.from({ length: 12 }, (_, i) => i + 1);
+  const firstAvatar = allAvatars[0];
+  const restAvatars = allAvatars.slice(1);
+
+  // 多人選取集合
+  const [activeUserIds, setActiveUserIds] = useState(new Set());
+  const toggleUser = (uid) => {
+    setActiveUserIds(prev => {
+      const next = new Set(prev);
+      next.has(uid) ? next.delete(uid) : next.add(uid);
+      return next;
+    });
+  };
+  const clearUsers = () => setActiveUserIds(new Set());
+  // 向後相容（若子元件仍需要單一 id）
+  const activeUserId = [...activeUserIds][0] || null;
+
+  /* ───────── 新增景點 Modal ───────── */
+  const [modalOpen, setModalOpen] = useState(false);
+  const [originAttractions, setOriginAttractions] = useState([]); // 伺服器原始資料
+  const [attractions, setAttractions] = useState([]);             // 篩選後顯示
+  const [selected, setSelected] = useState(new Set());            // Modal 中勾選
+  const [picked, setPicked] = useState([]);                       // 已挑選到首頁
+  const [manualMode, setManualMode] = useState(false);
+  const [form, setForm] = useState({
+    name_zh:'', name_en:'', category:'', address:'', budget:'', photo:'',
+    comment:'',   // optional
+    link:''       // optional
+  });
+  const [search, setSearch] = useState('');
+  // Modal 類別（多選）
+  const CATEGORY_OPTIONS = [
+    'History & Religion',
+    'Scenic Spots',
+    'Art & Museums',
+    'Transport Rides',
+  ];
+  const [catMenuOpen, setCatMenuOpen] = useState(false);
+  const [selectedCats, setSelectedCats] = useState(new Set()); // 多選
+  const searchWrapRef = useRef(null); // 關閉下拉用
+
+  /* ───────── Treemap 資料 ───────── */
+  const [d3Data, setD3Data] = useState([]);         // 目前未使用（保留）
+  const [selectedItems, setSelectedItems] = useState([]); // 右側卡片顯示
+  const [fullD3Data, setFullD3Data] = useState([]);
+
+  /* ───────── 新增評論 ───────── */
+  const [commentsMap, setCommentsMap] = useState({});
+  const [expandedComments, setExpandedComments] = useState({});
+  const [commentModalOpen, setCommentModalOpen] = useState(false);
+  const [commentTarget, setCommentTarget] = useState(null);
+  const [commentText, setCommentText]     = useState('');
+
+  /* ───────── 新增連結 ───────── */
+  const [linksMap, setLinksMap] = useState({});
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkTarget, setLinkTarget] = useState(null);
+  const [linkText, setLinkText] = useState('');
+
+  /* ───────── 加速階段(到時候刪掉) ───────── */
+  const [onlyPicked, setOnlyPicked] = useState(false);
+
+  /* ───────── 選擇完畢彈窗 ───────── */
+  const [doneModalOpen, setDoneModalOpen] = useState(false);
+  const closeDoneModal = () => {
+    setDoneModalOpen(false);
+    setOnlyPicked(false);
+  };
+
+  /* ───────── 類別色卡（Legend） ───────── */
+  const [showLegend, setShowLegend] = useState(false);
+  const LEGEND_CATEGORIES = [
+    'Culture & Heritage',
+    'Scenic Spots',
+    'Transport Rides',
+    'Discovery Spaces',
+    'Public Squares',
+  ];
+
+  useEffect(() => {
+    if (!doneModalOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape' || e.key === 'Enter') closeDoneModal(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [doneModalOpen]);
+
+  /* ───────── 讀取旅程標題 ───────── */
+  useEffect(() => {
+    if (!tripId) { setTripTitle('無法讀取旅程名稱'); return; }
+    axios.get(`http://localhost:3001/api/trips/${tripId}`)
+      .then(res => setTripTitle(res.data.title))
+      .catch(()  => setTripTitle('讀取失敗'));
+  }, [tripId]);
+
+  /* ───────── 倒數計時 ───────── */
   useEffect(() => {
     if (secLeft <= 0) return;
     const id = setInterval(() => setSecLeft((s) => (s > 0 ? s - 1 : 0)), 1000);
     return () => clearInterval(id);
   }, [secLeft]);
-  const hh = String(Math.floor(secLeft / 3600)).padStart(2, '0');
-  const mm = String(Math.floor((secLeft % 3600) / 60)).padStart(2, '0');
-  const ss = String(secLeft % 60).padStart(2, '0');
 
-  /* ───────── 新增評論 ───────── */
-  const [commentTarget, setCommentTarget] = useState(null);
-  const [commentText, setCommentText]     = useState('');
+  /* ───────── Chipbar 全部分類(下拉式選單) ───────── */
+  const CHIP_CATEGORY_OPTIONS = [
+    'History & Religion',
+    'Scenic Spots',
+    'Art & Museums',
+    'Transport Rides',
+  ];
+  const chipLabel = useMemo(() => {
+    if (categoryFilters.has('ALL')) return '全部分類';
+    const names = [...categoryFilters].filter(c => c !== 'ALL');
+    return names.length ? names.join('、') : '全部分類';
+  }, [categoryFilters]);
 
+  /* ───────── 新增景點 | 取得清單 ───────── */
+  const openModal = async () => {
+    fetchCtrl.current?.abort?.();
+    fetchCtrl.current = new AbortController();
+    const { signal } = fetchCtrl.current;
+
+    setSelected(new Set());
+    setSearch('');
+    setManualMode(false);
+    setModalOpen(true);
+    setSelectedCats(new Set());
+    setCatMenuOpen(false);
+    setAttractions([]);
+    setOriginAttractions([]);
+
+    try {
+      const queryCountry = COUNTRY_MAP[country] || country || '';
+      const { data } = await axios.get('http://localhost:3001/api/attractions', { params: { country: queryCountry }, signal });
+      const list = Array.isArray(data) ? data : [];
+      setOriginAttractions(list);
+      setAttractions(list);
+    } catch (err) {
+      if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED' || axios.isCancel?.(err)) return;
+      console.error('❌ attractions fetch error:', err);
+    }
+  };
+  useEffect(() => () => fetchCtrl.current?.abort?.(), []);
+
+  /* ───────── 手動新增景點 ───────── */
+  const submitManual = async () => {
+    try {
+      const payload = { ...form, budget: Number(form.budget) || 0 };
+      const { data } = await axios.post('http://localhost:3001/api/attractions', payload);
+      if (!data.success) throw new Error(data.error);
+
+      const newSpot = {
+        a_id: data.a_id,
+        name_zh: form.name_zh, name_en: form.name_en,
+        address: form.address, city: data.city, country: data.country,
+        photo: form.photo, category: form.category, budget: payload.budget,
+      };
+      setPicked(prev => [...prev, newSpot]);
+
+      // 評論
+      if (form.comment?.trim()) {
+        const { data: cRes } = await axios.post('http://localhost:3001/api/comments', {
+          attraction_id: data.a_id, user_id: 1, content: form.comment.trim()
+        });
+        if (cRes?.success) {
+          setCommentsMap(prev => {
+            const list = prev[data.a_id] || [];
+            return { ...prev, [data.a_id]: [...list, {
+              id: cRes.id, user_id: 1, content: form.comment.trim(), created_at: cRes.created_at
+            }]};
+          });
+        }
+      }
+
+      // 連結（注意後端欄位名 xontent）
+      if (form.link?.trim()) {
+        const { data: lRes } = await axios.post('http://localhost:3001/api/links', {
+          attraction_id: data.a_id, user_id: 1, xontent: form.link.trim()
+        });
+        if (lRes?.success) {
+          setLinksMap(prev => {
+            const list = prev[data.a_id] || [];
+            return { ...prev, [data.a_id]: [...list, {
+              id: lRes.id, user_id: 1, xontent: form.link.trim(), created_at: lRes.created_at
+            }]};
+          });
+        }
+      }
+
+      setForm({ name_zh:'', name_en:'', category:'', address:'', budget:'', photo:'', comment:'', link:'' });
+      toast.success('已新增並顯示在首頁！');
+    } catch (err) {
+      console.error('❌ manual insert error', err);
+      toast.error(err.message || '新增失敗，請稍後重試');
+    }
+  };
+
+  /* ───────── 新增景點 | 查詢/過濾 ───────── */
+  useEffect(() => {
+    if (!modalOpen || manualMode) return;
+
+    const kw = search.trim().toLowerCase();
+    const norm = (s) => (s || '').trim().toLowerCase();
+
+    let filtered = originAttractions;
+
+    // ① 類別多選
+    if (selectedCats.size > 0) {
+      filtered = filtered.filter(a => selectedCats.has(norm(a.category)));
+    }
+    // ② 關鍵字
+    if (kw) {
+      filtered = filtered.filter(a =>
+        (a.name_zh || '').toLowerCase().includes(kw) ||
+        (a.name_en || '').toLowerCase().includes(kw) ||
+        (a.city    || '').toLowerCase().includes(kw)
+      );
+    }
+
+    setAttractions(filtered);
+    setSelected(prev => new Set(
+      [...prev].filter(id => filtered.some(a => a.a_id === id))
+    ));
+  }, [search, modalOpen, manualMode, originAttractions, selectedCats]);
+
+  /* ───────── 新增景點 | 景點挑選 ───────── */
+  const toggleSelect = (id) => {
+    const next = new Set(selected);
+    next.has(id) ? next.delete(id) : next.add(id);
+    setSelected(next);
+  };
+  const confirmPick = () => {
+    const sel = new Set(selected);
+    const chosen = attractions.filter(a => sel.has(a.a_id));
+    setPicked(chosen);
+    setSelected(new Set());
+    setModalOpen(false);
+  };
   const handleInput = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const goHome      = () => { setModalOpen(false); setManualMode(false); };
   const toggleSidebar = () => setCollapsed((c) => !c);
 
+  /* ───────── Treemap | 從後端組資料 ───────── */
+  useEffect(() => {
+    if (!country) return;
+    const ctrl = new AbortController();
+    (async () => {
+      try {
+        const { data: attrs } = await axios.get(
+          'http://localhost:3001/api/attractions',
+          { params: { country: COUNTRY_MAP[country] || country }, signal: ctrl.signal }
+        );
+
+        const { data: stats } = await axios.get(
+          'http://localhost:3001/api/d3',
+          { signal: ctrl.signal }
+        );
+
+        const byId = new Map(stats.map(r => [r.a_id, r]));
+        const merged = attrs.map(a => {
+          const s = byId.get(a.a_id) || {};
+          let who_like = Array.isArray(s.who_like) ? s.who_like : JSON.parse(s.who_like||'[]');
+          let who_love = Array.isArray(s.who_love) ? s.who_love : JSON.parse(s.who_love||'[]');
+
+          return {
+            t_id:      s.t_id ?? tripId,
+            a_id:      a.a_id,
+            name_zh:   a.name_zh,
+            name_en:   a.name_en,
+            category:  a.category,
+            address:   a.address,
+            photo:     a.photo,
+            vote_like: s.vote_like  ?? 0,
+            vote_love: s.vote_love  ?? 0,
+            who_like,
+            who_love,
+            value:     Math.max(1, (s.vote_like||0)+(s.vote_love||0)),
+          };
+        });
+        setFullD3Data(merged);
+      } catch (err) {
+        if (!axios.isCancel(err)) console.error(err);
+      }
+    })();
+    return () => ctrl.abort();
+  }, [country, tripId]);
+
+  useEffect(() => {
+    setSelectedItems([]);
+  }, [fullD3Data, picked, categoryFilters]);
+
+  const treemapData = useMemo(() => {
+    const pickedIds = new Set(picked.map(p => p.a_id));
+    let list = fullD3Data.filter(d => pickedIds.has(d.a_id));
+    if (!(categoryFilters.has('ALL'))) {
+      list = list.filter(d => categoryFilters.has((d.category || '').trim()));
+    }
+    return list;
+  }, [fullD3Data, picked, categoryFilters]);
+
+  const handleTreemapSelect = React.useCallback((item) => {
+    setSelectedItems([item]);
+  }, []);
+
+  /* ───────── Sidebar資訊顯示（排序/過濾） ───────── */
+  const displayData = useMemo(() => {
+    const base = selectedItems;
+    let list = categoryFilters.has('ALL')
+      ? [...base]
+      : base.filter(x => categoryFilters.has((x.category || '').trim()));
+
+    const votes = (x) => (x.vote_like || 0) + (x.vote_love || 0);
+    const pref  = (x) => (x.vote_love || 0) * 2 + (x.vote_like || 0);
+    if (sortKey === 'votes') list.sort((a, b) => votes(b) - votes(a) || (a.name_zh || '').localeCompare(b.name_zh || ''));
+    if (sortKey === 'pref')  list.sort((a, b) => pref(b)  - pref(a)  || (a.name_zh || '').localeCompare(b.name_zh || ''));
+    return list;
+  }, [selectedItems, sortKey, categoryFilters]);
+
+  const removeSidebarItem = (a_id) => {
+    setSelectedItems(prev => prev.filter(p => p.a_id !== a_id));
+  };
+
+  /* ───────── 新增評論 ───────── */
   const openCommentModal = (a_id) => {
     setCommentTarget(a_id);
     setCommentText('');
     setCommentModalOpen(true);
   };
-
-  const treemapData = useMemo(() => {
-    const pickedIds = new Set(picked.map(p => p.a_id));
-    return fullD3Data.filter(d => pickedIds.has(d.a_id));
-  }, [fullD3Data, picked]);
 
   const submitComment = async () => {
     if (!commentText.trim()) return;
@@ -150,117 +476,6 @@ export default function Part2({ tripId, country }) {
     }
   };
 
-  const submitManual = async () => {
-    try {
-      const payload = { ...form, budget: Number(form.budget) || 0 };
-      const { data } = await axios.post('http://localhost:3001/api/attractions', payload);
-      if (!data.success) throw new Error(data.error);
-
-      const newSpot = {
-        a_id: data.a_id,
-        name_zh: form.name_zh, name_en: form.name_en,
-        address: form.address, city: data.city, country: data.country,
-        photo: form.photo, category: form.category, budget: payload.budget,
-      };
-      setPicked(prev => [...prev, newSpot]);
-      setForm({ name_zh:'', name_en:'', category:'', address:'', budget:'', photo:'' });
-      toast.success('已新增並顯示在首頁！');
-    } catch (err) {
-      console.error('❌ manual insert error', err);
-      toast.error(err.message || '新增失敗，請稍後重試');
-    }
-  };
-
-  /* 讀取標題 */
-  useEffect(() => {
-    if (!tripId) { setTripTitle('無效的行程 ID'); return; }
-    axios.get(`http://localhost:3001/api/trips/${tripId}`)
-      .then(res => setTripTitle(res.data.title))
-      .catch(()  => setTripTitle('讀取失敗'));
-  }, [tripId]);
-
-  useEffect(() => {
-  if (!country) return;
-  const ctrl = new AbortController();
-  (async () => {
-    try {
-      // 1) 拿 attractions 列表
-      const { data: attrs } = await axios.get(
-        'http://localhost:3001/api/attractions',
-        { params: { country: COUNTRY_MAP[country] || country }, signal: ctrl.signal }
-      );
-      // 2) 拿完整票數
-      const { data: stats } = await axios.get(
-        'http://localhost:3001/api/d3',
-        { signal: ctrl.signal }
-      );
-      // 3) 建 map 方便合併
-      const byId = new Map(stats.map(r => [r.a_id, r]));
-      // 4) 合併
-      const merged = attrs.map(a => {
-        const s = byId.get(a.a_id) || {};
-        // 如果 who_like/ who_love 不是 array，就 parse
-        let who_like = Array.isArray(s.who_like) ? s.who_like : JSON.parse(s.who_like||'[]');
-        let who_love = Array.isArray(s.who_love) ? s.who_love : JSON.parse(s.who_love||'[]');
-        
-        // —— 这里开始调试 —— 
-   console.log(`🕵️ a_id=${a.a_id}`, { who_like, who_love });
-   who_like.forEach((x,i) => console.log(`   who_like[${i}] =`, x, typeof x));
-   who_love.forEach((x,i) => console.log(`   who_love[${i}] =`, x, typeof x));
-   // —— 调试结束 —— 
-
-        return {
-          a_id:      a.a_id,
-          name_zh:   a.name_zh,
-          name_en:   a.name_en,
-          category:  a.category,
-          address:   a.address,
-          photo:     a.photo,
-          vote_like: s.vote_like  ?? 0,
-          vote_love: s.vote_love  ?? 0,
-          who_like,
-          who_love,
-          value:     Math.max(1, (s.vote_like||0)+(s.vote_love||0)),
-        };
-      });
-      setFullD3Data(merged);
-    } catch (err) {
-      if (!axios.isCancel(err)) console.error(err);
-    }
-  })();
-  return () => ctrl.abort();
-}, [country]);
-
-  // Treemap 資料更新 → 清空 Sidebar（重新等待點擊）
-  useEffect(() => { setSelectedItems([]); }, [d3Data]);
-
-  /* 打開 Modal 讀取景點（依 country） */
-  const openModal = async () => {
-    fetchCtrl.current?.abort?.();
-    fetchCtrl.current = new AbortController();
-    const { signal } = fetchCtrl.current;
-
-    setSelected(new Set());
-    setSearch('');
-    setManualMode(false);
-    setModalOpen(true);
-    setAttractions([]); setOriginAttractions([]);
-
-    try {
-      const queryCountry = COUNTRY_MAP[country] || country || '';
-      const { data } = await axios.get('http://localhost:3001/api/attractions', { params: { country: queryCountry }, signal });
-      const list = Array.isArray(data) ? data : [];
-      setOriginAttractions(list);
-      setAttractions(list);
-    } catch (err) {
-      if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED' || axios.isCancel?.(err)) return;
-      console.error('❌ attractions fetch error:', err);
-    }
-  };
-
-  useEffect(() => () => fetchCtrl.current?.abort?.(), []);
-
-  /* 初始評論 */
   useEffect(() => {
     axios.get('http://localhost:3001/api/comments')
       .then(({ data }) => {
@@ -274,55 +489,58 @@ export default function Part2({ tripId, country }) {
       .catch(console.error);
   }, []);
 
-  /* Modal 搜尋過濾 */
+  /* ───────── 新增連結 ───────── */
   useEffect(() => {
-    if (!modalOpen || manualMode) return;
-    const kw = search.trim().toLowerCase();
-    if (!kw) { setAttractions(originAttractions); return; }
-    const filtered = originAttractions.filter(a =>
-      (a.name_zh || '').toLowerCase().includes(kw) ||
-      (a.name_en || '').toLowerCase().includes(kw) ||
-      (a.city    || '').toLowerCase().includes(kw)
-    );
-    setAttractions(filtered);
-    setSelected(prev => new Set([...prev].filter(id => filtered.some(a => a.a_id === id))));
-  }, [search, modalOpen, manualMode, originAttractions]);
+    axios.get('http://localhost:3001/api/links')
+      .then(({ data }) => {
+        const map = {};
+        data.forEach(l => {
+          if (!map[l.attraction_id]) map[l.attraction_id] = [];
+          map[l.attraction_id].push(l);
+        });
+        setLinksMap(map);
+      })
+      .catch(console.error);
+  }, []);
 
-  /* 確認挑選 */
-  const toggleSelect = (id) => {
-    const next = new Set(selected);
-    next.has(id) ? next.delete(id) : next.add(id);
-    setSelected(next);
+  const openLinkModal = (a_id) => {
+    setLinkTarget(a_id);
+    setLinkText('');
+    setLinkModalOpen(true);
   };
-  const confirmPick = () => {
-    const sel = new Set(selected);
-    const chosen = attractions.filter(a => sel.has(a.a_id));
-    setPicked(chosen);
-    setSelected(new Set());
-    setModalOpen(false);
+  const closeLinkModal = () => setLinkModalOpen(false);
+
+  const submitLink = async () => {
+    if (!linkText.trim()) return;
+    try {
+      const { data } = await axios.post('http://localhost:3001/api/links', {
+        attraction_id: linkTarget,
+        user_id: 1,
+        xontent: linkText.trim()
+      });
+      if (data.success) {
+        setLinksMap(prev => {
+          const prevList = prev[linkTarget] || [];
+          return {
+            ...prev,
+            [linkTarget]: [...prevList, {
+              id: data.id,
+              user_id: 1,
+              xontent: linkText.trim(),
+              created_at: data.created_at
+            }]
+          };
+        });
+        setLinkModalOpen(false);
+        toast.success('已新增連結');
+      } else throw new Error(data.error);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || '新增連結失敗');
+    }
   };
 
-  /* 分類選單（以 Sidebar 目前資料為準） */
-  const categoryOptions = useMemo(() => {
-    const pool = selectedItems;
-    const set = new Set(pool.map(x => (x.category || '').trim()).filter(Boolean));
-    return ['ALL', ...Array.from(set)];
-  }, [selectedItems]);
-
-  /* Sidebar 顯示資料（由 Treemap 點選決定） */
-  const displayData = useMemo(() => {
-    const base = selectedItems;
-    let list = (categoryFilter === 'ALL') ? [...base] : base.filter(x => (x.category || '').trim() === categoryFilter);
-
-    const votes = (x) => (x.vote_like || 0) + (x.vote_love || 0);
-    const pref  = (x) => (x.vote_love || 0) * 2 + (x.vote_like || 0);
-    if (sortKey === 'votes') list.sort((a, b) => votes(b) - votes(a) || (a.name_zh || '').localeCompare(b.name_zh || ''));
-    if (sortKey === 'pref')  list.sort((a, b) => pref(b)  - pref(a)  || (a.name_zh || '').localeCompare(b.name_zh || ''));
-
-    return list;
-  }, [selectedItems, sortKey, categoryFilter]);
-
-  /* 關閉分類下拉（點外面） */
+  /* ───────── 下拉選單(分類) ───────── */
   useEffect(() => {
     const onDocClick = (e) => {
       if (!catBtnRef.current) return;
@@ -332,35 +550,18 @@ export default function Part2({ tripId, country }) {
     return () => document.removeEventListener('click', onDocClick);
   }, []);
 
-  /* Treemap 點擊的回調：最多 3 個，去重，最近點擊優先 */
-  const handleTreemapSelect = (item) => {
-    setSelectedItems(prev => {
-      // 去重
-      const without = prev.filter(p => p.a_id !== item.a_id);
-      // 最新點擊放最前面
-      const next = [item, ...without];
-      // 限制最多 3 個
-      return next.slice(0, 3);
-    });
-  };
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (!searchWrapRef.current) return;
+      if (!searchWrapRef.current.contains(e.target)) setCatMenuOpen(false);
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, []);
 
-  /* 從 Sidebar 移除某景點 */
-  const removeSidebarItem = (a_id) => {
-    setSelectedItems(prev => prev.filter(p => p.a_id !== a_id));
-  };
   /* ───────── Render ───────── */
   return (
     <div className="page">
-      {/* 左上角膠囊：收起/展開 Sidebar */}
-      <button
-        className="collapse-btn"
-        onClick={toggleSidebar}
-        aria-label={collapsed ? "展開側邊欄" : "收起側邊權"}
-        aria-expanded={!collapsed}
-      >
-        {collapsed ? '›' : '‹'}
-      </button>
-
       <div className="content-grid" ref={gridRef}>
         {/* 1) Topbar */}
         <header className="topbar" ref={topbarRef}>
@@ -377,28 +578,111 @@ export default function Part2({ tripId, country }) {
         {/* 2) Chipbar */}
         <div className="chipbar" ref={chipbarRef}>
           <SegSwitch value={sortKey} onChange={setSortKey} />
-
-          <div className="chip dropdown" ref={catBtnRef} onClick={() => setCatOpen(o => !o)}>
-            {categoryFilter === 'ALL' ? '全部分類' : categoryFilter} <span className="caret">▾</span>
+          <div
+            className={`chip dropdown ${catOpen ? 'open' : ''}`}
+            ref={catBtnRef}
+            onClick={() => setCatOpen((o) => !o)}
+          >
+            {chipLabel}
+            <span className="caret">▾</span>
             {catOpen && (
-              <div className="dropdown-menu" role="menu">
-                {categoryOptions.map((opt) => (
-                  <div
-                    key={opt}
-                    className={`dd-item ${opt === categoryFilter ? 'selected' : ''}`}
-                    onClick={() => { setCategoryFilter(opt); setCatOpen(false); }}
+              <div
+                className="dropdown-menu categories"
+                role="menu"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* 分類列表 */}
+                <div className="cat-list">
+                  {['ALL', ...CHIP_CATEGORY_OPTIONS].map((opt) => {
+                    const isSelected = categoryFilters.has(opt);
+                    const handleToggle = (e) => {
+                      e.stopPropagation();
+                      setCategoryFilters((prev) => {
+                        const next = new Set(prev);
+                        if (opt === 'ALL') {
+                          return new Set(['ALL']);
+                        }
+                        if (next.has('ALL')) next.delete('ALL');
+                        if (isSelected) {
+                          next.delete(opt);
+                          if (next.size === 0) next.add('ALL');
+                        } else {
+                          next.add(opt);
+                        }
+                        return next;
+                      });
+                    };
+                    return (
+                      <label
+                        key={opt}
+                        className={`cat-item ${isSelected ? 'checked' : ''}`}
+                        onClick={handleToggle}
+                      >
+                        <input type="checkbox" checked={isSelected} readOnly />
+                        <span>{opt === 'ALL' ? '全部分類' : opt}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                {/* 動作按鈕區 */}
+                <div className="menu-actions">
+                  <button
+                    type="button"
+                    className="btn-clean"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCategoryFilters(new Set(['ALL']));
+                    }}
                   >
-                    {opt === 'ALL' ? '全部分類' : opt}
-                  </div>
-                ))}
+                    清除
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-done"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCatOpen(false);
+                    }}
+                  >
+                    完成
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
-          <button className="btn-primary" onClick={openModal}>
-            新增景點 <span className="plus">＋</span>
+          <button
+            type="button"
+            className="button"
+            onClick={openModal}
+            aria-haspopup="dialog"
+            aria-controls="add-spot-modal"
+            aria-expanded={modalOpen}
+          >
+            <span className="button__text">新增景點</span>
+            <span className="button__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </span>
           </button>
-          <button className="btn-ghost">更新</button>
+
+          <div id="fileLoadIndicator">
+            <button
+              id="id_block_refresh"
+              className={`block-refresh ${refreshing ? 'is-spinning' : ''}`}
+              onClick={handleRefresh}
+              aria-label="更新"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                <polyline points="21 3 21 9 15 9" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* 3) Sidebar */}
@@ -406,25 +690,19 @@ export default function Part2({ tripId, country }) {
           id="sidebar"
           ref={sidebarRef}
           className={collapsed ? "collapsed" : ""}
-          style={{ width: collapsed ? `${SB_MIN}px` : `${SB_MAX}px` }}
         >
           <div className="sidebar-inner">
-            {/* 可選：保留頭像區 */}
+            {/* 頭像區（多選 + 未選變暗） */}
             <div className="avatar-row">
-              {/* ───── 1. 大頭貼 (uid === '111') ───── */}
+              {/* 1. 大頭貼 ("我") */}
               {(() => {
                 const uid = `${String(firstAvatar).repeat(3)}`;   // '111'
                 return (
                   <div
-                    className="avatar-large"
+                    className={`avatar-large ${activeUserIds.size>0 ? (activeUserIds.has(uid) ? 'is-selected' : 'is-dim') : ''}`}
                     id={uid}
-                    onClick={() => {
-                      console.log('[avatar click] next active =', uid);
-                      setActiveUserId(prev => (prev === uid ? null : uid));
-                    }}
-                    style={{
-                      outline: activeUserId === uid ? '3px solid #ff6700' : 'none'
-                    }}
+                    onClick={() => toggleUser(uid)}
+                    aria-pressed={activeUserIds.has(uid)}
                   >
                     <img
                       src={`https://i.pravatar.cc/72?img=${firstAvatar}`}
@@ -437,23 +715,18 @@ export default function Part2({ tripId, country }) {
 
               <button className="arrow arrow-left" ref={prevRef} />
 
-              {/* ───── 2. 小頭貼 (其餘使用者) ───── */}
+              {/* 2. 小頭貼（其餘使用者） */}
               <div className="avatar-strip-wrap" ref={wrapRef}>
                 <div className="avatar-strip" ref={stripRef}>
                   {restAvatars.map(i => {
-                    const uid = `${String(i).repeat(3)}`;         // '222', '333', …
+                    const uid = `${String(i).repeat(3)}`;
                     return (
                       <div
                         key={i}
-                        className="avatar"
+                        className={`avatar ${activeUserIds.size>0 ? (activeUserIds.has(uid) ? 'is-selected' : 'is-dim') : ''}`}
                         id={uid}
-                        onClick={() => {
-                          console.log('[avatar click] next active =', uid);
-                          setActiveUserId(prev => (prev === uid ? null : uid));
-                        }}
-                        style={{
-                          outline: activeUserId === uid ? '3px solid #ff6700' : 'none'
-                        }}
+                        onClick={() => toggleUser(uid)}
+                        aria-pressed={activeUserIds.has(uid)}
                       >
                         <img
                           src={`https://i.pravatar.cc/44?img=${i}`}
@@ -467,99 +740,162 @@ export default function Part2({ tripId, country }) {
               </div>
 
               <button className="arrow arrow-right" ref={nextRef} />
+
+              <div className="avatar-tools">
+                <span className="pill">已選 {activeUserIds.size} 人</span>
+                <button type="button" className="btn-link small" onClick={clearUsers} disabled={activeUserIds.size===0}>
+                  清除
+                </button>
+              </div>
             </div>
 
-            {/* 只顯示使用者點選的（最多 3 個） */}
+            {/* 右側推薦/資訊區 */}
             <div className="rec-list">
-              {displayData.map((it) => {
-                // 獲取當前景點的所有評論
-                const cmts = commentsMap[it.a_id] || [];
-                
-                // 【修改點 1】判斷當前的卡片是否處於展開狀態
-                // expandedComments 是一個物件，key 是 a_id，value 是 true/false
-                const isExpanded = !!expandedComments[it.a_id];
-
-                // 【修改點 2】定義一個處理點擊事件的函式
-                const toggleExpand = () => {
-                  setExpandedComments(prev => ({
-                    ...prev, // 保留其他卡片的狀態
-                    [it.a_id]: !isExpanded // 將當前卡片的狀態反轉
-                  }));
-                };
-
-                return (
-                  <div className="rec-card" key={it.a_id} style={{ position: 'relative' }}>
-                    {/* 右上角刪除按鈕 */}
-                    <button
-                      className="rec-close"
-                      aria-label="移除這個景點"
-                      onClick={(e) => { e.stopPropagation(); removeSidebarItem(it.a_id); }}
-                    >
-                      一
-                    </button>
-
-                    {/* 1) 標題 + 地址 + 照片 (保持不變) */}
-                    <div className="rec-head">
-                      <div className="rec-title">
-                        <span className="zh">{it.name_zh}</span><span className="sep"> | </span><span className="en">{it.name_en}</span>
+              {showLegend ? (
+                <div className="legend-panel" role="list" aria-label="類別與顏色對照">
+                  {LEGEND_CATEGORIES.map((name) => {
+                    const { startColor, endColor } = neonStops(name);
+                    const bg = `linear-gradient(90deg, ${startColor}, ${endColor})`;
+                    return (
+                      <div className="legend-item" role="listitem" key={name}>
+                        <span className="legend-swatch" style={{ background: bg }} aria-hidden="true" />
+                        <div className="legend-meta">
+                          <div className="legend-name">{name}</div>
+                          <div className="legend-hex">{startColor} → {endColor}</div>
+                        </div>
                       </div>
-                      <div className="rec-addr">📍 {it.address || '地址未提供'}</div>
-                      <div className="rec-photo">
-                        <img src={it.photo || `https://picsum.photos/seed/p${it.a_id}/132/88`} alt={it.name_zh} />
-                      </div>
-                    </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <>
+                  {displayData.map((it) => {
+                    const cmts = commentsMap[it.a_id] || [];
+                    const isExpanded = !!expandedComments[it.a_id];
 
-                    {/* 2 ) 留言 */}
-                    <div className="rec-comment">
-                      <div className="cmt">
-                        {/* 【修改點 3】根據 isExpanded 狀態決定顯示所有評論還是只顯示最新一條 */}
-                        {(isExpanded ? cmts : cmts.slice(-1)).map(c => (
-                          <div key={c.id}>
-                            <div className="name">{c.user_id || '匿名'}</div>
-                            <div className="txt">{c.content}</div>
+                    const toggleExpand = () => {
+                      setExpandedComments(prev => ({
+                        ...prev,
+                        [it.a_id]: !isExpanded
+                      }));
+                    };
+
+                    return (
+                      <div className="rec-card" key={it.a_id} style={{ position: 'relative' }}>
+                          {/* 右上角刪除按鈕 */}
+                          <button
+                            className="rec-close"
+                            aria-label="移除這個景點"
+                            onClick={(e) => { e.stopPropagation(); removeSidebarItem(it.a_id); }}
+                          >
+                            一
+                          </button>
+
+                          {/* 標題 + 地址 + 照片 */}
+                          <div className="rec-head">
+                            <div className="rec-title">
+                              <span className="zh">{it.name_zh}</span><span className="sep"> | </span><span className="en">{it.name_en}</span>
+                            </div>
+                            <div className="rec-addr">📍 {it.address || '地址未提供'}</div>
+                            <div className="rec-photo">
+                              <img src={it.photo || `https://picsum.photos/seed/p${it.a_id}/132/88`} alt={it.name_zh} />
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
 
-                    {/* 3) 按鈕 */}
-                    <div className="rec-actions">
-                      <button className="btn-sm ghost" onClick={() => openCommentModal(it.a_id)}>增加評論</button>
-                      
-                      {/* 【修改點 4】根據評論數量 > 1 的條件渲染動態按鈕 */}
-                      {cmts.length > 1 && (
-                        <button className="btn-sm primary" onClick={toggleExpand}>
-                          {isExpanded ? '顯示更少' : '顯示更多'}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                          {/* 留言 */}
+                          <div className="rec-comment">
+                            <div className="rec-sec-head">
+                              <div className="rec-sec-title">💬 評論</div>
+                              <button className="icon-btn add-btn tiny" onClick={() => openCommentModal(it.a_id)}>
+                                <div className="add-icon"></div>
+                                <div className="btn-txt">新增評論</div>
+                              </button>
+                            </div>
+                            <div className="cmt">
+                              {cmts.map(c => (
+                                <div key={c.id}>
+                                  <div className="name">{c.user_id || '匿名'}</div>
+                                  <div className="txt">{c.content}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 連結 */}
+                          <div className="rec-comment">
+                            <div className="rec-sec-head">
+                              <div className="rec-sec-title">🔗 連結</div>
+                              <button className="icon-btn add-btn tiny" onClick={() => openLinkModal(it.a_id)}>
+                                <div className="add-icon"></div>
+                                <div className="btn-txt">新增連結</div>
+                              </button>
+                            </div>
+                            <div className="cmt">
+                              {(linksMap[it.a_id] || []).map(l => (
+                                <div key={l.id}>
+                                  <div className="name">{l.user_id}</div>
+                                  <div className="txt">
+                                    <a href={l.xontent} target="_blank" rel="noreferrer">{l.xontent}</a>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
             </div>
 
+            <div className="sidebar-footer">
+              <button
+                type="button"
+                className="btn-primary small"
+                onClick={() => setShowLegend(v => !v)}
+                aria-pressed={showLegend}
+              >
+                {showLegend ? '顯示景點資訊' : '類別顏色對照表'}
+              </button>
+
+              <button
+                type="button"
+                className="btn-primary small"
+                onClick={() => {
+                  setOnlyPicked(true);
+                  setDoneModalOpen(true);
+                }}
+              >
+                選擇完畢
+              </button>
+            </div>
           </div>
         </aside>
 
-        {/* 4) Treemap（右側主板） */}
+        {/* Treemap */}
         <section className="board" id="treemap-container">
-          {picked.length > 0 ? (
-            treemapData.length > 0 ? (
-              <Treemap
-                // 移除 width 和 height props
-                key={[treemapData.map(d => d.a_id).join('_'), activeUserId].join('-')}
-                data={treemapData}
-                onSelect={handleTreemapSelect}
-                activeUserId={activeUserId}
-              />
-            ) : (
-              <div className="placeholder">載入中…</div>
-            )
-          ) : (
+          {picked.length === 0 ? (
             <div className="placeholder">請先按「新增景點」並確認您的選擇</div>
+          ) : treemapData.length === 0 ? (
+            <div className="placeholder">此分類目前沒有已挑選的景點</div>
+          ) : (
+            <Treemap
+              key={[
+                treemapData.map(d => d.a_id).join('_'),
+                [...activeUserIds].sort().join(','),
+                sortKey,
+                [...categoryFilters].sort().join('|')
+              ].join('-')}
+              data={treemapData}
+              onSelect={handleTreemapSelect}
+              activeUserId={activeUserId}                 /* 相容單選 */
+              activeUserIds={[...activeUserIds]}          /* 多選 */
+              sortKey={sortKey}
+              selectedIds={selectedItems.map(x => x.a_id)}
+              onRefresh={handleRefresh}
+            />
           )}
         </section>
-
       </div>
 
       {/* ===== Modal ===== */}
@@ -585,6 +921,12 @@ export default function Part2({ tripId, country }) {
                     <label>🗃️ 分類 <input name="category" value={form.category} onChange={handleInput} /></label>
                     <label>💰 預算 <input type="number" name="budget" value={form.budget || ''} onChange={handleInput} min="0" step="1" /></label>
                   </div>
+                  <label>💬 評論
+                    <textarea name="comment" value={form.comment} onChange={handleInput} />
+                  </label>
+                  <label>🔗 相關連結
+                    <input name="link" type="url" placeholder="https://…" value={form.link} onChange={handleInput} />
+                  </label>
                 </div>
 
                 <div className="btn-group">
@@ -595,9 +937,43 @@ export default function Part2({ tripId, country }) {
               </>
             ) : (
               <>
-                <div className="search-bar">
-                  <input type="text" placeholder="輸入關鍵字搜尋…" value={search} onChange={(e) => setSearch(e.target.value)} />
-                  <span className="icon">🔍</span>
+                {/* 搜尋列（同時作為下拉容器） */}
+                <div className="search-bar with-dropdown" ref={searchWrapRef}>
+                  <input
+                    type="text"
+                    placeholder="輸入關鍵字搜尋…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onFocus={() => setCatMenuOpen(true)}
+                    onClick={() => setCatMenuOpen(true)}
+                  />
+
+                  {catMenuOpen && (
+                    <div className="dropdown categories" role="menu" aria-label="類別過濾">
+                      <div className="cat-list">
+                        {CATEGORY_OPTIONS.map(opt => {
+                          const label = opt;                      // 顯示用
+                          const key = opt.toLowerCase();         // 內部比對用（小寫）
+                          const checked = selectedCats.has(key);
+                          const toggle = () => setSelectedCats(prev => {
+                            const next = new Set(prev);
+                            checked ? next.delete(key) : next.add(key);
+                            return next;
+                          });
+                          return (
+                            <label key={opt} className={`cat-item ${checked ? 'checked' : ''}`}>
+                              <input type="checkbox" checked={checked} onChange={toggle} />
+                              <span>{label}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      <div className="menu-actions">
+                        <button type="button" className="btn-clean" onClick={() => setSelectedCats(new Set())}>清除</button>
+                        <button type="button" className="btn-done" onClick={() => setCatMenuOpen(false)}>完成</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="attraction-list">
@@ -615,7 +991,7 @@ export default function Part2({ tripId, country }) {
                       {selected.has(at.a_id) && <span className="tick">✔</span>}
                     </div>
                   ))}
-                  {attractions.length === 0 && <p className="empty">（沒有資料 / 讀取失敗）</p>}
+                  {attractions.length === 0 && <p className="empty">資料庫讀取失敗</p>}
                 </div>
 
                 <div className="btn-group">
@@ -639,6 +1015,44 @@ export default function Part2({ tripId, country }) {
             <div className="btn-group">
               <button className="hand-btn" onClick={() => setCommentModalOpen(false)}>取消</button>
               <button className="confirm-btn" onClick={submitComment}>送出</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== 新增連結 Modal ===== */}
+      {linkModalOpen && (
+        <div className="modal-mask" onClick={closeLinkModal}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title">新增連結</h3>
+            <div className="comment-form">
+              <input
+                type="url"
+                placeholder="輸入連結網址…"
+                value={linkText}
+                onChange={e => setLinkText(e.target.value)}
+                style={{ width: '100%', padding: '8px', fontSize: '14px' }}
+              />
+            </div>
+            <div className="btn-group">
+              <button className="hand-btn" onClick={closeLinkModal}>取消</button>
+              <button className="confirm-btn" onClick={submitLink}>送出</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== 選擇完畢 Modal ===== */}
+      {doneModalOpen && (
+        <div className="modal-mask" onClick={closeDoneModal}>
+          <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">景點選擇完畢</h3>
+            <p style={{ margin: '0 0 8px' }}>
+              時間倒數計時 ⌛<b>{hh}:{mm}:{ss}</b>
+            </p>
+            <p style={{ margin: '0 0 16px' }}>請稍候，等待其他團員完成景點選擇。</p>
+            <div className="btn-con">
+              <button className="confirm-btn" onClick={closeDoneModal}>繼續選擇景點</button>
             </div>
           </div>
         </div>

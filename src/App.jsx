@@ -12,11 +12,13 @@ import ResizableBox from './view2/chingchen/ResizableBox.jsx';
 
 //==============================view 1==================================
 import Part1 from './view1/part1.jsx';
-import Part2 from './part2.jsx';
-import TripList from './tripList.jsx';
-import TravelGantt from './test.jsx';         // test.jsx 預設輸出 TravelGantt
+import Part2 from './view1/part2.jsx';
+import TripList from './view1/tripList.jsx';
+import TravelGantt from './view1/test.jsx';         // test.jsx 預設輸出 TravelGantt
+/*
 import { Toaster } from 'react-hot-toast';     // 給 part2 的 toast
 // ③ 因為 Part2 需要 tripId / country 兩個 props，做一個小包裝 Route 元件
+
 import { useParams, useSearchParams } from 'react-router-dom';
 const Part2Route = () => {
     const { tId } = useParams();
@@ -24,6 +26,7 @@ const Part2Route = () => {
     const country = sp.get('country') || '瑞士'; // /part2/123?country=瑞士
     return <Part2 tripId={Number(tId)} country={country} />;
 };
+*/
 
 
 
@@ -61,13 +64,13 @@ function App() {
     return (
         <MyContext.Provider value={{ hourInterval, setHourInterval }}>
             <Router>
-                <Toaster position="top-center" />
+                {/* <Toaster position="top-center" /> */}
 
                 <Routes>
                     <Route path="/" element={<HomePage />} />
                     
                     <Route path="/part1" element={<Part1 />} />
-                    <Route path="/part2/:tId" element={<Part2Route />} />
+                    {/* <Route path="/part2/:tId" element={<Part2Route />} /> */}
                     <Route path="/trips" element={<TripList />} />
                     <Route path="/gantt" element={<TravelGantt />} />
 

@@ -7,6 +7,7 @@ const ai = new GoogleGenAI({ apiKey: 'AIzaSyCwl0J0v-7AUXevBNQZZEnwVIiq-dndFV4' }
 const RecommendTrip = () => {
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
+  const [elapsed, setElapsed] = useState(null);
 
   // 获取景点列表
   const fetchAttractions = async () => {
@@ -35,6 +36,8 @@ const RecommendTrip = () => {
   const handleGenerate = async () => {
     setLoading(true);
     setResponse("");
+    setElapsed(null);
+    const start = Date.now();
     try {
       const attractions = await fetchAttractions();
       const prompt = buildPrompt(attractions);
@@ -49,14 +52,20 @@ const RecommendTrip = () => {
       setResponse("Error: " + err.message);
     }
     setLoading(false);
+    setElapsed(((Date.now() - start) / 1000).toFixed(2));
   };
 
   return (
     <div style={{ maxWidth: 600, margin: "40px auto", padding: 24, border: "1px solid #ccc", borderRadius: 8 }}>
       <h2>台北一日遊推薦行程</h2>
-      <button onClick={handleGenerate} disabled={loading} style={{ padding: "10px 24px", fontSize: 16 }}>
-        {loading ? "生成中..." : "一鍵生成行程"}
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <button onClick={handleGenerate} disabled={loading} style={{ padding: "10px 24px", fontSize: 16 }}>
+          {loading ? "生成中..." : "一鍵生成行程"}
+        </button>
+        {elapsed !== null && (
+          <span style={{ color: '#888', fontSize: 15 }}>耗時: {elapsed} 秒</span>
+        )}
+      </div>
       <div style={{ marginTop: 32, minHeight: 60, fontFamily: 'inherit' }}>
         <pre style={{ background: '#f7f7f7', padding: 12, borderRadius: 6 }}>
           {response}

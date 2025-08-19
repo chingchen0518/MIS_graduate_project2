@@ -123,7 +123,7 @@ function Header() {
   return (
     <div className="header-container">
       <div className="header-icon">
-        <img src="img/logo.jpg" className="header-icon-img" alt="logo" />
+        <a href="http://localhost:5173/"><img src="img/logo.jpg" className="header-icon-img" alt="logo" /></a>
       </div>
       <div className="header-title-block">
         <span className="header-title">{tripTitle}</span>

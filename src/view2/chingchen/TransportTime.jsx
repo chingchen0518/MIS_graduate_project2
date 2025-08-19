@@ -160,7 +160,7 @@ const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,ne
                     });
                 }
                 
-                console.log('合併後的交通時間:', new_transport);
+                // console.log('合併後的交通時間:', new_transport);
                 setTransport(new_transport);
             })
             .catch((error) => {

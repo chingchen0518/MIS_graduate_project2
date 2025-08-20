@@ -68,7 +68,7 @@ const Login = () => {
     };
 
     return (
-        <div className="page">
+        <div className="all_page">
             <div className="floating-shapes">
                 <div className="shape" />
                 <div className="shape" />
@@ -76,14 +76,14 @@ const Login = () => {
                 <div className="shape" />
             </div>
             <div className="main_container">
-                <div className="header">
-                    <div className="logo">
-                        <div className="logo-icon">
+                <div className="all_header">
+                    <div className="all_logo">
+                        <div className="all_logo-icon">
                             <FontAwesomeIcon icon={faGlobe} />
                         </div>
-                        <h1 className="title">Vistour</h1>
+                        <h1 className="all_title">Vistour</h1>
                     </div>
-                    <p className="subtitle">你的旅遊好幫手</p>
+                    <p className="all_subtitle">你的旅遊好幫手</p>
                 </div>
                 <div className="body">
                     {success && (
@@ -99,9 +99,9 @@ const Login = () => {
                         </div>
                     )}
                     <form onSubmit={handleSubmit} noValidate>
-                        <div className="form-group">
+                        <div className="all_form-group">
                             <label htmlFor="email">電子郵件</label>
-                            <div className="input-with-icon">
+                            <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faEnvelope} />
                                 <input
                                     type="email"
@@ -117,9 +117,9 @@ const Login = () => {
                                 />
                             </div>
                         </div>
-                        <div className="form-group">
+                        <div className="all_form-group">
                             <label htmlFor="password">密碼</label>
-                            <div className="input-with-icon">
+                            <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faLock} />
                                 <input
                                     type="password"
@@ -141,7 +141,7 @@ const Login = () => {
                         </div>
                         <button
                             type="submit"
-                            className="btn"
+                            className="all_btn"
                             disabled={loading}
                             aria-busy={loading}
                             aria-disabled={loading}
@@ -150,14 +150,14 @@ const Login = () => {
                                 <span className="loading" aria-label="Loading" />
                             ) : (
                                 <>
-                                    <span className="btn-text">登入</span>
+                                    <span className="all_btn-text">登入</span>
                                     <FontAwesomeIcon icon={faSignInAlt} style={{ marginLeft: '8px' }} />
                                 </>
                             )}
                         </button>
                     </form>
                 </div>
-                <div className="footer">
+                <div className="all_footer">
                     <p className="register-link">
                         還沒有帳號？ <a href="/Signin">立即註冊</a>
                     </p>

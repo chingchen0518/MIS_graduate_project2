@@ -99,7 +99,7 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="page">
+        <div className="all_page">
             <div className="floating-shapes">
                 <div className="shape" />
                 <div className="shape" />

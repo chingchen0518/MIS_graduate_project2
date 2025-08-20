@@ -69,9 +69,6 @@ function Header() {
   // 倒數到 0 時只執行一次
   useEffect(() => {
     if (!deadline || hasUpdated) return;
-    console.log('deadline:', deadline);
-    console.log('days:', days);
-    console.log('FinishedDay:', finishedDay);
 
     const diff = Math.floor((new Date(deadline) - now) / 1000);
     if (diff <= 0) {

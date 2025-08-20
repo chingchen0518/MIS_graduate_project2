@@ -1,0 +1,21 @@
+.attraction-connector-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: visible;
+}
+
+.attraction-connection {
+    stroke: #2196F3;
+    stroke-width: 2px;
+    fill: none;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.attraction-connection:hover {
+    opacity: 1;
+    stroke-width: 3px;
+}

@@ -96,7 +96,18 @@ const ScheduleItem = ({ editmode = false, a_id, name, position, width, index, s_
             >
                 {/* 愛心標記 - 當景點被選中時顯示 */}
                 {isSelected && (
-                    <div className="heart-marker">
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            fontSize: '20px',
+                            color: '#FF6B9D',
+                            textShadow: '0px 2px 4px rgba(0,0,0,0.3)',
+                            zIndex: 10,
+                            animation: 'heartBeat 1.5s ease-in-out infinite',
+                        }}
+                    >
                         💖
                     </div>
                 )}

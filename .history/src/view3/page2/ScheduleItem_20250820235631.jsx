@@ -2,7 +2,6 @@ import React, { useImperativeHandle, useState, forwardRef, useEffect } from "rea
 import { useDrag } from 'react-dnd';
 import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
-import './ScheduleItem.css'; // 引入樣式文件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
 const ScheduleItem = ({ editmode = false, a_id, name, position, width, index, s_id, onMove, editable = false, height, onValueChange, onDragStop, intervalHeight, nextAId, isSelected = false }) => {
@@ -96,7 +95,18 @@ const ScheduleItem = ({ editmode = false, a_id, name, position, width, index, s_
             >
                 {/* 愛心標記 - 當景點被選中時顯示 */}
                 {isSelected && (
-                    <div className="heart-marker">
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            fontSize: '20px',
+                            color: '#FF6B9D',
+                            textShadow: '0px 2px 4px rgba(0,0,0,0.3)',
+                            zIndex: 10,
+                            animation: 'heartBeat 1.5s ease-in-out infinite',
+                        }}
+                    >
                         💖
                     </div>
                 )}

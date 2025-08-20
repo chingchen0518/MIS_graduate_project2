@@ -17,7 +17,6 @@ const ScheduleContainer = ({ t_id, usedAttractions = [], onAttractionUsed, filte
     const [timeColumnHeight, setTimeColumnHeight] = useState(0); // 儲存時間欄的高度
 
     const timeColumnRef = useRef(null);
-    const scheduleListRef = useRef(null); // 新增：用於AttractionConnector的ref
 
     // function 1：處理日期選擇變更
     const handleDateChange = (date) => {
@@ -147,7 +146,7 @@ const ScheduleContainer = ({ t_id, usedAttractions = [], onAttractionUsed, filte
                 </div>
             </div>
 
-            <div className="schedule_list attraction-connector-container" ref={scheduleListRef} style={{ position: 'relative' }}>
+            <div className="schedule_list">
                 <div className="time_column" ref={timeColumnRef} style={{ height: timeColumnHeight }}>
                     {timeSlots.map((time) => (
                         <div key={time} className="time_slot">
@@ -162,30 +161,23 @@ const ScheduleContainer = ({ t_id, usedAttractions = [], onAttractionUsed, filte
                         <p>沒有找到行程</p>
                     </div>
                 ) : (
-                    <>
-                        {schedules.map((schedule) => (
-                            <ScheduleShow
-                                key={'schedule-' + schedule.s_id}
-                                s_id={schedule.s_id}
-                                t_id={t_id}
-                                u_id={schedule.u_id}
-                                title={schedule.title}
-                                day={schedule.day}
-                                date={selectedDate}
-                                intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
-                                containerHeight={timeColumnHeight}
-                                filterConditions={filterConditions}
-                            />
-                        ))}
 
-                        {/* 景點連線組件 */}
-                        <AttractionConnector
-                            schedules={schedules}
-                            containerRef={scheduleListRef}
-                            timeColumnWidth={150} // 時間欄寬度，可以根據實際情況調整
-                            key={`connector-${schedules.length}-${selectedDate}`} // 強制重新渲染
+
+
+                    schedules.map((schedule) => (
+                        <ScheduleShow
+                            key={'schedule-' + schedule.s_id}
+                            s_id={schedule.s_id}
+                            t_id={t_id}
+                            u_id={schedule.u_id}
+                            title={schedule.title}
+                            day={schedule.day}
+                            date={selectedDate}
+                            intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
+                            containerHeight={timeColumnHeight}
+                            filterConditions={filterConditions}
                         />
-                    </>
+                    ))
                 )}
 
 

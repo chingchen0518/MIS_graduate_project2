@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './header.css';
+import StageModal from './StageModal';
 
 function Header() {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -13,10 +14,14 @@ function Header() {
   const [now, setNow] = useState(new Date());
   const [hasUpdated, setHasUpdated] = useState(false); // ✅ 只更新一次
 
+  const [showStageModal, setShowStageModal] = useState(false);
+  const [nextStageName, setNextStageName] = useState('');
+
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState('');
   const [tripId, setTripId] = useState(trip.tid || 1);//之後要修改
   const [tripTitle, setTripTitle] = useState(trip.title);
+
 
 
   const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
@@ -26,12 +31,12 @@ function Header() {
     return stageOrder[stage] || 1;
   };
 
-//   const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-        // console.log('已登入使用者：', user.name, '，ID:', user.id);
-    } else {
-        // console.log('尚未登入');
-    }
+  //   const user = JSON.parse(localStorage.getItem('user'));
+  if (user) {
+    // console.log('已登入使用者：', user.name, '，ID:', user.id);
+  } else {
+    // console.log('尚未登入');
+  }
 
 
   const pad = (n) => (n < 10 ? '0' + n : n);
@@ -102,6 +107,9 @@ function Header() {
 
           const result = await res.json();
           console.log('更新 stage_date:', result);
+          const updatedStageNum = mapStageToNumber(result.stage);
+          setNextStageName(stepNames[updatedStageNum - 1]); // 例如 "行程確定"
+          setShowStageModal(true);            // 顯示彈窗
 
           fetchTripData(); // 重新抓最新資料
           setHasUpdated(true); // ✅ 標記已更新
@@ -111,7 +119,7 @@ function Header() {
       };
       updateStageDate();
     }
-  }, [now, deadline, hasUpdated, tripId]);
+  }, [now, deadline, hasUpdated, tripId, stage]);
 
   const handleSendEmail = async () => {
     try {
@@ -132,6 +140,12 @@ function Header() {
 
   return (
     <div className="header-container">
+      {showStageModal && (
+        <StageModal
+          nextStage={nextStageName}
+          onClose={() => setShowStageModal(false)}
+        />
+      )}
       <div className="header-icon">
         <a href="http://localhost:5173/"><img src="img/logo.jpg" className="header-icon-img" alt="logo" /></a>
       </div>

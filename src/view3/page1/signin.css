@@ -84,7 +84,7 @@ body {
     }
 }
 
-.container {
+.main_container {
     background-color: #fff;
     padding: 40px;
     border-radius: 20px;
@@ -205,7 +205,7 @@ body {
 
 @media (max-width: 576px) {
 
-    .container {
+    .main_container {
         max-width: 100%;
         border-radius: 0;
         padding: 20px;

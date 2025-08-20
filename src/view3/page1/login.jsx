@@ -75,7 +75,7 @@ const Login = () => {
                 <div className="shape" />
                 <div className="shape" />
             </div>
-            <div className="container">
+            <div className="main_container">
                 <div className="header">
                     <div className="logo">
                         <div className="logo-icon">

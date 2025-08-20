@@ -2,7 +2,7 @@ import React, { useImperativeHandle, useState, forwardRef, useEffect } from "rea
 import { useDrag } from 'react-dnd';
 import { Rnd } from "react-rnd";
 
-// 計算行程所有景點間交通時間的函數
+// function1:計算行程所有景點間交通時間的函數
 const function1 = async (attractions, s_id, date) => {
     // 行程確認後，計算所有景點間的交通時間
     if (attractions && attractions.length >= 2) {
@@ -62,13 +62,76 @@ const function1 = async (attractions, s_id, date) => {
     }
 };
 
+// 點擊 bar 時的處理函式，接收 value
+
+
+// 單一交通方式的 bar，hover 時顯示分鐘數
+const TransportBar = ({ a_id,type, value, color, height, unit = '分鐘', onBarClick,selected }) => {
+    const [showTip, setShowTip] = useState(false);
+    const handleBarClick = () => {
+        if (onBarClick) {
+            onBarClick(a_id,value);
+        }
+    };
+    return (
+        <div
+            className={`transport_method ${type}`}
+            style={{
+                    height: `${height}px`,
+                    // backgroundColor: color,
+                    width: '10%',
+                    position: 'relative',
+                    cursor: value > 0 ? 'pointer' : 'default',
+                    margin: '0 2px',
+                }}
+                onMouseEnter={() => value > 0 && setShowTip(true)}
+                onMouseLeave={() => setShowTip(false)}
+                onClick={handleBarClick}
+        >
+            {/* bar */}
+            <div
+                className={`bar`}
+                style={{
+                    height: `${height}px`,
+                    backgroundColor: color,
+                    width: '100%',
+                    position: 'relative',
+                    cursor: value > 0 ? 'pointer' : 'default',
+                    margin: '0 2px',
+                    opacity: selected ? 1 : 0.2
+                }}
+            >
+            </div>
+
+            {/* tooltip */}
+            {showTip && value > 0 && (
+                <div style={{
+                    position: 'absolute',
+                    top: -28,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: '#222',
+                    color: '#fff',
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    fontSize: 13,
+                    whiteSpace: 'nowrap',
+                    zIndex: 100,
+                    opacity: 1
+
+                }}>
+                    {value}m
+                </div>
+            )}
+
+        </div>
+    );
+};
+
 // TransportTime 組件：顯示每個景點的時間
-const TransportTime = ({ editmode=false, intervalHeight,a_id,nextAId }) => {
+const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,nextAId,getTransportMethod }) => {
     var HourIntervalHeight = intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
-    const [transport, setTransport] = useState({car:0,bicycle:0,bus:0,walk:0}); //儲存目前放進schedule的attraction
-    // if(!nextAId){
-    //     setTransport({car:0,bicycle:0,bus:0,walk:0});
-    // }
+    const [transport, setTransport] = useState({car:0,bicycle:0,bus:0,walk:0,method:0}); //儲存目前放進schedule的attraction
     
     // Use Effect：從DB讀取景點的交通時間（如果有下一個景點要讀取，否則不用）
     useEffect(() => {
@@ -97,7 +160,7 @@ const TransportTime = ({ editmode=false, intervalHeight,a_id,nextAId }) => {
                     });
                 }
                 
-                console.log('合併後的交通時間:', new_transport);
+                // console.log('合併後的交通時間:', new_transport);
                 setTransport(new_transport);
             })
             .catch((error) => {
@@ -110,22 +173,26 @@ const TransportTime = ({ editmode=false, intervalHeight,a_id,nextAId }) => {
 
     var maxtime = Math.max(transport.car, transport.bicycle, transport.bus, transport.walk);
 
-    if(editmode){
-        console.log("transport", transport);
-        console.log("maxtime", maxtime);
-        console.log("HourIntervalHeight", HourIntervalHeight);
-    }
+    const handleClick = (a_id,value) => {
+        console.log('🅰️景點', a_id);
+        console.log('選擇的交通方式 value:', value);
+        getTransportMethod(a_id,value);
+    };
 
+    // 定義每個交通方式的 value
+    const barValues = {
+        car: 1,
+        bicycle: 2,
+        bus: 3,
+        walk: 4
+    };
 
     return (
-        <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly' }}>
-            <div className="car" style={{ height: `${transport.car * HourIntervalHeight}px`, backgroundColor: '#ff914d', width: '10%' }}></div>
-            <div className="bicycle" style={{ height: `${transport.bicycle * HourIntervalHeight}px`, backgroundColor: '#65cdca', width: '10%' }}></div>
-            <div className="public" style={{ height: `${transport.bus * HourIntervalHeight}px`, backgroundColor: '#428cef', width: '10%' }}></div>
-            <div className="walk" style={{ height: `${transport.walk * HourIntervalHeight}px`, backgroundColor: '#7ed957', width: '10%' }}></div>
-
-
-
+        <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly', position: 'relative', zIndex: 1 }}>
+          <TransportBar type="car" value={barValues.car} color="#ff914d" height={transport.car * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 1} a_id={a_id}/>
+          <TransportBar type="bicycle" value={barValues.bicycle} color="#65cdca" height={transport.bicycle * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 2} a_id={a_id}/>
+          <TransportBar type="bus" value={barValues.bus} color="#428cef" height={transport.bus * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 3} a_id={a_id}/>
+          <TransportBar type="walk" value={barValues.walk} color="#7ed957" height={transport.walk * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 4} a_id={a_id}/>
         </div>
     );
     

@@ -26,6 +26,14 @@ function Header() {
     return stageOrder[stage] || 1;
   };
 
+//   const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        // console.log('已登入使用者：', user.name, '，ID:', user.id);
+    } else {
+        // console.log('尚未登入');
+    }
+
+
   const pad = (n) => (n < 10 ? '0' + n : n);
 
   // 每秒更新 now
@@ -125,7 +133,7 @@ function Header() {
   return (
     <div className="header-container">
       <div className="header-icon">
-        <img src="img/logo.jpg" className="header-icon-img" alt="logo" />
+        <a href="http://localhost:5173/"><img src="img/logo.jpg" className="header-icon-img" alt="logo" /></a>
       </div>
       <div className="header-title-block">
         <span className="header-title">{tripTitle}</span>

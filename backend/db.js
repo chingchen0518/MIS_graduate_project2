@@ -153,6 +153,386 @@ app.get('/api/travel', (req, res) => {
   });
 });
 
+
+// ====================================view 1===========================
+// 模糊搜尋飯店
+app.get('/api/hotels', async (req, res) => {
+  const { query = '' } = req.query;
+  try {
+    const [rows] = await pool.query(
+      `SELECT h_id   AS id,
+              name_zh AS name
+       FROM   Hotel
+       WHERE  name_zh LIKE ?
+       LIMIT  20`,
+      [`%${query}%`]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('❗ DB error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// ===== 新增行程 + 對應飯店 =====
+app.post('/api/a', async (req, res) => {
+  console.log('收到資料:', req.body);
+
+  const {
+    country,
+    title,
+    arrivalDate,
+    departureDate,
+    hotels = [], // 前端請傳陣列 ["飯店A","飯店B",…]
+  } = req.body;
+
+  let conn;
+  
+  try {
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+
+    /* 3-1 寫入 trips */
+    const [tripRes] = await conn.execute(
+      `INSERT INTO Trip (country, title, s_date, e_date)
+       VALUES (?, ?, ?, ?)`,
+      [country, title, arrivalDate, departureDate]
+    );
+    const tripId = tripRes.insertId; // 取得 t_id
+
+    /* 3-2 批次寫入 trip_hotels */
+    if (hotels.length) {
+      const values = hotels.map((name) => [tripId, name]);
+      await conn.query(
+        `INSERT INTO TripHotel (t_id, h_name_zh)
+         VALUES ?`,
+        [values] // 二維陣列
+      );
+    }
+
+    await conn.commit();
+    res.json({ success: true, tripId });
+  } catch (err) {
+    if (conn) await conn.rollback();
+    console.error('❗ 資料庫錯誤:', err);
+    res
+      .status(500)
+      .json({ success: false, message: 'Database error', error: err.message });
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
+// ===== 取行程標題 =====
+app.get('/api/trips/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await pool.query(
+      'SELECT t_id, title FROM Trip WHERE t_id = ?',
+      [id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('❌ trips fetch error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== 景點查詢 =====
+app.get('/api/attractions', async (req, res) => {
+  const { country } = req.query;
+  try {
+    let sql = `
+      SELECT
+        a_id, 
+        name_zh, 
+        name_en,
+        category,  
+        address, 
+        city, 
+        country,
+        CASE
+          WHEN photo IS NULL THEN NULL
+          WHEN LEFT(photo,4) IN ('http','HTTP') THEN photo
+          ELSE CONCAT('data:image/jpeg;base64,', TO_BASE64(photo))
+        END AS photo
+      FROM Attraction`;
+    const params = [];
+
+    if (country) {
+      sql += ' WHERE country = ?';
+      params.push(country);
+    }
+    sql += ' ORDER BY a_id LIMIT 100';
+
+    const [rows] = await pool.query(sql, params);
+    res.json(rows);
+  } catch (err) {
+    console.error('❌ attractions query error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== 手動新增景點 =====
+app.post('/api/attractions', async (req, res) => {
+  const { name_zh, name_en, category, address = '', budget, photo } = req.body;
+  const parts   = address.split(',').map(s => s.trim()).filter(Boolean);
+  const country = parts.at(-1) || '';
+  const city    = parts.length >= 2 ? parts.at(-2) : '';
+
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO Attraction
+        (name_zh, name_en, category, address, city, country, budget, photo)
+       VALUES (?,?,?,?,?,?,?,?)`,
+      [name_zh, name_en, category, address, city, country, budget, photo]
+    );
+    res.json({ success: true, a_id: result.insertId, city, country });
+  } catch (err) {
+    console.error('❌ insert attraction', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ===== Treemap =====
+// Treemap 資料 (可用 tripId 或 country 篩選)
+app.get('/api/d3', async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT
+        r.t_id,
+        r.re_a_id,
+        r.a_id,
+        COALESCE(r.vote_like, 0) AS vote_like,   -- ❶ NULL→0
+        COALESCE(r.vote_love, 0) AS vote_love,   -- ❶ NULL→0
+        a.name_zh,
+        a.category,
+        a.photo,
+        r.who_like,                               -- 先取原始字串，稍後在 Node 端 parse
+        r.who_love,
+        (COALESCE(r.vote_like,0) + COALESCE(r.vote_love,0)) AS total_votes
+      FROM ReAttractions r
+      JOIN Attraction a ON r.a_id = a.a_id
+      ORDER BY total_votes DESC
+    `);
+
+    const toArr = (s) => {
+      if (s == null) return [];
+      // —— 如果已经是 JS 数组（MySQL JSON 列自动解析后就是数组），直接用它
+      if (Array.isArray(s)) return s;
+      // —— 如果是空字符串，也当空
+      if (s === '') return [];
+      // —— 否则把字符串再 parse 一次
+      try {
+        const v = JSON.parse(s);
+        return Array.isArray(v) ? v : [];
+      } catch {
+        return [];
+      }
+    };
+
+    const safe = rows.map(r => ({
+      ...r,
+      who_like: toArr(r.who_like),
+      who_love: toArr(r.who_love),
+    }));
+
+    res.json(safe);
+  } catch (err) {
+    console.error('❌ /api/d3 錯誤：', err);
+    res.status(500).json({ error: '伺服器錯誤' });
+  }
+});
+
+app.post('/api/switchvote', async (req, res) => {
+  const { t_id, a_id, user_id, type } = req.body;
+
+  if (!t_id || !a_id || !user_id || !['like', 'heart'].includes(type)) {
+    return res.status(400).json({ error: '資料不正確' });
+  }
+
+  const currentVoteCol = type === 'like' ? 'vote_like' : 'vote_love';
+  const currentWhoCol = type === 'like' ? 'who_like' : 'who_love';
+  const otherVoteCol = type === 'like' ? 'vote_love' : 'vote_like';
+  const otherWhoCol = type === 'like' ? 'who_love' : 'who_like';
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT who_like, who_love FROM ReAttractions WHERE t_id = ? AND a_id = ?`,
+      [t_id, a_id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ error: '找不到符合的景點資料 (t_id + a_id)' });
+    }
+
+    const current = rows[0];
+
+    let who_like = [];
+    let who_love = [];
+
+    try {
+      who_like = JSON.parse(current?.who_like || '[]');
+      if (!Array.isArray(who_like)) who_like = [];
+    } catch {
+      who_like = [];
+    }
+
+    try {
+      who_love = JSON.parse(current?.who_love || '[]');
+      if (!Array.isArray(who_love)) who_love = [];
+    } catch {
+      who_love = [];
+    }
+
+    const inCurrent = (type === 'like' ? who_like : who_love).includes(user_id);
+    const inOther = (type === 'like' ? who_love : who_like).includes(user_id);
+
+    if (inCurrent) {
+      await pool.query(
+        `UPDATE ReAttractions
+         SET ${currentVoteCol} = ${currentVoteCol} - 1,
+             ${currentWhoCol} = JSON_REMOVE(${currentWhoCol}, JSON_UNQUOTE(JSON_SEARCH(${currentWhoCol}, 'one', ?)))
+         WHERE t_id = ? AND a_id = ?`,
+        [user_id, t_id, a_id]
+      );
+      return res.json({ success: true, action: 'removed' });
+    }
+
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
+
+      if (inOther) {
+        await conn.query(
+          `UPDATE ReAttractions
+           SET ${otherVoteCol} = ${otherVoteCol} - 1,
+               ${otherWhoCol} = JSON_REMOVE(${otherWhoCol}, JSON_UNQUOTE(JSON_SEARCH(${otherWhoCol}, 'one', ?)))
+           WHERE t_id = ? AND a_id = ?`,
+          [user_id, t_id, a_id]
+        );
+      }
+
+      await conn.query(
+        `UPDATE ReAttractions
+         SET ${currentVoteCol} = ${currentVoteCol} + 1,
+             ${currentWhoCol} = JSON_ARRAY_APPEND(${currentWhoCol}, '$', ?)
+         WHERE t_id = ? AND a_id = ?`,
+        [user_id, t_id, a_id]
+      );
+
+      await conn.commit();
+      res.json({ success: true, action: 'switched' });
+    } catch (err) {
+      await conn.rollback();
+      console.error('❌ Transaction 錯誤:', err);
+      res.status(500).json({ error: '資料庫錯誤，已回滾' });
+    } finally {
+      conn.release();
+    }
+  } catch (err) {
+    console.error('❌ switchvote 發生錯誤:', err);
+    res.status(500).json({ error: '伺服器內部錯誤' });
+  }
+});
+
+app.post('/api/users-info', async (req, res) => {
+  const { user_ids } = req.body;
+  if (!Array.isArray(user_ids) || user_ids.length === 0) {
+    return res.status(400).json({ error: 'user_ids 必須是非空陣列' });
+  }
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT user_id, u_img FROM User WHERE user_id IN (?)`,
+      [user_ids]
+    );
+    const map = {};
+    for (const row of rows) {
+      map[row.user_id] = row.u_img;
+    }
+    res.json(map);
+  } catch (err) {
+    console.error('❌ /api/users-info 錯誤：', err);
+    res.status(500).json({ error: '伺服器錯誤' });
+  }
+});
+
+// ===== 取得評論 =====
+/*
+app.get('/api/comments', async (req, res) => {
+  const { attraction_id } = req.query;
+  try {
+    let sql = 'SELECT id, attraction_id, user_id, content, created_at FROM comments';
+    const params = [];
+    if (attraction_id) { sql += ' WHERE attraction_id = ?'; params.push(attraction_id); }
+    sql += ' ORDER BY created_at';
+    const [rows] = await pool.query(sql, params);
+    res.json(rows);
+  } catch (err) {
+    console.error('❌ comments query error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== 新增評論 =====
+app.post('/api/comments', async (req, res) => {
+  const { attraction_id, user_id, content } = req.body;
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO comments (attraction_id, user_id, content)
+       VALUES (?, ?, ?)`,
+      [attraction_id, user_id, content]
+    );
+    res.json({ success: true, id: result.insertId, created_at: new Date().toISOString() });
+  } catch (err) {
+    console.error('❌ insert comment error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ===== 取得所有連結 =====
+app.get('/api/links', async (req, res) => {
+  const { attraction_id } = req.query;
+  try {
+    let sql = 'SELECT id, Attraction_id, user_id, xontent, created_at FROM links';
+    const params = [];
+    if (attraction_id) {
+      sql += ' WHERE attraction_id = ?';
+      params.push(attraction_id);
+    }
+    sql += ' ORDER BY created_at';
+    const [rows] = await pool.query(sql, params);
+    res.json(rows);
+  } catch (err) {
+    console.error('❌ links query error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== 新增連結 =====
+app.post('/api/links', async (req, res) => {
+  const { attraction_id, user_id, xontent } = req.body;
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO links (attraction_id, user_id, xontent)
+      VALUES (?, ?, ?)`,
+      [attraction_id, user_id, xontent]
+    );
+    res.json({
+      success: true,
+      id: result.insertId,
+      created_at: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('❌ insert link error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+*/
+
+
 // ====================================view 2===========================
 app.get('/api/view2_attraction_list', (req, res) => {
   const sql = 'SELECT * FROM Attraction';
@@ -318,12 +698,12 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
 
 //把景點添加到schedule後存入資料庫
 app.post('/api/view2_schedule_include_insert', (req, res) => {
-  const { a_id, t_id, s_id, x, y, height, sequence = 1 } = req.body;
+  const { a_id, t_id, s_id, x, y, height, sequence = 1, transport_method = 0 } = req.body;
 
   // sequence=1;//default value
 
-  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height, sequence) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  const values = [a_id, t_id, s_id, x, y, height, sequence];
+  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height, sequence, transport_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  const values = [a_id, t_id, s_id, x, y, height, sequence, transport_method];
 
   connection.query(query, values, (err, results) => {
     if (err) {
@@ -1774,8 +2154,4 @@ app.get('/api/user/:uid', (req, res) => {
       });
     });
   });
-});
-
-app.listen(3001, () => {
-  console.log('Server is running on port 3001');
 });

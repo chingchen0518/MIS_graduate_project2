@@ -8,6 +8,8 @@ function Header() {
   const navigate = useNavigate();
   const [stage, setStage] = useState(1);
   const [deadline, setDeadline] = useState('');
+  const [days, setDays] = useState(0);
+  const [finishedDay, setFinishedDay] = useState(0);
   const [now, setNow] = useState(new Date());
   const [hasUpdated, setHasUpdated] = useState(false); // ✅ 只更新一次
 
@@ -15,6 +17,7 @@ function Header() {
   const [email, setEmail] = useState('');
   const [tripId, setTripId] = useState(trip.tid || 1);//之後要修改
   const [tripTitle, setTripTitle] = useState(trip.title);
+
 
   const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
 
@@ -49,6 +52,8 @@ function Header() {
       setTripTitle(data.tripTitle);
       setStage(mapStageToNumber(data.stage));
       setDeadline(data.deadline);
+      setDays(data.days);
+      setFinishedDay(data.finished_day);
       setHasUpdated(false); // 重置 flag
     } catch (e) {
       console.error('API 錯誤:', e);
@@ -60,6 +65,7 @@ function Header() {
   }, []);
 
   const getCountdown = () => {
+    if (stage === 5) return '00:00:00'; // 如果已到 E 階段，剩餘時間固定為 0
     if (!deadline) return '00:00:00';
     const diff = Math.max(0, Math.floor((new Date(deadline) - now) / 1000));
     const h = Math.floor(diff / 3600);
@@ -71,7 +77,6 @@ function Header() {
   // 倒數到 0 時只執行一次
   useEffect(() => {
     if (!deadline || hasUpdated) return;
-    console.log('deadline:', deadline);
 
     const diff = Math.floor((new Date(deadline) - now) / 1000);
     if (diff <= 0) {
@@ -87,7 +92,12 @@ function Header() {
           const res = await fetch('/api/update-stage-date', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tripId, stage_date: deadline }), // 用 deadline 代替 stage_date
+            body: JSON.stringify({
+              tripId,
+              stage_date: deadline, // 用 deadline 代替 stage_date
+              days,                // 傳入天數
+              finishedDay          // 傳入已完成天數
+            }),
           });
 
           const result = await res.json();

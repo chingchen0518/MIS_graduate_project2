@@ -1,3 +1,5 @@
+import React, { useEffect} from "react";
+import axios from "axios";
 import { createContext, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -12,6 +14,7 @@ import ResizableBox from './view2/chingchen/ResizableBox.jsx';
 
 //==============================view 1==================================
 import Part1 from './view1/part1.jsx';
+import TreemapTest from './view1/treemap_chyi.jsx';
 import Part2 from './view1/part2.jsx';
 import TripList from './view1/tripList.jsx';
 import TravelGantt from './view1/test.jsx';         // test.jsx 預設輸出 TravelGantt
@@ -61,6 +64,9 @@ export const MyContext = createContext();
 function App() {
     const [hourInterval, setHourInterval] = useState(35/60);
 
+    const [attractions, setAttractions] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     return (
         <MyContext.Provider value={{ hourInterval, setHourInterval }}>
             <Router>
@@ -70,6 +76,7 @@ function App() {
                     <Route path="/" element={<HomePage />} />
                     
                     <Route path="/part1" element={<Part1 />} />
+                    <Route path="/treemap" element={<TreemapTest />} />
                     {/* <Route path="/part2/:tId" element={<Part2Route />} /> */}
                     <Route path="/trips" element={<TripList />} />
                     <Route path="/gantt" element={<TravelGantt />} />

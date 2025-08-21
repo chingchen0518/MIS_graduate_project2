@@ -48,12 +48,13 @@ import ForgotPassword from './view3/page1/forgotpassword.jsx';
 import Logout from './view3/page1/logout.jsx';
 import Profile from './view3/page1/profile.jsx';
 import Page2 from './view3/page2/page2.jsx';
-// import Page3 from './view3/page3/Page3.jsx';
-//=====================================================================
+import Page3 from './view3/page3/Page3.jsx';
+
 import HomePage from './components/homepage.jsx'
 import Header from './components/header.jsx'
 import './App.css';
 import GeminiChat from './view2/chingchen/TEST API';
+import TEST_API_GPT from './view2/chingchen/TEST_API_GPT';
 
 //create context
 export const MyContext = createContext();
@@ -78,7 +79,7 @@ function App() {
                     <Route path="/map" element={<InteractiveMap />} />
                     <Route path="/page1" element={<Page1 />} />
                     <Route path="/page2" element={<Page2 />} />
-                    {/* <Route path="/page3" element={<Page3 />} /> */}
+                    <Route path="/page3" element={<Page3 />} />
                     <Route path="/header" element={<Header />} />
                     {/* <Route path="/attraction" element={<AttractionContainer />} /> */}
                     <Route path="/MapDisplay" element={<MapDisplay />} />
@@ -91,6 +92,7 @@ function App() {
                     <Route path="/ResizableBox" element={<ResizableBox />} />
                     <Route path="/MyRndList" element={<MyRndList />} />
                     <Route path="/TEST_API" element={<GeminiChat />} />
+                    <Route path="/TEST_API_GPT" element={<TEST_API_GPT />} />
                 </Routes>
             </Router>
         </MyContext.Provider>

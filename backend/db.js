@@ -698,12 +698,12 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
 
 //把景點添加到schedule後存入資料庫
 app.post('/api/view2_schedule_include_insert', (req, res) => {
-  const { a_id, t_id, s_id, x, y, height, sequence = 1 } = req.body;
+  const { a_id, t_id, s_id, x, y, height, sequence = 1, transport_method = 0 } = req.body;
 
   // sequence=1;//default value
 
-  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height, sequence) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  const values = [a_id, t_id, s_id, x, y, height, sequence];
+  const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height, sequence, transport_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  const values = [a_id, t_id, s_id, x, y, height, sequence, transport_method];
 
   connection.query(query, values, (err, results) => {
     if (err) {
@@ -2006,11 +2006,12 @@ app.get('/api/trip/:id', (req, res) => {
   }
 
   const sql = `
-    SELECT *,
-      DATE_FORMAT(stage_date, "%Y-%m-%d %H:%i:%s") AS stage_date_str
-    FROM trip
-    WHERE t_id = ? LIMIT 1
-  `;
+  SELECT *,
+    DATE_FORMAT(stage_date, "%Y-%m-%d %H:%i:%s") AS stage_date_str,
+    DATEDIFF(e_date, s_date) + 1 AS days
+  FROM trip
+  WHERE t_id = ? LIMIT 1
+`;
 
   connection.query(sql, [tripId], (err, results) => {
     if (err) {
@@ -2048,37 +2049,58 @@ app.get('/api/trip/:id', (req, res) => {
       stage: trip.stage,
       stage_date: trip.stage_date_str, // 原始資料
       time: trip.time,
-      deadline: deadlineStr // ✅ 直接計算好的時間
+      finished_day: trip.finished_day,
+      deadline: deadlineStr, // ✅ 直接計算好的時間
+      days: trip.days // ✅ 這裡就是天數
     });
   });
 });
 
 app.post('/api/update-stage-date', (req, res) => {
-  const { tripId, stage_date } = req.body; // 前端傳的 deadline 字串放到 stage_date
-
+  const { tripId, stage_date, days, finishedDay } = req.body;
   if (!tripId || !stage_date) {
     return res.status(400).json({ message: '缺少 tripId 或 stage_date' });
   }
-
   const selectSql = 'SELECT stage FROM trip WHERE t_id = ? LIMIT 1';
   connection.query(selectSql, [tripId], (err, results) => {
     if (err) return res.status(500).json({ message: '伺服器錯誤' });
     if (results.length === 0) return res.status(404).json({ message: '找不到該旅程資料' });
 
     let currentStage = results[0].stage;
-    let nextStage = currentStage !== 'E' ? String.fromCharCode(currentStage.charCodeAt(0) + 1) : currentStage;
+    let nextStage = currentStage;
+    let newFinishedDay = finishedDay;
 
-    const updateSql = 'UPDATE trip SET stage_date = ?, stage = ? WHERE t_id = ?';
-    connection.query(updateSql, [stage_date, nextStage, tripId], (err, result) => {
-      if (err) return res.status(500).json({ message: '伺服器錯誤' });
+    if (currentStage === 'D') {
+      if (finishedDay === days - 1) {
+        nextStage = 'E';
+        newFinishedDay = finishedDay + 1;
+      } else if (finishedDay < days - 1) {
+        nextStage = 'C';
+        newFinishedDay = finishedDay + 1;
+      }
+    } else if (currentStage === 'E') {
+      // 已經是最後階段，保持 E
+      nextStage = 'E';
+    } else {
+      // A->B, B->C, C->D
+      nextStage = String.fromCharCode(currentStage.charCodeAt(0) + 1);
+    }
 
-      res.status(200).json({
-        message: '更新成功',
-        tripId,
-        stage: nextStage,
-        stage_date
+    if (currentStage !== 'E') {
+      // 其他階段照原本邏輯
+      const updateSql = 'UPDATE trip SET stage_date = ?, stage = ?, finished_day = ? WHERE t_id = ?';
+      connection.query(updateSql, [stage_date, nextStage, newFinishedDay, tripId], (err, result) => {
+        if (err) return res.status(500).json({ message: '伺服器錯誤' });
+
+        res.status(200).json({
+          message: '更新成功',
+          tripId,
+          stage: nextStage,
+          stage_date,
+          finished_day: newFinishedDay
+        });
       });
-    });
+    }
   });
 });
 

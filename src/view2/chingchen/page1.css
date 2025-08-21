@@ -45,30 +45,3 @@
   box-sizing: border-box;
 }
 
-/* 移除響應式設計，固定大小 */
-/* @media (max-width: 1200px) {
-  .page1_content {
-    flex-direction: column;
-    height: auto;
-  }
-  
-  .schedule_container,
-  .attraction_container {
-    width: 100% !important;
-    height: 400px;
-  }
-}
-
-@media (max-width: 768px) {
-  .page1 {
-    padding: 10px;
-  }
-  
-  .page1_title {
-    font-size: 24px;
-  }
-  
-  .page1_subtitle {
-    font-size: 14px;
-  }
-} */

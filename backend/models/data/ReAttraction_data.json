@@ -1,83 +1,89 @@
 [
     {
-        "re_a_id": 1,
         "t_id": 1,
-        "a_id": 1,
-        "vote_like": 1,
-        "who_like": [],
-        "vote_love": 0,
-        "who_love": []
+        "re_attractions": [
+            {
+                "a_id": 1,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            },
+            {
+                "a_id": 2,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            },
+            {
+                "a_id": 3,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            },
+            {
+                "a_id": 4,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            },
+            {
+                "a_id": 5,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            },
+            {
+                "a_id": 6,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            },
+            {
+                "a_id": 7,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            },
+            {
+                "a_id": 8,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            },
+            {
+                "a_id": 9,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            },
+            {
+                "a_id": 10,
+                "vote_like": 1,
+                "who_like": [],
+                "vote_love": 0,
+                "who_love": []
+            }
+        ]
     },
     {
-        "re_a_id": 2,
-        "t_id": 1,
-        "a_id": 2,
-        "vote_like": 1,
-        "who_like": [],
-        "vote_love": 0,
-        "who_love": []
-    },
-    {
-        "re_a_id": 3,
-        "t_id": 1,
-        "a_id": 3,
-        "vote_like": 1,
-        "who_like": [],
-        "vote_love": 0,
-        "who_love": []
-    },
-    {
-        "re_a_id": 4,
-        "t_id": 1,
-        "a_id": 4,
-        "vote_like": 1,
-        "who_like": [],
-        "vote_love": 0,
-        "who_love": []
-    },
-    {
-        "re_a_id": 5,
-        "t_id": 1,
-        "a_id": 5,
-        "vote_like": 1,
-        "who_like": [],
-        "vote_love": 0,
-        "who_love": []
-    },
-    {
-        "re_a_id": 6,
-        "t_id": 1,
-        "a_id": 6,
-        "vote_like": 1,
-        "who_like": [],
-        "vote_love": 0,
-        "who_love": []
-    },
-    {
-        "re_a_id": 7,
-        "t_id": 1,
-        "a_id": 7,
-        "vote_like": 1,
-        "who_like": [],
-        "vote_love": 0,
-        "who_love": []
-    },
-    {
-        "re_a_id": 9,
-        "t_id": 1,
-        "a_id": 9,
-        "vote_like": 1,
-        "who_like": [],
-        "vote_love": 0,
-        "who_love": []
-    },
-    {
-        "re_a_id": 10,
-        "t_id": 1,
-        "a_id": 10,
-        "vote_like": 1,
-        "who_like": [],
-        "vote_love": 0,
-        "who_love": []
+        "t_id": 2,
+        "re_attractions": [
+            {
+                "a_id": 3,
+                "vote_like": 2,
+                "who_like": ["AAA"],
+                "vote_love": 1,
+                "who_love": []
+            }
+        ]
     }
 ]

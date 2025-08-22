@@ -158,11 +158,8 @@ app.get('/api/travel', (req, res) => {
 
 // ====================================view 1===========================
 
-// 這裡指定 JSON 的完整路徑
-const filePath = path.join(__dirname, 'models', 'data', 'attraction_data.json');
-
 app.get('/api/attractions', (req, res) => {
-  const filePath = path.join(__dirname, 'attraction_data.json');
+  const filePath = path.join(__dirname, 'models', 'data', 'attraction_data.json'); 
   fs.readFile(filePath, 'utf-8', (err, data) => {
     if (err) {
       console.error('❌ 讀取 JSON 檔失敗:', err);
@@ -172,6 +169,7 @@ app.get('/api/attractions', (req, res) => {
     res.json(JSON.parse(data));
   });
 });
+
 
 // // 模糊搜尋飯店
 // app.get('/api/hotels', async (req, res) => {

@@ -1,6 +1,6 @@
 // db.js
 import express from 'express';
-import mysql from 'mysql2';
+import mysql from 'mysql2/promise';
 import cors from 'cors';
 import './syncModels.js';
 import bcrypt from 'bcrypt';
@@ -45,7 +45,8 @@ app.use(express.json());
 
 const port = 3001;
 
-const connection = mysql.createConnection({
+// 建立 connection（自動連線，不要再呼叫 .connect）
+const connection = await mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '20250101',
@@ -158,6 +159,7 @@ app.get('/api/travel', (req, res) => {
 
 // ====================================view 1===========================
 
+/* ----- Tree map 讀取該 trip 大家有興趣的景點 ----- */
 app.get('/api/attractions', (req, res) => {
   const filePath = path.join(__dirname, 'models', 'data', 'attraction_data.json'); 
   fs.readFile(filePath, 'utf-8', (err, data) => {
@@ -169,6 +171,98 @@ app.get('/api/attractions', (req, res) => {
     res.json(JSON.parse(data));
   });
 });
+
+
+/* ----- 動態切換 "有興趣" 和 "非常有興趣" ----- */
+app.post('/api/switchvote', async (req, res) => {
+  const { t_id, a_id, user_id, type } = req.body;
+
+  if (!t_id || !a_id || !user_id || !['like', 'heart'].includes(type)) {
+    return res.status(400).json({ error: '資料不正確' });
+  }
+
+  const currentVoteCol = type === 'like' ? 'vote_like' : 'vote_love';
+  const currentWhoCol  = type === 'like' ? 'who_like'  : 'who_love';
+  const otherVoteCol   = type === 'like' ? 'vote_love' : 'vote_like';
+  const otherWhoCol    = type === 'like' ? 'who_love'  : 'who_like';
+
+  try {
+    // 直接在 API 裡決定 JSON 檔案路徑
+    const jsonFile = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
+    const data = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
+
+    // 找 t_id
+    const targetTrip = data.find(item => item.t_id === t_id);
+    if (!targetTrip) {
+      return res.status(404).json({ error: '找不到符合的行程資料 (t_id)' });
+    }
+
+    // 找 a_id
+    const targetAttr = targetTrip.re_attractions.find(attr => attr.a_id === a_id);
+    if (!targetAttr) {
+      return res.status(404).json({ error: '找不到符合的景點資料 (t_id + a_id)' });
+    }
+
+    // 確保陣列存在
+    targetAttr.who_like = targetAttr.who_like || [];
+    targetAttr.who_love = targetAttr.who_love || [];
+
+    const inCurrent = targetAttr[currentWhoCol].includes(user_id);
+    const inOther   = targetAttr[otherWhoCol].includes(user_id);
+
+    // 1) 如果已經投過 → 移除（減 1）
+    if (inCurrent) {
+      targetAttr[currentVoteCol] = Math.max(0, targetAttr[currentVoteCol] - 1);
+      targetAttr[currentWhoCol] = targetAttr[currentWhoCol].filter(u => u !== user_id);
+
+      fs.writeFileSync(jsonFile, JSON.stringify(data, null, 2));
+      return res.json({ success: true, action: 'removed' });
+    }
+
+    // 2) 如果在另一個投票中 → 先移除
+    if (inOther) {
+      targetAttr[otherVoteCol] = Math.max(0, targetAttr[otherVoteCol] - 1);
+      targetAttr[otherWhoCol] = targetAttr[otherWhoCol].filter(u => u !== user_id);
+    }
+
+    // 3) 加入目前的投票（加 1）
+    targetAttr[currentVoteCol]++;
+    targetAttr[currentWhoCol].push(user_id);
+
+    // 寫回 JSON 檔案
+    fs.writeFileSync(jsonFile, JSON.stringify(data, null, 2));
+
+    res.json({ success: true, action: inOther ? 'switched' : 'added' });
+  } catch (err) {
+    console.error('❌ switchvote 發生錯誤:', err);
+    res.status(500).json({ error: '伺服器內部錯誤' });
+  }
+});
+
+
+
+// ===== users-info =====
+// app.post('/api/users-info', async (req, res) => {
+//   const { user_ids } = req.body;
+//   if (!Array.isArray(user_ids) || user_ids.length === 0) {
+//     return res.status(400).json({ error: 'user_ids 必須是非空陣列' });
+//   }
+
+//   try {
+//     const [rows] = await connection.query(
+//       `SELECT user_id, u_img FROM User WHERE user_id IN (?)`,
+//       [user_ids]
+//     );
+//     const map = {};
+//     for (const row of rows) {
+//       map[row.user_id] = row.u_img;
+//     }
+//     res.json(map);
+//   } catch (err) {
+//     console.error('❌ /api/users-info 錯誤：', err);
+//     res.status(500).json({ error: '伺服器錯誤' });
+//   }
+// });
 
 
 // // 模糊搜尋飯店
@@ -361,96 +455,6 @@ app.get('/api/attractions', (req, res) => {
 //   }
 // });
 
-// app.post('/api/switchvote', async (req, res) => {
-//   const { t_id, a_id, user_id, type } = req.body;
-
-//   if (!t_id || !a_id || !user_id || !['like', 'heart'].includes(type)) {
-//     return res.status(400).json({ error: '資料不正確' });
-//   }
-
-//   const currentVoteCol = type === 'like' ? 'vote_like' : 'vote_love';
-//   const currentWhoCol = type === 'like' ? 'who_like' : 'who_love';
-//   const otherVoteCol = type === 'like' ? 'vote_love' : 'vote_like';
-//   const otherWhoCol = type === 'like' ? 'who_love' : 'who_like';
-
-//   try {
-//     const [rows] = await pool.query(
-//       `SELECT who_like, who_love FROM ReAttractions WHERE t_id = ? AND a_id = ?`,
-//       [t_id, a_id]
-//     );
-//     if (rows.length === 0) {
-//       return res.status(404).json({ error: '找不到符合的景點資料 (t_id + a_id)' });
-//     }
-
-//     const current = rows[0];
-
-//     let who_like = [];
-//     let who_love = [];
-
-//     try {
-//       who_like = JSON.parse(current?.who_like || '[]');
-//       if (!Array.isArray(who_like)) who_like = [];
-//     } catch {
-//       who_like = [];
-//     }
-
-//     try {
-//       who_love = JSON.parse(current?.who_love || '[]');
-//       if (!Array.isArray(who_love)) who_love = [];
-//     } catch {
-//       who_love = [];
-//     }
-
-//     const inCurrent = (type === 'like' ? who_like : who_love).includes(user_id);
-//     const inOther = (type === 'like' ? who_love : who_like).includes(user_id);
-
-//     if (inCurrent) {
-//       await pool.query(
-//         `UPDATE ReAttractions
-//          SET ${currentVoteCol} = ${currentVoteCol} - 1,
-//              ${currentWhoCol} = JSON_REMOVE(${currentWhoCol}, JSON_UNQUOTE(JSON_SEARCH(${currentWhoCol}, 'one', ?)))
-//          WHERE t_id = ? AND a_id = ?`,
-//         [user_id, t_id, a_id]
-//       );
-//       return res.json({ success: true, action: 'removed' });
-//     }
-
-//     const conn = await pool.getConnection();
-//     try {
-//       await conn.beginTransaction();
-
-//       if (inOther) {
-//         await conn.query(
-//           `UPDATE ReAttractions
-//            SET ${otherVoteCol} = ${otherVoteCol} - 1,
-//                ${otherWhoCol} = JSON_REMOVE(${otherWhoCol}, JSON_UNQUOTE(JSON_SEARCH(${otherWhoCol}, 'one', ?)))
-//            WHERE t_id = ? AND a_id = ?`,
-//           [user_id, t_id, a_id]
-//         );
-//       }
-
-//       await conn.query(
-//         `UPDATE ReAttractions
-//          SET ${currentVoteCol} = ${currentVoteCol} + 1,
-//              ${currentWhoCol} = JSON_ARRAY_APPEND(${currentWhoCol}, '$', ?)
-//          WHERE t_id = ? AND a_id = ?`,
-//         [user_id, t_id, a_id]
-//       );
-
-//       await conn.commit();
-//       res.json({ success: true, action: 'switched' });
-//     } catch (err) {
-//       await conn.rollback();
-//       console.error('❌ Transaction 錯誤:', err);
-//       res.status(500).json({ error: '資料庫錯誤，已回滾' });
-//     } finally {
-//       conn.release();
-//     }
-//   } catch (err) {
-//     console.error('❌ switchvote 發生錯誤:', err);
-//     res.status(500).json({ error: '伺服器內部錯誤' });
-//   }
-// });
 
 // app.post('/api/users-info', async (req, res) => {
 //   const { user_ids } = req.body;

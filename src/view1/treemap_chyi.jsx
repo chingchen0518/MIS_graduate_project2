@@ -731,31 +731,38 @@ export default function TreemapChyi() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:3001/api/attractions')
+      .get('http://localhost:3001/api/d3?t_id=1')
       .then((res) => {
-        // 後端可能只回傳基本欄位，所以在前端補上 treemap 需要的欄位
         const normalized = (Array.isArray(res.data) ? res.data : []).map((d) => ({
-          a_id: d.a_id ?? d.id ?? d.aid,
-          t_id: d.t_id ?? d.trip_id ?? 1,              // 沒有就先給 1
-          name: d.name_zh || d.name || d.name_en || '未命名',
-          category: d.category || d.type || 'Unknown',
-          photo: d.photo || d.image_url || '',         // 讓 TreemapChart 自己 fallback
+          a_id: d.a_id,
+          t_id: d.t_id,
+          name: d.name_zh || d.name || '未命名',
+          category: d.category || 'Unknown',
+          photo: d.photo || '',
           vote_like: Number(d.vote_like ?? 0),
           vote_love: Number(d.vote_love ?? 0),
           who_like: Array.isArray(d.who_like) ? d.who_like : [],
           who_love: Array.isArray(d.who_love) ? d.who_love : [],
+          total_votes: Number(d.total_votes ?? ((d.vote_like ?? 0) + (d.vote_love ?? 0))),
         }));
         setData(normalized);
       })
       .catch((e) => {
-        console.error('❌ 取 attractions 失敗:', e);
+        console.error('❌ 取 d3 資料失敗:', e);
         setErr(e);
       })
       .finally(() => setLoading(false));
   }, []);
 
+
   if (loading) return <div style={{ padding: 16 }}>載入中…</div>;
   if (err) return <div style={{ padding: 16, color: 'crimson' }}>讀取失敗：{String(err)}</div>;
 
-  return <TreemapChart data={data} width={900} height={520} onRefresh={()=>{}} />;
+  return <TreemapChart data={data} width={900} height={520} onRefresh={() => {
+    // 投票後自動重抓
+    axios.get('http://localhost:3001/api/d3?t_id=1')
+      .then(res => setData(res.data))
+      .catch(e => console.error('❌ 重抓 d3 資料失敗:', e));
+  }} />;
+
 }

@@ -240,6 +240,44 @@ app.post('/api/switchvote', async (req, res) => {
 });
 
 
+/* ----- Tree map 排序 ----- */
+app.get('/api/d3', (req, res) => {
+  try {
+    const tId = Number(req.query.t_id || 1);
+    const attractionFile = path.join(__dirname, 'models', 'data', 'attraction_data.json');
+    const reAttractionFile = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
+
+    const attractions = JSON.parse(fs.readFileSync(attractionFile, 'utf8'));
+    const reAttractions = JSON.parse(fs.readFileSync(reAttractionFile, 'utf8'));
+
+    const trip = reAttractions.find(r => r.t_id === tId) || { re_attractions: [] };
+    const voteMap = new Map(trip.re_attractions.map(r => [r.a_id, r]));
+
+    const merged = attractions.map(a => {
+      const v = voteMap.get(a.a_id) || {};
+      return {
+        t_id: tId,
+        a_id: a.a_id,
+        name_zh: a.name_zh || a.name,
+        category: a.category || '',
+        photo: a.photo || null,
+        vote_like: v.vote_like ?? 0,
+        vote_love: v.vote_love ?? 0,
+        who_like: Array.isArray(v.who_like) ? v.who_like : [],
+        who_love: Array.isArray(v.who_love) ? v.who_love : [],
+        total_votes: (v.vote_like ?? 0) + (v.vote_love ?? 0),
+      };
+    });
+
+    merged.sort((a, b) => b.total_votes - a.total_votes);
+    res.json(merged);
+  } catch (err) {
+    console.error('❌ /api/d3 錯誤：', err);
+    res.status(500).json({ error: '伺服器錯誤' });
+  }
+});
+
+
 
 // ===== users-info =====
 // app.post('/api/users-info', async (req, res) => {
@@ -402,56 +440,6 @@ app.post('/api/switchvote', async (req, res) => {
 //   } catch (err) {
 //     console.error('❌ insert attraction', err);
 //     res.status(500).json({ success: false, error: err.message });
-//   }
-// });
-
-// // ===== Treemap =====
-// // Treemap 資料 (可用 tripId 或 country 篩選)
-// app.get('/api/d3', async (req, res) => {
-//   try {
-//     const [rows] = await pool.query(`
-//       SELECT
-//         r.t_id,
-//         r.re_a_id,
-//         r.a_id,
-//         COALESCE(r.vote_like, 0) AS vote_like,   -- ❶ NULL→0
-//         COALESCE(r.vote_love, 0) AS vote_love,   -- ❶ NULL→0
-//         a.name_zh,
-//         a.category,
-//         a.photo,
-//         r.who_like,                               -- 先取原始字串，稍後在 Node 端 parse
-//         r.who_love,
-//         (COALESCE(r.vote_like,0) + COALESCE(r.vote_love,0)) AS total_votes
-//       FROM ReAttractions r
-//       JOIN Attraction a ON r.a_id = a.a_id
-//       ORDER BY total_votes DESC
-//     `);
-
-//     const toArr = (s) => {
-//       if (s == null) return [];
-//       // —— 如果已经是 JS 数组（MySQL JSON 列自动解析后就是数组），直接用它
-//       if (Array.isArray(s)) return s;
-//       // —— 如果是空字符串，也当空
-//       if (s === '') return [];
-//       // —— 否则把字符串再 parse 一次
-//       try {
-//         const v = JSON.parse(s);
-//         return Array.isArray(v) ? v : [];
-//       } catch {
-//         return [];
-//       }
-//     };
-
-//     const safe = rows.map(r => ({
-//       ...r,
-//       who_like: toArr(r.who_like),
-//       who_love: toArr(r.who_love),
-//     }));
-
-//     res.json(safe);
-//   } catch (err) {
-//     console.error('❌ /api/d3 錯誤：', err);
-//     res.status(500).json({ error: '伺服器錯誤' });
 //   }
 // });
 

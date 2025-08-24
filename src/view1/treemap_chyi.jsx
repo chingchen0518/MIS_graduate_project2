@@ -6,7 +6,7 @@ import axios from 'axios';
 /* ---------------------------------------
  * 你原本的 TreemapChart 不動（只做 1 處小修：把 value 的計算改成更安全）
  * -------------------------------------*/
-export const TreemapChart = ({ data, width = 900, height = 500, onRefresh }) => {
+export const TreemapChart = ({ data, width = 900, height = 500, onRefresh, onSelect }) => {
   const ref = useRef();
   const rightRef = useRef(null);
   const dropW = Math.round(width * 0.4);
@@ -15,7 +15,11 @@ export const TreemapChart = ({ data, width = 900, height = 500, onRefresh }) => 
     const buttonGroup = group.append('g')
       .attr('transform', `translate(${x}, 0)`)
       .style('cursor', 'pointer')
-      .on('click', onClickHandler);
+      .on('click', function(event, datum) {
+        // 重要：投票/眼睛按鈕不讓事件冒泡到 tile
+        event.stopPropagation();
+        onClickHandler.call(this, event, datum);
+      });
 
     const strokeColor = '#fff';
     const fillColor = forceBlack ? 'black' : (isActive ? '#fff' : 'black');
@@ -287,7 +291,10 @@ export const TreemapChart = ({ data, width = 900, height = 500, onRefresh }) => 
 
         const hoverGroup = thisNode.append('g')
           .attr('class', 'hover-buttons')
-          .attr('transform', `translate(${leftOffset}, ${rectHeight - bottomOffset})`);
+          .attr('transform', `translate(${leftOffset}, ${rectHeight - bottomOffset})`)
+          .on('click', (event) => event.stopPropagation())
+          .on('mousedown', (event) => event.stopPropagation())
+          .on('touchstart', (event) => event.stopPropagation());
 
 
         const user_id = 'aaa';
@@ -424,6 +431,9 @@ export const TreemapChart = ({ data, width = 900, height = 500, onRefresh }) => 
               .attr('transform', `translate(${panelX}, ${panelY})`)
               .on('mouseenter', e => e.stopPropagation())
               .on('mouseleave', e => e.stopPropagation())
+              .on('click', (event) => event.stopPropagation())
+              .on('mousedown', (event) => event.stopPropagation())
+              .on('touchstart', (event) => event.stopPropagation())
               .call(
                 d3.drag().on('drag', function (event) {
                   // 只改 Y，並依縮放做校正，避免放大時拖曳位移過大
@@ -601,6 +611,24 @@ export const TreemapChart = ({ data, width = 900, height = 500, onRefresh }) => 
       toast.transition().duration(120).attr('opacity', 1)
           .transition().delay(stay).duration(250).attr('opacity', 0).remove();
     }
+
+    nodes.style('cursor','pointer').on('click', (event, d) => {
+      const t = event.target;
+      if (t && t.closest && (t.closest('.hover-buttons') || t.closest('.overlay-info'))) {
+        // 來自投票/面板的點擊，忽略，不開留言
+        return;
+      }
+      onSelect?.({
+          a_id: d.data.a_id,
+          t_id: d.data.t_id,
+          name_zh: d.data.name || d.data.name_zh,
+          category: d.data.category,
+          photo: d.data.photo,
+          vote_like: d.data.vote_like ?? 0,
+          vote_love: d.data.vote_love ?? 0,
+      });
+    });
+
 
 
 

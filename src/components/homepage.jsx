@@ -20,13 +20,13 @@ const HomePage = () => {
         {/* view1的這里 */}      
         <ul className="view_1" style={{ margin: '20px',padding:'20px',border:'1px solid'}}>
             <li className="homepage_li"><a href="/part1">Part1</a></li>
+            <li className="homepage_li"><a href="/part1">Part1</a></li>
+            <li className="homepage_li"><a href="/treemap">Treemap_only</a></li>
+            <li className="homepage_li"><a href="/choose">Choose Attraaction</a></li>
         </ul>
 
 
-        <li className="homepage_li"><a href="/part1">Part1</a></li>
-        <li className="homepage_li"><a href="/treemap">Treemap_only</a></li>
-        <li className="homepage_li"><a href="/choose">Choose Attraaction</a></li>
-
+        
          {/* view2的這里 */}
         <ul className="view_2" style={{ margin: '20px',padding:'20px',border:'1px solid'}}>
             <li className="homepage_li"><a href="/attraction">attraction</a></li>

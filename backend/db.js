@@ -314,30 +314,107 @@ app.get('/api/user', (req, res) => {
   });
 });
 
+/* ----- 新增評論 ----- */
+app.post('/api/comments-add', (req, res) => {
+  const { t_id, a_id, user_id, content } = req.body;
 
+  if (!t_id || !a_id || !user_id || !content) {
+    return res.status(400).json({ error: '缺少必要參數' });
+  }
 
-// ===== users-info =====
-// app.post('/api/users-info', async (req, res) => {
-//   const { user_ids } = req.body;
-//   if (!Array.isArray(user_ids) || user_ids.length === 0) {
-//     return res.status(400).json({ error: 'user_ids 必須是非空陣列' });
-//   }
+  fs.readFile(filePath_comment, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 JSON 檔失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
 
-//   try {
-//     const [rows] = await connection.query(
-//       `SELECT user_id, u_img FROM User WHERE user_id IN (?)`,
-//       [user_ids]
-//     );
-//     const map = {};
-//     for (const row of rows) {
-//       map[row.user_id] = row.u_img;
-//     }
-//     res.json(map);
-//   } catch (err) {
-//     console.error('❌ /api/users-info 錯誤：', err);
-//     res.status(500).json({ error: '伺服器錯誤' });
-//   }
-// });
+    let jsonData = JSON.parse(data);
+
+    // 找到對應的 t_id
+    let trip = jsonData.find(t => t.t_id === Number(t_id));
+    if (!trip) {
+      // 如果沒有對應的 t_id，就新增一個
+      trip = { t_id: Number(t_id), comments: [] };
+      jsonData.push(trip);
+    }
+
+    // 找到對應的 a_id
+    let attraction = trip.comments.find(c => c.a_id === Number(a_id));
+    if (!attraction) {
+      // 如果沒有對應的 a_id，就新增一個空的
+      attraction = { a_id: Number(a_id), user_id: [], content: [], created_at: [] };
+      trip.comments.push(attraction);
+    }
+
+    // 新增評論
+    attraction.user_id.push(user_id);
+    attraction.content.push(content);
+    attraction.created_at.push(new Date().toISOString());
+
+    // 寫回 JSON
+    fs.writeFile(filePath_comment, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
+      if (err) {
+        console.error('❌ 寫入 JSON 檔失敗:', err);
+        return res.status(500).json({ error: '寫入失敗' });
+      }
+      res.json({ success: true, message: '評論新增成功' });
+    });
+  });
+});
+
+/* ----- 刪除評論 ----- */
+app.delete('/api/comments-delete', (req, res) => {
+  const { t_id, a_id, index } = req.body;
+
+  if (t_id === undefined || a_id === undefined || index === undefined) {
+    return res.status(400).json({ error: '缺少必要參數 (t_id, a_id, index)' });
+  }
+
+  fs.readFile(filePath_comment, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 JSON 檔失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
+
+    let jsonData = JSON.parse(data);
+
+    // 找到對應的 t_id
+    const trip = jsonData.find(t => t.t_id === Number(t_id));
+    if (!trip) {
+      return res.status(404).json({ error: '找不到對應的 t_id' });
+    }
+
+    // 找到對應的 a_id
+    const attraction = trip.comments.find(c => c.a_id === Number(a_id));
+    if (!attraction) {
+      return res.status(404).json({ error: '找不到對應的 a_id' });
+    }
+
+    // 確認 index 是否存在
+    if (
+      index < 0 ||
+      index >= attraction.content.length ||
+      !attraction.content[index]
+    ) {
+      return res.status(404).json({ error: '找不到對應的評論 index' });
+    }
+
+    // 刪除評論（同時刪除 user_id / content / created_at）
+    attraction.user_id.splice(index, 1);
+    attraction.content.splice(index, 1);
+    attraction.created_at.splice(index, 1);
+
+    // 寫回 JSON
+    fs.writeFile(filePath_comment, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
+      if (err) {
+        console.error('❌ 寫入 JSON 檔失敗:', err);
+        return res.status(500).json({ error: '寫入失敗' });
+      }
+      res.json({ success: true, message: '評論刪除成功' });
+    });
+  });
+});
+
 
 
 // // 模糊搜尋飯店
@@ -465,44 +542,6 @@ app.get('/api/user', (req, res) => {
 //   }
 // });
 
-
-// app.post('/api/users-info', async (req, res) => {
-//   const { user_ids } = req.body;
-//   if (!Array.isArray(user_ids) || user_ids.length === 0) {
-//     return res.status(400).json({ error: 'user_ids 必須是非空陣列' });
-//   }
-
-//   try {
-//     const [rows] = await pool.query(
-//       `SELECT user_id, u_img FROM User WHERE user_id IN (?)`,
-//       [user_ids]
-//     );
-//     const map = {};
-//     for (const row of rows) {
-//       map[row.user_id] = row.u_img;
-//     }
-//     res.json(map);
-//   } catch (err) {
-//     console.error('❌ /api/users-info 錯誤：', err);
-//     res.status(500).json({ error: '伺服器錯誤' });
-//   }
-// });
-
-// // ===== 新增評論 =====
-// app.post('/api/comments', async (req, res) => {
-//   const { attraction_id, user_id, content } = req.body;
-//   try {
-//     const [result] = await pool.query(
-//       `INSERT INTO comments (attraction_id, user_id, content)
-//        VALUES (?, ?, ?)`,
-//       [attraction_id, user_id, content]
-//     );
-//     res.json({ success: true, id: result.insertId, created_at: new Date().toISOString() });
-//   } catch (err) {
-//     console.error('❌ insert comment error:', err);
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// });
 
 // // ===== 取得所有連結 =====
 // app.get('/api/links', async (req, res) => {

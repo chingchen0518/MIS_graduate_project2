@@ -17,7 +17,7 @@ console.log('user_data.json absolute path:', filePath);  // 在這裡印路徑
 let attractionData = [];
 try {
     attractionData = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-    console.log("✅ user_data.json 成功載入，共", attractionData.length, "筆資料");
+    console.log("✅ user_data.json 成功載入，共", UserData.length, "筆資料");
 } catch (err) {
     console.error("❌ 讀取 user_data.json 失敗:", err);
 }

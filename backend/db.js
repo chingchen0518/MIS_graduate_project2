@@ -415,6 +415,79 @@ app.delete('/api/comments-delete', (req, res) => {
   });
 });
 
+/* ----- 景點查詢 (依 name / name_zh 搜尋) ----- */
+app.get('/api/attractions-search', (req, res) => {
+  const { keyword } = req.query;
+
+  fs.readFile(filePath_attraction, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 attraction_data.json 失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
+
+    let jsonData = JSON.parse(data);
+    if (!keyword) return res.json(jsonData);
+
+    const lowerKey = keyword.toLowerCase();
+    const result = jsonData.filter(item =>
+      (item.name || '').toLowerCase().includes(lowerKey) ||
+      (item.name_zh || '').toLowerCase().includes(lowerKey)
+    );
+
+    res.json(result);
+  });
+});
+
+/* ----- 加入景點到 ReAttraction ----- */
+app.post('/api/reAttractions-add', (req, res) => {
+  const { t_id, a_id, user_id } = req.body;
+
+  if (!t_id || !a_id || !user_id) {
+    return res.status(400).json({ error: '缺少必要參數' });
+  }
+
+  fs.readFile(filePath_ReAttraction, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 ReAttraction_data.json 失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
+
+    let jsonData = JSON.parse(data);
+
+    // 找對應的 t_id
+    let trip = jsonData.find(t => t.t_id === Number(t_id));
+    if (!trip) {
+      trip = { t_id: Number(t_id), re_attractions: [] };
+      jsonData.push(trip);
+    }
+
+    // 確認 a_id 是否已存在
+    let exist = trip.re_attractions.find(r => r.a_id === Number(a_id));
+    if (exist) {
+      return res.status(400).json({ error: '景點已存在' });
+    }
+
+    // 新增資料
+    trip.re_attractions.push({
+      a_id: Number(a_id),
+      vote_like: 1,
+      who_like: [user_id],
+      vote_love: 0,
+      who_love: []
+    });
+
+    fs.writeFile(filePath_ReAttraction, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
+      if (err) {
+        console.error('❌ 寫入 ReAttraction_data.json 失敗:', err);
+        return res.status(500).json({ error: '寫入失敗' });
+      }
+      res.json({ success: true, message: '成功加入 ReAttraction' });
+    });
+  });
+});
+
+
+
 
 
 // // 模糊搜尋飯店
@@ -482,42 +555,6 @@ app.delete('/api/comments-delete', (req, res) => {
 //       .json({ success: false, message: 'Database error', error: err.message });
 //   } finally {
 //     if (conn) conn.release();
-//   }
-// });
-
-
-// // ===== 景點查詢 =====
-// app.get('/api/attractions', async (req, res) => {
-//   const { country } = req.query;
-//   try {
-//     let sql = `
-//       SELECT
-//         a_id, 
-//         name_zh, 
-//         name_en,
-//         category,  
-//         address, 
-//         city, 
-//         country,
-//         CASE
-//           WHEN photo IS NULL THEN NULL
-//           WHEN LEFT(photo,4) IN ('http','HTTP') THEN photo
-//           ELSE CONCAT('data:image/jpeg;base64,', TO_BASE64(photo))
-//         END AS photo
-//       FROM Attraction`;
-//     const params = [];
-
-//     if (country) {
-//       sql += ' WHERE country = ?';
-//       params.push(country);
-//     }
-//     sql += ' ORDER BY a_id LIMIT 100';
-
-//     const [rows] = await pool.query(sql, params);
-//     res.json(rows);
-//   } catch (err) {
-//     console.error('❌ attractions query error:', err);
-//     res.status(500).json({ error: err.message });
 //   }
 // });
 

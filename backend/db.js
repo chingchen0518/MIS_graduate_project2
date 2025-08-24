@@ -163,6 +163,7 @@ const filePath_ReAttraction = path.join(__dirname, 'models', 'data', 'ReAttracti
 const filePath_comment = path.join(__dirname, 'models', 'data', 'comment_data.json');
 const filePath_trip = path.join(__dirname, 'models', 'data', 'trip_data.json');
 const filePath_user = path.join(__dirname, 'models', 'data', 'user_data.json');
+const filePath_PlusAttraction = path.join(__dirname, 'models', 'data', 'PlusAttraction_data.json');
 
 /* ----- Tree map 讀取該 trip 大家有興趣的景點 ----- */
 app.get('/api/attractions', (req, res) => {
@@ -486,6 +487,117 @@ app.post('/api/reAttractions-add', (req, res) => {
   });
 });
 
+/* ----- 手動新增景點 (PlusAttraction + ReAttraction) ----- */
+app.post('/api/plus-attractions-add', (req, res) => {
+  const { t_id, p_name_zh, p_name, p_category, p_address, p_city, p_country, p_budget, p_photo, user_id } = req.body;
+
+  if (!t_id || !p_name_zh || !user_id) {
+    return res.status(400).json({ error: '缺少必要參數 t_id / p_name_zh / user_id' });
+  }
+
+  // 讀取 PlusAttraction.json
+  fs.readFile(filePath_PlusAttraction, 'utf-8', (err, plusData) => {
+    if (err) {
+      console.error('❌ 讀取 plus_attraction.json 失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
+
+    let plusJson = [];
+    try {
+      plusJson = JSON.parse(plusData);
+    } catch (parseErr) {
+      console.error('❌ plus_attraction.json 格式錯誤:', parseErr);
+      return res.status(500).json({ error: '資料格式錯誤' });
+    }
+
+    // 找是否已有該 t_id
+    let tripBlock = plusJson.find(t => t.t_id === Number(t_id));
+    if (!tripBlock) {
+      tripBlock = { t_id: Number(t_id), plus_attractions: [] };
+      plusJson.push(tripBlock);
+    }
+
+    // 自動編號 p_a_id
+    const newId = (tripBlock.plus_attractions?.length || 0) + 1;
+
+    const newPlus = {
+      p_a_id: newId,
+      p_name_zh,
+      p_name,
+      p_category,
+      p_address,
+      p_budget: p_budget || null,
+      p_photo,
+      p_country,
+      p_city
+    };
+
+    if (!Array.isArray(tripBlock.plus_attractions)) {
+      tripBlock.plus_attractions = [];
+    }
+    tripBlock.plus_attractions.push(newPlus);
+
+    // ✅ 同步到 ReAttraction_data.json
+    fs.readFile(filePath_ReAttraction, 'utf-8', (err, reData) => {
+      if (err) {
+        console.error('❌ 讀取 ReAttraction_data.json 失敗:', err);
+        return res.status(500).json({ error: '讀取 ReAttraction 資料失敗' });
+      }
+
+      let reJson = [];
+      try {
+        reJson = JSON.parse(reData);
+      } catch (parseErr) {
+        console.error('❌ ReAttraction_data.json 格式錯誤:', parseErr);
+        return res.status(500).json({ error: 'ReAttraction 資料格式錯誤' });
+      }
+
+      // 找到對應的 trip
+      let reTrip = reJson.find(t => t.t_id === Number(t_id));
+      if (!reTrip) {
+        reTrip = { t_id: Number(t_id), re_attractions: [] };
+        reJson.push(reTrip);
+      }
+
+      // 自動 a_id 編號
+      const newAId = (reTrip.re_attractions?.length || 0) + 1;
+
+      const newReAttr = {
+        a_id: newAId,
+        vote_like: 1,
+        who_like: [user_id],
+        vote_love: 0,
+        who_love: []
+      };
+
+      if (!Array.isArray(reTrip.re_attractions)) {
+        reTrip.re_attractions = [];
+      }
+      reTrip.re_attractions.push(newReAttr);
+
+      // 同步寫回兩個檔案
+      fs.writeFile(filePath_PlusAttraction, JSON.stringify(plusJson, null, 2), 'utf-8', (err) => {
+        if (err) {
+          console.error('❌ 寫入 plus_attraction.json 失敗:', err);
+          return res.status(500).json({ error: '寫入 plus_attraction 失敗' });
+        }
+
+        fs.writeFile(filePath_ReAttraction, JSON.stringify(reJson, null, 2), 'utf-8', (err) => {
+          if (err) {
+            console.error('❌ 寫入 ReAttraction_data.json 失敗:', err);
+            return res.status(500).json({ error: '寫入 ReAttraction 失敗' });
+          }
+
+          res.json({ success: true, message: '景點新增成功，已同步到 ReAttraction', plus: newPlus, re: newReAttr });
+        });
+      });
+    });
+  });
+});
+
+
+
+
 
 
 
@@ -557,28 +669,6 @@ app.post('/api/reAttractions-add', (req, res) => {
 //     if (conn) conn.release();
 //   }
 // });
-
-// // ===== 手動新增景點 =====
-// app.post('/api/attractions', async (req, res) => {
-//   const { name_zh, name_en, category, address = '', budget, photo } = req.body;
-//   const parts   = address.split(',').map(s => s.trim()).filter(Boolean);
-//   const country = parts.at(-1) || '';
-//   const city    = parts.length >= 2 ? parts.at(-2) : '';
-
-//   try {
-//     const [result] = await pool.query(
-//       `INSERT INTO Attraction
-//         (name_zh, name_en, category, address, city, country, budget, photo)
-//        VALUES (?,?,?,?,?,?,?,?)`,
-//       [name_zh, name_en, category, address, city, country, budget, photo]
-//     );
-//     res.json({ success: true, a_id: result.insertId, city, country });
-//   } catch (err) {
-//     console.error('❌ insert attraction', err);
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// });
-
 
 // // ===== 取得所有連結 =====
 // app.get('/api/links', async (req, res) => {

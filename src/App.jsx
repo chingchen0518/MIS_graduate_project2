@@ -18,7 +18,6 @@ import TreemapTest from './view1/treemap_chyi.jsx';
 import View1Test from './view1/test/test.jsx';
 import ChooseAttraction from './view1/part2.jsx';
 import TripList from './view1/tripList.jsx';
-import TravelGantt from './view1/test.jsx';         // test.jsx 預設輸出 TravelGantt
 /*
 import { Toaster } from 'react-hot-toast';     // 給 part2 的 toast
 // ③ 因為 Part2 需要 tripId / country 兩個 props，做一個小包裝 Route 元件
@@ -83,7 +82,6 @@ function App() {
                     <Route path="/view1test" element={<View1Test />} />
 
                     <Route path="/trips" element={<TripList />} />
-                    <Route path="/gantt" element={<TravelGantt />} />
 
                     <Route path="/AttractionContainer" element={<AttractionContainer />} />
                     <Route path="/map" element={<InteractiveMap />} />

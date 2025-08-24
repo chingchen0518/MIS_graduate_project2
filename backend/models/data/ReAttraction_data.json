@@ -71,6 +71,15 @@
         "who_like": [],
         "vote_love": 0,
         "who_love": []
+      },
+      {
+        "a_id": 11,
+        "vote_like": 1,
+        "who_like": [
+          "chyi12"
+        ],
+        "vote_love": 0,
+        "who_love": []
       }
     ]
   },

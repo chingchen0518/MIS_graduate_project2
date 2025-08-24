@@ -158,11 +158,14 @@ app.get('/api/travel', (req, res) => {
 
 
 // ====================================view 1===========================
+const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_data.json'); 
+const filePath_ReAttraction = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
+const filePath_comment = path.join(__dirname, 'models', 'data', 'comment_data.json');
+const filePath_trip = path.join(__dirname, 'models', 'data', 'trip_data.json');
 
 /* ----- Tree map 讀取該 trip 大家有興趣的景點 ----- */
 app.get('/api/attractions', (req, res) => {
-  const filePath = path.join(__dirname, 'models', 'data', 'attraction_data.json'); 
-  fs.readFile(filePath, 'utf-8', (err, data) => {
+  fs.readFile(filePath_attraction, 'utf-8', (err, data) => {
     if (err) {
       console.error('❌ 讀取 JSON 檔失敗:', err);
       res.status(500).json({ error: '讀取資料失敗' });
@@ -171,7 +174,6 @@ app.get('/api/attractions', (req, res) => {
     res.json(JSON.parse(data));
   });
 });
-
 
 /* ----- 動態切換 "有興趣" 和 "非常有興趣" ----- */
 app.post('/api/switchvote', async (req, res) => {
@@ -187,9 +189,7 @@ app.post('/api/switchvote', async (req, res) => {
   const otherWhoCol    = type === 'like' ? 'who_love'  : 'who_like';
 
   try {
-    // 直接在 API 裡決定 JSON 檔案路徑
-    const jsonFile = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
-    const data = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(filePath_ReAttraction, 'utf8'));
 
     // 找 t_id
     const targetTrip = data.find(item => item.t_id === t_id);
@@ -215,7 +215,7 @@ app.post('/api/switchvote', async (req, res) => {
       targetAttr[currentVoteCol] = Math.max(0, targetAttr[currentVoteCol] - 1);
       targetAttr[currentWhoCol] = targetAttr[currentWhoCol].filter(u => u !== user_id);
 
-      fs.writeFileSync(jsonFile, JSON.stringify(data, null, 2));
+      fs.writeFileSync(filePath_ReAttraction, JSON.stringify(data, null, 2));
       return res.json({ success: true, action: 'removed' });
     }
 
@@ -230,7 +230,7 @@ app.post('/api/switchvote', async (req, res) => {
     targetAttr[currentWhoCol].push(user_id);
 
     // 寫回 JSON 檔案
-    fs.writeFileSync(jsonFile, JSON.stringify(data, null, 2));
+    fs.writeFileSync(filePath_ReAttraction, JSON.stringify(data, null, 2));
 
     res.json({ success: true, action: inOther ? 'switched' : 'added' });
   } catch (err) {
@@ -244,11 +244,9 @@ app.post('/api/switchvote', async (req, res) => {
 app.get('/api/d3', (req, res) => {
   try {
     const tId = Number(req.query.t_id || 1);
-    const attractionFile = path.join(__dirname, 'models', 'data', 'attraction_data.json');
-    const reAttractionFile = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
 
-    const attractions = JSON.parse(fs.readFileSync(attractionFile, 'utf8'));
-    const reAttractions = JSON.parse(fs.readFileSync(reAttractionFile, 'utf8'));
+    const attractions = JSON.parse(fs.readFileSync(filePath_attraction, 'utf8'));
+    const reAttractions = JSON.parse(fs.readFileSync(filePath_ReAttraction, 'utf8'));
 
     const trip = reAttractions.find(r => r.t_id === tId) || { re_attractions: [] };
     const voteMap = new Map(trip.re_attractions.map(r => [r.a_id, r]));
@@ -275,6 +273,32 @@ app.get('/api/d3', (req, res) => {
     console.error('❌ /api/d3 錯誤：', err);
     res.status(500).json({ error: '伺服器錯誤' });
   }
+});
+
+/* --------------------------- Choose Attraction --------------------------- */
+
+/* ----- 讀評論 ----- */
+app.get('/api/comments', (req, res) => {
+  fs.readFile(filePath_comment, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 JSON 檔失敗:', err);
+      res.status(500).json({ error: '讀取資料失敗' });
+      return;
+    }
+    res.json(JSON.parse(data));
+  });
+});
+
+/* ----- 讀旅程ID ----- */
+app.get('/api/tripID', (req, res) => {
+  fs.readFile(filePath_trip, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 JSON 檔失敗:', err);
+      res.status(500).json({ error: '讀取資料失敗' });
+      return;
+    }
+    res.json(JSON.parse(data));
+  });
 });
 
 
@@ -371,21 +395,6 @@ app.get('/api/d3', (req, res) => {
 //   }
 // });
 
-// // ===== 取行程標題 =====
-// app.get('/api/trips/:id', async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     const [rows] = await pool.query(
-//       'SELECT t_id, title FROM Trip WHERE t_id = ?',
-//       [id]
-//     );
-//     if (!rows.length) return res.status(404).json({ error: 'not found' });
-//     res.json(rows[0]);
-//   } catch (err) {
-//     console.error('❌ trips fetch error:', err);
-//     res.status(500).json({ error: err.message });
-//   }
-// });
 
 // // ===== 景點查詢 =====
 // app.get('/api/attractions', async (req, res) => {

@@ -164,6 +164,38 @@ const filePath_comment = path.join(__dirname, 'models', 'data', 'comment_data.js
 const filePath_trip = path.join(__dirname, 'models', 'data', 'trip_data.json');
 const filePath_user = path.join(__dirname, 'models', 'data', 'user_data.json');
 const filePath_PlusAttraction = path.join(__dirname, 'models', 'data', 'PlusAttraction_data.json');
+const filePath_hotel = path.join(__dirname, 'models', 'data', 'hotel_data.json');
+
+/* ----- 模糊搜尋飯店 ----- */
+app.get('/api/hotels', (req, res) => {
+  const { query = '' } = req.query;
+
+  fs.readFile(filePath_hotel, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 hotel_data.json 失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
+
+    try {
+      const hotels = JSON.parse(data);
+
+      // 模糊比對 name_zh 或 name (不分大小寫)
+      const results = hotels.filter(hotel => {
+        const q = query.toLowerCase();
+        return (
+          (hotel.name_zh && hotel.name_zh.toLowerCase().includes(q)) ||
+          (hotel.name && hotel.name.toLowerCase().includes(q))
+        );
+      });
+
+      res.json(results.slice(0, 20)); // 最多回傳 20 筆
+    } catch (parseErr) {
+      console.error('❌ JSON 解析失敗:', parseErr);
+      res.status(500).json({ error: 'JSON 格式錯誤' });
+    }
+  });
+});
+
 
 /* ----- Tree map 讀取該 trip 大家有興趣的景點 ----- */
 app.get('/api/attractions', (req, res) => {
@@ -594,12 +626,6 @@ app.post('/api/plus-attractions-add', (req, res) => {
     });
   });
 });
-
-
-
-
-
-
 
 
 // // 模糊搜尋飯店

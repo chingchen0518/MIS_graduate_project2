@@ -1,0 +1,12 @@
+[
+    {
+        "u_id": 1,
+        "u_img": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhwF0szS2GIB6bjZ4bWZsTBS9G-x7CGGcT-TxOOeUj6JYDZKdBAWpvvxnc4J536MfIwUVLjZ-sDvCwbTf70-jkqhUsrs-2eb4PfVRgq_AVbP2n_w3umtp4ugA464qoEntxAEbgmNg7BVU8/s400/eto_saru_shinnen_aisatsu_man.png",
+        "u_name": "Chyi",
+        "u_email": "chyi93@gmail.com",
+        "u_password": "test1234",
+        "u_account": "chyi93",
+        "u_line_id": "chyi_share",
+        "into_trip": ["1", "2"]
+    }
+]

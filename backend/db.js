@@ -196,6 +196,68 @@ app.get('/api/hotels', (req, res) => {
   });
 });
 
+/* ===== 新增行程 + 對應飯店 ===== */
+app.post('/api/a', (req, res) => {
+  const { country, title, arrivalDate, departureDate, hotels = [] } = req.body;
+
+  // 1. 讀取 trip_data.json
+  fs.readFile(filePath_trip, 'utf-8', (err, data) => {
+    if (err) return res.status(500).json({ success: false, error: '讀取 trip_data.json 失敗' });
+
+    let trips = [];
+    try {
+      trips = JSON.parse(data);
+    } catch {
+      trips = [];
+    }
+
+    // 自動產生 tripId
+    const tripId = trips.length ? trips[trips.length - 1].t_id + 1 : 1;
+
+    const newTrip = {
+      t_id: tripId,
+      title,
+      country,
+      s_date: arrivalDate,
+      e_date: departureDate
+    };
+
+    trips.push(newTrip);
+
+    // 2. 寫回 trip_data.json
+    fs.writeFile(filePath_trip, JSON.stringify(trips, null, 2), (err) => {
+      if (err) return res.status(500).json({ success: false, error: '寫入 trip_data.json 失敗' });
+
+      // 3. 讀取 hotel_data.json
+      fs.readFile(filePath_hotel, 'utf-8', (err, hdata) => {
+        let hotelsData = [];
+        try {
+          hotelsData = JSON.parse(hdata);
+        } catch {
+          hotelsData = [];
+        }
+
+        // 4. 把每個 hotel 加進來，綁定 t_id
+        hotels.forEach((h, idx) => {
+          hotelsData.push({
+            h_id: hotelsData.length ? hotelsData[hotelsData.length - 1].h_id + 1 : 1,
+            t_id: tripId,
+            name_zh: h
+          });
+        });
+
+        // 5. 寫回 hotel_data.json
+        fs.writeFile(filePath_hotel, JSON.stringify(hotelsData, null, 2), (err) => {
+          if (err) return res.status(500).json({ success: false, error: '寫入 hotel_data.json 失敗' });
+
+          res.json({ success: true, tripId });
+        });
+      });
+    });
+  });
+});
+
+
 
 /* ----- Tree map 讀取該 trip 大家有興趣的景點 ----- */
 app.get('/api/attractions', (req, res) => {
@@ -626,75 +688,6 @@ app.post('/api/plus-attractions-add', (req, res) => {
     });
   });
 });
-
-
-// // 模糊搜尋飯店
-// app.get('/api/hotels', async (req, res) => {
-//   const { query = '' } = req.query;
-//   try {
-//     const [rows] = await pool.query(
-//       `SELECT h_id   AS id,
-//               name_zh AS name
-//        FROM   Hotel
-//        WHERE  name_zh LIKE ?
-//        LIMIT  20`,
-//       [`%${query}%`]
-//     );
-//     res.json(rows);
-//   } catch (err) {
-//     console.error('❗ DB error:', err);
-//     res.status(500).json({ error: 'Database error' });
-//   }
-// });
-
-// // ===== 新增行程 + 對應飯店 =====
-// app.post('/api/a', async (req, res) => {
-//   console.log('收到資料:', req.body);
-
-//   const {
-//     country,
-//     title,
-//     arrivalDate,
-//     departureDate,
-//     hotels = [], // 前端請傳陣列 ["飯店A","飯店B",…]
-//   } = req.body;
-
-//   let conn;
-  
-//   try {
-//     conn = await pool.getConnection();
-//     await conn.beginTransaction();
-
-//     /* 3-1 寫入 trips */
-//     const [tripRes] = await conn.execute(
-//       `INSERT INTO Trip (country, title, s_date, e_date)
-//        VALUES (?, ?, ?, ?)`,
-//       [country, title, arrivalDate, departureDate]
-//     );
-//     const tripId = tripRes.insertId; // 取得 t_id
-
-//     /* 3-2 批次寫入 trip_hotels */
-//     if (hotels.length) {
-//       const values = hotels.map((name) => [tripId, name]);
-//       await conn.query(
-//         `INSERT INTO TripHotel (t_id, h_name_zh)
-//          VALUES ?`,
-//         [values] // 二維陣列
-//       );
-//     }
-
-//     await conn.commit();
-//     res.json({ success: true, tripId });
-//   } catch (err) {
-//     if (conn) await conn.rollback();
-//     console.error('❗ 資料庫錯誤:', err);
-//     res
-//       .status(500)
-//       .json({ success: false, message: 'Database error', error: err.message });
-//   } finally {
-//     if (conn) conn.release();
-//   }
-// });
 
 // ====================================view 2===========================
 app.get('/api/view2_attraction_list', (req, res) => {

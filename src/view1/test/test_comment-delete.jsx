@@ -3,7 +3,7 @@ import axios from "axios";
 
 export default function DeleteComment() {
   const FIXED_TID = 1;       // 預設 trip id
-  const CURRENT_USER = "CCC"; // 預設使用者
+  const CURRENT_USER = "chyi12"; // 預設使用者
 
   const [comments, setComments] = useState([]);
   const [message, setMessage] = useState("");
@@ -21,7 +21,6 @@ export default function DeleteComment() {
         return;
       }
 
-      // 展平成 {a_id, index, user_id, content, created_at}
       const flat = [];
       trip.comments.forEach((c) => {
         (c.content || []).forEach((txt, i) => {
@@ -31,6 +30,7 @@ export default function DeleteComment() {
             user_id: c.user_id[i],
             content: txt,
             created_at: c.created_at[i],
+            link: c.link[i],
           });
         });
       });

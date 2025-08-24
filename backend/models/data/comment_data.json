@@ -6,73 +6,20 @@
         "a_id": 1,
         "user_id": [
           "aaa",
-          "BBB",
-          "chyi12"
+          "BBB"
         ],
         "content": [
           "好美！",
-          "I like!!!!!!!",
-          "yeeeeeeee"
+          "I like!!!!!!!"
         ],
         "created_at": [
           "2025-08-18T15:20:30.000Z",
-          "2025-08-20T15:20:30.000Z",
-          "2025-08-24T08:26:30.866Z"
+          "2025-08-20T15:20:30.000Z"
+        ],
+        "link": [
+          "https://blog.hi-lite.com.tw/europe-travel-guide/switzerland-travel-guide",
+          " "
         ]
-      },
-      {
-        "a_id": 2,
-        "user_id": [],
-        "content": [],
-        "created_at": []
-      },
-      {
-        "a_id": 3,
-        "user_id": [],
-        "content": [],
-        "created_at": []
-      },
-      {
-        "a_id": 4,
-        "user_id": [],
-        "content": [],
-        "created_at": []
-      },
-      {
-        "a_id": 5,
-        "user_id": [],
-        "content": [],
-        "created_at": []
-      },
-      {
-        "a_id": 6,
-        "user_id": [],
-        "content": [],
-        "created_at": []
-      },
-      {
-        "a_id": 7,
-        "user_id": [],
-        "content": [],
-        "created_at": []
-      },
-      {
-        "a_id": 8,
-        "user_id": [],
-        "content": [],
-        "created_at": []
-      },
-      {
-        "a_id": 9,
-        "user_id": [],
-        "content": [],
-        "created_at": []
-      },
-      {
-        "a_id": 10,
-        "user_id": [],
-        "content": [],
-        "created_at": []
       }
     ]
   }

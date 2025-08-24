@@ -15,6 +15,9 @@ const Trip = sequelize.define('Trip', {
     color:       { type: DataTypes.STRING, allowNull: true },
     UserUId:     { type: DataTypes.INTEGER, allowNull: true },
     CreatorUId:  { type: DataTypes.INTEGER, allowNull: true }
+}, {
+    tableName: 'Trip', // 明確指定資料表名稱
+    timestamps: false
 });
 
 export default Trip;

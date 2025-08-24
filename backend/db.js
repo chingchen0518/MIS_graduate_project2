@@ -475,79 +475,60 @@ app.get('/api/tripID', (req, res) => {
 //   }
 // });
 
-// ===== 取得評論 =====
-/*
-app.get('/api/comments', async (req, res) => {
-  const { attraction_id } = req.query;
-  try {
-    let sql = 'SELECT id, attraction_id, user_id, content, created_at FROM comments';
-    const params = [];
-    if (attraction_id) { sql += ' WHERE attraction_id = ?'; params.push(attraction_id); }
-    sql += ' ORDER BY created_at';
-    const [rows] = await pool.query(sql, params);
-    res.json(rows);
-  } catch (err) {
-    console.error('❌ comments query error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
+// // ===== 新增評論 =====
+// app.post('/api/comments', async (req, res) => {
+//   const { attraction_id, user_id, content } = req.body;
+//   try {
+//     const [result] = await pool.query(
+//       `INSERT INTO comments (attraction_id, user_id, content)
+//        VALUES (?, ?, ?)`,
+//       [attraction_id, user_id, content]
+//     );
+//     res.json({ success: true, id: result.insertId, created_at: new Date().toISOString() });
+//   } catch (err) {
+//     console.error('❌ insert comment error:', err);
+//     res.status(500).json({ success: false, error: err.message });
+//   }
+// });
 
-// ===== 新增評論 =====
-app.post('/api/comments', async (req, res) => {
-  const { attraction_id, user_id, content } = req.body;
-  try {
-    const [result] = await pool.query(
-      `INSERT INTO comments (attraction_id, user_id, content)
-       VALUES (?, ?, ?)`,
-      [attraction_id, user_id, content]
-    );
-    res.json({ success: true, id: result.insertId, created_at: new Date().toISOString() });
-  } catch (err) {
-    console.error('❌ insert comment error:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
+// // ===== 取得所有連結 =====
+// app.get('/api/links', async (req, res) => {
+//   const { attraction_id } = req.query;
+//   try {
+//     let sql = 'SELECT id, Attraction_id, user_id, xontent, created_at FROM links';
+//     const params = [];
+//     if (attraction_id) {
+//       sql += ' WHERE attraction_id = ?';
+//       params.push(attraction_id);
+//     }
+//     sql += ' ORDER BY created_at';
+//     const [rows] = await pool.query(sql, params);
+//     res.json(rows);
+//   } catch (err) {
+//     console.error('❌ links query error:', err);
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
-// ===== 取得所有連結 =====
-app.get('/api/links', async (req, res) => {
-  const { attraction_id } = req.query;
-  try {
-    let sql = 'SELECT id, Attraction_id, user_id, xontent, created_at FROM links';
-    const params = [];
-    if (attraction_id) {
-      sql += ' WHERE attraction_id = ?';
-      params.push(attraction_id);
-    }
-    sql += ' ORDER BY created_at';
-    const [rows] = await pool.query(sql, params);
-    res.json(rows);
-  } catch (err) {
-    console.error('❌ links query error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ===== 新增連結 =====
-app.post('/api/links', async (req, res) => {
-  const { attraction_id, user_id, xontent } = req.body;
-  try {
-    const [result] = await pool.query(
-      `INSERT INTO links (attraction_id, user_id, xontent)
-      VALUES (?, ?, ?)`,
-      [attraction_id, user_id, xontent]
-    );
-    res.json({
-      success: true,
-      id: result.insertId,
-      created_at: new Date().toISOString()
-    });
-  } catch (err) {
-    console.error('❌ insert link error:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-*/
+// // ===== 新增連結 =====
+// app.post('/api/links', async (req, res) => {
+//   const { attraction_id, user_id, xontent } = req.body;
+//   try {
+//     const [result] = await pool.query(
+//       `INSERT INTO links (attraction_id, user_id, xontent)
+//       VALUES (?, ?, ?)`,
+//       [attraction_id, user_id, xontent]
+//     );
+//     res.json({
+//       success: true,
+//       id: result.insertId,
+//       created_at: new Date().toISOString()
+//     });
+//   } catch (err) {
+//     console.error('❌ insert link error:', err);
+//     res.status(500).json({ success: false, error: err.message });
+//   }
+// });
 
 
 // ====================================view 2===========================

@@ -162,6 +162,7 @@ const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_d
 const filePath_ReAttraction = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
 const filePath_comment = path.join(__dirname, 'models', 'data', 'comment_data.json');
 const filePath_trip = path.join(__dirname, 'models', 'data', 'trip_data.json');
+const filePath_user = path.join(__dirname, 'models', 'data', 'user_data.json');
 
 /* ----- Tree map 讀取該 trip 大家有興趣的景點 ----- */
 app.get('/api/attractions', (req, res) => {
@@ -292,6 +293,18 @@ app.get('/api/comments', (req, res) => {
 /* ----- 讀旅程ID ----- */
 app.get('/api/tripID', (req, res) => {
   fs.readFile(filePath_trip, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 JSON 檔失敗:', err);
+      res.status(500).json({ error: '讀取資料失敗' });
+      return;
+    }
+    res.json(JSON.parse(data));
+  });
+});
+
+/* ----- 讀使用者資料 ----- */
+app.get('/api/user', (req, res) => {
+  fs.readFile(filePath_user, 'utf-8', (err, data) => {
     if (err) {
       console.error('❌ 讀取 JSON 檔失敗:', err);
       res.status(500).json({ error: '讀取資料失敗' });

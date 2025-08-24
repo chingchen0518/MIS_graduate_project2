@@ -315,9 +315,9 @@ app.get('/api/user', (req, res) => {
   });
 });
 
-/* ----- 新增評論 ----- */
+/* ----- 新增評論 (支援 link) ----- */
 app.post('/api/comments-add', (req, res) => {
-  const { t_id, a_id, user_id, content } = req.body;
+  const { t_id, a_id, user_id, content, link } = req.body;
 
   if (!t_id || !a_id || !user_id || !content) {
     return res.status(400).json({ error: '缺少必要參數' });
@@ -334,7 +334,6 @@ app.post('/api/comments-add', (req, res) => {
     // 找到對應的 t_id
     let trip = jsonData.find(t => t.t_id === Number(t_id));
     if (!trip) {
-      // 如果沒有對應的 t_id，就新增一個
       trip = { t_id: Number(t_id), comments: [] };
       jsonData.push(trip);
     }
@@ -342,8 +341,7 @@ app.post('/api/comments-add', (req, res) => {
     // 找到對應的 a_id
     let attraction = trip.comments.find(c => c.a_id === Number(a_id));
     if (!attraction) {
-      // 如果沒有對應的 a_id，就新增一個空的
-      attraction = { a_id: Number(a_id), user_id: [], content: [], created_at: [] };
+      attraction = { a_id: Number(a_id), user_id: [], content: [], created_at: [], link: [] };
       trip.comments.push(attraction);
     }
 
@@ -351,6 +349,7 @@ app.post('/api/comments-add', (req, res) => {
     attraction.user_id.push(user_id);
     attraction.content.push(content);
     attraction.created_at.push(new Date().toISOString());
+    attraction.link.push(link || " ");   // ⭐ 如果沒輸入，就存空字串
 
     // 寫回 JSON
     fs.writeFile(filePath_comment, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
@@ -404,6 +403,7 @@ app.delete('/api/comments-delete', (req, res) => {
     attraction.user_id.splice(index, 1);
     attraction.content.splice(index, 1);
     attraction.created_at.splice(index, 1);
+    attraction.link.splice(index, 1);
 
     // 寫回 JSON
     fs.writeFile(filePath_comment, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
@@ -669,46 +669,6 @@ app.post('/api/plus-attractions-add', (req, res) => {
 //     if (conn) conn.release();
 //   }
 // });
-
-// // ===== 取得所有連結 =====
-// app.get('/api/links', async (req, res) => {
-//   const { attraction_id } = req.query;
-//   try {
-//     let sql = 'SELECT id, Attraction_id, user_id, xontent, created_at FROM links';
-//     const params = [];
-//     if (attraction_id) {
-//       sql += ' WHERE attraction_id = ?';
-//       params.push(attraction_id);
-//     }
-//     sql += ' ORDER BY created_at';
-//     const [rows] = await pool.query(sql, params);
-//     res.json(rows);
-//   } catch (err) {
-//     console.error('❌ links query error:', err);
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// // ===== 新增連結 =====
-// app.post('/api/links', async (req, res) => {
-//   const { attraction_id, user_id, xontent } = req.body;
-//   try {
-//     const [result] = await pool.query(
-//       `INSERT INTO links (attraction_id, user_id, xontent)
-//       VALUES (?, ?, ?)`,
-//       [attraction_id, user_id, xontent]
-//     );
-//     res.json({
-//       success: true,
-//       id: result.insertId,
-//       created_at: new Date().toISOString()
-//     });
-//   } catch (err) {
-//     console.error('❌ insert link error:', err);
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// });
-
 
 // ====================================view 2===========================
 app.get('/api/view2_attraction_list', (req, res) => {

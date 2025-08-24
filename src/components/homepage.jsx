@@ -22,6 +22,7 @@ const HomePage = () => {
             <li className="homepage_li"><a href="/part1">Part1</a></li>
             <li className="homepage_li"><a href="/treemap">Treemap_only</a></li>
             <li className="homepage_li"><a href="/choose">Choose Attraaction</a></li>
+            <li className="homepage_li"><a href="/view1test">View1 Test</a></li>
         </ul>
 
 

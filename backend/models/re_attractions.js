@@ -9,7 +9,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 正確的 JSON 路徑 (models/data/attraction_data.json)
 const filePath = path.join(__dirname, 'data', 'ReAttraction_data.json');
 
 console.log('attraction_data.json absolute path:', filePath);  // 在這裡印路徑

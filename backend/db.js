@@ -163,6 +163,102 @@ const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_d
 const filePath_ReAttraction = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
 const filePath_comment = path.join(__dirname, 'models', 'data', 'comment_data.json');
 const filePath_trip = path.join(__dirname, 'models', 'data', 'trip_data.json');
+const filePath_user = path.join(__dirname, 'models', 'data', 'user_data.json');
+const filePath_PlusAttraction = path.join(__dirname, 'models', 'data', 'PlusAttraction_data.json');
+const filePath_hotel = path.join(__dirname, 'models', 'data', 'hotel_data.json');
+
+/* ----- 模糊搜尋飯店 ----- */
+app.get('/api/hotels', (req, res) => {
+  const { query = '' } = req.query;
+
+  fs.readFile(filePath_hotel, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 hotel_data.json 失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
+
+    try {
+      const hotels = JSON.parse(data);
+
+      // 模糊比對 name_zh 或 name (不分大小寫)
+      const results = hotels.filter(hotel => {
+        const q = query.toLowerCase();
+        return (
+          (hotel.name_zh && hotel.name_zh.toLowerCase().includes(q)) ||
+          (hotel.name && hotel.name.toLowerCase().includes(q))
+        );
+      });
+
+      res.json(results.slice(0, 20)); // 最多回傳 20 筆
+    } catch (parseErr) {
+      console.error('❌ JSON 解析失敗:', parseErr);
+      res.status(500).json({ error: 'JSON 格式錯誤' });
+    }
+  });
+});
+
+/* ===== 新增行程 + 對應飯店 ===== */
+app.post('/api/a', (req, res) => {
+  const { country, title, arrivalDate, departureDate, hotels = [] } = req.body;
+
+  // 1. 讀取 trip_data.json
+  fs.readFile(filePath_trip, 'utf-8', (err, data) => {
+    if (err) return res.status(500).json({ success: false, error: '讀取 trip_data.json 失敗' });
+
+    let trips = [];
+    try {
+      trips = JSON.parse(data);
+    } catch {
+      trips = [];
+    }
+
+    // 自動產生 tripId
+    const tripId = trips.length ? trips[trips.length - 1].t_id + 1 : 1;
+
+    const newTrip = {
+      t_id: tripId,
+      title,
+      country,
+      s_date: arrivalDate,
+      e_date: departureDate
+    };
+
+    trips.push(newTrip);
+
+    // 2. 寫回 trip_data.json
+    fs.writeFile(filePath_trip, JSON.stringify(trips, null, 2), (err) => {
+      if (err) return res.status(500).json({ success: false, error: '寫入 trip_data.json 失敗' });
+
+      // 3. 讀取 hotel_data.json
+      fs.readFile(filePath_hotel, 'utf-8', (err, hdata) => {
+        let hotelsData = [];
+        try {
+          hotelsData = JSON.parse(hdata);
+        } catch {
+          hotelsData = [];
+        }
+
+        // 4. 把每個 hotel 加進來，綁定 t_id
+        hotels.forEach((h, idx) => {
+          hotelsData.push({
+            h_id: hotelsData.length ? hotelsData[hotelsData.length - 1].h_id + 1 : 1,
+            t_id: tripId,
+            name_zh: h
+          });
+        });
+
+        // 5. 寫回 hotel_data.json
+        fs.writeFile(filePath_hotel, JSON.stringify(hotelsData, null, 2), (err) => {
+          if (err) return res.status(500).json({ success: false, error: '寫入 hotel_data.json 失敗' });
+
+          res.json({ success: true, tripId });
+        });
+      });
+    });
+  });
+});
+
+
 
 /* ----- Tree map 讀取該 trip 大家有興趣的景點 ----- */
 app.get('/api/attractions', (req, res) => {
@@ -302,235 +398,297 @@ app.get('/api/tripID', (req, res) => {
   });
 });
 
+/* ----- 讀使用者資料 ----- */
+app.get('/api/user', (req, res) => {
+  fs.readFile(filePath_user, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 JSON 檔失敗:', err);
+      res.status(500).json({ error: '讀取資料失敗' });
+      return;
+    }
+    res.json(JSON.parse(data));
+  });
+});
 
+/* ----- 新增評論 (支援 link) ----- */
+app.post('/api/comments-add', (req, res) => {
+  const { t_id, a_id, user_id, content, link } = req.body;
 
-// ===== users-info =====
-// app.post('/api/users-info', async (req, res) => {
-//   const { user_ids } = req.body;
-//   if (!Array.isArray(user_ids) || user_ids.length === 0) {
-//     return res.status(400).json({ error: 'user_ids 必須是非空陣列' });
-//   }
+  if (!t_id || !a_id || !user_id || !content) {
+    return res.status(400).json({ error: '缺少必要參數' });
+  }
 
-//   try {
-//     const [rows] = await connection.query(
-//       `SELECT user_id, u_img FROM User WHERE user_id IN (?)`,
-//       [user_ids]
-//     );
-//     const map = {};
-//     for (const row of rows) {
-//       map[row.user_id] = row.u_img;
-//     }
-//     res.json(map);
-//   } catch (err) {
-//     console.error('❌ /api/users-info 錯誤：', err);
-//     res.status(500).json({ error: '伺服器錯誤' });
-//   }
-// });
+  fs.readFile(filePath_comment, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 JSON 檔失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
 
+    let jsonData = JSON.parse(data);
 
-// // 模糊搜尋飯店
-// app.get('/api/hotels', async (req, res) => {
-//   const { query = '' } = req.query;
-//   try {
-//     const [rows] = await pool.query(
-//       `SELECT h_id   AS id,
-//               name_zh AS name
-//        FROM   Hotel
-//        WHERE  name_zh LIKE ?
-//        LIMIT  20`,
-//       [`%${query}%`]
-//     );
-//     res.json(rows);
-//   } catch (err) {
-//     console.error('❗ DB error:', err);
-//     res.status(500).json({ error: 'Database error' });
-//   }
-// });
+    // 找到對應的 t_id
+    let trip = jsonData.find(t => t.t_id === Number(t_id));
+    if (!trip) {
+      trip = { t_id: Number(t_id), comments: [] };
+      jsonData.push(trip);
+    }
 
-// // ===== 新增行程 + 對應飯店 =====
-// app.post('/api/a', async (req, res) => {
-//   console.log('收到資料:', req.body);
+    // 找到對應的 a_id
+    let attraction = trip.comments.find(c => c.a_id === Number(a_id));
+    if (!attraction) {
+      attraction = { a_id: Number(a_id), user_id: [], content: [], created_at: [], link: [] };
+      trip.comments.push(attraction);
+    }
 
-//   const {
-//     country,
-//     title,
-//     arrivalDate,
-//     departureDate,
-//     hotels = [], // 前端請傳陣列 ["飯店A","飯店B",…]
-//   } = req.body;
+    // 新增評論
+    attraction.user_id.push(user_id);
+    attraction.content.push(content);
+    attraction.created_at.push(new Date().toISOString());
+    attraction.link.push(link || " ");   // ⭐ 如果沒輸入，就存空字串
 
-//   let conn;
-  
-//   try {
-//     conn = await pool.getConnection();
-//     await conn.beginTransaction();
+    // 寫回 JSON
+    fs.writeFile(filePath_comment, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
+      if (err) {
+        console.error('❌ 寫入 JSON 檔失敗:', err);
+        return res.status(500).json({ error: '寫入失敗' });
+      }
+      res.json({ success: true, message: '評論新增成功' });
+    });
+  });
+});
 
-//     /* 3-1 寫入 trips */
-//     const [tripRes] = await conn.execute(
-//       `INSERT INTO Trip (country, title, s_date, e_date)
-//        VALUES (?, ?, ?, ?)`,
-//       [country, title, arrivalDate, departureDate]
-//     );
-//     const tripId = tripRes.insertId; // 取得 t_id
+/* ----- 刪除評論 ----- */
+app.delete('/api/comments-delete', (req, res) => {
+  const { t_id, a_id, index } = req.body;
 
-//     /* 3-2 批次寫入 trip_hotels */
-//     if (hotels.length) {
-//       const values = hotels.map((name) => [tripId, name]);
-//       await conn.query(
-//         `INSERT INTO TripHotel (t_id, h_name_zh)
-//          VALUES ?`,
-//         [values] // 二維陣列
-//       );
-//     }
+  if (t_id === undefined || a_id === undefined || index === undefined) {
+    return res.status(400).json({ error: '缺少必要參數 (t_id, a_id, index)' });
+  }
 
-//     await conn.commit();
-//     res.json({ success: true, tripId });
-//   } catch (err) {
-//     if (conn) await conn.rollback();
-//     console.error('❗ 資料庫錯誤:', err);
-//     res
-//       .status(500)
-//       .json({ success: false, message: 'Database error', error: err.message });
-//   } finally {
-//     if (conn) conn.release();
-//   }
-// });
+  fs.readFile(filePath_comment, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 JSON 檔失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
 
+    let jsonData = JSON.parse(data);
 
-// // ===== 景點查詢 =====
-// app.get('/api/attractions', async (req, res) => {
-//   const { country } = req.query;
-//   try {
-//     let sql = `
-//       SELECT
-//         a_id, 
-//         name_zh, 
-//         name_en,
-//         category,  
-//         address, 
-//         city, 
-//         country,
-//         CASE
-//           WHEN photo IS NULL THEN NULL
-//           WHEN LEFT(photo,4) IN ('http','HTTP') THEN photo
-//           ELSE CONCAT('data:image/jpeg;base64,', TO_BASE64(photo))
-//         END AS photo
-//       FROM Attraction`;
-//     const params = [];
+    // 找到對應的 t_id
+    const trip = jsonData.find(t => t.t_id === Number(t_id));
+    if (!trip) {
+      return res.status(404).json({ error: '找不到對應的 t_id' });
+    }
 
-//     if (country) {
-//       sql += ' WHERE country = ?';
-//       params.push(country);
-//     }
-//     sql += ' ORDER BY a_id LIMIT 100';
+    // 找到對應的 a_id
+    const attraction = trip.comments.find(c => c.a_id === Number(a_id));
+    if (!attraction) {
+      return res.status(404).json({ error: '找不到對應的 a_id' });
+    }
 
-//     const [rows] = await pool.query(sql, params);
-//     res.json(rows);
-//   } catch (err) {
-//     console.error('❌ attractions query error:', err);
-//     res.status(500).json({ error: err.message });
-//   }
-// });
+    // 確認 index 是否存在
+    if (
+      index < 0 ||
+      index >= attraction.content.length ||
+      !attraction.content[index]
+    ) {
+      return res.status(404).json({ error: '找不到對應的評論 index' });
+    }
 
-// // ===== 手動新增景點 =====
-// app.post('/api/attractions', async (req, res) => {
-//   const { name_zh, name_en, category, address = '', budget, photo } = req.body;
-//   const parts   = address.split(',').map(s => s.trim()).filter(Boolean);
-//   const country = parts.at(-1) || '';
-//   const city    = parts.length >= 2 ? parts.at(-2) : '';
+    // 刪除評論（同時刪除 user_id / content / created_at）
+    attraction.user_id.splice(index, 1);
+    attraction.content.splice(index, 1);
+    attraction.created_at.splice(index, 1);
+    attraction.link.splice(index, 1);
 
-//   try {
-//     const [result] = await pool.query(
-//       `INSERT INTO Attraction
-//         (name_zh, name_en, category, address, city, country, budget, photo)
-//        VALUES (?,?,?,?,?,?,?,?)`,
-//       [name_zh, name_en, category, address, city, country, budget, photo]
-//     );
-//     res.json({ success: true, a_id: result.insertId, city, country });
-//   } catch (err) {
-//     console.error('❌ insert attraction', err);
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// });
+    // 寫回 JSON
+    fs.writeFile(filePath_comment, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
+      if (err) {
+        console.error('❌ 寫入 JSON 檔失敗:', err);
+        return res.status(500).json({ error: '寫入失敗' });
+      }
+      res.json({ success: true, message: '評論刪除成功' });
+    });
+  });
+});
 
+/* ----- 景點查詢 (依 name / name_zh 搜尋) ----- */
+app.get('/api/attractions-search', (req, res) => {
+  const { keyword } = req.query;
 
-// app.post('/api/users-info', async (req, res) => {
-//   const { user_ids } = req.body;
-//   if (!Array.isArray(user_ids) || user_ids.length === 0) {
-//     return res.status(400).json({ error: 'user_ids 必須是非空陣列' });
-//   }
+  fs.readFile(filePath_attraction, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 attraction_data.json 失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
 
-//   try {
-//     const [rows] = await pool.query(
-//       `SELECT user_id, u_img FROM User WHERE user_id IN (?)`,
-//       [user_ids]
-//     );
-//     const map = {};
-//     for (const row of rows) {
-//       map[row.user_id] = row.u_img;
-//     }
-//     res.json(map);
-//   } catch (err) {
-//     console.error('❌ /api/users-info 錯誤：', err);
-//     res.status(500).json({ error: '伺服器錯誤' });
-//   }
-// });
+    let jsonData = JSON.parse(data);
+    if (!keyword) return res.json(jsonData);
 
-// // ===== 新增評論 =====
-// app.post('/api/comments', async (req, res) => {
-//   const { attraction_id, user_id, content } = req.body;
-//   try {
-//     const [result] = await pool.query(
-//       `INSERT INTO comments (attraction_id, user_id, content)
-//        VALUES (?, ?, ?)`,
-//       [attraction_id, user_id, content]
-//     );
-//     res.json({ success: true, id: result.insertId, created_at: new Date().toISOString() });
-//   } catch (err) {
-//     console.error('❌ insert comment error:', err);
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// });
+    const lowerKey = keyword.toLowerCase();
+    const result = jsonData.filter(item =>
+      (item.name || '').toLowerCase().includes(lowerKey) ||
+      (item.name_zh || '').toLowerCase().includes(lowerKey)
+    );
 
-// // ===== 取得所有連結 =====
-// app.get('/api/links', async (req, res) => {
-//   const { attraction_id } = req.query;
-//   try {
-//     let sql = 'SELECT id, Attraction_id, user_id, xontent, created_at FROM links';
-//     const params = [];
-//     if (attraction_id) {
-//       sql += ' WHERE attraction_id = ?';
-//       params.push(attraction_id);
-//     }
-//     sql += ' ORDER BY created_at';
-//     const [rows] = await pool.query(sql, params);
-//     res.json(rows);
-//   } catch (err) {
-//     console.error('❌ links query error:', err);
-//     res.status(500).json({ error: err.message });
-//   }
-// });
+    res.json(result);
+  });
+});
 
-// // ===== 新增連結 =====
-// app.post('/api/links', async (req, res) => {
-//   const { attraction_id, user_id, xontent } = req.body;
-//   try {
-//     const [result] = await pool.query(
-//       `INSERT INTO links (attraction_id, user_id, xontent)
-//       VALUES (?, ?, ?)`,
-//       [attraction_id, user_id, xontent]
-//     );
-//     res.json({
-//       success: true,
-//       id: result.insertId,
-//       created_at: new Date().toISOString()
-//     });
-//   } catch (err) {
-//     console.error('❌ insert link error:', err);
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// });
+/* ----- 加入景點到 ReAttraction ----- */
+app.post('/api/reAttractions-add', (req, res) => {
+  const { t_id, a_id, user_id } = req.body;
 
+  if (!t_id || !a_id || !user_id) {
+    return res.status(400).json({ error: '缺少必要參數' });
+  }
+
+  fs.readFile(filePath_ReAttraction, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('❌ 讀取 ReAttraction_data.json 失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
+
+    let jsonData = JSON.parse(data);
+
+    // 找對應的 t_id
+    let trip = jsonData.find(t => t.t_id === Number(t_id));
+    if (!trip) {
+      trip = { t_id: Number(t_id), re_attractions: [] };
+      jsonData.push(trip);
+    }
+
+    // 確認 a_id 是否已存在
+    let exist = trip.re_attractions.find(r => r.a_id === Number(a_id));
+    if (exist) {
+      return res.status(400).json({ error: '景點已存在' });
+    }
+
+    // 新增資料
+    trip.re_attractions.push({
+      a_id: Number(a_id),
+      vote_like: 1,
+      who_like: [user_id],
+      vote_love: 0,
+      who_love: []
+    });
+
+    fs.writeFile(filePath_ReAttraction, JSON.stringify(jsonData, null, 2), 'utf-8', (err) => {
+      if (err) {
+        console.error('❌ 寫入 ReAttraction_data.json 失敗:', err);
+        return res.status(500).json({ error: '寫入失敗' });
+      }
+      res.json({ success: true, message: '成功加入 ReAttraction' });
+    });
+  });
+});
+
+/* ----- 手動新增景點 (PlusAttraction + ReAttraction) ----- */
+app.post('/api/plus-attractions-add', (req, res) => {
+  const { t_id, p_name_zh, p_name, p_category, p_address, p_city, p_country, p_budget, p_photo, user_id } = req.body;
+
+  if (!t_id || !p_name_zh || !user_id) {
+    return res.status(400).json({ error: '缺少必要參數 t_id / p_name_zh / user_id' });
+  }
+
+  // 讀取 PlusAttraction.json
+  fs.readFile(filePath_PlusAttraction, 'utf-8', (err, plusData) => {
+    if (err) {
+      console.error('❌ 讀取 plus_attraction.json 失敗:', err);
+      return res.status(500).json({ error: '讀取資料失敗' });
+    }
+
+    let plusJson = [];
+    try {
+      plusJson = JSON.parse(plusData);
+    } catch (parseErr) {
+      console.error('❌ plus_attraction.json 格式錯誤:', parseErr);
+      return res.status(500).json({ error: '資料格式錯誤' });
+    }
+
+    // 找是否已有該 t_id
+    let tripBlock = plusJson.find(t => t.t_id === Number(t_id));
+    if (!tripBlock) {
+      tripBlock = { t_id: Number(t_id), plus_attractions: [] };
+      plusJson.push(tripBlock);
+    }
+
+    // 自動編號 p_a_id
+    const newId = (tripBlock.plus_attractions?.length || 0) + 1;
+
+    const newPlus = {
+      p_a_id: newId,
+      p_name_zh,
+      p_name,
+      p_category,
+      p_address,
+      p_budget: p_budget || null,
+      p_photo,
+      p_country,
+      p_city
+    };
+
+    if (!Array.isArray(tripBlock.plus_attractions)) {
+      tripBlock.plus_attractions = [];
+    }
+    tripBlock.plus_attractions.push(newPlus);
+
+    // ✅ 同步到 ReAttraction_data.json
+    fs.readFile(filePath_ReAttraction, 'utf-8', (err, reData) => {
+      if (err) {
+        console.error('❌ 讀取 ReAttraction_data.json 失敗:', err);
+        return res.status(500).json({ error: '讀取 ReAttraction 資料失敗' });
+      }
+
+      let reJson = [];
+      try {
+        reJson = JSON.parse(reData);
+      } catch (parseErr) {
+        console.error('❌ ReAttraction_data.json 格式錯誤:', parseErr);
+        return res.status(500).json({ error: 'ReAttraction 資料格式錯誤' });
+      }
+
+      // 找到對應的 trip
+      let reTrip = reJson.find(t => t.t_id === Number(t_id));
+      if (!reTrip) {
+        reTrip = { t_id: Number(t_id), re_attractions: [] };
+        reJson.push(reTrip);
+      }
+
+      // 自動 a_id 編號
+      const newAId = (reTrip.re_attractions?.length || 0) + 1;
+
+      const newReAttr = {
+        a_id: newAId,
+        vote_like: 1,
+        who_like: [user_id],
+        vote_love: 0,
+        who_love: []
+      };
+
+      if (!Array.isArray(reTrip.re_attractions)) {
+        reTrip.re_attractions = [];
+      }
+      reTrip.re_attractions.push(newReAttr);
+
+      // 同步寫回兩個檔案
+      fs.writeFile(filePath_PlusAttraction, JSON.stringify(plusJson, null, 2), 'utf-8', (err) => {
+        if (err) {
+          console.error('❌ 寫入 plus_attraction.json 失敗:', err);
+          return res.status(500).json({ error: '寫入 plus_attraction 失敗' });
+        }
+
+        fs.writeFile(filePath_ReAttraction, JSON.stringify(reJson, null, 2), 'utf-8', (err) => {
+          if (err) {
+            console.error('❌ 寫入 ReAttraction_data.json 失敗:', err);
+            return res.status(500).json({ error: '寫入 ReAttraction 失敗' });
+          }
+
+          res.json({ success: true, message: '景點新增成功，已同步到 ReAttraction', plus: newPlus, re: newReAttr });
+        });
+      });
+    });
+  });
+});
 
 // ====================================view 2===========================
 app.get('/api/view2_attraction_list', (req, res) => {

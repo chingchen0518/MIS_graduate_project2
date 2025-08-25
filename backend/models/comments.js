@@ -32,6 +32,7 @@ const Comment = sequelize.define('Comment', {
     user_id:     { type: DataTypes.JSON, allowNull: true },
     content:     { type: DataTypes.JSON, allowNull: true },
     created_at:  { type: DataTypes.JSON, allowNull: true },
+    link:  { type: DataTypes.JSON, allowNull: true },
 }, {
     tableName: 'Comment',
     timestamps: false,

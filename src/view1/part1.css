@@ -1,59 +1,60 @@
 /* ===== Base ===== */
-html, body {
+html, body, #root {
   min-height: 100%;
   margin: 0;
+  height: auto !important;
+  overflow-y: auto !important;
 }
 
 body {
-  /* 不用全頁置中，避免無法捲動 */
-  display: block;
+  display: block !important;
   background: #f6fbff;
   color: #111;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans",
                "Helvetica Neue", Arial, "PingFang TC", "Noto Sans TC", sans-serif;
-  font-size: clamp(14px, 1.4vw, 18px);   /* 基本字體隨視窗變化 */
+  font-size: clamp(14px, 1.4vw, 18px);
   line-height: 1.6;
 }
 
 /* ===== Container ===== */
 .container {
-  width: clamp(72%, 90vw, 1100px);        /* 小螢幕窄、大螢幕不超寬 */
-  margin: clamp(24px, 5vh, 64px) auto;    /* 上下留白隨視窗變化 */
+  margin: clamp(24px, 5vh, 64px) auto !important;
+  width: min(95vw, 1100px);
   background: #fff;
-  padding: clamp(20px, 3.2vw, 48px);      /* 內距自適應 */
+  padding: clamp(20px, 3.2vw, 48px);
   border-radius: 16px;
   box-shadow: 0 12px 28px rgba(0,0,0,.08);
-  text-align: center;                     /* 預設置中，表單內再調整 */
+  text-align: center;
+  font-family: "Noto Sans TC", sans-serif;
+  user-select: none;
 }
 
 /* 標題 */
 .container h1,
 .container .h1 {
   margin: 0 0 clamp(16px, 2.5vw, 28px) 0;
-  font-size: clamp(22px, 3.2vw, 36px);    /* 標題自適應 */
+  font-size: clamp(22px, 3.2vw, 36px);
   font-weight: 800;
   letter-spacing: .5px;
 }
 
 /* ===== Form ===== */
 .form-group {
-  margin: clamp(16px, 2.2vw, 24px) 0;
+  margin: 20px 0;
   display: flex;
-  flex-direction: column;   /* label 在上、輸入在下 */
-  align-items: center;      /* 整組置中 */
+  flex-direction: column;
+  align-items: center;
   width: 100%;
 }
 
-/* 讓 label 與輸入框同寬、左對齊 */
 .form-group label {
   display: block;
   width: clamp(240px, 60%, 520px);
   text-align: left;
-  font-weight: 700;
+  font-weight: bold;
   margin-bottom: .5rem;
 }
 
-/* 輸入元件統一尺寸、繼承字體大小 */
 .form-group input[type="text"],
 .form-group input[type="date"],
 .form-group input[type="time"],
@@ -61,10 +62,11 @@ body {
   width: clamp(240px, 60%, 520px);
   padding: 0.7em 0.9em;
   border-radius: 10px;
-  border: 1px solid #d6d6d6;
+  border: 1px solid #ccc;
   background: #fff;
-  font-size: 50px;   /* ★ 在這裡調大字體 */
+  font-size: 16px;
   box-sizing: border-box;
+  margin-right: 10px;
 }
 
 /* 下一步按鈕 */
@@ -83,7 +85,7 @@ body {
 .next-btn:hover { background: #90c4eb; }
 .next-btn:active { transform: translateY(1px); }
 
-/* ===== Hotels (若有使用) ===== */
+/* ===== Hotels ===== */
 .hotels {
   display: flex;
   justify-content: center;
@@ -91,6 +93,7 @@ body {
   margin-top: clamp(16px, 2.5vw, 30px);
   flex-wrap: wrap;
 }
+
 .hotel {
   flex: 1 1 280px;
   max-width: 360px;
@@ -100,11 +103,13 @@ body {
   box-shadow: 0 0 10px rgba(0,0,0,0.06);
   text-align: center;
 }
+
 .hotel img {
   width: 100%;
   height: auto;
   border-radius: 8px;
 }
+
 .hotel h3 { margin: 10px 0 6px; }
 .price {
   margin-top: 10px;
@@ -114,16 +119,11 @@ body {
   border-radius: 8px;
 }
 
-/* ===== Suggestion dropdown (若有使用) ===== */
-ul li {
-  word-wrap: break-word;
-  white-space: normal;
-  overflow-wrap: break-word;
-}
+/* ===== Hotel Suggestions Dropdown ===== */
 .suggestion-wrapper { position: relative; }
 .hotel-suggestions {
   position: absolute;
-  bottom: 100%;                 /* 往上展開 */
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   width: clamp(240px, 60%, 520px);
@@ -136,29 +136,133 @@ ul li {
   border-radius: 10px;
 }
 
-/* ===== 小尺寸優化 ===== */
-@media (max-width: 640px) {
-  .container { width: 92vw; }
+ul li {
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
+/* ===== Gantt Chart ===== */
+.result-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 12px 0 24px;
+}
+.result-box {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.result-box::-webkit-scrollbar { height: 6px; }
+.result-box::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 4px;
+}
+.result-item {
+  padding: 6px 10px;
+  background: #f5f5f5;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  cursor: grab;
+}
+.result-item:active { cursor: grabbing; }
 
-/* 允許整頁垂直捲動，避免被置中卡住 */
-html, body, #root {
-  height: auto !important;
-  min-height: 100% !important;
-  overflow-y: auto !important;
-  margin: 0 !important;
+.gantt-wrapper {
+  width: 100%;
+  overflow-x: auto;
 }
 
-body {
-  display: block !important;   /* 取消原本的 display:flex 置中 */
-  justify-content: initial !important;
-  align-items: initial !important;
-  background: #f6fbff;
+.grid {
+  display: grid;
+  position: relative;
+  border: 1px solid #333;
+  grid-auto-rows: 48px;
 }
 
-/* 用 margin 置中白色容器，不靠 body 的 flex */
-.container {
-  margin: 48px auto !important;
-  width: min(95vw, 1100px);
+/* header */
+.date-header {
+  height: 40px;
+  background: #f0f0f0;
+  border-right: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* cell */
+.cell {
+  border-right: 1px solid #eee;
+  border-top: 1px dashed #ccc;
+  position: relative;
+  height: 46px;
+  padding: 2px;
+  overflow: hidden;
+}
+
+/* block */
+.block {
+  background-color: #3b82f6;
+  color: white;
+  padding: 4px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* handle */
+.handle {
+  width: 8px;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
+  cursor: ew-resize;
+}
+
+/* 1) 置中每一週的 row */
+.gantt-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 2) 每週寬度自適應 */
+.gantt-row {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.date-row, .hotel-row {
+  display: flex;
+  flex-direction: row;
+  width: fit-content;
+}
+
+.date-cell {
+  width: 120px;
+  height: 30px;
+  text-align: center;
+  background: #f0f0f0;
+  font-size: 12px;
+  border: 1px solid #ccc;
+}
+
+.hotel-cell {
+  width: 120px;
+  height: 40px;
+  border: 1px dashed #aaa;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

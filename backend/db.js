@@ -760,12 +760,31 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
     const avatarFilename = avatarFile ? avatarFile.filename : 'avatar.jpg';
 
     const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
-    connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err) => {
+    connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err, result) => {
       if (err) {
         console.error('❌ 註冊錯誤:', err);
         return res.status(500).json({ message: '伺服器錯誤' });
       }
-      return res.status(200).json({ message: '✅ 註冊成功' });
+      // 新增完後查詢剛剛新增的 user
+      const selectSql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
+      connection.query(selectSql, [email], (err2, rows) => {
+        if (err2 || rows.length === 0) {
+          return res.status(500).json({ message: '查詢新用戶失敗' });
+        }
+        const user = rows[0];
+        return res.status(200).json({
+          message: '✅ 註冊成功',
+          redirect: '/profile',
+          user: {
+            uid: user.u_id,
+            img: user.u_img,
+            name: user.u_name,
+            email: user.u_email,
+            password: user.u_password,
+            account: user.u_account,
+          }
+        });
+      });
     });
   } catch (error) {
     console.error('❌ 加密或其他錯誤:', error);

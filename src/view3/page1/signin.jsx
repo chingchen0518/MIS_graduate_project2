@@ -59,10 +59,11 @@ function Signin() {
 
                 if (response.ok) {
                     alert('註冊成功！');
+                    localStorage.setItem('user', JSON.stringify(data.user));
                     setForm(initialState);
                     setErrors([]);
                     setTimeout(() => {
-                        navigate('/Login');
+                        navigate('/Profile');
                     }, 500);
                 } else {
                     setErrors([data?.message || `註冊失敗 (狀態碼: ${response.status})`]);

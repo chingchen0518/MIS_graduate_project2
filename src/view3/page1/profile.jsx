@@ -161,7 +161,7 @@ function Profile() {
                                         {/* <button className="btn" onClick={handleEdit}>
                                             <FontAwesomeIcon icon={faEdit} /> 編輯
                                         </button> */}
-                                        <button className="btn" onClick={() => navigate('/logout')}>
+                                        <button className="btn" onClick={() => navigate('/')}>
                                             <FontAwesomeIcon icon={faPlus} /> 新增旅程
                                         </button>
                                         <button className="btn" onClick={() => navigate('/logout')}>

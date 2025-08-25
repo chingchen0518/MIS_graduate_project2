@@ -15,6 +15,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
     const [selectedDate, setSelectedDate] = useState(''); // 儲存目前選擇的Date
     const [timeColumnHeight, setTimeColumnHeight] = useState(0); // 儲存時間欄的高度
     const [showScheduleInsert, setShowScheduleInsert] = useState(false); //要不要顯示ScheduleInsert
+    // 新增：目前選中的 schedule id
+    const [selectedScheduleId, setSelectedScheduleId] = useState(null);
 
     const timeColumnRef = useRef(null);
 
@@ -191,6 +193,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
                     day={schedule.day}
                     intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
                     containerHeight={timeColumnHeight}
+                    selectedScheduleId={selectedScheduleId}
+                    setSelectedScheduleId={setSelectedScheduleId}
                 />
             ))
             )}

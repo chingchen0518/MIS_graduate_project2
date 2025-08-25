@@ -71,6 +71,7 @@
   color: #333;
 }
 
+
 .schedule {
   width: 120px;
   height: calc(100% - 10px);
@@ -86,6 +87,18 @@
   min-width: 120px;
   flex-shrink: 0;
   position: relative;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.schedule-hovered {
+  background-color: #f0f4ff;
+  box-shadow: 0 2px 8px rgba(66, 139, 255, 0.15);
+}
+
+.schedule-selected {
+  background-color: #c3dafe;
+  border-color: #3182ce;
+  box-shadow: 0 4px 16px rgba(49, 130, 206, 0.18);
 }
 
 .schedule.drag_over {

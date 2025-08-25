@@ -7,7 +7,7 @@ function StageModal({ nextStage, onClose }) {
       <div className="stage-modal-content">
         <h2>已進入下一階段！</h2>
         <p>目前階段：{nextStage}</p>
-        <button onClick={onClose}>確定</button>
+        <button onClick={onClose}>我已了解</button>
       </div>
     </div>
   );

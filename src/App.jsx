@@ -15,7 +15,7 @@ import ResizableBox from './view2/chingchen/ResizableBox.jsx';
 //==============================view 1==================================
 import Part1 from './view1/part1.jsx';
 import TreemapTest from './view1/treemap_chyi.jsx';
-import View1Test from './view1/test/test.jsx';
+// import View1Test from './view1/test/test.jsx';
 import ChooseAttraction from './view1/part2.jsx';
 import TripList from './view1/tripList.jsx';
 /*
@@ -79,7 +79,7 @@ function App() {
                     <Route path="/part1" element={<Part1 />} />
                     <Route path="/treemap" element={<TreemapTest />} />
                     <Route path="/choose" element={<ChooseAttraction />} />
-                    <Route path="/view1test" element={<View1Test />} />
+                    {/* <Route path="/view1test" element={<View1Test />} /> */}
 
                     <Route path="/trips" element={<TripList />} />
 

@@ -1,6 +1,7 @@
 // db.js
 import express from 'express';
-import mysql from 'mysql2/promise';
+import mysql from 'mysql2';
+
 import cors from 'cors';
 import './syncModels.js';
 import bcrypt from 'bcrypt';
@@ -46,7 +47,7 @@ app.use(express.json());
 const port = 3001;
 
 // 建立 connection（自動連線，不要再呼叫 .connect）
-const connection = await mysql.createConnection({
+const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '20250101',

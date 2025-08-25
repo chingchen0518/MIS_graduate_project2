@@ -25,6 +25,7 @@ try {
 
 const Attraction = sequelize.define('Attraction', {
   a_id:     { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  u_id:     { type: DataTypes.INTEGER},
   name_zh:  { type: DataTypes.STRING, allowNull: true },
   name:     { type: DataTypes.STRING, allowNull: true },
   category: { type: DataTypes.STRING, allowNull: true },

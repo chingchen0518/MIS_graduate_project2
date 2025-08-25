@@ -14,7 +14,8 @@ const Trip = sequelize.define('Trip', {
     title:   { type: DataTypes.STRING, allowNull: false },
     stage: { type: DataTypes.STRING, allowNull: true },
     u_id:    { type: DataTypes.INTEGER, allowNull: false },
-    finished_day: { type: DataTypes.INTEGER, allowNull: false }
+    finished_day: { type: DataTypes.INTEGER, allowNull: false },
+    hashedTid: { type: DataTypes.STRING, allowNull: false }
 }, {
     tableName: 'Trip',
     timestamps: false,

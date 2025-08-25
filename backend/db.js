@@ -607,6 +607,24 @@ app.post('/api/share-trip', async (req, res) => {
 
   const hash = await bcrypt.hash(String(tripId), 10);
   const encoded = encodeURIComponent(hash);
+  try {
+    // 加密密碼
+    const hash = await bcrypt.hash(String(tripId), 10);
+    const encoded = encodeURIComponent(hash);
+
+    // 更新到資料庫
+    const sql = 'UPDATE Trip SET hashedTid = ? WHERE t_id = ?';
+    connection.query(sql, [encoded, tripId], (err) => {
+      if (err) {
+        console.error('❌ 更新密碼錯誤：', err.message);
+        return res.status(500).json({ message: '伺服器錯誤' });
+      }
+    });
+  } catch (err) {
+    console.error('❌ 加密錯誤：', err.message);
+    return res.status(500).json({ message: 'tid加密失敗' });
+  }
+
   const registerUrl = `http://localhost:5173/signin?invite=${encoded}`;
   const lineUrl = 'https://lin.ee/PElDRz6';
 
@@ -881,13 +899,13 @@ app.get('/api/fake-data', async (req, res) => {
 
     // 插入 Trip
     const tripSql = `
-      INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id, finished_day)
+      INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id, finished_day, hashedTid)
       VALUES
-        ('2025-08-01', '2025-08-10', '08:00:00', '20:00:00', 'France', '2025-08-01', '10:00:00', '巴黎之旅', 'A', 1, 8),
-        ('2025-09-05', '2025-09-15', '09:00:00', '19:00:00', 'Italy', '2025-09-05', '11:00:00', '義大利探索', 'B', 2, 3),
-        ('2025-10-10', '2025-10-20', '07:30:00', '18:30:00', 'Japan', '2025-10-10', '09:30:00', '日本文化之旅', 'C', 3, 1),
-        ('2025-11-01', '2025-11-10', '08:00:00', '20:00:00', 'Spain', '2025-11-01', '10:00:00', '西班牙風情', 'D', 4, 2),
-        ('2025-12-15', '2025-12-25', '10:00:00', '22:00:00', 'Australia', '2025-12-15', '12:00:00', '澳洲冒險', 'E', 5, 3)
+        ('2025-08-01', '2025-08-10', '08:00:00', '20:00:00', 'France', '2025-08-01', '10:00:00', '巴黎之旅', 'A', 1, 8, 'hashedTid1'),
+        ('2025-09-05', '2025-09-15', '09:00:00', '19:00:00', 'Italy', '2025-09-05', '11:00:00', '義大利探索', 'B', 2, 3, 'hashedTid2'),
+        ('2025-10-10', '2025-10-20', '07:30:00', '18:30:00', 'Japan', '2025-10-10', '09:30:00', '日本文化之旅', 'C', 3, 1, 'hashedTid3'),
+        ('2025-11-01', '2025-11-10', '08:00:00', '20:00:00', 'Spain', '2025-11-01', '10:00:00', '西班牙風情', 'D', 4, 2, 'hashedTid4'),
+        ('2025-12-15', '2025-12-25', '10:00:00', '22:00:00', 'Australia', '2025-12-15', '12:00:00', '澳洲冒險', 'E', 5, 3, 'hashedTid5')
     `;
 
     await new Promise((resolve, reject) => {

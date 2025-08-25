@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { SelectedScheduleContext } from './page1.jsx';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -15,8 +16,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
     const [selectedDate, setSelectedDate] = useState(''); // 儲存目前選擇的Date
     const [timeColumnHeight, setTimeColumnHeight] = useState(0); // 儲存時間欄的高度
     const [showScheduleInsert, setShowScheduleInsert] = useState(false); //要不要顯示ScheduleInsert
-    // 新增：目前選中的 schedule id
-    const [selectedScheduleId, setSelectedScheduleId] = useState(null);
+    // 從 Context 取得 selectedScheduleId 狀態
+    const { selectedScheduleId, setSelectedScheduleId } = useContext(SelectedScheduleContext);
 
     const timeColumnRef = useRef(null);
 

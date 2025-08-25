@@ -1,5 +1,6 @@
 //不可編輯的schedule
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { SelectedScheduleContext } from './page1.jsx';
 import './schedule.css';
 import ScheduleItem from './ScheduleItem.jsx'; // 引入 ScheduleItem 組件
 
@@ -69,12 +70,14 @@ const ScheduleShow = (props) => {
     };
 
     // 點擊與 hover 處理
-    // 點擊時將選取狀態交由父組件 ScheduleContainer 控制
+    // 點擊時將選取狀態交由 Context 控制
+    const { selectedScheduleId, setSelectedScheduleId } = useContext(SelectedScheduleContext);
     const handleClick = () => {
-        if (props.setSelectedScheduleId) {
-            props.setSelectedScheduleId(props.s_id);
-            console.log(`已經點擊 schedule: ${props.s_id}`);
-        }
+        setSelectedScheduleId(props.s_id);
+        setTimeout(() => {
+            // 用 setTimeout 確保 state 已更新
+            console.log(`全域 selectedScheduleId: ${selectedScheduleId}，剛點擊: ${props.s_id}`);
+        }, 0);
     };
     // 滑鼠移入/移出時切換 hovered 狀態
     const handleMouseEnter = () => setHovered(true);

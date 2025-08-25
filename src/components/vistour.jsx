@@ -8,7 +8,6 @@ import Page3 from '../view3/page3/Page3.jsx';
 
 
 const Vistor = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
     const trip = JSON.parse(localStorage.getItem('trip'));
     const [stage, setStage] = useState('A');
     const [tripId, setTripId] = useState(trip.tid || 1);//之後要修改
@@ -39,7 +38,6 @@ const Vistor = () => {
     else if (stage === 'D') content = <Page2 />;
     else if (stage === 'E') content = <Page3 />;
     else content = <div>未知階段</div>;
-    console.log('目前階段:', stage);
 
     return (
         <>

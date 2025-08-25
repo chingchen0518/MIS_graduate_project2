@@ -106,6 +106,7 @@ function Header() {
           });
 
           const result = await res.json();
+          window.dispatchEvent(new Event('stageUpdated'));
           console.log('更新 stage_date:', result);
           const updatedStageNum = mapStageToNumber(result.stage);
           setNextStageName(stepNames[updatedStageNum - 1]); // 例如 "行程確定"

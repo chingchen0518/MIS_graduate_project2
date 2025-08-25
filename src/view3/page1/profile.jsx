@@ -188,7 +188,7 @@ function Profile() {
                                                     tid: trip.t_id,
                                                     title: trip.title,
                                                 }));
-                                                navigate('/header');
+                                                navigate('/Vistour');
                                             }}
                                         >
                                             {trip.title}

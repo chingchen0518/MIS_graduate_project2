@@ -33,7 +33,7 @@ const Page1 = () => {
             <CustomDragPreview />
             
             <div className="page1">
-                <Header/>
+                {/* <Header/> */}
 
                 <div className="page1_content">
 

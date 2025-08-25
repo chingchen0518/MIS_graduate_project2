@@ -8,28 +8,33 @@ import Page3 from '../view3/page3/Page3.jsx';
 
 
 const Vistor = () => {
-    const trip = JSON.parse(localStorage.getItem('trip'));
-    const [stage, setStage] = useState('A');
-    const [tripId, setTripId] = useState(trip.tid || 1);//之後要修改
+    const storedTrip = localStorage.getItem('trip');
+    const trip = storedTrip ? JSON.parse(storedTrip) : {};
 
-    // 取得旅程資料
+    const [tripId, setTripId] = useState(trip.tid || 1);
+    const [stage, setStage] = useState(trip.stage || 'A'); // 預設 A
+
     const fetchTripData = async () => {
         try {
             const res = await fetch(`/api/trip/${tripId}`);
             const data = await res.json();
-            setTripId(data.tripId);
-            setStage(data.stage);
+            setTripId(data.tid || data.tripId);
+            setStage(data.stage || '未知');
         } catch (e) {
             console.error('API 錯誤:', e);
         }
     };
+
     useEffect(() => {
+        fetchTripData(); // 🚨 這裡一開始也要呼叫一次，確保有資料
+
         const handleStageUpdate = () => {
             fetchTripData();
         };
         window.addEventListener('stageUpdated', handleStageUpdate);
         return () => window.removeEventListener('stageUpdated', handleStageUpdate);
-    }, []);
+    }, [tripId]); // 依賴 tripId
+
 
     let content;
     if (stage === 'A') content = <Login />;

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './header.css';
 import StageModal from './StageModal';
+import CountdownTimer from './CountdownTimer';
 
 function Header() {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -154,7 +155,7 @@ function Header() {
         <span className="header-title">{tripTitle}</span>
         <span className="header-timer">
           <span className="header-timer-icon">⏳</span>
-          時間倒數: <span>{getCountdown()}</span>
+          時間倒數: <CountdownTimer deadline={deadline} stage={stage} />
         </span>
         <button className="share-button" onClick={() => setShowModal(true)}>
           分享旅程

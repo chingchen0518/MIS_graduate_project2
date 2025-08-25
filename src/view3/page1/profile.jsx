@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import './profile.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faAddressCard, faEdit, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faAddressCard, faPlus, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
 function Profile() {
@@ -162,6 +162,9 @@ function Profile() {
                                             <FontAwesomeIcon icon={faEdit} /> 編輯
                                         </button> */}
                                         <button className="btn" onClick={() => navigate('/logout')}>
+                                            <FontAwesomeIcon icon={faPlus} /> 新增旅程
+                                        </button>
+                                        <button className="btn" onClick={() => navigate('/logout')}>
                                             <FontAwesomeIcon icon={faSignOutAlt} /> 登出
                                         </button>
                                     </div>
@@ -174,6 +177,7 @@ function Profile() {
                         <div className="profile-history-title">
                             <FontAwesomeIcon icon={faHistory} /> 參加過的行程
                         </div>
+                        
                         <ul className="profile-history-list">
                             {profile.trips && profile.trips.length > 0 ? (
                                 profile.trips.map(trip => (

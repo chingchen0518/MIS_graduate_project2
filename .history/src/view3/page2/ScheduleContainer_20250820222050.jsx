@@ -147,7 +147,7 @@ const ScheduleContainer = ({ t_id, usedAttractions = [], onAttractionUsed, filte
                 </div>
             </div>
 
-            <div className="schedule_list attraction-connector-container" ref={scheduleListRef} style={{ position: 'relative' }}>
+            <div className="schedule_list" ref={scheduleListRef} style={{ position: 'relative' }}>
                 <div className="time_column" ref={timeColumnRef} style={{ height: timeColumnHeight }}>
                     {timeSlots.map((time) => (
                         <div key={time} className="time_slot">
@@ -177,9 +177,9 @@ const ScheduleContainer = ({ t_id, usedAttractions = [], onAttractionUsed, filte
                                 filterConditions={filterConditions}
                             />
                         ))}
-
+                        
                         {/* 景點連線組件 */}
-                        <AttractionConnector
+                        <AttractionConnector 
                             schedules={schedules}
                             containerRef={scheduleListRef}
                             timeColumnWidth={150} // 時間欄寬度，可以根據實際情況調整

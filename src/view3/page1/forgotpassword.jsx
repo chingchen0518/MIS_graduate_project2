@@ -99,22 +99,22 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="page">
+        <div className="all_page">
             <div className="floating-shapes">
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
             </div>
-            <div className="container">
-                <div className="header">
-                    <div className="logo">
-                        <div className="logo-icon">
+            <div className="main_container">
+                <div className="all_header">
+                    <div className="all_logo">
+                        <div className="all_logo-icon">
                             <FontAwesomeIcon icon={faGlobe} />
                         </div>
-                        <h1 className="title">Vistour</h1>
+                        <h1 className="all_title">Vistour</h1>
                     </div>
-                    <p className="subtitle">你的旅遊好幫手</p>
+                    <p className="all_subtitle">你的旅遊好幫手</p>
                 </div>
                 <div className="body">
                     {success && (
@@ -133,9 +133,9 @@ const ForgotPassword = () => {
                     <form onSubmit={handleSubmit} noValidate>
                         {step === 1 ? (
                             <>
-                                <div className="form-group">
+                                <div className="all_form-group">
                                     <label htmlFor="email">電子郵件</label>
-                                    <div className="input-with-icon">
+                                    <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faEnvelope} />
                                         <input
                                             type="email"
@@ -156,9 +156,9 @@ const ForgotPassword = () => {
                             </>
                         ) : (
                             <>
-                                <div className="form-group">
+                                <div className="all_form-group">
                                     <label htmlFor="newPassword">新密碼</label>
-                                    <div className="input-with-icon">
+                                    <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faLock} />
                                         <input
                                             type="password"
@@ -172,9 +172,9 @@ const ForgotPassword = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className="form-group">
+                                <div className="all_form-group">
                                     <label htmlFor="confirmPassword">確認密碼</label>
-                                    <div className="input-with-icon">
+                                    <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faLock} />
                                         <input
                                             type="password"
@@ -191,14 +191,14 @@ const ForgotPassword = () => {
                         )}
                         <button
                             type="submit"
-                            className="btn"
+                            className="all_btn"
                             disabled={loading}
                         >
                             {loading ? '處理中...' : step === 1 ? '請求重設密碼' : '提交新密碼'}
                         </button>
                     </form>
                 </div>
-                <div className="footer">
+                <div className="all_footer">
                     記得密碼？ <a href="/Login">立即登入</a>
                 </div>
             </div>

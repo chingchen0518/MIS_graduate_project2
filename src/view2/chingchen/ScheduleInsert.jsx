@@ -2,6 +2,7 @@ import React, { useState, useRef, lazy, Suspense } from 'react';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import { function1 } from './TransportTime';
+import { fetchAttractions, buildPrompt, scheduleGenerate } from './AI_generate_schedule.js'; 
 
 // 使用 lazy 進行按需加載
 const ScheduleItem = lazy(() => import('./ScheduleItem'));
@@ -23,11 +24,13 @@ const ScheduleInsert = ({
     
     var u_id = 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
     var HourIntervalHeight = intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
-    
+    var all_attraction;
     let TheNewSchedule = {};
-
+    
     //state
     const [attractions, setAttractions] = useState([]); //儲存目前放進schedule的attraction
+    const [loading, setLoading] = useState(false);
+
     // var finalScheduleItems = {}; // 儲存最終的行程項目
     const dropRef = useRef(null);
 
@@ -69,6 +72,7 @@ const ScheduleInsert = ({
                             y: attraction.y,
                             height: attraction.height,
                             sequence:attraction.sequence,
+                            transport_method: attraction.transport_method, // 新增交通方式
                         }),
                     });
                 })
@@ -120,12 +124,6 @@ const ScheduleInsert = ({
                 } else {
                     console.error('交通時間計算失敗:', result.error);
                 }
-
-                
-                // db_insert_schedule_item(s_id);//插入schedule中的細項
-                
-                // await ()=>{handleNewSchedule(scheduleData)};//把新增的行程傳回去給schedule_container.jsx
-
             }
         } else {
             alert('此行程已經確認');
@@ -158,11 +156,61 @@ const ScheduleInsert = ({
         setAttractions(updated);
     };
 
-    //function 7:顯示某個景點的營業時間
+    // function 7:取得某個景點的交通方式
+    const getTransportMethod = (a_id_for_function, value) => {
+        setAttractions(prev => prev.map(item =>
+            item.a_id === a_id_for_function
+                ? { ...item, transport_method: value }
+                : item
+        ));
+        console.log('🅰️景點', a_id_for_function);
+        console.log('🚖目前選擇的交通方式:', value);
+    };
+
+    // function8:AI
+    const handleGenerate = async () => {
+        setLoading(true);
+        all_attraction = await fetchAttractions();
+        const prompt = buildPrompt(all_attraction, { startTime: '09:00', endTime: '17:00', attraction_count: 7 });
+        const originalResponse = await scheduleGenerate(prompt, 1);
+        try {
+            // 解析 AI 回傳的 JSON 字串
+            const arr = JSON.parse(originalResponse);
+            // 逐一建立 NewAttraction 並添加到 setAttractions
+            arr.forEach(item => {
+                // 計算時間和00:00的差距
+                const [sh, sm] = "00:00".split(':').map(Number);
+                const [eh, em] = item.arrival_time.split(':').map(Number);
+                const timeDiff = (eh * 60 + em) - (sh * 60 + sm);
+                
+                const calculated_y = timeDiff * HourIntervalHeight; // 計算 y 座標
+
+                const NewAttraction = {
+                    a_id: item.a_id,
+                    name: item.name,
+                    sequence: item.sequence,
+                    transport_method: 0,
+                    height: item.stay_minutes * HourIntervalHeight,
+                    width: 180,
+                    x: 0,
+                    y: calculated_y,
+                    position: { x: 0, y: calculated_y },
+                };
+                setAttractions(prev => [...prev, NewAttraction]);
+            });
+        } catch (e) {
+            console.warn('解析AI回傳行程失敗', e);
+        }
+        console.log(originalResponse);
+        setLoading(false);
+    }
+
+
+
+    //function 9:顯示某個景點的營業時間
     const showOperatingTime = () => {
         //還沒收到前面的時間
     };
-
 
     //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({
@@ -209,14 +257,8 @@ const ScheduleInsert = ({
         const correctedX = x;
         const correctedY = Math.max(0, Math.min(y, dropTargetRect.height));
 
-        // console.log('Item dropped:', item, 'at position:', { x: correctedX, y: correctedY });
-        // 可能有錯誤---------------------------------------------------------------------------------
-        // const t_id = item.id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
-        const dropTargetId = dropTarget.getAttribute('data-id'); // 獲取 Drop Target 的 ID
-        // const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
-        // 可能有錯---------------------------------------------------------------------------------
-        // const a_id = item.a_id || 1; // 景點 ID，默認為 1
-
+             const dropTargetId = dropTarget.getAttribute('data-id'); // 獲取 Drop Target 的 ID
+        
         if (monitor.getItemType() === "card") {       
             // 處理從 attraction_card 拖動
             const newAttraction = {
@@ -228,6 +270,7 @@ const ScheduleInsert = ({
                 height: 35, // 調整高度，與 schedule_item.jsx 保持一致 @==@調整成真正的高度
                 width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
                 sequence: attractions.length + 1, // 新增的景點序號
+                transport_method: 0 // 初始交通方式為 0
             };
             
             // setAttractions((prevAttractions) => [...prevAttractions, newAttraction]);
@@ -285,6 +328,7 @@ const ScheduleInsert = ({
                 <div className="button_display">
                     <button className="confirm_btn" onClick={handleConfirm}>確認</button>
                     <button className="cancel_btn" onClick={handleCancel}>取消</button>
+                    <button className="generate_btn" onClick={handleGenerate}>AI</button>
                 </div>
 
                 <span className="schedule_date">{title}</span>
@@ -298,7 +342,7 @@ const ScheduleInsert = ({
                 <Suspense fallback={<div>Loading...</div>}>
                     {attractions.map((attraction, index) => (
                         <ScheduleItem
-                            height={HourIntervalHeight} // 使用計算的高度
+                            height={attraction.height} // 使用計算的高度
                             a_id={attraction.a_id}
                             key={`attraction-${index}`}
                             name={attraction.name}
@@ -310,15 +354,18 @@ const ScheduleInsert = ({
                             onValueChange={(height, x, y,a_id) => getChildData(height, x, y,a_id)}
                             editable={true}
                             onDragStop={() => handleReorder}
+                            getTransportMethod={(a_id,value) => getTransportMethod(a_id,value)}
                             intervalHeight={intervalHeight}
                             nextAId={attractions.find(a => a.sequence === attraction.sequence + 1)?.a_id ?? null}
                             editmode={true}
+                            transport_method={attraction.transport_method} // 傳遞交通方式
                         />
                     ))}
                 </Suspense>
                 ) : (
                 <div className="schedule_empty">
-                    <span>拖拽景點到這裡</span>
+                    <span>{loading ? "行程生成中..." : "拖拽景點到這裡"}</span>
+
                 </div>
                 )}
             </div>

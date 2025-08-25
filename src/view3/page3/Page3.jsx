@@ -3,8 +3,6 @@ import React from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-
-
 // 右側骰子
 import DiceSelector from "./DiceSelector.jsx";
 import "./DiceSelector.css";

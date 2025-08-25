@@ -1,9 +1,8 @@
-/* 首次載入的預設值（等 JS 算好會覆寫） */
 :root{ 
   --vh: 1vh;
   --page-pad-y: 15px;
-  --grid-gap-y: 2px;
-  --topbar-chipbar-gap: 30px;
+  --grid-gap-y: 4px;
+  --topbar-chipbar-gap: 35px;
 }
 
 /* ===== 全螢幕：以視窗為畫布，Flex 撐滿 ===== */
@@ -13,7 +12,7 @@ html, body {
   font-family: "Noto Sans TC";
   background: #fff;
   color: #000;
-  overflow: hidden;            /* 外層不滾動，內部區塊各自滾動 */
+  overflow: hidden;          
 }
 * { box-sizing: border-box; }
 
@@ -26,19 +25,19 @@ html, body {
   flex-direction: column;
 }
 
-/* 左上角膠囊（保留一鍵收合） */
+/* Sidebar伸縮（到時候可能會刪掉） */
 .collapse-btn {
   position: absolute;
   left: -6px;
   top: 22px;
   width: 34px;
   height: 28px;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #ecf7f9;
   border: 1px solid #aebfe2;
   color: #2a4469;
   font-weight: 800;
-  display: flex;
+  display:none !important;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -63,8 +62,6 @@ html, body {
   align-items: center;
   gap: 10px;
   margin: 0;
-  padding-left: 6px;
-  padding-right: 6px;
 }
 .title { 
   margin: 0; 
@@ -80,7 +77,7 @@ html, body {
 .ribbon {
   font-size: 12px;
   padding: 6px 30px;
-  background: #f4ddb8;
+  background: #ffe1a8;
   color: #000;
   clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 50%, calc(100% - 24px) 100%, 0 100%, 24px 50%);
   white-space: nowrap;
@@ -93,68 +90,119 @@ html, body {
 .tbox {
   min-width: 40px;
   height: 28px;
-  padding: 0 6px;
-  background: #d6e6f7;
-  border-radius: 12px;
+  padding: 0 5px;
+  background: #e1eff8;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 500;
 }
 
-/* ===== Segmented Switch（景點投票人數 / "偏好程度"） ===== */
-.seg-switch {
+/* === Segmented Switch（景點投票人數 | 偏好程度）=== */
+.seg-switch{
+  --seg-h: 36px;
+  --seg-pad: 0px;
+  --seg-radius: 10px;
+  --seg-bg: #e1eff8;
+  --seg-ink: #2e5684;
+  --seg-active-bg: #c4ddee;
+
+  /* 內層顏色的左右大小 */
+  --seg-left-w: 54%;
+  --seg-right-w: 43%;
+
   position: relative;
-  display: inline-grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  background: #ecf7f9;
-  border-radius: 10px;
-  padding: 4px;
-  min-width: 260px;
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--seg-h);
+  min-width: 250px;
+  padding: var(--seg-pad);
+  background: var(--seg-bg);
+  border: 1px solid var(--seg-border);
+  border-radius: 8px;
+  overflow: hidden;
   user-select: none;
-  font-weight: 500;
 }
-.seg-switch .seg {
+.seg-switch .seg{
   position: relative;
   z-index: 1;
-  padding: 6px 14px;
-  border-radius: 10px;
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 8px;
   font-size: 15px;
+  font-weight: 500;
+  color: var(--seg-ink);
+  cursor: pointer;
+  transition: color .15s ease, transform .05s ease;
+  white-space: nowrap;
   line-height: 1;
-  text-align: center;
-  cursor: pointer;
-  background: transparent;
 }
-.seg-switch .seg.active { 
-  font-weight: 800; 
-  color: #1f2a37; 
+.seg-switch .seg + .seg::before{
+  content:"";
+  position:absolute;
+  left:0; top:6px; bottom:6px;
+  width:1px;
+  background:#4c78a8; /* 中間的細分隔線 */
+  opacity:.9;
+  pointer-events:none;
 }
-.seg-switch .seg-indicator {
-  position: absolute;
-  z-index: 0;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: calc(50% - 3px);
-  border-radius: 10px;
-  background: #d6e6f7;
-  transition: left .18s ease;
-  box-shadow: inset 0 1px 0 #ffffffaa;
+.seg-switch .seg-indicator{
+  position:absolute;
+  z-index:0;
+  top: var(--seg-pad);
+  bottom: var(--seg-pad);
+  left: var(--seg-pad);
+  width: calc(var(--seg-left-w) - var(--seg-pad));
+  border-radius: 8px;
+  background: var(--seg-active-bg);
+  border: 1px solid var(--seg-active-border);
+  box-sizing: border-box;
+  transition: left .2s ease, width .2s ease;
 }
-.seg-switch .seg-indicator.right { 
-  left: calc(50% + 0px); 
+.seg-switch.is-right .seg-indicator{ /* 右側(偏好程度) */
+  left: calc(100% - var(--seg-pad) - var(--seg-right-w));
+  width: var(--seg-right-w);
 }
-.seg-switch .seg-hit {
-  position: absolute;
-  inset: 0;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+.seg-switch.is-left .seg-indicator{ /* 左側(偏好程度) */
+  left: var(--seg-pad);
+  width: calc(var(--seg-left-w) - var(--seg-pad));
+}
+.seg-switch .seg:hover{ color:#779ecc; }
+.seg-switch .seg:active{ transform: translateY(0.5px); }
+.seg-switch .seg.active{ font-weight:800; color:#333; }
+.seg-switch .seg-hit{
+  position:absolute; inset:0;
+  background:transparent; 
+  border:none; 
+  padding:0; 
+  cursor:pointer;
+  z-index:0;
+}
+.seg-ico{
+  width:16px; height:16px;
+  flex: 0 0 auto;
+  display:inline-block;
+  opacity:.8;
+  fill: currentColor;
+}
+.seg.active .seg-ico{ opacity:1; }
+.seg-switch,
+.seg-switch:focus,
+.seg-switch:focus-visible,
+.seg-switch .seg:focus,
+.seg-switch .seg:focus-visible,
+.seg-switch .seg-hit:focus,
+.seg-switch .seg-hit:focus-visible{
+  outline:none;
+  box-shadow:none;
 }
 
-/* ===== 全部分類 ===== */
+/* ===== 第二行 ===== */
 .chipbar {
   grid-column: 3;
   grid-row: 2;
@@ -164,57 +212,9 @@ html, body {
   gap: 10px;
   align-items: center;
   justify-items: start;
-  padding-left: 6px;
-  padding-right: 6px;
 }
 .chipbar > :nth-child(3) { grid-column: 4; }
 .chipbar > :nth-child(4) { grid-column: 5; }
-
-/* 【關鍵修改】調整 .chip 的樣式 */
-.chip {
-  /* 新增 Flexbox 屬性來置中內容 */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center; /* 可選：確保水平方向也置中 */
-
-  height: 36px;
-  padding: 0 14px;
-  
-  background: #ecf7f9;
-  border: 1px solid #aebfe2;
-  color: #2a4469;
-  
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  
-  cursor: pointer;
-  user-select: none;
-  
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-
-/* 滑鼠移入時的效果 */
-.chip:hover {
-  background-color: #e0f1f5;
-  border-color: #9cb0d8;
-}
-
-.chip.quoted { font-weight: 700; }
-
-/* 當下拉選單打開時，按鈕保持高亮狀態 */
-.chip.active, .chip.dropdown.open { 
-  border-color: #1f6feb; 
-  color: #1f6feb; 
-  background-color: #e8f0ff;
-  box-shadow: 0 0 0 3px #1f6feb22; 
-}
-
-/* 讓「更新」靠最右（與 treemap 右邊對齊） */
-.chipbar .btn-ghost { justify-self: end; }
-
-/* 再保險，按鈕與 chip 寬度一律由內容決定 */
 .chipbar .btn-primary,
 .chipbar .btn-ghost,
 .chipbar .chip,
@@ -223,66 +223,224 @@ html, body {
   max-width: none;
   justify-self: start;
 }
+.chipbar .btn-ghost { justify-self: end; }
 
-/* ===== 新增景點 ===== */
-.btn-primary {
-  background: #f4ddb8;
-  color: #222;
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-}
-.btn-primary .plus {
-  margin-left: 6px;
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  background: #edd39d;
+/* ===== 全部分類(下拉式選單) ===== */
+.chip {  /* 主選單 */
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-}
-.btn-ghost {
+  justify-content: center; 
+
   height: 36px;
-  padding: 0 12px;
-  border-radius: 10px;
-  background: #d6e6f7;
-  color: #333;
+  padding: 0 14px;
+  
+  background: #e1eff8;
+  color: #2e5684;
+  
+  border-radius: 8px;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
-/* ===== 分類下拉 ===== */
+.chip.dropdown {
+  position: relative;
+}
+.dropdown-menu .dd-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.dropdown-menu .dd-item:hover { background: #f6f9ff; }
+.dropdown-menu .dd-item.selected { background: #e1eff8; }
 .chip.dropdown .caret { 
-  margin-left: 8px; /* 稍微增加一點間距 */
+  margin-left: 8px; 
   font-size: 14px; 
-  transition: transform 0.2s ease; /* 為小箭頭增加旋轉動畫 */
+  display: inline-block;           
+  transition: transform 0.2s ease; 
 }
-
-/* 當下拉選單打開時，讓小箭頭旋轉向上 */
 .chip.dropdown.open .caret {
   transform: rotate(180deg);
+  font-size: 14px;       
 }
-
+.chip.dropdown[aria-expanded="true"] .caret {
+  transform: rotate(180deg);
+  font-size: 14px;
+}
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   width: 200px;
   background: #fff;
-  border: 1px solid #d7dbe2;
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 8px 16px #0002;
   padding: 6px;
   z-index: 20;
+}
+.chip:hover {
+  background-color: #e0f1f5;
+  border-color: #9cb0d8;
+}
+
+/* ===== 新增景點(按鈕) ===== */
+.button {
+  --btn-gap: 8px;                 
+  position: relative;
+  width: 135px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--btn-gap);
+  cursor: pointer;
+
+  background-color: #ffe1a8;     
+  color: #333;
+  border-radius: 8px;           
+  overflow: hidden;            
+  transition: background .2s, border-color .25s, transform .06s;
+}
+.button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  background-color: #ffb347;    
+  transition: width .20s ease;    
+  z-index: 0;                   
+}
+.button__text,
+.button__icon {
+  position: relative;
+  z-index: 1;
+  transition: color .25s, opacity .25s;
+}
+.button__text {
+  display: inline-block;          
+  max-width: 200px;              
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;              
+  transition: max-width .30s ease, opacity .25s;
+}
+.button__icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+.button .svg {
+  width: 20px;
+  height: 20px;
+  stroke: #fff;
+}
+.button:hover { 
+  background: #ff8347;
+  --btn-gap: 0;
+  border-color: transparent;
+  outline: none;
+  box-shadow: none; 
+}
+.button:hover::after { 
+  width: 100%; 
+}
+.button:hover .button__text { 
+  opacity: 0; 
+  max-width: 0;                  
+}
+.button:active {
+  background-color: #2e8644;
+  transform: translateY(1px);
+}
+.button:focus-visible {
+  outline: none;
+  outline-offset: 2px;
+}
+.button:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+.button:focus-visible {
+  outline: none;
+  outline-offset: 2px;
+}
+
+/* ===== Refresh(按鈕) ===== */
+.block-refresh,
+.block_refresh {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 2px solid #e1eff8;
+  border-radius: 8px;
+  background-color: #e1eff8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  color: #2e5684;                     
+  transition: background-color .2s, box-shadow .2s, transform .06s, color .2s;
+  will-change: transform;
+  appearance: none;
+}
+.block-refresh svg,
+.block_refresh svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  pointer-events: none;               
+}
+.block-refresh:hover,
+.block_refresh:hover {
+  background-color: #fff;
+  color: #2e5684;
+  box-shadow: none;           
+  border-color: transparent;
+}
+.block-refresh:active,
+.block_refresh:active {
+  transform: translateY(1px);
+}
+.block-refresh:focus:not(:focus-visible),
+.block_refresh:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+.block-refresh:focus-visible,
+.block_refresh:focus-visible {
+  outline: none; 
+}
+.block-refresh:disabled,
+.block_refresh:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.refresh_animate svg,
+.is-spinning svg {
+  animation: spin360 0.8s linear;  
+}
+@keyframes spin360 {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .refresh_animate svg,
+  .is-spinning svg {
+    animation: none;
+  }
 }
 
 /* ===== Sidebar（第 1 欄第 3 列） ===== */
 #sidebar {
   grid-column: 1;
-  grid-row: 2 / 4;
+  grid-row: 1 / 4;
   margin-top: 0;
   align-self: stretch;
   width: auto;
@@ -386,8 +544,8 @@ html, body {
 .arrow-left::before { content: "◀"; }
 .arrow-right::before { content: "▶"; }
 .arrow:focus { outline: none; }
-.thumb { background: #757575; border-radius: 8px; top: 0; left: 0; width: 35px; height: 100%; cursor: grab; position: absolute; transition: background .1s; }
-.thumb.dragging { cursor: grabbing; background: #7777; }
+
+
 
 /* =========================
    Card：列表容器（可滾動）
@@ -462,11 +620,7 @@ html, body {
 }
 
 /* 可選：若你還會顯示投票等小字 */
-.rec-meta {
-  font-size: 12px;
-  color: #4b5563;
-  margin-bottom: 6px;
-}
+
 
 /* 照片固定在右上角，與卡片右緣對齊 */
 .rec-head .rec-photo {
@@ -533,8 +687,8 @@ html, body {
    ========================= */
 .rec-comment {
   display: flex;
-  gap: 8px;
-  align-items: flex-start;
+  flex-direction: column;     /* 讓標題與留言縱向排列 */
+  gap: 4px; 
   margin-top: 6px;  /* 與上方 rec-head 保持一點間距 */
 }
 
@@ -550,11 +704,15 @@ html, body {
 .rec-comment .cmt {
   flex: 1 1 auto;
   min-width: 0;                 /* 避免因長字造成撐寬 */
+  margin-left: 1.5em;
 }
 .rec-comment .cmt .name {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 13px;
   line-height: 1.2;
+}
+.rec-comment .name{
+  margin-top: 5=4px;
 }
 .rec-comment .cmt .txt {
   font-size: 12px;
@@ -563,81 +721,387 @@ html, body {
   overflow-wrap: anywhere;
 }
 
-/* =========================
-   3) 按鈕（靠右）
-   ========================= */
-.rec-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;   /* 兩顆按鈕向右對齊 */
-  margin-top: 10px;
-}
-
-.btn-sm {
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  cursor: pointer;
-  background: #fff;
-  color: #333;
-}
-.btn-sm.primary {
-  background: #ecf7f9;
-  color: #000;
-  font-weight: 700;
-}
-.btn-sm.ghost {
-  background: #f4ddb8;            /* 保留透明/白底樣式 */
-}
-
 /* ===== Treemap 容器（第 3 欄第 3 列） ===== */
 .board{
   grid-column: 3;
   grid-row: 3;
   height: 100%;
-  border-radius: 12px;
-  
-  min-height: 0;                /* 防止被子元素撐爆 */
+  min-height: 0;                
 }
 /* treemap 的實際掛點（ID）也給滿高 */
 #treemap-container { width: 100%; height: 100%; }
 
-/* ===== Modal / 搜尋 / 清單 / 表單 ===== */
-.modal-mask { position: fixed; inset: 0; background: #0005; display: flex; justify-content: center; align-items: center; z-index: 999; }
-.modal { width: 480px; max-height: 80vh; background: #e4f1ff; border: 1px solid #8ca4c7; border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px #0004; overflow: hidden; }
-.modal-title { margin: 0 0 12px; text-align: center; font-size: 22px; }
+/* ===== 新增景點(Modal) ===== */
+.modal-mask { 
+  position: fixed; 
+  inset: 0; 
+  background: #0005; 
+  display: flex; 
+  justify-content: 
+  center; align-items: 
+  center; z-index: 999; 
+}
+.modal { 
+  width: 480px; 
+  background: #e1eff8; 
+  border-radius: 8px; 
+  padding: 20px; 
+  box-shadow: 0 4px 12px #0004; 
+  overflow: hidden; 
+}
+.modal-title { 
+  margin: 0 0 12px; 
+  text-align: center; 
+  font-size: 24px; 
+}
+.search-bar { 
+  width: 100%; 
+  max-width: 480px; 
+  margin: 0 auto 12px; 
+  position: relative; 
+}
+.search-bar input { 
+  width: 100%; 
+  height: 40px; 
+  padding: 0 44px 0 14px; 
+  border: 1px solid #d2e0f1; 
+  border-radius: 8px; 
+  font-size: 15px; 
+  background: #fff; 
+  color: #333; 
+}
+.search-bar .icon { 
+  position: absolute; 
+  right: 14px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  font-size: 20px; 
+  pointer-events: none; 
+}
+.search-bar input:focus,
+.search-bar input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.search-bar input:focus {
+  border-color: transparent;  
+}
 
-.attraction-list::-webkit-scrollbar { width: 6px; height: 6px; }
-.attraction-list::-webkit-scrollbar-track { background: #e4e7ea; border-radius: 999px; }
-.attraction-list::-webkit-scrollbar-thumb { border-radius: 999px; border: 1px solid #e4e7ea; }
-.attraction-list { height: 55vh; overflow-y: auto; display: flex; flex-direction: column; }
-.attraction-card { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #b1acb3; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; position: relative; }
+/* ===== 新增景點(Modal) | 卷軸===== */
+.attraction-list::-webkit-scrollbar { 
+  width: 6px; 
+  height: 6px; 
+}
+.attraction-list::-webkit-scrollbar-track { 
+  background: #c4ddee; 
+  border-radius: 999px; 
+}
+.attraction-list::-webkit-scrollbar-thumb { 
+  border-radius: 999px; 
+  background: #9FC0DE;
+}
+
+/* ===== 新增景點(Modal) | 各景點卡片===== */
+.attraction-list { 
+  height: 55vh; 
+  overflow-y: auto; 
+  display: flex; 
+  flex-direction: column;  
+  padding-right: 4px;        
+  scrollbar-gutter: stable;
+}
+.attraction-card { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  background: #fff; 
+  border: 1px solid #d2e0f1; 
+  border-radius: 10px; 
+  padding: 15px; 
+  margin-bottom: 8px; 
+  cursor: pointer; 
+  position: relative; 
+}
 .attraction-card:hover { background: #eef6ff; }
-.attraction-card.active { border-color: #3a5aa0; }
-.attraction-card img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
-.attraction-card .info { flex: 1; display: flex; flex-direction: column; }
-.attraction-card .name { font-weight: 600; margin-bottom: 4px; }
-.attraction-card .addr { font-size: 12px; color: #555; }
-.attraction-card .tick { color: #3a5aa0; font-size: 24px; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
+.attraction-card.active { 
+  border-color: #96b2d1; 
+  background: #eef6ff;
+}
+.attraction-card img { 
+  width: 60px; 
+  height: 60px; 
+  object-fit: cover; 
+  border-radius: 5px; 
+}
+.attraction-card .info { 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+}
+.attraction-card .name { 
+  font-weight: 600; 
+  margin-bottom: 4px; }
 
-.search-bar { width: 100%; max-width: 480px; margin: 0 auto 12px; position: relative; }
-.search-bar input { width: 100%; height: 40px; padding: 0 44px 0 14px; border: 1px solid #cbd3da; border-radius: 8px; font-size: 16px; background: #fff; color: #000; }
-.search-bar .icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 20px; pointer-events: none; }
+.attraction-card .addr { 
+  font-size: 12px; 
+  color: #555; 
+}
+.attraction-card .tick { 
+  color: #96b2d1; 
+  font-size: 24px; 
+  position: absolute; 
+  right: 12px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+}
+.btn-group { 
+  display: flex; 
+  justify-content: 
+  flex-end; 
+  gap: 12px; 
+  margin-top: 20px; 
+}
+.confirm-btn { 
+  padding: 8px 20px; 
+  background: #96b2d1; 
+  color: #fff; 
+  border: none; 
+  border-radius: 10px; 
+  font-size: 15px; 
+  cursor: pointer; 
+}
+.confirm-btn:hover { background: #839cb8 }
+.hand-btn { 
+  padding: 8px 20px; 
+  background: #fff; 
+  color: #96b2d1; 
+  border-radius: 10px; 
+  font-size: 15px; 
+  cursor: pointer; 
+}
 
-.manual-form { display: flex; flex-direction: column; gap: 12px; max-height: 55vh; overflow-y: auto; margin: 20px 0; }
-.manual-form label { font-size: 16px; color: #000; display: flex; flex-direction: column; }
-.manual-form input { margin-top: 4px; height: 36px; padding: 0 10px; border: 1px solid #b1acb3; border-radius: 6px; font-size: 14px; background: #fff; color: #000; }
-.manual-form input:focus { outline: none; border-color: #3a5aa0; }
-.manual-form .row { display: flex; gap: 12px; }
+/* ===== 新增景點(Modal) | 手動輸入 ===== */
+.manual-form { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+  max-height: 70vh; 
+  overflow-y: auto; 
+  margin: 20px 0; }
+.manual-form label { 
+  font-size: 16px; 
+  color: #000; 
+  display: flex; 
+  flex-direction: column; 
+}
+.manual-form input { 
+  margin-top: 4px; 
+  height: 36px; 
+  padding: 0 10px; 
+  border: 1px solid #96b2d1; 
+  border-radius: 8px; 
+  font-size: 14px; 
+  background: #fff; 
+  color: #333; 
+}
+.manual-form input:focus { 
+  outline: none; 
+  border-color: #3a5aa0; 
+}
+.manual-form textarea{
+  margin-top:4px;
+  min-height:60px;
+  padding:8px 10px;
+  border: 1px solid #96b2d1;
+  border-radius:8px;
+  font-size:14px;
+  background:#fff;
+  color:#333;
+  resize: vertical;
+}
+.manual-form .row { 
+  display: flex; 
+  gap: 12px; 
+}
 .manual-form .row label { flex: 1; }
+.home-btn { 
+  padding: 8px 20px; 
+  background: #8592A2; 
+  color: #fff; 
+  border: none; 
+  border-radius: 8px; 
+  font-size: 15px; 
+  cursor: pointer; 
+}
+.home-btn:hover{
+  background: #98a2af;
+}
 
-.btn-group { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
-.hand-btn { padding: 8px 24px; background: #fff; color: #3a5aa0; border: 1px solid #b7c3d8; border-radius: 8px; font-size: 16px; cursor: pointer; }
-.home-btn { padding: 8px 24px; background: #8592A2; color: #fff; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
-.confirm-btn { padding: 8px 24px; background: #3a5aa0; color: #fff; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
-.confirm-btn:hover { filter: brightness(0.95); }
-/* ===== 新增評論 Modal 的文字輸入樣式 ===== */
+/* ===== 新增景點(Modal) | 類別下拉：外層 ===== */
+.dropdown.categories {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  padding: 12px;
+  z-index: 30;
+}
+
+/* ===== Chipbar 類別下拉：單列樣式 ===== */
+/* 調整 Chipbar 中的分類下拉為單列顯示，並加入底部動作按鈕 */
+.chip.dropdown .dropdown-menu.categories {
+  width: 220px;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* 單列排列分類項目 */
+.chip.dropdown .cat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 置底的清除/完成按鈕排列方式 */
+.chip.dropdown .menu-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+/* 調整按鈕尺寸以符合 Chipbar 下拉樣式 */
+.chip.dropdown .btn-clean,
+.chip.dropdown .btn-done {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+}
+.dropdown .cat-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  overflow: auto;
+}
+.cat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid #c4ddee;       
+  border-radius: 10px;               
+  cursor: pointer;
+  transition: border-color .15s ease, 
+  box-shadow .15s ease, 
+  background-color .15s ease;
+}
+.cat-item:hover {
+  background: #eef6ff;
+  box-shadow: 0 1px 0 rgba(0,0,0,.02);
+}
+.cat-item.checked {
+  background: #eef6ff; 
+  border-color: #96b2d1;
+}
+.cat-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  --cb-size: 20px;
+
+  width: var(--cb-size);
+  height: var(--cb-size);
+  flex: 0 0 var(--cb-size);  
+
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+
+  border-radius: 5px;
+  background: #96b2d1;
+  position: relative;
+  display: inline-block;
+
+  aspect-ratio: 1 / 1;
+}
+.cat-item input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.cat-item span {
+  font-size: 15px;         
+  line-height: 1.2;
+  color: #333;           
+  font-weight: 500;          
+}
+.dropdown .menu-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+.btn-done {
+  background: #f8e0bb;
+  color: #333;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-done:hover{
+  background: #f2d2a2;
+}
+.btn-clean {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: #96b2d1;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-clean:hover{
+  background: #c4d1d9;
+}
+.btn-clean,
+.btn-done{
+  border: none;
+  outline: none;
+  box-shadow: none;
+  appearance: none;       
+}
+.btn-clean:hover,
+.btn-clean:focus,
+.btn-clean:focus-visible,
+.btn-clean:active,
+.btn-done:hover,
+.btn-done:focus,
+.btn-done:focus-visible,
+.btn-done:active{
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.btn-clean::-moz-focus-inner,
+.btn-done::-moz-focus-inner{
+  border: 0;
+}
+
+/* ===== 新增評論 (Modal) ===== */
 .comment-form {
   margin: 20px 0;
   display: flex;
@@ -648,10 +1112,314 @@ html, body {
   height: 120px;
   padding: 10px;
   font-size: 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #fff;
   color: #000;
   resize: vertical;
   font-family: inherit;
   box-sizing: border-box;
 }
+
+/* ===== 新增評論 | 新增連結 (按鈕) ===== */
+.icon-btn {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #cdcdcd;
+  background: white;
+  border-radius: 50%;            /* 確保外框是圓形 */
+  overflow: hidden;
+  position: relative;
+  transition: width 0.2s ease-in-out;
+  font-weight: 500;
+  font-family: inherit;
+  display: inline-flex;          /* 防止字型/行高影響形狀 */
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.add-btn:hover { width: 120px; }
+
+.add-btn::before,
+.add-btn::after {
+  transition: width 0.2s ease-in-out, border-radius 0.2s ease-in-out;
+  content: "";
+  position: absolute;
+  height: 4px;
+  width: 10px;
+  top: calc(50% - 2px);
+  background: seagreen;
+}
+.add-btn::after {
+  right: 14px;
+  overflow: hidden;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+.add-btn::before {
+  left: 14px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.icon-btn:focus { outline: none; }
+
+.btn-txt {
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: #000;
+}
+.add-btn:hover::before,
+.add-btn:hover::after {
+  width: 4px;
+  border-radius: 2px;
+}
+.add-btn:hover .btn-txt { opacity: 1; }
+
+.add-icon::after,
+.add-icon::before {
+  transition: all 0.2s ease-in-out;
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 2px;
+  top: calc(50% - 10px);
+  background: seagreen;
+  overflow: hidden;
+}
+.add-icon::before {
+  left: 22px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+.add-icon::after {
+  right: 22px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+.add-btn:hover .add-icon::before {
+  left: 15px; height: 4px; top: calc(50% - 2px);
+}
+.add-btn:hover .add-icon::after {
+  right: 15px; height: 4px; top: calc(50% - 2px);
+}
+
+/* === 縮小版（tiny）：只改大小與幾何座標，保留原 hover 動畫 === */
+.icon-btn.tiny {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;            /* 小尺寸也強制圓形外框 */
+}
+
+/* tiny：把兩條橫線置中重疊成一條 */
+.icon-btn.tiny::before,
+.icon-btn.tiny::after {
+  height: 2px;
+  width: 12px;
+  top: calc(50% - 1px);
+  left: calc(50% - 6px);         /* 水平置中 */
+  right: auto;
+  border-radius: 2px;
+}
+
+/* tiny：把兩條直線置中重疊成一條 */
+.icon-btn.tiny .add-icon::before,
+.icon-btn.tiny .add-icon::after {
+  width: 2px;
+  height: 14px;
+  top: calc(50% - 7px);
+  left: calc(50% - 1px);         /* 垂直線置中 */
+  right: auto;
+  border-radius: 2px;
+}
+
+/* tiny + hover：仍展開到 120px，並把直線往左右退開（保留原效果） */
+.icon-btn.tiny.add-btn:hover { width: 120px; }
+.icon-btn.tiny.add-btn:hover .add-icon::before {
+  left: 8px; height: 4px; top: calc(50% - 2px);
+}
+.icon-btn.tiny.add-btn:hover .add-icon::after {
+  left: auto; right: 8px; height: 4px; top: calc(50% - 2px);
+}
+
+/* 讓〈評論〉標題與按鈕靠左緊貼排列 */
+.rec-comment .rec-sec-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+
+/* === 加速階段 === */
+/* ── Sidebar 底部工具列 ── */
+.sidebar-footer{
+  margin-top: auto;              /* 貼底：flex column 的最後一塊 */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px 12px;
+  background: #f8fafc;           /* 淡底色，想要純白可拿掉 */
+  justify-content: flex-end;
+}
+
+/* 小型主按鈕 */
+.btn-primary.small{
+  height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  background: #96b2d1;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease, transform .06s ease;
+}
+.btn-primary.small:hover{ background:#839cb8; }
+.btn-primary.small:active{ transform: translateY(1px); }
+
+/* 內聯 checkbox 樣式（與文字同一行） */
+.inline-checkbox{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  color: #333;
+  user-select: none;
+}
+.inline-checkbox input{
+  width: 16px;
+  height: 16px;
+  accent-color: #2e5684;   /* 支援度佳的瀏覽器會用此色 */
+}
+/* 讓「繼續選擇景點」置中 */
+.modal .btn-con{
+  display: flex;
+  justify-content: center;  /* 水平置中 */
+  align-items: center;       /* 垂直置中（單顆按鈕時可有可無） */
+  gap: 8px;                  /* 若未來有多顆按鈕，維持間距 */
+}
+
+/* ── 類別顏色對照（Legend） ── */
+.legend-panel{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 10px 8px;
+}
+
+.legend-item{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #cfd5dd;
+  border-radius: 10px;
+}
+
+.legend-swatch{
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.06);
+  flex: 0 0 auto;
+}
+
+.legend-meta{
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.legend-name{
+  font-weight: 700;
+  font-size: 14px;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.legend-hex{
+  font-size: 12px;
+  color: #6b7280;
+  letter-spacing: .2px;
+}
+
+/* === Treemap 選取：分類色霓虹跑馬燈 === */
+svg .neon-ring { pointer-events: none; } /* 不擋點擊 */
+
+svg .neon-dash {
+  fill: none;
+  stroke-width: 2.6;              /* 外層帶光暈 */
+  stroke-linejoin: round;
+  filter: url(#neon-blur);        /* 模糊產生霓虹暈光 */
+  opacity: .95;
+}
+
+svg .neon-hard {
+  fill: none;
+  stroke-width: 1.2;              /* 內層銳利線條 */
+  stroke-linejoin: round;
+  opacity: .95;
+}
+
+/* 跑馬燈＋呼吸閃爍 */
+@keyframes neonDashMove { to { stroke-dashoffset: -36; } }
+@keyframes neonPulse    { 0%,100% { opacity:.95 } 50% { opacity:.55 } }
+
+svg .neon-anim {
+  stroke-dasharray: 10 7;
+  animation: neonDashMove 1.2s linear infinite, neonPulse 1.6s ease-in-out infinite;
+}
+
+/* 多人頭像選取狀態 */
+.avatar, .avatar-large {
+  transition: opacity .2s ease, filter .2s ease, box-shadow .2s ease;
+}
+
+.avatar.is-dim, .avatar-large.is-dim {
+  opacity: .22;
+  filter: grayscale(.6);
+}
+
+.avatar.is-selected, .avatar-large.is-selected {
+  box-shadow: 0 0 0 2px #ff6700;
+}
+
+.avatar-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 2px;
+}
+.avatar-tools .pill {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eef3ff;
+  color: #2e5684;
+}
+.btn-link.small {
+  background: none;
+  border: none;
+  color: #2e5684;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.btn-link.small:disabled { opacity: .4; cursor: default; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

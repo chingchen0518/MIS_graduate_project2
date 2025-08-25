@@ -110,16 +110,22 @@
   background-color: rgba(255, 255, 255, 0.4);
 }
 
+/* 1) 置中每一週的 row */
 .gantt-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  align-items: center;   /* ★ 水平置中所有 .gantt-row */
 }
 
+/* 2) 讓一整週寬度以內容為準並置中 */
 .gantt-row {
   display: flex;
   flex-direction: column;
+  width: fit-content;    /* ★ 以內容寬度為主 */
+  margin: 0 auto;        /* ★ 本身也置中 */
 }
+
 
 .date-row, .hotel-row {
   display: flex;
@@ -139,16 +145,22 @@
   height: 40px;
   border: 1px dashed #aaa;
   position: relative;
+
+  display: flex;              /* ★ 加這兩行 */
+  justify-content: center;    /* ★ 水平置中 block */
+  align-items: center;        /* 垂直置中 block */
 }
 
 .block {
+  position: static;           /* ★ 移除 absolute，改成 static 或 relative */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   height: 100%;
   background: #69c;
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 6px;
+  padding: 0 4px;
 }
 
 .gantt-wrapper {

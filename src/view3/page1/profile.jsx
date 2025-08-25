@@ -187,8 +187,6 @@ function Profile() {
                                                 localStorage.setItem('trip', JSON.stringify({
                                                     tid: trip.t_id,
                                                     title: trip.title,
-                                                    stage: trip.stage,
-                                                    s_date: trip.s_date
                                                 }));
                                                 navigate('/header');
                                             }}

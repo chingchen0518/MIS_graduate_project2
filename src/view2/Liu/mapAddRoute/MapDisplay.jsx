@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
+import { SelectedScheduleContext } from '../../chingchen/page1.jsx';
 import { mapService } from './services/MapService.js';
 import { routeService } from './services/RouteCalculationService.js';
 import './MapDisplay.css';
@@ -28,6 +29,7 @@ const transportModes = {
 };
 
 const MapDisplay = ({ selectedAttraction, currentRoute }) => {
+  const { selectedScheduleId } = useContext(SelectedScheduleContext);
   const mapRef = useRef(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [routeData, setRouteData] = useState({});
@@ -41,6 +43,9 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
   };
 
   useEffect(() => {
+    if (selectedScheduleId !== null) {
+      console.log(`selected schedule id ${selectedScheduleId} in Map Display`);
+    }
     if (mapRef.current) {
       console.log('初始化地圖...');
       try {
@@ -63,7 +68,7 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
         }
       };
     }
-  }, []);
+  }, [selectedScheduleId]);
 
   // 處理選中景點的顯示
   useEffect(() => {

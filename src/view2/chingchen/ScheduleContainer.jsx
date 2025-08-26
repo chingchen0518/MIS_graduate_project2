@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { SelectedScheduleContext } from './page1.jsx';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -15,6 +16,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
     const [selectedDate, setSelectedDate] = useState(''); // 儲存目前選擇的Date
     const [timeColumnHeight, setTimeColumnHeight] = useState(0); // 儲存時間欄的高度
     const [showScheduleInsert, setShowScheduleInsert] = useState(false); //要不要顯示ScheduleInsert
+    // 從 Context 取得 selectedScheduleId 狀態
+    const { selectedScheduleId, setSelectedScheduleId } = useContext(SelectedScheduleContext);
 
     const timeColumnRef = useRef(null);
 
@@ -126,7 +129,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
 
     const timeSlots = [
         '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00', 
-        '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00','16:00', '16:00', 
+        '09:00', '10:00', '11:00', '12:00','13:00', '14:00', '15:00','16:00', 
         '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
     ];
 
@@ -193,16 +196,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
                     containerHeight={timeColumnHeight}
                     onShowRoute={onShowRoute}
                     onHideRoute={onHideRoute}
-                    
-                    // scheduleId={schedule.s_id}
-                    // scheduleData={schedule}
-                    // initialAttractions={schedule.attractions}
-                    // isFirst={false}
-                    // isDraft={schedule.isDraft}
-                    // usedAttractions={usedAttractions}
-                    // onAttractionUsed={handleAttractionUsed}
-                    // onScheduleConfirm={handleScheduleConfirm}
-                    // onScheduleCancel={handleScheduleCancel}
+                    selectedScheduleId={selectedScheduleId}
+                    setSelectedScheduleId={setSelectedScheduleId}
                 />
             ))
             )}

@@ -13,6 +13,8 @@ import TripHotel from './models/tripHotel.js';
 import Schedule_include from './models/schedule_include.js';
 import TransportTime from './models/transportTime.js';
 import ReAttraction from './models/re_attractions.js';
+import Comment from './models/comments.js';
+import PlusAttraction from './models/plus_attraction.js';
 
 Trip.hasMany(Attraction, { foreignKey: 't_id' });
 Attraction.belongsTo(Trip, { foreignKey: 't_id' });
@@ -93,5 +95,7 @@ export {
   TripHotel,
 //   ScheduleItem,
   TransportTime,
-  ReAttraction
+  ReAttraction, 
+  Comment, 
+  PlusAttraction
 };

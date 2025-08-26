@@ -77,36 +77,53 @@ const TransportBar = ({ a_id,type, value, color, height, unit = '分鐘', onBarC
         <div
             className={`transport_method ${type}`}
             style={{
-                height: `${height}px`,
-                backgroundColor: color,
-                width: '10%',
-                position: 'relative',
-                cursor: value > 0 ? 'pointer' : 'default',
-                // borderRadius: 4,
-                margin: '0 2px',
-                opacity: selected ? 1 : 0.2
-            }}
-            onMouseEnter={() => value > 0 && setShowTip(true)}
-            onMouseLeave={() => setShowTip(false)}
-            onClick={handleBarClick}
+                    height: `${height}px`,
+                    // backgroundColor: color,
+                    width: '10%',
+                    position: 'relative',
+                    cursor: value > 0 ? 'pointer' : 'default',
+                    margin: '0 2px',
+                }}
+                onMouseEnter={() => value > 0 && setShowTip(true)}
+                onMouseLeave={() => setShowTip(false)}
+                onClick={handleBarClick}
         >
+            {/* bar */}
+            <div
+                className={`bar`}
+                style={{
+                    height: `${height}px`,
+                    backgroundColor: color,
+                    width: '100%',
+                    position: 'relative',
+                    cursor: value > 0 ? 'pointer' : 'default',
+                    margin: '0 2px',
+                    opacity: selected ? 1 : 0.2
+                }}
+            >
+            </div>
+
+            {/* tooltip */}
             {showTip && value > 0 && (
-                        <div style={{
-                            position: 'absolute',
-                            top: -28,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            background: '#222',
-                            color: '#fff',
-                            padding: '2px 8px',
-                            borderRadius: 4,
-                            fontSize: 13,
-                            whiteSpace: 'nowrap',
-                            zIndex: 100
-                        }}>
+                <div style={{
+                    position: 'absolute',
+                    top: -28,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: '#222',
+                    color: '#fff',
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    fontSize: 13,
+                    whiteSpace: 'nowrap',
+                    zIndex: 100,
+                    opacity: 1
+
+                }}>
                     {value}m
                 </div>
             )}
+
         </div>
     );
 };
@@ -143,7 +160,7 @@ const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,ne
                     });
                 }
                 
-                console.log('合併後的交通時間:', new_transport);
+                // console.log('合併後的交通時間:', new_transport);
                 setTransport(new_transport);
             })
             .catch((error) => {
@@ -171,7 +188,7 @@ const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,ne
     };
 
     return (
-        <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly', position: 'relative', zIndex: 20 }}>
+        <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly', position: 'relative', zIndex: 1 }}>
           <TransportBar type="car" value={barValues.car} color="#ff914d" height={transport.car * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 1} a_id={a_id}/>
           <TransportBar type="bicycle" value={barValues.bicycle} color="#65cdca" height={transport.bicycle * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 2} a_id={a_id}/>
           <TransportBar type="bus" value={barValues.bus} color="#428cef" height={transport.bus * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 3} a_id={a_id}/>

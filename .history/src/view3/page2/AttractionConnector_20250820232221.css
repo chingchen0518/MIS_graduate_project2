@@ -1,0 +1,17 @@
+.attraction-connector-container {
+    position: relative;
+}
+
+.attraction-connector-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 5;
+    overflow: visible;
+}
+
+.attraction-connection {
+    transition: all 0.3s ease;
+    stroke-linejoin: round;
+}

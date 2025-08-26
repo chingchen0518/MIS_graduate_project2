@@ -10,6 +10,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // import DragAndDropExample2 from './view2/chingchen/DragAndDropExample2.jsx';
 import MyRndList from './view2/chingchen/test_MyRndList.jsx';
 import ResizableBox from './view2/chingchen/ResizableBox.jsx';
+import ScheduleTest from './view2/chingchen/Schedule_test.jsx';
 
 
 //==============================view 1==================================
@@ -101,6 +102,7 @@ function App() {
                     <Route path="/MyRndList" element={<MyRndList />} />
                     <Route path="/TEST_API" element={<GeminiChat />} />
                     <Route path="/TEST_API_GPT" element={<TEST_API_GPT />} />
+                    <Route path="/ScheduleTest" element={<ScheduleTest />} />
                 </Routes>
             </Router>
         </MyContext.Provider>

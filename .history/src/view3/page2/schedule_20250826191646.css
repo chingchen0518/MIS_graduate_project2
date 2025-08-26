@@ -1,0 +1,452 @@
+/* 新增行程欄位樣式 */
+.add_schedule_column {
+  width: 120px;
+  height: calc(100% - 10px);
+  background-color: #f8f9fa;
+  border: 2px dashed #4A90E2;
+  border-radius: 8px;
+  margin: 2px;
+  padding: 8px;
+  box-sizing: border-box;
+  min-width: 120px;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add_schedule_content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.add_schedule_icon {
+  width: 40px;
+  height: 40px;
+  background-color: #4A90E2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add_schedule_icon:hover {
+  background-color: #357abd;
+  transform: scale(1.1);
+}
+
+.plus_icon {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.add_schedule_text {
+  font-size: 10px;
+  color: #333;
+  font-weight: 500;
+}
+
+.skip_btn {
+  background: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skip_btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.schedule {
+  width: 120px;
+  height: calc(100% - 10px);
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin: 2px;
+  padding: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 120px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.schedule.drag_over {
+  background-color: #e3f2fd;
+  border-color: #2196f3;
+}
+
+.schedule_header {
+  height: 10%;
+  text-align: center;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+  position: relative;
+}
+
+.user_info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.vote_buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: -6px;
+  justify-content: center;
+}
+
+.vote_container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vote_button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vote_circle {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.vote_icon {
+  font-size: 20px;
+  z-index: 2;
+  position: relative;
+}
+
+.dash {
+  position: absolute;
+  width: 4px;
+  height: 8px;
+  border-radius: 2px;
+  top: 50%;
+  left: 50%;
+  transform-origin: 50% 25px;
+  transition: all 0.3s ease;
+}
+
+.like_button .dash {
+  background-color: #ddd;
+}
+
+.like_button .dash.active {
+  background-color: #4CAF50;
+  box-shadow: 0 0 8px #4CAF50;
+}
+
+.dislike_button .dash {
+  background-color: #ddd;
+}
+
+.dislike_button .dash.active {
+  background-color: #f44336;
+  box-shadow: 0 0 8px #f44336;
+}
+
+.like_button:hover .vote_icon {
+  transform: scale(1.1);
+}
+
+.dislike_button:hover .vote_icon {
+  transform: scale(1.1);
+}
+
+.button_display {
+  margin-top: 20px;
+
+
+}
+
+.user_avatar {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto 4px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #4A90E2;
+}
+
+.user_avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.budget_display {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #4A90E2;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6px;
+  font-weight: bold;
+}
+
+.schedule_date {
+  font-size: 10px;
+  color: #666;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.schedule_timeline {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.schedule_item {
+  position: relative;
+}
+
+
+
+.attraction_name {
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.connection_line {
+  width: 2px;
+  height: 15px;
+  background: #ff9800;
+  margin: 2px auto;
+  border-radius: 1px;
+}
+
+.empty_slot {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add_button {
+  background: #f5f5f5;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  padding: 2px;
+  font-size: 5px;
+  color: #999;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+
+.add_button:hover {
+  background: #e8f4f8;
+  border-color: #4A90E2;
+  color: #4A90E2;
+}
+
+.confirm_btn {
+  background: #44e63e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 10%;
+  margin-bottom: 10px;
+}
+
+.confirm_btn:hover {
+  background: #3db83b;
+  transform: scale(1.05);
+}
+
+.cancel_btn {
+  background: #f13f3f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 10px;
+
+}
+
+.cancel_btn:hover {
+  background: #e53e3e;
+  transform: scale(1.05);
+}
+
+.schedule_empty {
+  flex: 1;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #ccc;
+  border-radius: 3px;
+  color: #999;
+  font-size: 10px;
+  text-align: center;
+  padding: 3px;
+  margin-top: 4px;
+}
+
+.schedule_empty:hover {
+  border-color: #4A90E2;
+  background-color: #f5f8ff;
+}
+
+.schedule_attraction_block {
+  background: #4A90E2;
+  color: white;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 4px;
+  font-size: 8px;
+  position: relative;
+  min-height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
+  border: 1px solid #357abd;
+}
+
+.time_label {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 7px;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.attraction_info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 12px;
+  flex: 1;
+}
+
+.schedule_attraction_block .attraction_name {
+  font-weight: bold;
+  text-align: center;
+  font-size: 7px;
+  line-height: 1.2;
+}
+
+.price_info {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 1px 4px;
+  font-size: 6px;
+  font-weight: bold;
+}
+
+.drop_indicator {
+  height: 4px;
+  margin: 2px 0;
+}
+
+.drop_placeholder {
+  background: #4A90E2;
+  color: white;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 7px;
+  text-align: center;
+  border: 2px dashed #2196f3;
+  background: rgba(74, 144, 226, 0.2);
+  color: #4A90E2;
+  font-weight: bold;
+}
+
+/* 待確認景點的樣式 */
+.pending_attraction {
+  position: absolute;
+  opacity: 0.7;
+  background: linear-gradient(45deg, #ffeb3b, #ffc107);
+  border: 2px dashed #ff9800;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 8px;
+  text-align: center;
+  color: #333;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.7;
+  }
+}
+
+/* 草稿狀態的行程樣式 */
+.schedule.draft {
+  border: 2px dashed #ff9800;
+  background-color: #fff8e1;
+}
+
+.schedule.draft .schedule_header {
+  background-color: #ffecb3;
+}

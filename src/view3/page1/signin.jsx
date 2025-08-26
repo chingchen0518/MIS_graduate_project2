@@ -3,6 +3,7 @@ import './signin.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe, faEnvelope, faUser, faLock, faAddressCard } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const initialState = {
     name: "",
@@ -16,6 +17,9 @@ function Signin() {
     const [form, setForm] = useState(initialState);
     const [errors, setErrors] = useState([]);
     const navigate = useNavigate();
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const invite = params.get('invite');
 
     const handleChange = (e) => {
         const { name, type, files, value } = e.target;
@@ -49,6 +53,7 @@ function Signin() {
                 formData.append('account', form.account);
                 formData.append('password', form.password);
                 if (form.avatar) formData.append('avatar', form.avatar);
+                if (invite) formData.append('invite', invite);
 
                 const response = await fetch('/api/view3_signin', {
                     method: 'POST',
@@ -59,10 +64,11 @@ function Signin() {
 
                 if (response.ok) {
                     alert('註冊成功！');
+                    localStorage.setItem('user', JSON.stringify(data.user));
                     setForm(initialState);
                     setErrors([]);
                     setTimeout(() => {
-                        navigate('/Login');
+                        navigate('/Profile');
                     }, 500);
                 } else {
                     setErrors([data?.message || `註冊失敗 (狀態碼: ${response.status})`]);

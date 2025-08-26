@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import './profile.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faAddressCard, faEdit, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faAddressCard, faPlus, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
 function Profile() {
@@ -161,7 +161,11 @@ function Profile() {
                                         {/* <button className="all_btn" onClick={handleEdit}>
                                             <FontAwesomeIcon icon={faEdit} /> 編輯
                                         </button> */}
-                                        <button className="all_btn" onClick={() => navigate('/logout')}>
+
+                                        <button className="btn" onClick={() => navigate('/')}>
+                                            <FontAwesomeIcon icon={faPlus} /> 新增旅程
+                                        </button>
+                                        <button className="btn" onClick={() => navigate('/logout')}>
                                             <FontAwesomeIcon icon={faSignOutAlt} /> 登出
                                         </button>
                                     </div>
@@ -174,6 +178,7 @@ function Profile() {
                         <div className="profile-history-title">
                             <FontAwesomeIcon icon={faHistory} /> 參加過的行程
                         </div>
+                        
                         <ul className="profile-history-list">
                             {profile.trips && profile.trips.length > 0 ? (
                                 profile.trips.map(trip => (
@@ -187,10 +192,8 @@ function Profile() {
                                                 localStorage.setItem('trip', JSON.stringify({
                                                     tid: trip.t_id,
                                                     title: trip.title,
-                                                    stage: trip.stage,
-                                                    s_date: trip.s_date
                                                 }));
-                                                navigate('/header');
+                                                navigate('/Vistour');
                                             }}
                                         >
                                             {trip.title}

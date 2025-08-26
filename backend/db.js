@@ -767,7 +767,7 @@ app.post('/api/view3_login', (req, res) => {
 });
 app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
   try {
-    const { name, email, account, password } = req.body;
+    const { name, email, account, password, invite } = req.body; // 多了 invite
     const avatarFile = req.file;
 
     if (!email || !account || !password) {
@@ -783,25 +783,72 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
         console.error('❌ 註冊錯誤:', err);
         return res.status(500).json({ message: '伺服器錯誤' });
       }
-      // 新增完後查詢剛剛新增的 user
+      // 查詢剛新增的 user
       const selectSql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
-      connection.query(selectSql, [email], (err2, rows) => {
+      connection.query(selectSql, [email], async (err2, rows) => {
         if (err2 || rows.length === 0) {
           return res.status(500).json({ message: '查詢新用戶失敗' });
         }
         const user = rows[0];
-        return res.status(200).json({
-          message: '✅ 註冊成功',
-          redirect: '/profile',
-          user: {
-            uid: user.u_id,
-            img: user.u_img,
-            name: user.u_name,
-            email: user.u_email,
-            password: user.u_password,
-            account: user.u_account,
-          }
-        });
+
+        // 如果有 invite，做旅程加入
+        if (invite) {
+          const decodedInvite = decodeURIComponent(invite);
+          // 查詢所有 Trip
+          const tripSql = 'SELECT t_id, hashedTid FROM Trip WHERE hashedTid IS NOT NULL AND hashedTid != ""';
+          connection.query(tripSql, async (tripErr, trips) => {
+            if (tripErr) {
+              console.error('❌ 查詢 Trip 失敗:', tripErr);
+              // 不阻斷註冊流程
+            } else {
+              let joined = false;
+              for (const trip of trips) {
+                const match = await bcrypt.compare(String(trip.t_id), decodedInvite);
+                if (match) {
+                  // 找到對應 t_id，插入 Join
+                  const joinSql = 'INSERT INTO `Join` (t_id, u_id) VALUES (?, ?)';
+                  connection.query(joinSql, [trip.t_id, user.u_id], (joinErr) => {
+                    if (joinErr) {
+                      console.error('❌ 插入 Join 失敗:', joinErr);
+                    }
+                  });
+                  joined = true;
+                  break;
+                }
+              }
+              if (!joined) {
+                console.log('❌ 沒有找到對應的旅程 invite');
+              }
+            }
+            // 回傳註冊成功
+            return res.status(200).json({
+              message: '✅ 註冊成功',
+              redirect: '/profile',
+              user: {
+                uid: user.u_id,
+                img: user.u_img,
+                name: user.u_name,
+                email: user.u_email,
+                password: user.u_password,
+                account: user.u_account,
+              }
+            });
+          });
+        } else {
+          // 沒有 invite，正常回傳
+          return res.status(200).json({
+            message: '✅ 註冊成功',
+            redirect: '/profile',
+            user: {
+              uid: user.u_id,
+              img: user.u_img,
+              name: user.u_name,
+              email: user.u_email,
+              password: user.u_password,
+              account: user.u_account,
+            }
+          });
+        }
       });
     });
   } catch (error) {

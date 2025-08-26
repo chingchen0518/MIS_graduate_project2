@@ -208,6 +208,41 @@ export class MapService {
   }
 
   /**
+   * 創建帶有順序編號的圖標
+   * @param {number} sequence - 序號
+   * @param {string} color - 背景顏色 (預設為藍色)
+   * @returns {Object} Leaflet divIcon 物件
+   */
+  createSequenceIcon(sequence, color = '#4285f4') {
+    const html = `
+      <div style="
+        background-color: ${color};
+        border: 2px solid white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        font-family: Arial, sans-serif;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      ">
+        ${sequence}
+      </div>
+    `;
+    
+    return L.divIcon({
+      html: html,
+      className: 'sequence-marker',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
+  }
+
+  /**
    * 移除標記
    * @param {string} id - 標記 ID
    */

@@ -5,7 +5,7 @@ import MapDisplay from '../Liu/mapAddRoute/MapDisplay.jsx'; // 導入地圖組�
 
 import './AttractionContainer.css';
 
-const AttractionContainer = ({ usedAttractions = [] }) => {
+const AttractionContainer = ({ usedAttractions = [], currentRoute = null }) => {
     //state
     const [selectedTab, setSelectedTab] = useState('選擇文化村');
     const [showTripPlanning, setShowTripPlanning] = useState(false); // 控制是否顯示行程規劃區域
@@ -79,7 +79,10 @@ const AttractionContainer = ({ usedAttractions = [] }) => {
             </div>
 
             <div className="map_small_container">
-                <MapDisplay selectedAttraction={selectedAttraction} />
+                <MapDisplay 
+                    selectedAttraction={selectedAttraction} 
+                    currentRoute={currentRoute}
+                />
             </div>
 
             {/* <div className="map_small_container">

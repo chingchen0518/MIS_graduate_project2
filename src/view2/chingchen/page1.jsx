@@ -19,7 +19,11 @@ export const SelectedScheduleContext = createContext({
 const Page1 = () => {
     //state
     const [usedAttractions, setUsedAttractions] = useState([]);
+
+    const [currentRoute, setCurrentRoute] = useState(null); // 目前顯示的路線數據
+
     const [selectedScheduleId, setSelectedScheduleId] = useState(null);
+
 
     //function 1: 處理景點被使用的狀態
     const handleAttractionUsed = (a_id,isUsed = true) => {
@@ -34,23 +38,39 @@ const Page1 = () => {
         }
     };
 
+    // function 2: 處理顯示路線
+    const handleShowRoute = (routeData) => {
+        setCurrentRoute(routeData);
+        console.log('顯示路線：', routeData);
+    };
+
+    // function 3: 處理隱藏路線
+    const handleHideRoute = () => {
+        setCurrentRoute(null);
+        console.log('隱藏路線');
+    };
+
     return (
         <DndProvider backend={HTML5Backend}>
             {/* 自定義拖拽預覽組件 */}
             <CustomDragPreview />
+
             <SelectedScheduleContext.Provider value={{ selectedScheduleId, setSelectedScheduleId }}>
                 <div className="page1">
                     <Header/>
                     <div className="page1_content">
-                        <AttractionContainer usedAttractions={usedAttractions} />
+                        <AttractionContainer usedAttractions={usedAttractions} currentRoute={currentRoute} />
                         <ScheduleContainer
                             t_id={1}//@==@記得改掉@==@
                             usedAttractions={usedAttractions} 
-                            onAttractionUsed={handleAttractionUsed} 
+                            onAttractionUsed={handleAttractionUsed}
+                            onShowRoute={handleShowRoute}
+                            onHideRoute={handleHideRoute}
                         />
                         {/* MapDisplay 放在這裡或其他地方都可以 */}
                         {/* <MapDisplay /> */}
                     </div>
+
                 </div>
             </SelectedScheduleContext.Provider>
         </DndProvider>

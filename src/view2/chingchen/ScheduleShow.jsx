@@ -10,7 +10,9 @@ const ScheduleShow = (props) => {
     const [attractions, setAttractions] = useState(props.initialAttractions || []); //景點
     const [scheduleItems, setScheduleItems] = useState([]);
     const [scheduleWidths, setScheduleWidths] = useState(0);
+
     const [hovered, setHovered] = useState(false);
+
 
     var HourIntervalHeight = props.intervalHeight/60;
 
@@ -69,11 +71,48 @@ const ScheduleShow = (props) => {
         return lines;
     };
 
+
     // 點擊與 hover 處理
-    // 點擊時將選取狀態交由 Context 控制
+    // 點擊時將選取狀態交由 Context 控制，並顯示/隱藏路線
     const { selectedScheduleId, setSelectedScheduleId } = useContext(SelectedScheduleContext);
     const handleClick = () => {
-        setSelectedScheduleId(props.s_id);
+        const wasSelected = selectedScheduleId === props.s_id;
+        
+        if (wasSelected) {
+            // 如果點擊的是已選中的行程，則取消選擇並隱藏路線
+            setSelectedScheduleId(null);
+            if (props.onHideRoute) {
+                props.onHideRoute();
+            }
+            console.log('隱藏路線');
+        } else {
+            // 選擇新的行程並顯示路線
+            setSelectedScheduleId(props.s_id);
+            
+            // 準備要傳遞給地圖的景點數據
+            const routeData = {
+                scheduleId: props.s_id,
+                tripId: props.t_id,
+                title: props.title,
+                attractions: scheduleItems.map(item => ({
+                    id: item.a_id,
+                    name: item.name,
+                    sequence: item.sequence,
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                    address: item.address,
+                    category: item.category
+                }))
+            };
+            
+            // 調用父組件傳入的回調函數來顯示路線
+            if (props.onShowRoute) {
+                props.onShowRoute(routeData);
+            }
+            
+            console.log('顯示路線，景點數據：', routeData);
+        }
+        
         setTimeout(() => {
             // 用 setTimeout 確保 state 已更新
             console.log(`全域 selectedScheduleId: ${selectedScheduleId}，剛點擊: ${props.s_id}`);
@@ -82,6 +121,7 @@ const ScheduleShow = (props) => {
     // 滑鼠移入/移出時切換 hovered 狀態
     const handleMouseEnter = () => setHovered(true);
     const handleMouseLeave = () => setHovered(false);
+
 
     //組件的return（顯示單個schedule）
     return (
@@ -113,11 +153,19 @@ const ScheduleShow = (props) => {
         >
             {/* //層級2：schedule的header  */}
             <div className="schedule_header">
-                <div className="user_avatar">
-                    <img alt="User" src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png"/>
-                </div>
-                <div className="budget_display">$350</div>
-                <span className="schedule_date">{props.title}</span>
+
+                    {/* 路線圖標已隱藏 - 現在點擊行程即可顯示路線 */}
+                    {/* <div className="route_show" style={{ display: 'none' }}>
+                        <img src={routeIcon} alt="Route" />
+                    </div> */}
+                    
+                    <div className="user_avatar">
+                        <img alt="User" src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png"/>
+                    </div>
+                    
+                    <div className="budget_display">$350</div>
+                    
+                    <span className="schedule_date">{props.title}</span>
             </div>
 
             {/* //層級3：schedule放内容的地方 */}
@@ -146,4 +194,3 @@ const ScheduleShow = (props) => {
 };
 
 export default ScheduleShow;
-

@@ -1,0 +1,20 @@
+.attraction-connector-container {
+    position: relative;
+    overflow: visible; /* 確保SVG內容可見 */
+}
+
+.attraction-connector-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none;
+    z-index: 5;
+    overflow: visible;
+}
+
+.attraction-connection {
+    transition: none; /* 移除過渡動畫以獲得即時響應 */
+    stroke-linejoin: round;
+}

@@ -23,8 +23,6 @@ function Header() {
   const [tripId, setTripId] = useState(trip.tid || 1);//之後要修改
   const [tripTitle, setTripTitle] = useState(trip.title);
 
-
-
   const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
 
   const mapStageToNumber = (stage) => {
@@ -85,7 +83,7 @@ function Header() {
     if (!deadline || hasUpdated) return;
 
     const diff = Math.floor((new Date(deadline) - now) / 1000);
-    if (diff <= 0) {
+    if (diff <= 0 && stage < 5) {
       const updateStageDate = async () => {
         try {
           const nowDateTime = new Date();

@@ -1144,6 +1144,24 @@ app.post('/api/share-trip', async (req, res) => {
 
   const hash = await bcrypt.hash(String(tripId), 10);
   const encoded = encodeURIComponent(hash);
+  try {
+    // 加密密碼
+    const hash = await bcrypt.hash(String(tripId), 10);
+    const encoded = encodeURIComponent(hash);
+
+    // 更新到資料庫
+    const sql = 'UPDATE Trip SET hashedTid = ? WHERE t_id = ?';
+    connection.query(sql, [encoded, tripId], (err) => {
+      if (err) {
+        console.error('❌ 更新密碼錯誤：', err.message);
+        return res.status(500).json({ message: '伺服器錯誤' });
+      }
+    });
+  } catch (err) {
+    console.error('❌ 加密錯誤：', err.message);
+    return res.status(500).json({ message: 'tid加密失敗' });
+  }
+
   const registerUrl = `http://localhost:5173/signin?invite=${encoded}`;
   const lineUrl = 'https://lin.ee/PElDRz6';
 
@@ -1286,7 +1304,7 @@ app.post('/api/view3_login', (req, res) => {
 });
 app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
   try {
-    const { name, email, account, password } = req.body;
+    const { name, email, account, password, invite } = req.body; // 多了 invite
     const avatarFile = req.file;
 
     if (!email || !account || !password) {
@@ -1297,12 +1315,78 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
     const avatarFilename = avatarFile ? avatarFile.filename : 'avatar.jpg';
 
     const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
-    connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err) => {
+    connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err, result) => {
       if (err) {
         console.error('❌ 註冊錯誤:', err);
         return res.status(500).json({ message: '伺服器錯誤' });
       }
-      return res.status(200).json({ message: '✅ 註冊成功' });
+      // 查詢剛新增的 user
+      const selectSql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
+      connection.query(selectSql, [email], async (err2, rows) => {
+        if (err2 || rows.length === 0) {
+          return res.status(500).json({ message: '查詢新用戶失敗' });
+        }
+        const user = rows[0];
+
+        // 如果有 invite，做旅程加入
+        if (invite) {
+          const decodedInvite = decodeURIComponent(invite);
+          // 查詢所有 Trip
+          const tripSql = 'SELECT t_id, hashedTid FROM Trip WHERE hashedTid IS NOT NULL AND hashedTid != ""';
+          connection.query(tripSql, async (tripErr, trips) => {
+            if (tripErr) {
+              console.error('❌ 查詢 Trip 失敗:', tripErr);
+              // 不阻斷註冊流程
+            } else {
+              let joined = false;
+              for (const trip of trips) {
+                const match = await bcrypt.compare(String(trip.t_id), decodedInvite);
+                if (match) {
+                  // 找到對應 t_id，插入 Join
+                  const joinSql = 'INSERT INTO `Join` (t_id, u_id) VALUES (?, ?)';
+                  connection.query(joinSql, [trip.t_id, user.u_id], (joinErr) => {
+                    if (joinErr) {
+                      console.error('❌ 插入 Join 失敗:', joinErr);
+                    }
+                  });
+                  joined = true;
+                  break;
+                }
+              }
+              if (!joined) {
+                console.log('❌ 沒有找到對應的旅程 invite');
+              }
+            }
+            // 回傳註冊成功
+            return res.status(200).json({
+              message: '✅ 註冊成功',
+              redirect: '/profile',
+              user: {
+                uid: user.u_id,
+                img: user.u_img,
+                name: user.u_name,
+                email: user.u_email,
+                password: user.u_password,
+                account: user.u_account,
+              }
+            });
+          });
+        } else {
+          // 沒有 invite，正常回傳
+          return res.status(200).json({
+            message: '✅ 註冊成功',
+            redirect: '/profile',
+            user: {
+              uid: user.u_id,
+              img: user.u_img,
+              name: user.u_name,
+              email: user.u_email,
+              password: user.u_password,
+              account: user.u_account,
+            }
+          });
+        }
+      });
     });
   } catch (error) {
     console.error('❌ 加密或其他錯誤:', error);
@@ -1399,13 +1483,13 @@ app.get('/api/fake-data', async (req, res) => {
 
     // 插入 Trip
     const tripSql = `
-      INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id, finished_day)
+      INSERT INTO Trip (s_date, e_date, s_time, e_time, country, stage_date, time, title, stage, u_id, finished_day, hashedTid)
       VALUES
-        ('2025-08-01', '2025-08-10', '08:00:00', '20:00:00', 'France', '2025-08-01', '10:00:00', '巴黎之旅', 'A', 1, 8),
-        ('2025-09-05', '2025-09-15', '09:00:00', '19:00:00', 'Italy', '2025-09-05', '11:00:00', '義大利探索', 'B', 2, 3),
-        ('2025-10-10', '2025-10-20', '07:30:00', '18:30:00', 'Japan', '2025-10-10', '09:30:00', '日本文化之旅', 'C', 3, 1),
-        ('2025-11-01', '2025-11-10', '08:00:00', '20:00:00', 'Spain', '2025-11-01', '10:00:00', '西班牙風情', 'D', 4, 2),
-        ('2025-12-15', '2025-12-25', '10:00:00', '22:00:00', 'Australia', '2025-12-15', '12:00:00', '澳洲冒險', 'E', 5, 3)
+        ('2025-08-01', '2025-08-10', '08:00:00', '20:00:00', 'France', '2025-08-01', '10:00:00', '巴黎之旅', 'A', 1, 8, 'hashedTid1'),
+        ('2025-09-05', '2025-09-15', '09:00:00', '19:00:00', 'Italy', '2025-09-05', '11:00:00', '義大利探索', 'B', 2, 3, 'hashedTid2'),
+        ('2025-10-10', '2025-10-20', '07:30:00', '18:30:00', 'Japan', '2025-10-10', '09:30:00', '日本文化之旅', 'C', 3, 1, 'hashedTid3'),
+        ('2025-11-01', '2025-11-10', '08:00:00', '20:00:00', 'Spain', '2025-11-01', '10:00:00', '西班牙風情', 'D', 4, 2, 'hashedTid4'),
+        ('2025-12-15', '2025-12-25', '10:00:00', '22:00:00', 'Australia', '2025-12-15', '12:00:00', '澳洲冒險', 'E', 5, 3, 'hashedTid5')
     `;
 
     await new Promise((resolve, reject) => {
@@ -2208,7 +2292,8 @@ app.get('/api/trip/:id', (req, res) => {
       time: trip.time,
       finished_day: trip.finished_day,
       deadline: deadlineStr, // ✅ 直接計算好的時間
-      days: trip.days // ✅ 這裡就是天數
+      days: trip.days, // ✅ 這裡就是天數
+      creatorUid: trip.u_id
     });
   });
 });

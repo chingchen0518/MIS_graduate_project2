@@ -84,7 +84,8 @@ function Header() {
     if (!deadline || hasUpdated) return;
 
     const diff = Math.floor((new Date(deadline) - now) / 1000);
-    if (diff <= 0) {
+    // 暫時禁用自動階段更新////////等等山
+    if (false && diff <= 0) {
       const updateStageDate = async () => {
         try {
           const nowDateTime = new Date();

@@ -61,6 +61,20 @@ export class MapService {
    * @param {string} region - 地區配置 ('taiwan', 'switzerland', 'global')
    */
   initMap(container, options = {}, region = 'global') {
+    // 如果地圖已經初始化，先清理
+    if (this.map) {
+      console.warn('地圖已存在，正在清理...');
+      this.destroy();
+    }
+
+    // 檢查容器是否已經被 Leaflet 初始化
+    if (container._leaflet_id) {
+      console.warn('容器已被 Leaflet 初始化，正在重置...');
+      delete container._leaflet_id;
+      // 清空容器內容
+      container.innerHTML = '';
+    }
+
     let config;
     switch (region) {
       case 'taiwan':
@@ -83,7 +97,12 @@ export class MapService {
 
     const mapOptions = { ...defaultOptions, ...options };
     
-    this.map = L.map(container, mapOptions);
+    try {
+      this.map = L.map(container, mapOptions);
+    } catch (error) {
+      console.error('地圖初始化失敗:', error);
+      throw new Error('Map container is already initialized.');
+    }
     
     // 添加地圖圖層
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -97,6 +116,45 @@ export class MapService {
     }
     
     return this.map;
+  }
+
+  /**
+   * 銷毀地圖和清理資源
+   */
+  destroy() {
+    try {
+      if (this.map) {
+        // 清理標記
+        this.markers.forEach(marker => {
+          if (marker && this.map.hasLayer(marker)) {
+            this.map.removeLayer(marker);
+          }
+        });
+        this.markers.clear();
+
+        // 清理路線
+        this.routeLines.forEach(line => {
+          if (line && this.map.hasLayer(line)) {
+            this.map.removeLayer(line);
+          }
+        });
+        this.routeLines.clear();
+
+        // 清理路線群組
+        this.routeGroups.forEach(group => {
+          if (group && this.map.hasLayer(group)) {
+            this.map.removeLayer(group);
+          }
+        });
+        this.routeGroups.clear();
+
+        // 移除地圖
+        this.map.remove();
+        this.map = null;
+      }
+    } catch (error) {
+      console.error('地圖清理過程中發生錯誤:', error);
+    }
   }
 
   /**

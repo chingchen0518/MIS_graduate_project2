@@ -66,7 +66,7 @@ const function1 = async (attractions, s_id, date) => {
 
 
 // 單一交通方式的 bar，hover 時顯示分鐘數
-const TransportBar = ({ a_id,type, value, color, height, unit = '分鐘', onBarClick,selected }) => {
+const TransportBar = React.forwardRef(function TransportBar({ a_id,type, value, color, height, unit = '分鐘', onBarClick,selected }, ref) {
     const [showTip, setShowTip] = useState(false);
     const handleBarClick = () => {
         if (onBarClick) {
@@ -75,6 +75,7 @@ const TransportBar = ({ a_id,type, value, color, height, unit = '分鐘', onBarC
     };
     return (
         <div
+            ref={ref}
             className={`transport_method ${type}`}
             style={{
                     height: `${height}px`,
@@ -126,10 +127,10 @@ const TransportBar = ({ a_id,type, value, color, height, unit = '分鐘', onBarC
 
         </div>
     );
-};
+});
 
 // TransportTime 組件：顯示每個景點的時間
-const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,nextAId,getTransportMethod }) => {
+const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,nextAId,getTransportMethod, barRefs, barCollide }) => {
     var HourIntervalHeight = intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
     const [transport, setTransport] = useState({car:0,bicycle:0,bus:0,walk:0,method:0}); //儲存目前放進schedule的attraction
     
@@ -189,10 +190,10 @@ const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,ne
 
     return (
         <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly', position: 'relative', zIndex: 1 }}>
-          <TransportBar type="car" value={barValues.car} color="#ff914d" height={transport.car * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 1} a_id={a_id}/>
-          <TransportBar type="bicycle" value={barValues.bicycle} color="#65cdca" height={transport.bicycle * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 2} a_id={a_id}/>
-          <TransportBar type="bus" value={barValues.bus} color="#428cef" height={transport.bus * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 3} a_id={a_id}/>
-          <TransportBar type="walk" value={barValues.walk} color="#7ed957" height={transport.walk * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 4} a_id={a_id}/>
+            <TransportBar ref={barRefs && barRefs[0]} type="car" value={barValues.car} color={barCollide && barCollide[0] ? '#f44' : "#ff914d"} height={transport.car * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 1} a_id={a_id}/>
+            <TransportBar ref={barRefs && barRefs[1]} type="bicycle" value={barValues.bicycle} color={barCollide && barCollide[1] ? '#f44' : "#65cdca"} height={transport.bicycle * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 2} a_id={a_id}/>
+            <TransportBar ref={barRefs && barRefs[2]} type="bus" value={barValues.bus} color={barCollide && barCollide[2] ? '#f44' : "#428cef"} height={transport.bus * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 3} a_id={a_id}/>
+            <TransportBar ref={barRefs && barRefs[3]} type="walk" value={barValues.walk} color={barCollide && barCollide[3] ? '#f44' : "#7ed957"} height={transport.walk * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 4} a_id={a_id}/>
         </div>
     );
     

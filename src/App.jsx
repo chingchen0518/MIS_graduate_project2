@@ -38,7 +38,7 @@ const Part2Route = () => {
 import InteractiveMap from './view2/Liu/map/InteractiveMap.jsx'
 import MapDisplay from './view2/Liu/mapAddRoute/MapDisplay.jsx'
 import AttractionContainer from './view2/chingchen/AttractionContainer.jsx'
-import Page1 from './view2/chingchen/Page1.jsx'
+import Page1 from './view2/chingchen/page1.jsx'
 //========================================================================
 
 

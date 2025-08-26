@@ -12,6 +12,7 @@ function Header() {
   const [deadline, setDeadline] = useState('');
   const [days, setDays] = useState(0);
   const [finishedDay, setFinishedDay] = useState(0);
+  const [creatorUid, setCreatorUid] = useState(null);
   const [now, setNow] = useState(new Date());
   const [hasUpdated, setHasUpdated] = useState(false); // ✅ 只更新一次
 
@@ -58,6 +59,7 @@ function Header() {
       setDeadline(data.deadline);
       setDays(data.days);
       setFinishedDay(data.finished_day);
+      setCreatorUid(data.creatorUid);
       setHasUpdated(false); // 重置 flag
     } catch (e) {
       console.error('API 錯誤:', e);
@@ -152,7 +154,9 @@ function Header() {
       <div className="header-title-block">
         <span className="header-title">{tripTitle}</span>
         <span className="header-timer">
-          <span className="header-timer-icon">⏳</span>
+          <span className="header-timer-icon">
+            {user?.uid === creatorUid ? '⚙️' : '⏳'}
+          </span>
           時間倒數: <CountdownTimer deadline={deadline} stage={stage} />
         </span>
         <button className="share-button" onClick={() => setShowModal(true)}>

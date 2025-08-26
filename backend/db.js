@@ -1755,7 +1755,8 @@ app.get('/api/trip/:id', (req, res) => {
       time: trip.time,
       finished_day: trip.finished_day,
       deadline: deadlineStr, // ✅ 直接計算好的時間
-      days: trip.days // ✅ 這裡就是天數
+      days: trip.days, // ✅ 這裡就是天數
+      creatorUid: trip.u_id
     });
   });
 });

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import './profile.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faAddressCard, faEdit, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faAddressCard, faPlus, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
 function Profile() {
@@ -56,15 +56,15 @@ function Profile() {
                 <div className="shape" />
                 <div className="shape" />
             </div>
-            <div className="container">
-                <div className="header">
-                    <div className="logo">
-                        <div className="logo-icon">
+            <div className="main_container">
+                <div className="all_header">
+                    <div className="all_logo">
+                        <div className="all_logo-icon">
                             <FontAwesomeIcon icon={faGlobe} />
                         </div>
-                        <h1 className="title">Vistour</h1>
+                        <h1 className="all_title">Vistour</h1>
                     </div>
-                    <p className="subtitle">個人資料</p>
+                    <p className="all_subtitle">個人資料</p>
                 </div>
                 <div className="profile-card">
                     <div className="profile-card-horizontal">
@@ -79,7 +79,7 @@ function Profile() {
                             {editing ? (
                                 <form className="profile-form-horizontal" onSubmit={handleSave}>
                                     <div className="profile-info-horizontal">
-                                        <div className="input-with-icon">
+                                        <div className="all_input-with-icon">
                                             <FontAwesomeIcon icon={faUser} />
                                             <input
                                                 type="text"
@@ -93,7 +93,7 @@ function Profile() {
                                             />
                                             <small className="note">此欄位無法修改</small>
                                         </div>
-                                        <div className="input-with-icon">
+                                        <div className="all_input-with-icon">
                                             <FontAwesomeIcon icon={faEnvelope} />
                                             <input
                                                 type="email"
@@ -106,7 +106,7 @@ function Profile() {
                                                 placeholder="信箱"
                                             />
                                         </div>
-                                        <div className="input-with-icon">
+                                        <div className="all_input-with-icon">
                                             <FontAwesomeIcon icon={faAddressCard} />
                                             <input
                                                 type="text"
@@ -119,7 +119,7 @@ function Profile() {
                                                 placeholder="帳號"
                                             />
                                         </div>
-                                        <div className="input-with-icon">
+                                        <div className="all_input-with-icon">
                                             <FontAwesomeIcon icon={faKey} />
                                             <input
                                                 type="password"
@@ -135,32 +135,36 @@ function Profile() {
                                     </div>
 
                                     <div className="profile-actions-horizontal">
-                                        <button type="submit" className="btn">儲存</button>
-                                        <button type="button" className="btn" onClick={handleCancel}>取消</button>
+                                        <button type="submit" className="all_btn">儲存</button>
+                                        <button type="button" className="all_btn" onClick={handleCancel}>取消</button>
                                     </div>
                                 </form>
                             ) : (
                                 <div className="profile-info-horizontal">
-                                    <div className="input-with-icon">
+                                    <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faUser} />
                                         <span>UID：{profile.u_id}</span>
                                     </div>
-                                    <div className="input-with-icon">
+                                    <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faEnvelope} />
                                         <span>信箱：{profile.u_email}</span>
                                     </div>
-                                    <div className="input-with-icon">
+                                    <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faAddressCard} />
                                         <span>帳號：{profile.u_account}</span>
                                     </div>
-                                    <div className="input-with-icon">
+                                    <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faKey} />
                                         <span>密碼：******</span>
                                     </div>
                                     <div className="profile-actions-horizontal">
-                                        {/* <button className="btn" onClick={handleEdit}>
+                                        {/* <button className="all_btn" onClick={handleEdit}>
                                             <FontAwesomeIcon icon={faEdit} /> 編輯
                                         </button> */}
+
+                                        <button className="btn" onClick={() => navigate('/')}>
+                                            <FontAwesomeIcon icon={faPlus} /> 新增旅程
+                                        </button>
                                         <button className="btn" onClick={() => navigate('/logout')}>
                                             <FontAwesomeIcon icon={faSignOutAlt} /> 登出
                                         </button>
@@ -174,6 +178,7 @@ function Profile() {
                         <div className="profile-history-title">
                             <FontAwesomeIcon icon={faHistory} /> 參加過的行程
                         </div>
+                        
                         <ul className="profile-history-list">
                             {profile.trips && profile.trips.length > 0 ? (
                                 profile.trips.map(trip => (
@@ -187,10 +192,8 @@ function Profile() {
                                                 localStorage.setItem('trip', JSON.stringify({
                                                     tid: trip.t_id,
                                                     title: trip.title,
-                                                    stage: trip.stage,
-                                                    s_date: trip.s_date
                                                 }));
-                                                navigate('/header');
+                                                navigate('/Vistour');
                                             }}
                                         >
                                             {trip.title}
@@ -203,7 +206,7 @@ function Profile() {
                         </ul>
                     </div>
                 </div>
-                <div className="footer">
+                <div className="all_footer">
                     <p className="register-link">
                         <a href="/">回首頁</a>
                     </p>

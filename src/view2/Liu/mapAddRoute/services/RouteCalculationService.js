@@ -107,11 +107,12 @@ class RouteCalculationService {
         console.log(`🔍 嘗試 ${primaryVariant.name}: ${primaryVariant.url}`);
         
         const response = await fetch(primaryVariant.url, {
-          headers: { 'Accept': 'application/json' }
+          headers: { 'Accept': 'application/json' },
+          timeout: 10000 // 10秒超時
         });
         
         if (!response.ok) {
-          console.error(`📊 API 回應錯誤: ${response.status} ${response.statusText}`);
+          console.warn(`📊 API 回應錯誤: ${response.status} ${response.statusText}`);
           
           // 如果是 404 且使用 switzerland router，嘗試 default router
           if (response.status === 404 && primaryVariant.url.includes('/switzerland/')) {
@@ -192,8 +193,17 @@ class RouteCalculationService {
         return data;
         
       } catch (error) {
-        console.error(`💥 ${mode} 路線計算失敗:`, error.message);
-        throw error;
+        // 檢查是否為網路連接錯誤
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          console.warn(`🌐 無法連接到 OTP 服務 (${mode})，使用直線路線`);
+        } else if (error.message === 'PATH_NOT_FOUND') {
+          console.warn(`�️ ${mode} 模式找不到路線，使用直線路線`);
+        } else {
+          console.error(`�💥 ${mode} 路線計算失敗:`, error.message);
+        }
+        
+        // 使用後備路線
+        return this.createFallbackRoute(fromCoords, toCoords, mode);
       }
       
       // 所有格式都失敗，創建後備路線
@@ -201,6 +211,7 @@ class RouteCalculationService {
       return this.createFallbackRoute(fromCoords, toCoords, mode);
       
     } catch (error) {
+      console.warn(`🔄 ${mode} 路線計算完全失敗，使用後備路線:`, error.message);
       return this.createFallbackRoute(fromCoords, toCoords, mode);
     }
   }
@@ -354,6 +365,78 @@ class RouteCalculationService {
     
     // 返回默認支援的模式
     return ['WALK', 'TRANSIT', 'BICYCLE', 'CAR'];
+  }
+
+  /*創建後備路線（直線路線）*/
+  createFallbackRoute(fromCoords, toCoords, mode = 'WALK') {
+    console.log(`創建後備路線: ${mode} 模式，從 [${fromCoords}] 到 [${toCoords}]`);
+    
+    // 計算直線距離
+    const distance = this.calculateDistance(fromCoords, toCoords) * 1000; // 轉為公尺
+    
+    // 根據交通方式估算時間（秒）
+    let estimatedDuration;
+    switch (mode) {
+      case 'WALK':
+        estimatedDuration = (distance / 1.4) * 1000; // 步行速度 1.4 m/s
+        break;
+      case 'BICYCLE':
+        estimatedDuration = (distance / 4.17) * 1000; // 自行車速度 15 km/h
+        break;
+      case 'CAR':
+        estimatedDuration = (distance / 13.89) * 1000; // 汽車速度 50 km/h
+        break;
+      case 'TRANSIT,WALK':
+      default:
+        estimatedDuration = (distance / 8.33) * 1000; // 大眾運輸平均速度 30 km/h
+        break;
+    }
+    
+    // 創建符合OTP格式的後備路線數據
+    const fallbackRoute = {
+      plan: {
+        itineraries: [{
+          duration: Math.round(estimatedDuration),
+          walkTime: mode === 'WALK' ? Math.round(estimatedDuration) : 0,
+          walkDistance: mode === 'WALK' ? distance : 100, // 最少100公尺步行
+          legs: [{
+            mode: mode.split(',')[0], // 取主要模式
+            from: {
+              lat: fromCoords[0],
+              lon: fromCoords[1],
+              name: '起點'
+            },
+            to: {
+              lat: toCoords[0],
+              lon: toCoords[1], 
+              name: '終點'
+            },
+            legGeometry: {
+              points: `${fromCoords[0]},${fromCoords[1]};${toCoords[0]},${toCoords[1]}`,
+              length: 2
+            },
+            duration: Math.round(estimatedDuration),
+            distance: distance,
+            startTime: Date.now(),
+            endTime: Date.now() + estimatedDuration
+          }]
+        }],
+        from: {
+          lat: fromCoords[0],
+          lon: fromCoords[1],
+          name: '起點'
+        },
+        to: {
+          lat: toCoords[0],
+          lon: toCoords[1],
+          name: '終點'
+        }
+      },
+      isFallback: true // 標記為後備路線
+    };
+    
+    console.log(`後備路線創建完成: ${Math.round(estimatedDuration/60)} 分鐘, ${(distance/1000).toFixed(1)} 公里`);
+    return fallbackRoute;
   }
 }
 

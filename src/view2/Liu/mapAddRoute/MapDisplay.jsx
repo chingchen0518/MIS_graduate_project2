@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
+import { SelectedScheduleContext } from '../../chingchen/page1.jsx';
 import { mapService } from './services/MapService.js';
 import { routeService } from './services/RouteCalculationService.js';
 import './MapDisplay.css';
@@ -27,7 +28,8 @@ const transportModes = {
   }
 };
 
-const MapDisplay = ({ selectedAttraction }) => {
+const MapDisplay = ({ selectedAttraction, currentRoute }) => {
+  const { selectedScheduleId } = useContext(SelectedScheduleContext);
   const mapRef = useRef(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [routeData, setRouteData] = useState({});
@@ -41,7 +43,12 @@ const MapDisplay = ({ selectedAttraction }) => {
   };
 
   useEffect(() => {
-    if (mapRef.current) {
+    if (selectedScheduleId !== null) {
+      console.log(`selected schedule id ${selectedScheduleId} in Map Display`);
+    }
+    
+    // 只在組件首次掛載時初始化地圖
+    if (mapRef.current && !mapService.map) {
       console.log('初始化地圖...');
       try {
         // 設定交通方式配置
@@ -54,20 +61,32 @@ const MapDisplay = ({ selectedAttraction }) => {
       } catch (error) {
         console.error('地圖初始化失敗:', error);
       }
-      
-      return () => {
-        try {
-          mapService.destroy();
-        } catch (error) {
-          console.error('地圖清理失敗:', error);
-        }
-      };
     }
+  }, []); // 移除依賴，只在組件掛載時執行一次
+
+  // 組件卸載時清理地圖
+  useEffect(() => {
+    return () => {
+      try {
+        if (mapService && typeof mapService.destroy === 'function') {
+          mapService.destroy();
+          console.log('地圖已清理');
+        }
+      } catch (error) {
+        console.error('地圖清理失敗:', error);
+      }
+    };
   }, []);
 
   // 處理選中景點的顯示
   useEffect(() => {
     if (selectedAttraction && mapRef.current && mapService.map) {
+      // 清除所有路線相關的標記和路線
+      for (let i = 0; i < 20; i++) {
+        mapService.removeMarker(`route-attraction-${i}`);
+      }
+      mapService.clearRoutes();
+      
       // 移除之前的景點標記
       mapService.removeMarker('selected-attraction');
       
@@ -134,6 +153,206 @@ const MapDisplay = ({ selectedAttraction }) => {
       displayAttraction();
     }
   }, [selectedAttraction]);
+
+  // 處理路線顯示
+  useEffect(() => {
+    if (currentRoute && mapRef.current && mapService.map) {
+      console.log('顯示路線景點:', currentRoute);
+      
+      // 清除單個景點標記
+      mapService.removeMarker('selected-attraction');
+      
+      // 清除之前的路線標記和路線
+      currentRoute.attractions?.forEach((_, index) => {
+        mapService.removeMarker(`route-attraction-${index}`);
+      });
+      mapService.clearRoutes(); // 清除之前的路線
+      
+      if (currentRoute.attractions && currentRoute.attractions.length > 0) {
+        const validAttractions = [];
+        
+        // 添加每個景點的標記
+        currentRoute.attractions.forEach((attraction, index) => {
+          if (attraction.latitude && attraction.longitude) {
+            const coords = [parseFloat(attraction.latitude), parseFloat(attraction.longitude)];
+            
+            // 創建帶有序號的圖標
+            const sequenceIcon = mapService.createSequenceIcon(attraction.sequence || (index + 1));
+            
+            // 添加標記
+            mapService.addMarker(`route-attraction-${index}`, coords, {
+              title: attraction.name,
+              icon: sequenceIcon,
+              popup: `
+                <div style="font-family: Arial, sans-serif; min-width: 150px;">
+                  <h4 style="margin: 0; color: #333; font-size: 14px;">${attraction.name}</h4>
+                  <p style="margin: 2px 0; font-size: 11px; color: #666;">順序: ${attraction.sequence || (index + 1)}</p>
+                  <p style="margin: 2px 0; font-size: 11px; color: #666;">${attraction.category || '景點'}</p>
+                  <p style="margin: 2px 0; font-size: 10px; color: #888;">路線: ${currentRoute.title}</p>
+                </div>
+              `
+            });
+            
+            validAttractions.push({
+              coords,
+              name: attraction.name,
+              sequence: attraction.sequence
+            });
+          }
+        });
+        
+        // 計算並顯示景點之間的路線
+        if (validAttractions.length > 1) {
+          calculateRoutesBetweenAttractions(validAttractions);
+        }
+        
+        // 如果有有效的景點，調整地圖視野以包含所有景點
+        if (validAttractions.length > 0) {
+          try {
+            // 計算邊界
+            const latitudes = validAttractions.map(attr => attr.coords[0]);
+            const longitudes = validAttractions.map(attr => attr.coords[1]);
+            const minLat = Math.min(...latitudes);
+            const maxLat = Math.max(...latitudes);
+            const minLng = Math.min(...longitudes);
+            const maxLng = Math.max(...longitudes);
+            
+            // 設置地圖邊界
+            mapService.map.fitBounds([
+              [minLat, minLng],
+              [maxLat, maxLng]
+            ], {
+              padding: [20, 20]
+            });
+          } catch (error) {
+            console.error('調整地圖視野失敗:', error);
+            // 如果失敗，至少置中到第一個景點
+            if (validAttractions.length > 0) {
+              mapService.map.setView(validAttractions[0].coords, 12);
+            }
+          }
+        }
+      }
+    } else if (!currentRoute && mapRef.current && mapService.map) {
+      // 如果currentRoute為null，清除所有路線標記和路線
+      console.log('清除路線標記和路線');
+      // 清除所有路線標記
+      for (let i = 0; i < 20; i++) {
+        mapService.removeMarker(`route-attraction-${i}`);
+      }
+      // 清除所有路線段
+      for (let i = 0; i < 20; i++) {
+        if (mapService.routeLines && mapService.routeLines.has(`attraction-route-${i}`)) {
+          const routeLine = mapService.routeLines.get(`attraction-route-${i}`);
+          if (routeLine && mapService.map) {
+            mapService.map.removeLayer(routeLine);
+          }
+          mapService.routeLines.delete(`attraction-route-${i}`);
+        }
+      }
+    }
+  }, [currentRoute]);
+
+  // 計算景點之間的路線
+  const calculateRoutesBetweenAttractions = async (attractions) => {
+    try {
+      console.log('開始計算景點之間的路線...');
+      const routePromises = [];
+      const date = new Date().toISOString().split('T')[0]; // 今天的日期 YYYY-MM-DD
+      
+      // 按序列排序景點
+      const sortedAttractions = attractions.sort((a, b) => a.sequence - b.sequence);
+      
+      // 為每對相鄰景點計算路線
+      for (let i = 0; i < sortedAttractions.length - 1; i++) {
+        const fromAttraction = sortedAttractions[i];
+        const toAttraction = sortedAttractions[i + 1];
+        
+        console.log(`計算路線: ${fromAttraction.name} → ${toAttraction.name}`);
+        
+        // 使用步行模式計算路線（您可以根據需要修改交通方式）
+        const routePromise = routeService.calculateRoute(
+          fromAttraction.coords,
+          toAttraction.coords,
+          date,
+          'WALK'
+        ).then(routeData => {
+          if (routeData) {
+            return {
+              from: fromAttraction,
+              to: toAttraction,
+              routeData,
+              segmentId: `segment-${i}`
+            };
+          }
+          return null;
+        }).catch(error => {
+          console.warn(`路線計算失敗 ${fromAttraction.name} → ${toAttraction.name}:`, error.message);
+          // 創建簡單的直線路線作為後備
+          return {
+            from: fromAttraction,
+            to: toAttraction,
+            routeData: {
+              plan: {
+                itineraries: [{
+                  legs: [{
+                    legGeometry: {
+                      points: `${fromAttraction.coords[0]},${fromAttraction.coords[1]};${toAttraction.coords[0]},${toAttraction.coords[1]}`
+                    }
+                  }]
+                }]
+              },
+              isFallback: true
+            },
+            segmentId: `segment-${i}`
+          };
+        });
+        
+        routePromises.push(routePromise);
+      }
+      
+      // 等待所有路線計算完成
+      const routeResults = await Promise.all(routePromises);
+      
+      // 在地圖上顯示路線
+      routeResults.forEach((result, index) => {
+        if (result && result.routeData) {
+          try {
+            const routeType = result.routeData.isFallback ? '直線路線' : 'OTP路線';
+            console.log(`顯示路線段 ${index + 1} (${routeType}):`, result.from.name, '→', result.to.name);
+            
+            // 提取路線座標
+            const coordinates = mapService.extractRouteCoordinates(result.routeData);
+            
+            if (coordinates.length > 0) {
+              // 使用mapService顯示路線
+              const routeId = `attraction-route-${index}`;
+              const routeStyle = {
+                color: result.routeData.isFallback ? '#FF6B6B' : '#4285f4', // 後備路線用紅色，正常路線用藍色
+                weight: result.routeData.isFallback ? 3 : 4,
+                opacity: result.routeData.isFallback ? 0.6 : 0.8,
+                dashArray: result.routeData.isFallback ? '10, 5' : null // 後備路線用虛線
+              };
+              
+              mapService.drawRoute(coordinates, routeStyle, routeId);
+              
+              console.log(`路線段 ${index + 1} 顯示成功 (${routeType})，包含 ${coordinates.length} 個座標點`);
+            } else {
+              console.warn(`路線段 ${index + 1} 沒有有效的座標數據`);
+            }
+            
+          } catch (drawError) {
+            console.error(`顯示路線段失敗:`, drawError);
+          }
+        }
+      });
+      
+      console.log('景點路線計算和顯示完成');
+      
+    } catch (error) {
+      console.error('計算景點路線失敗:', error);
+    }
+  };
 
   // 計算所有交通方式的路線
   const calculateAllRoutes = async () => {

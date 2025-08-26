@@ -1,0 +1,112 @@
+[
+    {
+        "a_id": 1,
+        "name_zh": "蘇黎世大教堂",
+        "name": "Grossmünster",
+        "category": "Culture & Heritage",
+        "address": "Zwinglipl. 7, 8001 Zürich, 瑞士",
+        "budget": null,
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Zurich_city1.jpg",
+        "country": "Switzerland",
+        "city": "Zurich"
+    },
+    {
+        "a_id": 2,
+        "name_zh": "林登霍夫山",
+        "name": "Lindenhof",
+        "category": "Scenic Spots",
+        "address": "Lindenhof, 8001 Zürich, 瑞士",
+        "budget": null,
+        "photo": "https://image.cdn-eztravel.com.tw/SI_1BR2LOC1fNrW7KCCPxSzH3NPD46TE6yJMarMvOTI/rs:fit:360:300:1/g:ce/aHR0cHM6Ly9yZXMua2xvb2suY29tL2ltYWdlL3VwbG9hZC9hY3Rpdml0aWVzL2R6anJocWh1cWxpdm04Znd0cGR4LmpwZw.jpg",
+        "country": "Switzerland",
+        "city": "Zurich"
+    },
+    {
+        "a_id": 3,
+        "name_zh": "蘇黎世聖母大教堂",
+        "name": "Fraumünster Church",
+        "category": "Culture & Heritage",
+        "address": "Münsterhof 2, 8001 Zürich, 瑞士",
+        "budget": null,
+        "photo": "https://image.cdn-eztravel.com.tw/PUr865YdkaKSBy117s_y85dnpi9PjrZD50Lm2jwriGY/g:ce/aHR0cHM6Ly92YWNhdGlvbi5jZG4tZXp0cmF2ZWwuY29tLnR3L2ltZy9WRFIvQ0hfNDQxMTUzNDc1LmpwZw.jpg",
+        "country": "Switzerland",
+        "city": "Zurich"
+    },
+    {
+        "a_id": 4,
+        "name_zh": "瑞士國立博物館",
+        "name": "Swiss National Museum",
+        "category": "Culture & Heritage",
+        "address": "Museumstrasse 2, 8001 Zürich, 瑞士",
+        "budget": null,
+        "photo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-C0ya6fK6x6O09ghociwi-2OQBzg0I8yo6g&s",
+        "country": "Switzerland",
+        "city": "Zurich"
+    },
+    {
+        "a_id": 5,
+        "name_zh": "凱伊橋",
+        "name": "Quaibrücke",
+        "category": "Scenic Spots",
+        "address": "Quaibrücke, 8001 Zürich, 瑞士",
+        "budget": null,
+        "photo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGsGTBfraeQWb1eB9gz3A6tseO78v3RJcq8A&s",
+        "country": "Switzerland",
+        "city": "Zurich"
+    },
+    {
+        "a_id": 6,
+        "name_zh": "賈科梅蒂壁畫",
+        "name": "Giacometti-Halle",
+        "category": "Culture & Heritage",
+        "address": "Bahnhofquai 3, 8001 Zürich, 瑞士",
+        "budget": null,
+        "photo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCTwq2Y0ng3iutSY3xO7QGOmtQtadVvb9Vtg&s",
+        "country": "Switzerland",
+        "city": "Zurich"
+    },
+    {
+        "a_id": 7,
+        "name_zh": "蘇黎世美術館",
+        "name": "Kunsthaus Zürich",
+        "category": "Culture & Heritage",
+        "address": "Heimpl. 1/5, 8001 Zürich, 瑞士",
+        "budget": null,
+        "photo": "https://media.myswitzerland.com/image/fetch/c_lfill,g_auto,w_3200,h_1800/f_auto,q_80,fl_keep_iptc/https://www.myswitzerland.com/-/media/dam/resources/experience/k/u/kunsthaus%20zuerich/images%20all%20season/58750_32001800.jpeg",
+        "country": "Switzerland",
+        "city": "Zurich"
+    },
+    {
+        "a_id": 8,
+        "name_zh": "FIFA世界足球博物館",
+        "name": "FIFA Museum",
+        "category": "Culture & Heritage",
+        "address": "Seestrasse 27, 8002 Zürich, 瑞士",
+        "budget": null,
+        "photo": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/29/b5/c5/ab/fifa-world-cup-trophy.jpg?w=900&h=500&s=1",
+        "country": "Switzerland",
+        "city": "Zurich"
+    },
+    {
+        "a_id": 9,
+        "name_zh": "UBS理工學院纜車",
+        "name": "UBS Polybahn",
+        "category": "Transport Rides",
+        "address": "Limmatquai 144, 8001 Zürich, 瑞士",
+        "budget": null,
+        "photo": "https://imageproxy.pixnet.cc/imgproxy?url=https://pic.pimg.tw/vincepan/1417084666-2829942888.jpg",
+        "country": "Switzerland",
+        "city": "Zurich"
+    },
+    {
+        "a_id": 10,
+        "name_zh": "時鐘塔",
+        "name": "Zytglogge",
+        "category": "Culture & Heritage",
+        "address": "Bim Zytglogge 1, 3011 Bern, 瑞士",
+        "budget": null,
+        "photo": "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=ATKogpds0_p3cEz-EYdD4UgZISa47P8kz3P8eXcBVIX1dLVD9svH4VkTgWIFT_ftbe2C5chG9DRwBqHsadDp0zfCCH6chZBAB1kl4qqqlsXOAUvdxPP-St8oQQI4gDX1d3FHSIww93y1Nhq9wUDi2dsJh5Nlv4W8E7y1fzuN5Jg66NrP30mdlg7PbUWVvKuijKE50XPrVIwrwQldvg2kbrraaIbc_pIZ0cuO9MDlnNWMT887OwjPnuGfKD6pRh3YSYGzn_ANPMTE_GF1qVZDkeRVJWRJzSk4LhaW4L2p-B5GFBjMaASyY0O-BJCl4IO1e2HWsjNz1QAQTozbACoQxMuw2Dn5-t6xU0KkQysGYV7mygRMH_sKSbmTyiMyeesxhS8ybM0_gj4321a4w5clp1Ima2-4exgOxfvwWkJgOFh11ow&key=AIzaSyCwXETbilOh8JtpAkUPtiU5uyPK8ls0xu4",
+        "country": "Switzerland",
+        "city": "Bern"
+    }
+]

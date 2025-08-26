@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, createContext } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import AttractionContainer from '../chingchen/AttractionContainer.jsx';
@@ -9,13 +9,20 @@ import Header from '../../components/header.jsx'
 
 import './Page1.css';
 
+
+// 建立 Context
+export const SelectedScheduleContext = createContext({
+    selectedScheduleId: null,
+    setSelectedScheduleId: () => {},
+});
+
 const Page1 = () => {
     //state
     const [usedAttractions, setUsedAttractions] = useState([]);
+    const [selectedScheduleId, setSelectedScheduleId] = useState(null);
 
     //function 1: 處理景點被使用的狀態
     const handleAttractionUsed = (a_id,isUsed = true) => {
-
         // 標記景點為已使用
         if (isUsed) {
             // 如果景點未被使用，則添加到已使用的景點列表
@@ -31,20 +38,21 @@ const Page1 = () => {
         <DndProvider backend={HTML5Backend}>
             {/* 自定義拖拽預覽組件 */}
             <CustomDragPreview />
-            
-            <div className="page1">
-                <Header/>
-
-                <div className="page1_content">
-
-                    <AttractionContainer usedAttractions={usedAttractions} />
-                    <ScheduleContainer
-                        t_id={1}//@==@記得改掉@==@
-                        usedAttractions={usedAttractions} 
-                        onAttractionUsed={handleAttractionUsed} 
-                    />
+            <SelectedScheduleContext.Provider value={{ selectedScheduleId, setSelectedScheduleId }}>
+                <div className="page1">
+                    <Header/>
+                    <div className="page1_content">
+                        <AttractionContainer usedAttractions={usedAttractions} />
+                        <ScheduleContainer
+                            t_id={1}//@==@記得改掉@==@
+                            usedAttractions={usedAttractions} 
+                            onAttractionUsed={handleAttractionUsed} 
+                        />
+                        {/* MapDisplay 放在這裡或其他地方都可以 */}
+                        {/* <MapDisplay /> */}
+                    </div>
                 </div>
-            </div>
+            </SelectedScheduleContext.Provider>
         </DndProvider>
     );
 };

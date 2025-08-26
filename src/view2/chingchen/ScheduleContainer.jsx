@@ -8,7 +8,7 @@ import ScheduleShow from './ScheduleShow.jsx';
 import DateSelector from '../Liu/DateSelector';
 import './ScheduleContainer.css';
 
-const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
+const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShowRoute, onHideRoute }) => {
     //State
     const [schedules, setSchedules] = useState([]); //儲存DB讀取的schedule
     const [loading, setLoading] = useState(true);
@@ -190,13 +190,15 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed }) => {
                     title={schedule.title}
                     day={schedule.day}
                     intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
+                    containerHeight={timeColumnHeight}
+                    onShowRoute={onShowRoute}
+                    onHideRoute={onHideRoute}
                     
                     // scheduleId={schedule.s_id}
                     // scheduleData={schedule}
                     // initialAttractions={schedule.attractions}
                     // isFirst={false}
                     // isDraft={schedule.isDraft}
-                    containerHeight={timeColumnHeight}
                     // usedAttractions={usedAttractions}
                     // onAttractionUsed={handleAttractionUsed}
                     // onScheduleConfirm={handleScheduleConfirm}

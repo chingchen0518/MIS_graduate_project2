@@ -49,6 +49,17 @@
   line-height: 1;
 }
 
+.route_show {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
 .add_schedule_text {
   font-size: 10px;
   color: #333;

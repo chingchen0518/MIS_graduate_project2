@@ -2,6 +2,7 @@
 import React, { useState, useEffect} from 'react';
 import './schedule.css';
 import ScheduleItem from './ScheduleItem.jsx'; // 引入 ScheduleItem 組件
+import routeIcon from './icons8-route-50.png'; // 導入圖片
 
 const ScheduleShow = (props) => {
     
@@ -9,6 +10,7 @@ const ScheduleShow = (props) => {
     const [attractions, setAttractions] = useState(props.initialAttractions || []); //景點
     const [scheduleItems, setScheduleItems] = useState([]);
     const [scheduleWidths, setScheduleWidths] = useState(0);
+    const [isRouteClicked, setIsRouteClicked] = useState(false); // 路線按鈕點擊狀態
     
     var HourIntervalHeight = props.intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
 
@@ -79,6 +81,43 @@ const ScheduleShow = (props) => {
         return lines;
     };
 
+    // 處理路線按鈕點擊
+    const handleRouteClick = () => {
+        setIsRouteClicked(!isRouteClicked);
+        
+        // 如果按鈕被點擊（激活狀態），則顯示路線
+        if (!isRouteClicked) {
+            // 準備要傳遞給地圖的景點數據
+            const routeData = {
+                scheduleId: props.s_id,
+                tripId: props.t_id,
+                title: props.title,
+                attractions: scheduleItems.map(item => ({
+                    id: item.a_id,
+                    name: item.name,
+                    sequence: item.sequence,
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                    address: item.address,
+                    category: item.category
+                }))
+            };
+            
+            // 調用父組件傳入的回調函數來顯示路線
+            if (props.onShowRoute) {
+                props.onShowRoute(routeData);
+            }
+            
+            console.log('顯示路線，景點數據：', routeData);
+        } else {
+            // 如果取消選擇，清除地圖上的路線
+            if (props.onHideRoute) {
+                props.onHideRoute();
+            }
+            console.log('隱藏路線');
+        }
+    };
+
     //組件的return（顯示單個schedule）
     return (
         //層級1：單個schedule 
@@ -95,11 +134,24 @@ const ScheduleShow = (props) => {
         >
             {/* //層級2：schedule的header  */}
             <div className="schedule_header">
+                    <div className="route_show"
+                        onClick={handleRouteClick}
+                        style={{
+                            cursor: 'pointer',
+                            padding: '6px',
+                            borderRadius: '10px',
+                            backgroundColor: isRouteClicked ? '#007bff' : 'transparent',
+                            transition: 'background-color 0.2s ease'
+                        }}
+                    >
+                        <img src={routeIcon} alt="Route" style={{width: '20px', height: '20px',filter: isRouteClicked ? 'brightness(0) invert(1)' : 'none'}} />
+                    </div>
                     <div className="user_avatar">
                         <img alt="User" src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png"/>
                     </div>
+                    
                     <div className="budget_display">$350</div>
-
+                    
                     <span className="schedule_date">{props.title}</span>
             </div>
 

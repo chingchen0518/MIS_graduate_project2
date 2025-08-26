@@ -177,7 +177,7 @@ const ScheduleShow = (props) => {
                     <div className="budget_display">$350</div>
                     
                     <span className="schedule_date">{props.title}</span>
-
+            </div>
 
             {/* //層級3：schedule放内容的地方 */}
             <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: props.containerHeight }}>
@@ -205,4 +205,3 @@ const ScheduleShow = (props) => {
 };
 
 export default ScheduleShow;
-

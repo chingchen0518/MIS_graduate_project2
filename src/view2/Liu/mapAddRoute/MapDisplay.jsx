@@ -81,6 +81,12 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
   // 處理選中景點的顯示
   useEffect(() => {
     if (selectedAttraction && mapRef.current && mapService.map) {
+      // 清除所有路線相關的標記和路線
+      for (let i = 0; i < 20; i++) {
+        mapService.removeMarker(`route-attraction-${i}`);
+      }
+      mapService.clearRoutes();
+      
       // 移除之前的景點標記
       mapService.removeMarker('selected-attraction');
       
@@ -153,6 +159,9 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
     if (currentRoute && mapRef.current && mapService.map) {
       console.log('顯示路線景點:', currentRoute);
       
+      // 清除單個景點標記
+      mapService.removeMarker('selected-attraction');
+      
       // 清除之前的路線標記和路線
       currentRoute.attractions?.forEach((_, index) => {
         mapService.removeMarker(`route-attraction-${index}`);
@@ -167,13 +176,17 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
           if (attraction.latitude && attraction.longitude) {
             const coords = [parseFloat(attraction.latitude), parseFloat(attraction.longitude)];
             
+            // 創建帶有序號的圖標
+            const sequenceIcon = mapService.createSequenceIcon(attraction.sequence || (index + 1));
+            
             // 添加標記
             mapService.addMarker(`route-attraction-${index}`, coords, {
               title: attraction.name,
+              icon: sequenceIcon,
               popup: `
                 <div style="font-family: Arial, sans-serif; min-width: 150px;">
                   <h4 style="margin: 0; color: #333; font-size: 14px;">${attraction.name}</h4>
-                  <p style="margin: 2px 0; font-size: 11px; color: #666;">順序: ${attraction.sequence}</p>
+                  <p style="margin: 2px 0; font-size: 11px; color: #666;">順序: ${attraction.sequence || (index + 1)}</p>
                   <p style="margin: 2px 0; font-size: 11px; color: #666;">${attraction.category || '景點'}</p>
                   <p style="margin: 2px 0; font-size: 10px; color: #888;">路線: ${currentRoute.title}</p>
                 </div>

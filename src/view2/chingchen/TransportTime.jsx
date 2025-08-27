@@ -76,7 +76,7 @@ const TransportBar = React.forwardRef(function TransportBar({ a_id,type, value, 
     return (
         <div
             ref={ref}
-            className={`transport_method ${type}`}
+            className={`transport_method ${type} transport_bar`}
             style={{
                     height: `${height}px`,
                     // backgroundColor: color,
@@ -117,7 +117,7 @@ const TransportBar = React.forwardRef(function TransportBar({ a_id,type, value, 
                     borderRadius: 4,
                     fontSize: 13,
                     whiteSpace: 'nowrap',
-                    zIndex: 100,
+                    zIndex: 9999,
                     opacity: 1
 
                 }}>
@@ -130,7 +130,7 @@ const TransportBar = React.forwardRef(function TransportBar({ a_id,type, value, 
 });
 
 // TransportTime 組件：顯示每個景點的時間
-const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,nextAId,getTransportMethod, barRefs, barCollide }) => {
+const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,nextAId,getTransportMethod, barRefs, barCollide, maxBarHeight }) => {
     var HourIntervalHeight = intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
     const [transport, setTransport] = useState({car:0,bicycle:0,bus:0,walk:0,method:0}); //儲存目前放進schedule的attraction
     
@@ -188,12 +188,17 @@ const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,ne
         walk: 4
     };
 
+    // 計算每個交通方式的 bar 實際高度（加上 maxBarHeight 限制）
+    const getLimitedHeight = (h) => {
+        if (typeof maxBarHeight === 'number' && maxBarHeight >= 0 && h > maxBarHeight) return maxBarHeight;
+        return h;
+    };
     return (
         <div className="transport_time" style={{ display: 'flex', height: `${maxtime * HourIntervalHeight}px`, justifyContent: 'space-evenly', position: 'relative', zIndex: 1 }}>
-            <TransportBar ref={barRefs && barRefs[0]} type="car" value={barValues.car} color={barCollide && barCollide[0] ? '#f44' : "#ff914d"} height={transport.car * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 1} a_id={a_id}/>
-            <TransportBar ref={barRefs && barRefs[1]} type="bicycle" value={barValues.bicycle} color={barCollide && barCollide[1] ? '#f44' : "#65cdca"} height={transport.bicycle * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 2} a_id={a_id}/>
-            <TransportBar ref={barRefs && barRefs[2]} type="bus" value={barValues.bus} color={barCollide && barCollide[2] ? '#f44' : "#428cef"} height={transport.bus * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 3} a_id={a_id}/>
-            <TransportBar ref={barRefs && barRefs[3]} type="walk" value={barValues.walk} color={barCollide && barCollide[3] ? '#f44' : "#7ed957"} height={transport.walk * HourIntervalHeight} onBarClick={handleClick} selected={transport_method === 4} a_id={a_id}/>
+            <TransportBar ref={barRefs && barRefs[0]} type="car" value={barValues.car} color={barCollide && barCollide[0] ? '#f44' : "#ff914d"} height={getLimitedHeight(transport.car * HourIntervalHeight)} onBarClick={handleClick} selected={transport_method === 1} a_id={a_id}/>
+            <TransportBar ref={barRefs && barRefs[1]} type="bicycle" value={barValues.bicycle} color={barCollide && barCollide[1] ? '#f44' : "#65cdca"} height={getLimitedHeight(transport.bicycle * HourIntervalHeight)} onBarClick={handleClick} selected={transport_method === 2} a_id={a_id}/>
+            <TransportBar ref={barRefs && barRefs[2]} type="bus" value={barValues.bus} color={barCollide && barCollide[2] ? '#f44' : "#428cef"} height={getLimitedHeight(transport.bus * HourIntervalHeight)} onBarClick={handleClick} selected={transport_method === 3} a_id={a_id}/>
+            <TransportBar ref={barRefs && barRefs[3]} type="walk" value={barValues.walk} color={barCollide && barCollide[3] ? '#f44' : "#7ed957"} height={getLimitedHeight(transport.walk * HourIntervalHeight)} onBarClick={handleClick} selected={transport_method === 4} a_id={a_id}/>
         </div>
     );
     

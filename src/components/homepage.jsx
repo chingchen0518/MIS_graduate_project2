@@ -10,7 +10,7 @@ const HomePage = () => {
         console.log('尚未登入');
     }
     if (trip) {
-        console.log('已登入行程：', trip.title, ',stage:', trip.stage, ',開始日期:', trip.s_date);
+        console.log('ID：', trip.tid,'已登入行程：', trip.title);
     } else {
         console.log('尚未參與行程');
     }
@@ -52,7 +52,9 @@ const HomePage = () => {
             <li className="homepage_li"><a href="/Profile">Profile</a></li>
             <li className="homepage_li"><a href="/page2">page2</a></li>
             <li className="homepage_li"><a href="/page3">page3</a></li>
+            <li className="homepage_li"><a href="/Vistour">Vistour</a></li>
         </ul>
+
     </div>
 
   );

@@ -4,7 +4,7 @@ import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method}) => {
+const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method, barRefs, scheduleItemRef, barCollide }, ref) => {
     // const user = JSON.parse(localStorage.getItem('user'));
     
     const [heightEdit, setheightEdit] = React.useState(height); // 初始高度
@@ -96,6 +96,7 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
             key={`${a_id}`}
         >
             <div
+                ref={scheduleItemRef}
                 className="schedule_item"
                 style={{
                     backgroundColor: '#f0f0f0',
@@ -140,10 +141,12 @@ const ScheduleItem = ({ editmode=false,a_id,name, position, width, index, s_id, 
                 editmode={editmode}
                 transport_method={transport_method}
                 getTransportMethod={getTransportMethod}
+                barRefs={barRefs}
+                barCollide={barCollide}
             />
 
         </Rnd>
     );
-};
+});
 
 export default ScheduleItem;

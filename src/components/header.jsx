@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './header.css';
 import StageModal from './StageModal';
+import CountdownTimer from './CountdownTimer';
+import ShowTimeModal from './ShowTimeModal';
+
 
 function Header() {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -11,6 +14,9 @@ function Header() {
   const [deadline, setDeadline] = useState('');
   const [days, setDays] = useState(0);
   const [finishedDay, setFinishedDay] = useState(0);
+  const [creatorUid, setCreatorUid] = useState(null);
+  const [time, setTime] = useState(0);
+  const [stage_date, setStageDate] = useState('');
   const [now, setNow] = useState(new Date());
   const [hasUpdated, setHasUpdated] = useState(false); // ✅ 只更新一次
 
@@ -18,11 +24,11 @@ function Header() {
   const [nextStageName, setNextStageName] = useState('');
 
   const [showModal, setShowModal] = useState(false);
+  const [showTimeModal, setShowTimeModal] = useState(false);
+
   const [email, setEmail] = useState('');
   const [tripId, setTripId] = useState(trip.tid || 1);//之後要修改
   const [tripTitle, setTripTitle] = useState(trip.title);
-
-
 
   const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
 
@@ -59,6 +65,9 @@ function Header() {
       setDeadline(data.deadline);
       setDays(data.days);
       setFinishedDay(data.finished_day);
+      setCreatorUid(data.creatorUid);
+      setTime(data.time);
+      setStageDate(data.stage_date);
       setHasUpdated(false); // 重置 flag
     } catch (e) {
       console.error('API 錯誤:', e);
@@ -69,22 +78,12 @@ function Header() {
     fetchTripData();
   }, []);
 
-  const getCountdown = () => {
-    if (stage === 5) return '00:00:00'; // 如果已到 E 階段，剩餘時間固定為 0
-    if (!deadline) return '00:00:00';
-    const diff = Math.max(0, Math.floor((new Date(deadline) - now) / 1000));
-    const h = Math.floor(diff / 3600);
-    const m = Math.floor((diff % 3600) / 60);
-    const s = diff % 60;
-    return `${pad(h)}:${pad(m)}:${pad(s)}`;
-  };
-
   // 倒數到 0 時只執行一次
   useEffect(() => {
     if (!deadline || hasUpdated) return;
 
     const diff = Math.floor((new Date(deadline) - now) / 1000);
-    if (diff <= 0) {
+    if (diff <= 0 && stage < 5) {
       const updateStageDate = async () => {
         try {
           const nowDateTime = new Date();
@@ -106,6 +105,7 @@ function Header() {
           });
 
           const result = await res.json();
+          window.dispatchEvent(new Event('stageUpdated'));
           console.log('更新 stage_date:', result);
           const updatedStageNum = mapStageToNumber(result.stage);
           setNextStageName(stepNames[updatedStageNum - 1]); // 例如 "行程確定"
@@ -152,8 +152,39 @@ function Header() {
       <div className="header-title-block">
         <span className="header-title">{tripTitle}</span>
         <span className="header-timer">
-          <span className="header-timer-icon">⏳</span>
-          時間倒數: <span>{getCountdown()}</span>
+          <span className="header-timer-icon">
+            {user?.uid === creatorUid && stage < 5 ? (
+              <button
+                className="header-gear-btn"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '1.2em',
+                  padding: 0,
+                }}
+                onClick={() => setShowTimeModal(true)}
+                title="查看目前時間設定"
+              >
+                ⚙️
+              </button>
+            ) : (
+              '⏳'
+            )}
+            {showTimeModal && (
+              <ShowTimeModal
+                tripId={tripId}
+                stage_date={stage_date}
+                deadline={deadline}
+                time={time}
+                onClose={(shouldRefresh) => {
+                  setShowTimeModal(false);
+                  if (shouldRefresh) fetchTripData(); // 儲存後刷新 header
+                }}
+              />
+            )}
+          </span>
+          時間倒數: <CountdownTimer deadline={deadline} stage={stage} />
         </span>
         <button className="share-button" onClick={() => setShowModal(true)}>
           分享旅程

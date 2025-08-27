@@ -41,6 +41,9 @@ const ScheduleInsert = ({
     // barCollide 狀態：每個ScheduleItem有4個Bar
     const [barCollide, setBarCollide] = useState([]);
 
+    // barHeightLimits 狀態：每個ScheduleItem的maxBarHeight
+    const [barHeightLimits, setBarHeightLimits] = useState([]);
+
     // 碰撞檢查工具
     function isRectOverlap(r1, r2) {
         if (!r1 || !r2) return false;
@@ -79,17 +82,32 @@ const ScheduleInsert = ({
         });
     };
 
-    // 監聽 attractions 變動時初始化 barCollide
+
+    // 監聽 attractions 變動時初始化 barCollide 與 barHeightLimits
     useEffect(() => {
         setBarCollide(attractions.map(() => Array(4).fill(false)));
-    }, [attractions.length]);
 
-    // 監聽拖曳/resize時觸發碰撞檢查
+        // 計算每個item的maxBarHeight
+        const limits = attractions.map((attraction, index) => {
+            if (index < attractions.length - 1) {
+                const curY = attraction.y;
+                const curH = attraction.height;
+                const nextY = attractions.find(a => a.sequence === attraction.sequence + 1)?.y;
+                if (typeof nextY === 'number') {
+                    let maxBarHeight = nextY - (curY + curH) + 1;
+                    if (maxBarHeight < 0) maxBarHeight = 0;
+                    return maxBarHeight;
+                }
+            }
+            return null;
+        });
+        setBarHeightLimits(limits);
+    }, [attractions]);
+
+    // 監聽拖曳/resize時觸發碰撞檢查（只在attractions有變化時）
     useEffect(() => {
-        // 這裡可根據需求調整觸發時機
-        const timer = setTimeout(() => checkAllBarScheduleItemCollision(), 100);
-        return () => clearTimeout(timer);
-    });
+        checkAllBarScheduleItemCollision();
+    }, [attractions]);
 
     // function 1:把新的行程新增到資料庫
     const db_insert_schedule = async () => {
@@ -400,32 +418,31 @@ const ScheduleInsert = ({
                     {attractions.map((attraction, index) => {
                         // 動態建立ref
                         if (!scheduleItemRefs.current[index]) scheduleItemRefs.current[index] = React.createRef();
-                        // TransportBar 可能有多個，這裡假設每個ScheduleItem有4個Bar
                         if (!transportBarRefs.current[index]) transportBarRefs.current[index] = [React.createRef(), React.createRef(), React.createRef(), React.createRef()];
+
                         return (
                             <ScheduleItem
                                 scheduleItemRef={scheduleItemRefs.current[index]}
-                                height={attraction.height} // 使用計算的高度
+                                height={attraction.height}
                                 a_id={attraction.a_id}
                                 key={`attraction-${index}`}
                                 name={attraction.name}
                                 position={attraction.position}
                                 width={attraction.width}
-                                index={index} //目前第幾個，暫時用的（用於後面識別schedule_item）
+                                index={index}
                                 scheduleId={scheduleId}
                                 isDraft={isDraft}
-                                onValueChange={(height, x, y,a_id) => { getChildData(height, x, y,a_id); setTimeout(checkAllBarScheduleItemCollision, 0); }}
+                                onValueChange={(height, x, y,a_id) => { getChildData(height, x, y,a_id); checkAllBarScheduleItemCollision(); }}
                                 editable={true}
                                 onDragStop={() => { handleReorder(); setTimeout(checkAllBarScheduleItemCollision, 0); }}
                                 getTransportMethod={(a_id,value) => getTransportMethod(a_id,value)}
                                 intervalHeight={intervalHeight}
                                 nextAId={attractions.find(a => a.sequence === attraction.sequence + 1)?.a_id ?? null}
                                 editmode={true}
-                                transport_method={attraction.transport_method} // 傳遞交通方式
-                                // 傳遞 barRefs 給 TransportTime
+                                transport_method={attraction.transport_method}
                                 barRefs={transportBarRefs.current[index]}
-                                // 新增 barCollide 狀態
                                 barCollide={barCollide[index] || [false, false, false, false]}
+                                maxBarHeight={barHeightLimits[index]}
                             />
                         );
                     })}

@@ -4,7 +4,7 @@ import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method, barRefs, scheduleItemRef, barCollide }, ref) => {
+const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method, barRefs, scheduleItemRef, barCollide, maxBarHeight }, ref) => {
     // const user = JSON.parse(localStorage.getItem('user'));
     
     const [heightEdit, setheightEdit] = React.useState(height); // 初始高度
@@ -29,24 +29,37 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
         console.log('目前拖拽的 a_id:', draggingAId);
     }
 
-    //function 1:當調整高度停止時
-    const handleResizeStop = (e, direction, ref, delta, position) => {
+
+    //function 1:調整高度進行中
+    const handleResize = (e, direction, ref, delta, position) => {
         setheightEdit(ref.offsetHeight);
-
-        //如果向上調整高度，要更新y軸坐標
         if (["top"].includes(direction)) {
-            setY(position.y); // 更新 y 座標
+            setY(position.y);
         }
-
-        onValueChange(ref.offsetHeight, position.x, position.y,a_id);//回傳到ScheduleInsert
+        onValueChange(ref.offsetHeight, position.x, position.y, a_id);
     };
 
-    // function 2: 當拖拽停止時
+    //function 2:拖拽進行中
+    const handleDrag = (e, d) => {
+        setX(d.x);
+        setY(d.y);
+        onValueChange(heightEdit, d.x, d.y, a_id);
+    };
+
+    //function 3:當調整高度停止時
+    const handleResizeStop = (e, direction, ref, delta, position) => {
+        setheightEdit(ref.offsetHeight);
+        if (["top"].includes(direction)) {
+            setY(position.y);
+        }
+        onValueChange(ref.offsetHeight, position.x, position.y, a_id);
+    };
+
+    // function 4: 當拖拽停止時
     const handleDragStop = (e, d) => {
-        setX(d.x); // 更新 x 座標
-        setY(d.y); // 更新 y 座標
-        console.log(d.y);
-        onValueChange(heightEdit, d.x, d.y,a_id);//回傳到ScheduleInsert
+        setX(d.x);
+        setY(d.y);
+        onValueChange(heightEdit, d.x, d.y, a_id);
     };
 
     // useEffect 1:調整字體大學小
@@ -86,7 +99,9 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
             position={{ x: x, y: y }}
             size={{ width: 100, height: editable ? heightEdit : height }}
             enableResizing={{ top: editable, bottom: editable, right: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+            onResize={handleResize}
             onResizeStop={handleResizeStop}
+            onDrag={handleDrag}
             onDragStop={handleDragStop}
             bounds="parent"
             resizeHandleStyles={{
@@ -134,6 +149,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
             </div>
 
             {/* 交通時間 */}
+
             <TransportTime 
                 intervalHeight={intervalHeight} 
                 a_id={a_id}
@@ -143,6 +159,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                 getTransportMethod={getTransportMethod}
                 barRefs={barRefs}
                 barCollide={barCollide}
+                maxBarHeight={maxBarHeight}
             />
 
         </Rnd>

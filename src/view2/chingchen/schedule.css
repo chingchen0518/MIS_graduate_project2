@@ -180,6 +180,7 @@
 
 .schedule_item {
   position: relative;
+  /* z-index: 10; */
 }
 
 
@@ -384,4 +385,9 @@
 
 .schedule.draft .schedule_header {
   background-color: #ffecb3;
+}
+
+.transport_bar{
+    position: absolute;
+    /* z-index: 5; */
 }

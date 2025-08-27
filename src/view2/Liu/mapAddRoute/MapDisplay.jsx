@@ -146,8 +146,10 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
           `
         });
         
-        // 將地圖視野置中到該景點，使用較小的縮放級別
-        mapService.map.setView(coords, 13);
+        // 將地圖視野置中到該景點，但向上偏移避免被詳細資訊卡片遮擋
+        // 計算偏移量（向北偏移約 0.005 度，大約 550 米）
+        const offsetCoords = [coords[0] - 0.007, coords[1]];
+        mapService.map.setView(offsetCoords, 13);
       };
       
       displayAttraction();

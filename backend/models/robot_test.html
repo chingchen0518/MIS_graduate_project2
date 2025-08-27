@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WebChat 測試頁（robot_test.html）</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif; margin:0; padding:2rem; }
+    h1 { margin: 0 0 .5rem; }
+    .hint { font-size:.95rem; opacity:.8; }
+    .box { margin-top:1.25rem; padding:1rem; border:1px solid #ddd; border-radius:12px; background:#fafafa; }
+    code { background:#f0f0f0; padding:.125rem .25rem; border-radius:4px; }
+  </style>
+
+  <!-- 1) 確保網址至少有 ?，避免外部腳本用 & 接參數時 404 -->
+  <script>
+    (function ensureQueryMark(){ if(!location.search){ history.replaceState(null,'',location.pathname+'?'); }})();
+  </script>
+
+  <!-- 2) 代理 patch：把任何打到遠端主機的請求改寫到本機 /gss（Express 反向代理） -->
+  <script>
+    (function(){
+      const TARGET_ORIGIN = 'https://cai-innoserve.gss.com.tw';
+      const PROXY_PREFIX = '/gss';
+
+      // fetch 代理
+      const _fetch = window.fetch;
+      window.fetch = function(input, init){
+        try{
+          let url = typeof input === 'string' ? input : (input && input.url);
+          if (typeof url === 'string' && url.startsWith(TARGET_ORIGIN)) {
+            const newUrl = url.replace(TARGET_ORIGIN, PROXY_PREFIX);
+            if (typeof input === 'string') {
+              input = newUrl;
+            } else {
+              input = new Request(newUrl, input);
+            }
+          }
+        }catch(e){}
+        return _fetch.apply(this, arguments);
+      };
+
+      // XMLHttpRequest 代理（某些庫會用 XHR）
+      const _open = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function(method, url){
+        try{
+          if (typeof url === 'string' && url.startsWith(TARGET_ORIGIN)) {
+            url = url.replace(TARGET_ORIGIN, PROXY_PREFIX);
+          }
+        }catch(e){}
+        return _open.apply(this, [method, url, ...Array.prototype.slice.call(arguments, 2)]);
+      };
+    })();
+  </script>
+</head>
+<body>
+  <h1>WebChat 測試頁（robot_test.html）</h1>
+  <p class="hint">請用 <code>http://localhost:3000/robot_test.html?</code> 開啟（最後須有 <code>?</code>）。</p>
+  <div class="box">
+    <strong>操作方式</strong>
+    <ol>
+      <li>檔案位置：<code>C:\Users\ROG Strix SCAR\Documents\GitHub\MIS_graduate_project\backend\models\robot_test.html</code></li>
+      <li>啟動代理伺服器：<br>
+        <code>node backend/server-webchat.js</code>
+      </li>
+      <li>瀏覽器開啟：<code>http://localhost:3000/robot_test.html?</code></li>
+      <li>右下角應出現聊天泡泡。</li>
+    </ol>
+  </div>
+
+  <!-- 3) 載入官方腳本（改成走 /gss → Express 反向代理） -->
+  <script>
+    const isDemoSite = false;
+    function loadScript(url, cb){
+      var s = document.createElement('script');
+      s.src = url + '?_=' + new Date().getTime();
+      s.onload = function(){ if(cb) cb(); };
+      document.head.appendChild(s);
+    }
+
+    // 先載 config，再載 loader & 自訂
+    loadScript('/gss/webchat/caiwebchat-config.js', function () {
+      loadScript('/gss/webchat/caiwebchat-loader.js');
+      loadScript('/gss/webchat/bots/travel_questiondemo/custom.js');
+    });
+
+    window.onCaiWebChatLoaded = function () {
+      // 如果你的 botId 不是 travel_questiondemo，請改成實際的
+      window.CaiWebChat?.init({ botId: 'travel_questiondemo' });
+      loadScript('/gss/webchat/bots/travel_questiondemo/customWebChatLoaded.js');
+    };
+
+    window.onConnectFulfill = function () {
+      loadScript('/gss/webchat/bots/travel_questiondemo/customConnectFulfill.js');
+    };
+  </script>
+</body>
+</html>

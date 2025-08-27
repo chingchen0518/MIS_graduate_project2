@@ -5,9 +5,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    port: 5173, // 前端開發用的埠號（可改可不改，預設也是 5173）
     proxy: {
-      '/api': 'http://localhost:3001',
+      '/api': {
+        target: 'http://localhost:3999', // ← 你的後端 Express server
+        changeOrigin: true,              // 修改 Host header，避免 CORS 問題
+      },
     },
   },
 })
-

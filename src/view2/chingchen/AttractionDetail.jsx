@@ -1,20 +1,25 @@
 import React from 'react';
 import './AttractionDetail.css';
 
-const AttractionDetail = ({ attraction }) => {
+const AttractionDetail = ({ attraction, onClose }) => {
   if (!attraction) {
-    return (
-      <div className="attraction_details">
-        <div className="no_selection">
-          <p>請點擊左側的景點卡片來查看詳細資訊</p>
-        </div>
-      </div>
-    );
+    // return (
+    //   <div className="attraction_details">
+    //     <div className="no_selection">
+    //       <p>請點擊左側的景點卡片來查看詳細資訊</p>
+    //     </div>
+    //   </div>
+    // );
+    return null; // 不顯示任何內容
   }
 
   return (
-    <div className="attraction_details">
+    // <div className="attraction_details">
       <div className="attraction_card_layout">
+        <button className="close_button" onClick={onClose}>
+          ×
+        </button>
+        
         <div className="attraction_image">
           <img src={`../../img/${attraction.photo}`} alt={attraction.name} />
         </div>
@@ -69,7 +74,7 @@ const AttractionDetail = ({ attraction }) => {
           </div>
         </div>
       </div>
-    </div>
+    // </div>
   );
 };
 

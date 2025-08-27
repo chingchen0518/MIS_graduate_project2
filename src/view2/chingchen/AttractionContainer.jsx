@@ -46,6 +46,11 @@ const AttractionContainer = ({ usedAttractions = [], currentRoute = null }) => {
         // 保持拖拽狀態，直到頁面重新載入或手動重置
     };
 
+    // 關閉景點詳情
+    const handleCloseDetail = () => {
+        setSelectedAttraction(null);
+    };
+
 //   const handleAddTrip = () => {
 //     setShowTripPlanning(true);
 //   };
@@ -88,7 +93,10 @@ const AttractionContainer = ({ usedAttractions = [], currentRoute = null }) => {
             {/* <div className="map_small_container">
             <MapDisplay />
             </div> */}
-            <AttractionDetail attraction={selectedAttraction} />
+            <AttractionDetail 
+                attraction={selectedAttraction} 
+                onClose={handleCloseDetail}
+            />
         </div>
 
     );

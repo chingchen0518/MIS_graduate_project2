@@ -8,7 +8,7 @@ html, body, #root {
 
 body {
   display: block !important;
-  background: #f6fbff;
+  background: linear-gradient(135deg, #f5f9ff, #dcecff);
   color: #111;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans",
                "Helvetica Neue", Arial, "PingFang TC", "Noto Sans TC", sans-serif;

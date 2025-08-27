@@ -13,8 +13,28 @@ const ScheduleShow = (props) => {
 
     const [hovered, setHovered] = useState(false);
 
-
     var HourIntervalHeight = props.intervalHeight/60;
+
+    // 定義景點分類顏色映射（邊框顏色）
+    const getCategoryColor = (category) => {
+        const colorMap = {
+            // 根據資料庫實際分類名稱對應
+            '歷史文化': 'linear-gradient(135deg, #ffdfba, #ffbf69)', // Culture & Heritage - 橘色漸變
+            '自然景觀': 'linear-gradient(135deg, #bae1ff, #baffc9)', // Scenic Spots - 藍綠色漸變
+            '交通運輸': 'linear-gradient(135deg, #f9a1bc, #fbc4ab)', // Transport Rides - 粉色漸變
+            '探索空間': 'linear-gradient(135deg, #dcd6f7, #a6b1e1)', // Discovery Spaces - 紫色漸變
+            '公共廣場': 'linear-gradient(135deg, #c77dff, #ffd6ff)', // Public Squares - 紫粉色漸變
+            
+            // 保留舊的分類名稱以防萬一
+            '文化古蹟': 'linear-gradient(135deg, #ffdfba, #ffbf69)',
+            '風景名勝': 'linear-gradient(135deg, #bae1ff, #baffc9)',
+            
+            // 預設顏色
+            'default': 'linear-gradient(135deg, #f0f0f0, #d0d0d0)'
+        };
+        
+        return colorMap[category] || colorMap['default'];
+    };
 
     useEffect(() => {
         const calculateWidth = () => {
@@ -186,6 +206,8 @@ const ScheduleShow = (props) => {
                         intervalHeight={props.intervalHeight}
                         nextAId={scheduleItems.find(a => a.sequence === scheduleItem.sequence + 1)?.a_id ?? null}
                         transport_method={scheduleItem.transport_method}
+                        categoryColor={getCategoryColor(scheduleItem.category)} // 傳遞分類顏色
+                        category={scheduleItem.category} // 傳遞分類名稱
                     />
                 ))}
             </div>

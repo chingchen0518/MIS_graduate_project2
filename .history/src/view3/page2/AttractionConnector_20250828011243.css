@@ -1,0 +1,19 @@
+.attraction-connector-container {
+    position: relative;
+}
+
+.attraction-connector-svg {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: none !important;
+    z-index: 1000 !important;
+    overflow: hidden !important;
+    /* 固定在視窗上，覆蓋整個頁面，隱藏超出部分 */
+}
+
+.attraction-connection {
+    stroke-linejoin: round;
+}

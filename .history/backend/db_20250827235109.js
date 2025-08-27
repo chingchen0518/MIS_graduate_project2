@@ -517,7 +517,7 @@ app.post('/api/schedule_vote/:t_id/:s_id/:u_id/:date', (req, res) => {
       }
 
       if (existing.length > 0) {
-        // 如果重複點擊（取消投票），則直接刪除該投票紀錄
+        // 如果重複點擊（取消投票），則刪除該投票紀錄
         if (
           (vote_type === 'like' && existing[0].good === 1) ||
           (vote_type === 'dislike' && existing[0].bad === 1)

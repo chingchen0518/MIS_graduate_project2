@@ -1,0 +1,35 @@
+.attraction-connector-container {
+    position: relative;
+}
+
+.attraction-connector-svg {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: auto !important; /* 改為auto以支持交互 */
+    z-index: 1000 !important;
+    overflow: hidden !important;
+    /* 固定在視窗上，覆蓋整個頁面，隱藏超出部分 */
+}
+
+.attraction-connection {
+    stroke-linejoin: round;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.attraction-connection:hover {
+    filter: brightness(1.2); /* 懸停時稍微提亮 */
+}
+
+/* 高亮狀態 */
+.attraction-connection.highlighted {
+    filter: drop-shadow(0 0 8px currentColor); /* 發光效果 */
+}
+
+/* 暗淡狀態 */
+.attraction-connection.dimmed {
+    filter: brightness(0.5); /* 暗淡效果 */
+}

@@ -163,7 +163,6 @@ function ShowTimeModal({ tripId, deadline, time, stage_date, onClose }) {
         const two = n => (n < 10 ? '0' + n : n);
         deadlineStr = `${deadlineDate.getFullYear()}-${two(deadlineDate.getMonth() + 1)}-${two(deadlineDate.getDate())} ${two(deadlineDate.getHours())}:${two(deadlineDate.getMinutes())}:${two(deadlineDate.getSeconds())}`;
     }
-    console.log('計算後截止時間:', tripId, selectedTime);
     // 儲存按鈕事件
     const handleSave = async () => {
         try {

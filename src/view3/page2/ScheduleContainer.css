@@ -25,10 +25,10 @@
 }
 
 .schedule_container_title {
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-  margin: 0;
+
+  font-size: 22px;
+  font-weight: 800;
+  color: #5078c1;
 }
 
 .schedule_list {

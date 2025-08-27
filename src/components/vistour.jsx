@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from './header.jsx';
-import Login from '../view3/page1/login.jsx';
-import Profile from '../view3/page1/profile.jsx';
+import Part1 from '../view1/part1.jsx';
+import ChooseAttraction from '../view1/part2.jsx';
 import Page1 from '../view2/chingchen/page1.jsx';
 import Page2 from '../view3/page2/page2.jsx';
 import Page3 from '../view3/page3/Page3.jsx';
@@ -37,8 +37,8 @@ const Vistor = () => {
 
 
     let content;
-    if (stage === 'A') content = <Login />;
-    else if (stage === 'B') content = <Profile />;
+    if (stage === 'A') content = <Part1 />;
+    else if (stage === 'B') content = <ChooseAttraction />;
     else if (stage === 'C') content = <Page1 />;
     else if (stage === 'D') content = <Page2 />;
     else if (stage === 'E') content = <Page3 />;

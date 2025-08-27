@@ -162,10 +162,10 @@ function Profile() {
                                             <FontAwesomeIcon icon={faEdit} /> 編輯
                                         </button> */}
 
-                                        <button className="btn" onClick={() => navigate('/')}>
+                                        <button className="all_btn" onClick={() => navigate('/part1')}>
                                             <FontAwesomeIcon icon={faPlus} /> 新增旅程
                                         </button>
-                                        <button className="btn" onClick={() => navigate('/logout')}>
+                                        <button className="all_btn" onClick={() => navigate('/logout')}>
                                             <FontAwesomeIcon icon={faSignOutAlt} /> 登出
                                         </button>
                                     </div>

@@ -22,6 +22,11 @@ const AttractionContainer = ({ usedAttractions = [], selectedCategories = [], on
         }
     };
 
+    // 關閉景點詳情
+    const handleCloseDetail = () => {
+        setSelectedAttraction(null);
+    };
+
 
     //   const handleAddTrip = () => {
     //     setShowTripPlanning(true);
@@ -44,7 +49,10 @@ const AttractionContainer = ({ usedAttractions = [], selectedCategories = [], on
                     <MapDisplay selectedAttraction={selectedAttraction} />
                 </div>
 
-                <AttractionDetail attraction={selectedAttraction} />
+                <AttractionDetail 
+                    attraction={selectedAttraction} 
+                    onClose={handleCloseDetail}
+                />
             </div>
         </div>
 

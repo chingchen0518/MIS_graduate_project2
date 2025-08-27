@@ -7,17 +7,26 @@
 
 /* 餐廳卡片樣式 */
 .attraction_card_layout {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 30%;
+  width: 90%;
+  padding: 12px;
+  box-sizing: border-box;
   display: flex;
   gap: 12px;
-  height:fit-content;
-  /* min-height: 120px; */
-  max-height: 160px;
+  max-height: none;
   background: white;
-  border-radius: 8px;
-  padding: 8px;
-  box-sizing: border-box;
+  border-radius: 12px;
   border: 1px solid #e0e0e0;
-  position: relative;
+  z-index: 1000;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .attraction_image {
@@ -237,4 +246,41 @@
 
 .details_section li:last-child {
     border-bottom: none;
+}
+
+/* 關閉按鈕樣式 */
+.close_button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: #f0f0f0;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.2s ease;
+  z-index: 1001;
+  border: none;
+  outline: none;
+}
+
+.close_button:hover {
+  background: #e0e0e0;
+  color: #333;
+  transform: scale(1.1);
+}
+
+.close_button:active {
+  transform: scale(0.95);
+}
+
+.close_button:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
 }

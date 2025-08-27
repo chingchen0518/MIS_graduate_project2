@@ -57,6 +57,7 @@ const Page1 = () => {
 
             <SelectedScheduleContext.Provider value={{ selectedScheduleId, setSelectedScheduleId }}>
                 <div className="page1">
+                    <Header />
                     <div className="page1_content">
                         <AttractionContainer usedAttractions={usedAttractions} currentRoute={currentRoute} />
                         <ScheduleContainer

@@ -2,11 +2,11 @@
   width: 70%;
   /* max-width: 820px; */
   height: 100%;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
+  /* background-color: #f5f7fa; */
+  /* border: 1px solid #e0e0e0; */
   border-radius: 6px;
   padding: 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); */
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -15,13 +15,14 @@
 
 .schedule_container_header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 10px;
   padding-bottom: 8px;
   border-bottom: 1px solid #f0f0f0;
   height: 40px;
   box-sizing: border-box;
+  gap: 20px;
 }
 
 .schedule_container_title {
@@ -48,8 +49,8 @@
   top: 0;
   width: 70px;
   z-index: 2;
-  background: #fff;
-  border-right: 1px solid #eee;
+  /* background: #fff; */
+  /* border-right: 1px solid #eee; */
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -74,22 +75,26 @@
   box-sizing: border-box;
 }
 
+/* 滾動條寬度 */
 .schedule_list::-webkit-scrollbar {
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
+/* 滾動條軌道 */
 .schedule_list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+  background: #c4ddee;             /* 淺藍色軌道 */
+  border-radius: 999px;            /* 圓角軌道 */
 }
 
+/* 滾動條滑塊 */
 .schedule_list::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
+  border-radius: 999px;            /* 圓角滑塊 */
+  background: #9FC0DE;             /* 藍色滑塊 */
 }
 
 .schedule_list::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #9FC0DE;       
 }
 
 .add_schedule_placeholder {

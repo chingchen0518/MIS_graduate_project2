@@ -5,7 +5,7 @@ import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
 import './ScheduleItem.css'; // 引入樣式文件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = ({ editmode = false, a_id, name, position, width, index, s_id, onMove, editable = false, height, onValueChange, onDragStop, intervalHeight, nextAId, isSelected = false }) => {
+const ScheduleItem = ({ editmode = false, a_id, name, position, width, index, s_id, onMove, editable = false, height, onValueChange, onDragStop, intervalHeight, nextAId, isSelected = false, categoryColor, category }) => {
     if (editmode) {
         console.log("name:", name, "aId:", a_id, "nextAid", nextAId);
     }
@@ -78,11 +78,9 @@ const ScheduleItem = ({ editmode = false, a_id, name, position, width, index, s_
             <div
                 className="schedule_item"
                 style={{
-                    backgroundColor: '#f0f0f0',
-                    border: '1px solid black',
-                    borderRadius: '5px',
-                    padding: '10px',
-                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+                    borderRadius: '8px',
+                    padding: '3px', // 邊框厚度
+                    boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
                     opacity: isDragging ? 0.5 : 1,
                     cursor: editable ? 'move' : 'default',
                     boxSizing: 'border-box',
@@ -92,8 +90,25 @@ const ScheduleItem = ({ editmode = false, a_id, name, position, width, index, s_
                     width: '100%',
                     height: '100%',
                     position: 'relative',
+                    transition: 'all 0.3s ease',
+                    // 漸層背景作為邊框
+                    background: categoryColor ? categoryColor : 'linear-gradient(45deg, #d0d0d0, #d0d0d0)',
                 }}
             >
+                {/* 內容容器 */}
+                <div
+                    style={{
+                        background: '#ffffff',
+                        borderRadius: '5px',
+                        padding: '7px',
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        position: 'relative',
+                    }}
+                >
                 {/* 愛心標記 - 當景點被選中時顯示 */}
                 {isSelected && (
                     <div className="heart-marker">
@@ -116,6 +131,7 @@ const ScheduleItem = ({ editmode = false, a_id, name, position, width, index, s_
                     }}
                 >
                     {name}
+                </div>
                 </div>
             </div>
 

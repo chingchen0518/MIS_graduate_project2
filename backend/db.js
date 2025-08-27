@@ -159,7 +159,7 @@ app.get('/api/travel', (req, res) => {
 
 
 // ====================================view 1===========================
-const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_data.json');
+const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_data.json'); 
 const filePath_ReAttraction = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
 const filePath_comment = path.join(__dirname, 'models', 'data', 'comment_data.json');
 const filePath_trip = path.join(__dirname, 'models', 'data', 'trip_data.json');
@@ -281,9 +281,9 @@ app.post('/api/switchvote', async (req, res) => {
   }
 
   const currentVoteCol = type === 'like' ? 'vote_like' : 'vote_love';
-  const currentWhoCol = type === 'like' ? 'who_like' : 'who_love';
-  const otherVoteCol = type === 'like' ? 'vote_love' : 'vote_like';
-  const otherWhoCol = type === 'like' ? 'who_love' : 'who_like';
+  const currentWhoCol  = type === 'like' ? 'who_like'  : 'who_love';
+  const otherVoteCol   = type === 'like' ? 'vote_love' : 'vote_like';
+  const otherWhoCol    = type === 'like' ? 'who_love'  : 'who_like';
 
   try {
     const data = JSON.parse(fs.readFileSync(filePath_ReAttraction, 'utf8'));
@@ -305,7 +305,7 @@ app.post('/api/switchvote', async (req, res) => {
     targetAttr.who_love = targetAttr.who_love || [];
 
     const inCurrent = targetAttr[currentWhoCol].includes(user_id);
-    const inOther = targetAttr[otherWhoCol].includes(user_id);
+    const inOther   = targetAttr[otherWhoCol].includes(user_id);
 
     // 1) 如果已經投過 → 移除（減 1）
     if (inCurrent) {
@@ -1499,6 +1499,39 @@ app.get('/api/fake-data', async (req, res) => {
       });
     });
 
+    // 插入 join
+    const joinSql = `
+      INSERT INTO \`Join\` (u_id, t_id, color, seed)
+      VALUES
+        (1, 1, '#FF5733', 0),
+        (2, 1, '#33A1FF', 0),
+        (3, 1, '#33FF99', 0),
+
+        (2, 2, '#FFAA33', 0),
+        (1, 2, '#3399FF', 0),
+        (4, 2, '#FF33A8', 0),
+
+        (3, 3, '#66FF33', 0),
+        (1, 3, '#FF6633', 0),
+        (5, 3, '#3366FF', 0),
+
+        (4, 4, '#FF3333', 0),
+        (2, 4, '#33FFCC', 0),
+        (5, 4, '#FF9933', 0),
+
+        (5, 5, '#9966FF', 0),
+        (3, 5, '#FF6699', 0),
+        (1, 5, '#66CCFF', 0)
+    `;
+
+    await new Promise((resolve, reject) => {
+      connection.query(joinSql, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+
 
     // 插入 Schedule
     const scheduleSql = `
@@ -1540,7 +1573,7 @@ app.get('/api/fake-data', async (req, res) => {
       });
     });
 
-
+    
 
     // 插入Attraction
     const attractionSql = `
@@ -1574,38 +1607,7 @@ app.get('/api/fake-data', async (req, res) => {
         resolve();
       });
     });
-    // 插入 join
-    const joinSql = `
-      INSERT INTO \`Join\` (u_id, t_id, color, seed)
-      VALUES
-        (1, 1, '#FF5733', 0),
-        (2, 1, '#33A1FF', 0),
-        (3, 1, '#33FF99', 0),
-
-        (2, 2, '#FFAA33', 0),
-        (1, 2, '#3399FF', 0),
-        (4, 2, '#FF33A8', 0),
-
-        (3, 3, '#66FF33', 0),
-        (1, 3, '#FF6633', 0),
-        (5, 3, '#3366FF', 0),
-
-        (4, 4, '#FF3333', 0),
-        (2, 4, '#33FFCC', 0),
-        (5, 4, '#FF9933', 0),
-
-        (5, 5, '#9966FF', 0),
-        (3, 5, '#FF6699', 0),
-        (1, 5, '#66CCFF', 0)
-    `;
-
-    await new Promise((resolve, reject) => {
-      connection.query(joinSql, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
-
+    
     //support
     const supportSql = `
       INSERT INTO Support (u_id, a_id, t_id, reason, onelove, twolove)
@@ -2397,6 +2399,57 @@ app.get('/api/user/:uid', (req, res) => {
     });
   });
 });
+app.get('/api/user/:uid', (req, res) => {
+  const { uid } = req.params;
+  // 查詢 User
+  const userSql = `
+    SELECT *
+    FROM User
+    WHERE u_id = ?
+    LIMIT 1
+  `;
+  connection.query(userSql, [uid], (err, userResults) => {
+    if (err) {
+      console.error('❌ 查詢使用者失敗：', err.message);
+      return res.status(500).json({ error: '伺服器錯誤' });
+    }
+    if (userResults.length === 0) {
+      return res.status(404).json({ error: '找不到該使用者' });
+    }
+    const user = userResults[0];
+
+    // 查詢 Join 取得所有 t_id
+    const joinSql = `SELECT t_id FROM \`Join\` WHERE u_id = ?`;
+    connection.query(joinSql, [uid], (err2, joinResults) => {
+      if (err2) {
+        console.error('❌ 查詢 Join 失敗：', err2.message);
+        return res.status(500).json({ error: '伺服器錯誤' });
+      }
+      const tIds = joinResults.map(j => j.t_id);
+      if (tIds.length === 0) {
+        // 沒有參加任何行程
+        return res.json({ ...user, trips: [] });
+      }
+
+      // 查詢 Trip 時，直接回傳 s_date，不用 new Date 處理
+      const tripSql = `
+      SELECT t_id, title, stage, DATE_FORMAT(s_date, '%Y-%m-%d') AS s_date
+      FROM Trip
+      WHERE t_id IN (?)`;
+      connection.query(tripSql, [tIds], (err3, tripResults) => {
+        if (err3) {
+          console.error('❌ 查詢 Trip 失敗：', err3.message);
+          return res.status(500).json({ error: '伺服器錯誤' });
+        }
+        // 回傳 user 資料 + trips 陣列
+        res.json({
+          ...user,
+          trips: tripResults // [{ t_id, title, stage }]
+        });
+      });
+    });
+  });
+});
 
 app.post('/api/update-trip-time', (req, res) => {
   const { t_id, time } = req.body;   // 改成 t_id
@@ -2413,7 +2466,6 @@ app.post('/api/update-trip-time', (req, res) => {
     });
   });
 });
-
 
 // 不可以刪除！！！
 app.listen(port, '0.0.0.0', () => {

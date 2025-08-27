@@ -170,7 +170,7 @@ function ShowTimeModal({ tripId, deadline, time, stage_date, onClose }) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    t_id: tripId,   // 改成符合 DB 欄位名稱
+                    t_id: tripId,
                     time: selectedTime
                 })
             });

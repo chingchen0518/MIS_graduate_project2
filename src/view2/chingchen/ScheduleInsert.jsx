@@ -1,3 +1,21 @@
+// 節流工具函式（每 interval ms 最多執行一次 fn）
+function throttle(fn, interval) {
+    let last = 0;
+    let timer = null;
+    return function(...args) {
+        const now = Date.now();
+        if (now - last >= interval) {
+            last = now;
+            fn.apply(this, args);
+        } else {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                last = Date.now();
+                fn.apply(this, args);
+            }, interval - (now - last));
+        }
+    };
+}
 import React, { useState, useRef, lazy, Suspense, useEffect } from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { useDrop, useDragLayer } from 'react-dnd';
@@ -82,6 +100,12 @@ const ScheduleInsert = ({
             return updated;
         });
     };
+
+    // 拖拽時用節流版碰撞檢查，50ms 一次
+    const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+
+    // 讓子元件可即時呼叫
+    window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
 
 
     // 監聽 attractions 變動時初始化 barCollide 與 barHeightLimits

@@ -5,6 +5,7 @@ const DateSelector = ({ t_id = 1, onDateChange }) => {
   const [tripDates, setTripDates] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchTripDates = async () => {
@@ -33,32 +34,50 @@ const DateSelector = ({ t_id = 1, onDateChange }) => {
     fetchTripDates();
   }, [t_id]);
 
-  const handleDateChange = (event) => {
-    const newDate = event.target.value;
-    setSelectedDate(newDate);
+  const handleDateSelect = (date, displayText) => {
+    setSelectedDate(date);
+    setIsOpen(false);
     
     if (onDateChange) {
-      onDateChange(newDate);
+      onDateChange(date);
     }
   };
 
+  const toggleDropdown = () => {
+    if (!loading) {
+      setIsOpen(!isOpen);
+    }
+  };
+
+  // 找到當前選中日期的顯示文字
+  const selectedDisplayText = tripDates.find(d => d.date === selectedDate)?.displayText || '載入中...';
+
   return (
-    <select
-      value={selectedDate}
-      onChange={handleDateChange}
-      className="date-selector"
-      disabled={loading}
-    >
-      {loading ? (
-        <option>載入中...</option>
-      ) : (
-        tripDates.map((dateObj) => (
-          <option key={dateObj.date} value={dateObj.date}>
-            {dateObj.displayText}
-          </option>
-        ))
+    <div className={`date-selector dropdown ${isOpen ? 'open' : ''}`} onClick={toggleDropdown}>
+      {selectedDisplayText}
+      <span className="caret">▾</span>
+      
+      {isOpen && !loading && (
+        <div className="dropdown-menu">
+          {tripDates.length > 0 ? (
+            tripDates.map((dateObj) => (
+              <div 
+                key={dateObj.date} 
+                className="dd-item" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDateSelect(dateObj.date, dateObj.displayText);
+                }}
+              >
+                {dateObj.displayText}
+              </div>
+            ))
+          ) : (
+            <div className="dd-item">無可用日期</div>
+          )}
+        </div>
       )}
-    </select>
+    </div>
   );
 };
 

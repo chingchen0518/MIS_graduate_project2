@@ -4,7 +4,7 @@ import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method, barRefs, scheduleItemRef, barCollide, maxBarHeight }, ref) => {
+const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method, barRefs, scheduleItemRef, barCollide, maxBarHeight,categoryColor  }, ref) => {
     // const user = JSON.parse(localStorage.getItem('user'));
     
     const [heightEdit, setheightEdit] = React.useState(height); // 初始高度
@@ -117,7 +117,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                     borderRadius: '8px',
                     padding: '3px', // 邊框厚度
                     boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
-                    zIndex: 100,
+                    zIndex: 10,
                     // opacity: isDragging ? 0.5 : 1,
                     cursor: editable ? 'move' : 'default',
                     boxSizing: 'border-box',
@@ -145,22 +145,22 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                         position: 'relative',
                     }}
                 >
-                {/* 内容 */}
-                <div
-                    className="attraction_name"
-                    style={{
-                        fontWeight: 'bold',
-                        color: '#333',
-                        fontSize: fontSize, // 這行是重點
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        width: '100%',
-                        textAlign: 'center',
-                    }}
-                >
-                    {name}
-                </div>
+                    {/* 内容 */}
+                    <div
+                        className="attraction_name"
+                        style={{
+                            fontWeight: 'bold',
+                            color: '#333',
+                            fontSize: fontSize, // 這行是重點
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            width: '100%',
+                            textAlign: 'center',
+                        }}
+                    >
+                        {name}
+                    </div>
                 </div>
             </div>
 

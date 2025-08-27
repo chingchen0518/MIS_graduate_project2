@@ -1,4 +1,23 @@
+// 節流工具函式（每 interval ms 最多執行一次 fn）
+function throttle(fn, interval) {
+    let last = 0;
+    let timer = null;
+    return function(...args) {
+        const now = Date.now();
+        if (now - last >= interval) {
+            last = now;
+            fn.apply(this, args);
+        } else {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                last = Date.now();
+                fn.apply(this, args);
+            }, interval - (now - last));
+        }
+    };
+}
 import React, { useState, useRef, lazy, Suspense, useEffect } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import { function1 } from './TransportTime';
@@ -81,6 +100,12 @@ const ScheduleInsert = ({
             return updated;
         });
     };
+
+    // 拖拽時用節流版碰撞檢查，50ms 一次
+    const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+
+    // 讓子元件可即時呼叫
+    window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
 
 
     // 監聽 attractions 變動時初始化 barCollide 與 barHeightLimits
@@ -395,7 +420,8 @@ const ScheduleInsert = ({
     // console.log("🚖attractions:", attractions);
 
     return (
-        <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
+        <ErrorBoundary>
+            <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
             <div className="schedule_header">
 
                 <div className="budget_display">$350</div>
@@ -454,7 +480,8 @@ const ScheduleInsert = ({
                 </div>
                 )}
             </div>
-        </div>
+            </div>
+        </ErrorBoundary>
     );
 };
 

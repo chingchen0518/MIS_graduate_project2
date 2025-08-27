@@ -1,23 +1,75 @@
 .date-selector {
-  padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 12px;
-  background-color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 36px;
+  padding: 0 14px;
+  
+  background: #e1eff8;
+  color: #2e5684;
+  
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
-  min-width: 50px;
-  flex-shrink: 0;
-  width: auto;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  position: relative;
+}
+
+.date-selector.dropdown {
+  position: relative;
+}
+
+.date-selector.dropdown .caret { 
+  margin-left: 8px; 
+  font-size: 14px; 
+  display: inline-block;           
+  transition: transform 0.2s ease; 
+}
+
+.date-selector.dropdown.open .caret {
+  transform: rotate(180deg);
+  font-size: 14px;       
+}
+
+.date-selector .dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 120px;
+  width: max-content;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px #0002;
+  padding: 6px;
+  z-index: 20;
+}
+
+.date-selector .dropdown-menu .dd-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.date-selector .dropdown-menu .dd-item:hover { 
+  background: #f6f9ff; 
+}
+
+.date-selector .dropdown-menu .dd-item.selected { 
+  background: #e1eff8; 
 }
 
 .date-selector:hover {
-  border-color: #007bff;
+  background-color: #e0f1f5;
+  border-color: #9cb0d8;
 }
 
 .date-selector:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  background-color: #e0f1f5;
+  border-color: #9cb0d8;
 }
 
 .date-selector:disabled {

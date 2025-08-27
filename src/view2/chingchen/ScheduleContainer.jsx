@@ -139,7 +139,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
     return (
         <div className="schedule_container">
             <div className="schedule_container_header">
-                <h2 className="schedule_container_title">旅遊行程</h2>
+                <h2 className="schedule_container_title">🚩旅遊行程</h2>
                 <div className="date-selector-wrapper">
                 <DateSelector 
                     t_id={1} //@==@記得改掉@==@

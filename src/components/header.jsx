@@ -153,7 +153,7 @@ function Header() {
         <span className="header-title">{tripTitle}</span>
         <span className="header-timer">
           <span className="header-timer-icon">
-            {user?.uid === creatorUid && stage < 5 ? (
+            {user?.uid === creatorUid  && stage < 5 ? (
               <button
                 className="header-gear-btn"
                 style={{

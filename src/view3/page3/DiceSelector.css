@@ -1,59 +1,145 @@
-.dice-container {
+/* 外層 */
+.dice-only-wrapper {
   display: flex;
-  gap: 20px;
-  background-color: #fefefe;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.tied-trips {
-  flex: 1;
-  background-color: #d6e6f7;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.tied-trips h2 {
-  color: #5078c1;
-}
-
-.tied-trips ul {
-  list-style: none;
-  padding: 0;
-}
-
-.tied-trips li {
-  background-color: #ffe8b6;
-  margin: 5px 0;
-  padding: 8px;
-  border-radius: 5px;
-  color: #000;
-}
-
-.dice-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: flex-start;
+  padding: 24px;
+  min-height: 60vh;
+  background: #fefefe;
+}
+
+.panel {
+  width: 100%;
+  max-width: 640px;
+  background: #d6e6f7;           /* 淡藍 */
+  border-radius: 12px;
+  padding: 20px 24px 28px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #5078c1;                 /* 主色 */
+  margin-bottom: 14px;
+}
+
+/* 骰子舞台 */
+.dice-stage {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  perspective: 1000px;
+  margin-top: 6px;
+}
+
+.dice {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(.21,.72,.22,.99);
+}
+
+.face {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 3px #e9eef9, 0 8px 18px rgba(0,0,0,0.08);
+  display: grid;
+}
+
+/* 六個面的基本定位（距離中心 60px） */
+.face.one  { transform: rotateY(   0deg) translateZ(60px); }
+.face.two  { transform: rotateY(  90deg) translateZ(60px); }
+.face.three{ transform: rotateY( 180deg) translateZ(60px); }
+.face.four { transform: rotateY( -90deg) translateZ(60px); }
+.face.five { transform: rotateX(  90deg) translateZ(60px); }
+.face.six  { transform: rotateX( -90deg) translateZ(60px); }
+
+/* 點數樣式 */
+.pip {
+  width: 18px;
+  height: 18px;
+  background: #5078c1; /* 主色 */
+  border-radius: 50%;
+  position: absolute;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.08);
+}
+
+.center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.tl { top: 18px; left: 18px; }
+.tr { top: 18px; right: 18px; }
+.bl { bottom: 18px; left: 18px; }
+.br { bottom: 18px; right: 18px; }
+.ml { top: 50%; left: 18px; transform: translateY(-50%); }
+.mr { top: 50%; right: 18px; transform: translateY(-50%); }
+
+/* 骰子停止時，顯示某面朝上（配合 JS 的 show-1~6） */
+.show-1 { transform: rotateX(0deg) rotateY(0deg); }
+.show-2 { transform: rotateX(0deg) rotateY(-90deg); }
+.show-3 { transform: rotateX(0deg) rotateY(180deg); }
+.show-4 { transform: rotateX(0deg) rotateY(90deg); }
+.show-5 { transform: rotateX(-90deg) rotateY(0deg); }
+.show-6 { transform: rotateX(90deg) rotateY(0deg); }
+
+/* 轉動動畫（在 rolling 狀態下套用） */
+@keyframes diceSpin {
+  0%   { transform: rotateX(0) rotateY(0); }
+  25%  { transform: rotateX(360deg) rotateY(0); }
+  50%  { transform: rotateX(360deg) rotateY(360deg); }
+  75%  { transform: rotateX(720deg) rotateY(360deg); }
+  100% { transform: rotateX(720deg) rotateY(720deg); }
+}
+.dice.rolling {
+  animation: diceSpin 1.2s cubic-bezier(.25,.8,.25,1);
+}
+
+/* 控制區與按鈕 */
+.controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
 }
 
 .roll-btn {
   background-color: #5078c1;
-  color: white;
-  padding: 10px 20px;
+  color: #fff;
+  padding: 12px 22px;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
+  transition: transform .08s ease, box-shadow .2s ease, background-color .2s ease;
+  box-shadow: 0 8px 18px rgba(80,120,193,0.28);
+}
+
+.roll-btn:hover {
+  background-color: #6a9ae2; /* 接近 #94cae7 的 hover 感 */
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(80,120,193,0.34);
+}
+
+.roll-btn:active {
+  transform: translateY(0px);
 }
 
 .roll-btn:disabled {
-  opacity: 0.6;
+  opacity: .7;
   cursor: not-allowed;
 }
 
-.result {
-  margin-top: 20px;
-  font-size: 18px;
-  color: #428cef;
+/* 結果徽章 */
+.result-badge {
+  margin: 18px auto 0;
+  width: fit-content;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #fefefe;
+  color: #5078c1;
+  border: 2px solid #94cae7;
+  box-shadow: 0 6px 14px rgba(148,202,231,0.35);
+  font-weight: 700;
 }

@@ -40,8 +40,9 @@ const MapDisplay = ({ selectedAttraction }) => {
     luzern: { name: '琉森', coords: [47.0502, 8.3093] }
   };
 
+  // 初始化地圖 - 只在組件掛載時執行一次
   useEffect(() => {
-    if (mapRef.current) {
+    if (mapRef.current && !mapService.map) {
       console.log('初始化地圖...');
       try {
         // 設定交通方式配置
@@ -54,15 +55,21 @@ const MapDisplay = ({ selectedAttraction }) => {
       } catch (error) {
         console.error('地圖初始化失敗:', error);
       }
-      
-      return () => {
-        try {
-          mapService.destroy();
-        } catch (error) {
-          console.error('地圖清理失敗:', error);
-        }
-      };
     }
+  }, []); // 只在組件掛載時執行一次
+
+  // 組件卸載時清理地圖
+  useEffect(() => {
+    return () => {
+      try {
+        if (mapService && typeof mapService.destroy === 'function') {
+          mapService.destroy();
+          console.log('地圖已清理');
+        }
+      } catch (error) {
+        console.error('地圖清理失敗:', error);
+      }
+    };
   }, []);
 
   // 處理選中景點的顯示

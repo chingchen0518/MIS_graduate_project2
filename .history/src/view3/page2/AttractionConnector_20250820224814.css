@@ -1,0 +1,25 @@
+.attraction-connector-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 5; /* 提高z-index確保顯示在景點上方 */
+    overflow: visible;
+}
+
+.attraction-connection {
+    stroke: #2196F3; /* 藍色，正常連線 */
+    stroke-width: 2px;
+    fill: none;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.attraction-connection.intersecting {
+    stroke: #FF4444; /* 紅色，相交的連線 */
+}
+
+.attraction-connection:hover {
+    opacity: 1;
+    stroke-width: 3px;
+}

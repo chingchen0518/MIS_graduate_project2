@@ -3,6 +3,7 @@ import './signin.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe, faEnvelope, faUser, faLock, faAddressCard } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const initialState = {
     name: "",
@@ -16,6 +17,9 @@ function Signin() {
     const [form, setForm] = useState(initialState);
     const [errors, setErrors] = useState([]);
     const navigate = useNavigate();
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const invite = params.get('invite');
 
     const handleChange = (e) => {
         const { name, type, files, value } = e.target;
@@ -49,6 +53,7 @@ function Signin() {
                 formData.append('account', form.account);
                 formData.append('password', form.password);
                 if (form.avatar) formData.append('avatar', form.avatar);
+                if (invite) formData.append('invite', invite);
 
                 const response = await fetch('/api/view3_signin', {
                     method: 'POST',
@@ -59,10 +64,11 @@ function Signin() {
 
                 if (response.ok) {
                     alert('註冊成功！');
+                    localStorage.setItem('user', JSON.stringify(data.user));
                     setForm(initialState);
                     setErrors([]);
                     setTimeout(() => {
-                        navigate('/Login');
+                        navigate('/Profile');
                     }, 500);
                 } else {
                     setErrors([data?.message || `註冊失敗 (狀態碼: ${response.status})`]);
@@ -75,22 +81,22 @@ function Signin() {
 
 
     return (
-        <div className="page">
+        <div className="all_page">
             <div className="floating-shapes">
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
             </div>
-            <div className="container">
-                <div className="header">
-                    <div className="logo">
-                        <div className="logo-icon">
+            <div className="main_container">
+                <div className="all_header">
+                    <div className="all_logo">
+                        <div className="all_logo-icon">
                             <FontAwesomeIcon icon={faGlobe} />
                         </div>
-                        <h1 className="title">Vistour</h1>
+                        <h1 className="all_title">Vistour</h1>
                     </div>
-                    <p className="subtitle">註冊新帳號</p>
+                    <p className="all_subtitle">註冊新帳號</p>
                 </div>
 
                 <div className="body">
@@ -105,9 +111,9 @@ function Signin() {
                     )}
 
                     <form onSubmit={handleSubmit} encType="multipart/form-data" method="POST">
-                        <div className="form-group">
+                        <div className="all_form-group">
                             <label htmlFor="name">姓名</label>
-                            <div className="input-with-icon">
+                            <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faUser} />
                                 <input
                                     type="text"
@@ -122,9 +128,9 @@ function Signin() {
                             </div>
                         </div>
 
-                        <div className="form-group">
+                        <div className="all_form-group">
                             <label htmlFor="email">電子郵件</label>
-                            <div className="input-with-icon">
+                            <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faEnvelope} />
                                 <input
                                     type="email"
@@ -138,9 +144,9 @@ function Signin() {
                                 />
                             </div>
                         </div>
-                        <div className="form-group">
+                        <div className="all_form-group">
                             <label htmlFor="account">帳號</label>
-                            <div className="input-with-icon">
+                            <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faAddressCard} />
                                 <input
                                     type="text"
@@ -156,9 +162,9 @@ function Signin() {
                         </div>
 
                         <div className="form-row">
-                            <div className="form-group">
+                            <div className="all_form-group">
                                 <label htmlFor="password">密碼</label>
-                                <div className="input-with-icon">
+                                <div className="all_input-with-icon">
                                     <FontAwesomeIcon icon={faLock} />
                                     <input
                                         type="password"
@@ -173,9 +179,9 @@ function Signin() {
                                 </div>
                             </div>
 
-                            <div className="form-group">
+                            <div className="all_form-group">
                                 <label htmlFor="confirmPassword">確認密碼</label>
-                                <div className="input-with-icon">
+                                <div className="all_input-with-icon">
                                     <FontAwesomeIcon icon={faLock} />
                                     <input
                                         type="password"
@@ -190,9 +196,9 @@ function Signin() {
                                 </div>
                             </div>
                         </div>
-                        <div className="form-group">
+                        <div className="all_form-group">
                             <label htmlFor="avatar">新增頭貼</label>
-                            <div className="input-with-icon">
+                            <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faAddressCard} />
                                 <input
                                     type="file"
@@ -205,11 +211,11 @@ function Signin() {
                             </div>
                         </div>
 
-                        <button type="submit" className="btn">註冊</button>
+                        <button type="submit" className="all_btn">註冊</button>
                     </form>
                 </div>
 
-                <div className="footer">
+                <div className="all_footer">
                     <p className="login-link">
                         已有帳號？ <a href="/Login">立即登入</a>
                     </p>

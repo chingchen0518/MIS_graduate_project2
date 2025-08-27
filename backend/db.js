@@ -159,7 +159,7 @@ app.get('/api/travel', (req, res) => {
 
 
 // ====================================view 1===========================
-const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_data.json'); 
+const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_data.json');
 const filePath_ReAttraction = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
 const filePath_comment = path.join(__dirname, 'models', 'data', 'comment_data.json');
 const filePath_trip = path.join(__dirname, 'models', 'data', 'trip_data.json');
@@ -281,9 +281,9 @@ app.post('/api/switchvote', async (req, res) => {
   }
 
   const currentVoteCol = type === 'like' ? 'vote_like' : 'vote_love';
-  const currentWhoCol  = type === 'like' ? 'who_like'  : 'who_love';
-  const otherVoteCol   = type === 'like' ? 'vote_love' : 'vote_like';
-  const otherWhoCol    = type === 'like' ? 'who_love'  : 'who_like';
+  const currentWhoCol = type === 'like' ? 'who_like' : 'who_love';
+  const otherVoteCol = type === 'like' ? 'vote_love' : 'vote_like';
+  const otherWhoCol = type === 'like' ? 'who_love' : 'who_like';
 
   try {
     const data = JSON.parse(fs.readFileSync(filePath_ReAttraction, 'utf8'));
@@ -305,7 +305,7 @@ app.post('/api/switchvote', async (req, res) => {
     targetAttr.who_love = targetAttr.who_love || [];
 
     const inCurrent = targetAttr[currentWhoCol].includes(user_id);
-    const inOther   = targetAttr[otherWhoCol].includes(user_id);
+    const inOther = targetAttr[otherWhoCol].includes(user_id);
 
     // 1) 如果已經投過 → 移除（減 1）
     if (inCurrent) {
@@ -1576,27 +1576,27 @@ app.get('/api/fake-data', async (req, res) => {
     });
     // 插入 join
     const joinSql = `
-      INSERT INTO \`Join\` (u_id, t_id, color)
+      INSERT INTO \`Join\` (u_id, t_id, color, seed)
       VALUES
-        (1, 1, '#FF5733'),
-        (2, 1, '#33A1FF'),
-        (3, 1, '#33FF99'),
+        (1, 1, '#FF5733', 0),
+        (2, 1, '#33A1FF', 0),
+        (3, 1, '#33FF99', 0),
 
-        (2, 2, '#FFAA33'),
-        (1, 2, '#3399FF'),
-        (4, 2, '#FF33A8'),
+        (2, 2, '#FFAA33', 0),
+        (1, 2, '#3399FF', 0),
+        (4, 2, '#FF33A8', 0),
 
-        (3, 3, '#66FF33'),
-        (1, 3, '#FF6633'),
-        (5, 3, '#3366FF'),
+        (3, 3, '#66FF33', 0),
+        (1, 3, '#FF6633', 0),
+        (5, 3, '#3366FF', 0),
 
-        (4, 4, '#FF3333'),
-        (2, 4, '#33FFCC'),
-        (5, 4, '#FF9933'),
+        (4, 4, '#FF3333', 0),
+        (2, 4, '#33FFCC', 0),
+        (5, 4, '#FF9933', 0),
 
-        (5, 5, '#9966FF'),
-        (3, 5, '#FF6699'),
-        (1, 5, '#66CCFF')
+        (5, 5, '#9966FF', 0),
+        (3, 5, '#FF6699', 0),
+        (1, 5, '#66CCFF', 0)
     `;
 
     await new Promise((resolve, reject) => {

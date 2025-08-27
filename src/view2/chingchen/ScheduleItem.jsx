@@ -114,11 +114,9 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                 ref={scheduleItemRef}
                 className="schedule_item"
                 style={{
-                    backgroundColor: '#f0f0f0',
-                    border: '1px solid black',
-                    borderRadius: '5px',
-                    // padding: '10px',
-                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+                    borderRadius: '8px',
+                    padding: '3px', // 邊框厚度
+                    boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
                     zIndex: 100,
                     // opacity: isDragging ? 0.5 : 1,
                     cursor: editable ? 'move' : 'default',
@@ -128,8 +126,25 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                     justifyContent: 'center',
                     width: '100%',
                     height: '100%',
+                    transition: 'all 0.3s ease',
+                    // 漸層背景作為邊框
+                    background: categoryColor ? categoryColor : 'linear-gradient(45deg, #d0d0d0, #d0d0d0)',
                 }}
             >
+                {/* 內容容器 */}
+                <div
+                    style={{
+                        background: '#ffffff',
+                        borderRadius: '5px',
+                        padding: '7px',
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        position: 'relative',
+                    }}
+                >
                 {/* 内容 */}
                 <div
                     className="attraction_name"
@@ -145,6 +160,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                     }}
                 >
                     {name}
+                </div>
                 </div>
             </div>
 

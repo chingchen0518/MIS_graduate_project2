@@ -383,7 +383,7 @@ const ScheduleInsert = ({
                 <div className="budget_display">$350</div>
                 
                 <div className="button_display">
-                    <button className="confirm_btn" onClick={handleConfirm}>確認</button>
+                    <button className="confirm_btn" onClick={handleConfirm}>確定</button>
                     <button className="cancel_btn" onClick={handleCancel}>取消</button>
                     <button className="generate_btn" onClick={handleGenerate}>AI</button>
                 </div>

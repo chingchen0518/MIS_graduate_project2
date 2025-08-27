@@ -1,4 +1,5 @@
 import React, { useState, useRef, lazy, Suspense, useEffect } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import { function1 } from './TransportTime';
@@ -395,7 +396,8 @@ const ScheduleInsert = ({
     // console.log("🚖attractions:", attractions);
 
     return (
-        <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
+        <ErrorBoundary>
+            <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
             <div className="schedule_header">
 
                 <div className="budget_display">$350</div>
@@ -454,7 +456,8 @@ const ScheduleInsert = ({
                 </div>
                 )}
             </div>
-        </div>
+            </div>
+        </ErrorBoundary>
     );
 };
 

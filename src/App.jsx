@@ -55,6 +55,7 @@ import Page2 from './view3/page2/page2.jsx';
 import Page3 from './view3/page3/Page3.jsx';
 
 import HomePage from './components/homepage.jsx'
+import Vistour from './components/vistour.jsx'
 import Header from './components/header.jsx'
 import './App.css';
 import GeminiChat from './view2/chingchen/TEST API';
@@ -101,10 +102,15 @@ function App() {
                     <Route path="/ResizableBox" element={<ResizableBox />} />
                     <Route path="/MyRndList" element={<MyRndList />} />
                     <Route path="/TEST_API" element={<GeminiChat />} />
+
                     <Route path="/TEST_API_GPT" element={<TEST_API_GPT />} />
                     <Route path="/ScheduleTest" element={<ScheduleTest />} />
+
+                    <Route path="/Vistour" element={<Vistour />} />
+
                 </Routes>
             </Router>
+
         </MyContext.Provider>
     );
 }

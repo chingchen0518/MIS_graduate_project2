@@ -34,8 +34,11 @@
 .modal-colon {
     font-size: 16px;
 }
-.modal-buttons {
+.time-modal-buttons {
     text-align: right;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 .modal-close-btn {
     background-color: #007bff;
@@ -44,4 +47,69 @@
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
+}
+
+.wheel-container {
+    text-align: center;
+    font-family: sans-serif;
+}
+
+.wheel-pickers {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.scroll-picker {
+    position: relative;
+    width: 60px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.scroll-list {
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: y mandatory;
+}
+
+.scroll-list::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-item {
+    scroll-snap-align: center;
+    font-size: 20px;
+    line-height: 40px;
+    height: 40px;
+    text-align: center;
+    color: #888;
+    user-select: none;
+}
+
+.scroll-item.selected {
+    color: #000;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.scroll-item.empty {
+    color: transparent;
+    pointer-events: none;
+}
+
+.scroll-mask {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    height: 40px;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    pointer-events: none;
+    box-sizing: border-box;
 }

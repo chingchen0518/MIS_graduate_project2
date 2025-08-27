@@ -60,7 +60,6 @@ import Header from './components/header.jsx'
 import './App.css';
 import GeminiChat from './view2/chingchen/TEST API';
 import TEST_API_GPT from './view2/chingchen/TEST_API_GPT';
-import TimePickerWheel from './components/TimePickerWheel';
 
 //create context
 export const MyContext = createContext();
@@ -108,7 +107,6 @@ function App() {
                     <Route path="/ScheduleTest" element={<ScheduleTest />} />
 
                     <Route path="/Vistour" element={<Vistour />} />
-                    <Route path="/TimePickerWheel" element={<TimePickerWheel />} />
 
                 </Routes>
             </Router>

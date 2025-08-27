@@ -2398,6 +2398,23 @@ app.get('/api/user/:uid', (req, res) => {
   });
 });
 
+app.post('/api/update-trip-time', (req, res) => {
+  const { t_id, time } = req.body;   // 改成 t_id
+  if (!t_id || !time) {
+    return res.status(400).json({ message: '缺少 t_id 或 time' });
+  }
+  const updateSql = 'UPDATE trip SET time = ? WHERE t_id = ?';
+  connection.query(updateSql, [time, t_id], (err, result) => {
+    if (err) return res.status(500).json({ message: '伺服器錯誤' });
+    res.status(200).json({
+      message: '更新成功',
+      t_id,
+      time,
+    });
+  });
+});
+
+
 // 不可以刪除！！！
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);

@@ -16,6 +16,7 @@ function Header() {
   const [finishedDay, setFinishedDay] = useState(0);
   const [creatorUid, setCreatorUid] = useState(null);
   const [time, setTime] = useState(0);
+  const [stage_date, setStageDate] = useState('');
   const [now, setNow] = useState(new Date());
   const [hasUpdated, setHasUpdated] = useState(false); // ✅ 只更新一次
 
@@ -66,6 +67,7 @@ function Header() {
       setFinishedDay(data.finished_day);
       setCreatorUid(data.creatorUid);
       setTime(data.time);
+      setStageDate(data.stage_date);
       setHasUpdated(false); // 重置 flag
     } catch (e) {
       console.error('API 錯誤:', e);
@@ -171,9 +173,14 @@ function Header() {
             )}
             {showTimeModal && (
               <ShowTimeModal
+                tripId={tripId}
+                stage_date={stage_date}
                 deadline={deadline}
                 time={time}
-                onClose={() => setShowTimeModal(false)}
+                onClose={(shouldRefresh) => {
+                  setShowTimeModal(false);
+                  if (shouldRefresh) fetchTripData(); // 儲存後刷新 header
+                }}
               />
             )}
           </span>

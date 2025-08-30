@@ -343,23 +343,7 @@ const ScheduleInsert = ({
                 }
             }
         }
-
     };
-
-    // if (isRectOverlap(itemRect, barRect)) {
-                        // 計算 y 軸距離
-
-                        // collided = true;
-    //                 }
-    //             }
-    //             if (collided && minDistance !== null) {
-    //                 // 動態調整高度為 min(距離, 原始高度)
-    //                 const newHeight = Math.max(0, Math.min(minDistance, originalBarHeights[i][j]));
-    //                 barRef.current.style.height = newHeight + 'px';
-    //             } else {
-    //                 // 恢復原始高度
-    //                 barRef.current.style.height = originalBarHeights[i][j] + 'px';
-    //             }
 
     // 拖拽時用節流版碰撞檢查，50ms 一次，並註冊到 window 讓子元件可全域呼叫
     const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);

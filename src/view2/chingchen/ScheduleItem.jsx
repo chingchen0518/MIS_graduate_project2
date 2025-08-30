@@ -113,6 +113,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                 bottom: handleStyle,
             }}
             key={`${a_id}`}
+            style={{ zIndex: sequence }}
         >
             <div
                 ref={scheduleItemRef}

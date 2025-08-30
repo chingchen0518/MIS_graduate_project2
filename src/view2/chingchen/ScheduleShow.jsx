@@ -199,6 +199,7 @@ const ScheduleShow = (props) => {
                         a_id={scheduleItem.a_id}
                         s_id={scheduleItem.id}
                         name={scheduleItem.name}
+                        sequence={scheduleItem.sequence}
                         position={{ x: scheduleItem.x, y: scheduleItem.y }} // x和y的位置，傳入object
                         width={scheduleWidths} // 使用計算出的寬度
                         height={scheduleItem.height} // 使用從資料庫獲取的高度

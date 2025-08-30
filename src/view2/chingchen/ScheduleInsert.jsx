@@ -424,7 +424,7 @@ const ScheduleInsert = ({
             <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
             <div className="schedule_header">
 
-                <div className="budget_display">$350</div>
+                {/* <div className="budget_display">$350</div> */}
                 
                 <div className="button_display">
                     <button className="cancel_btn" onClick={handleCancel}>取消</button>

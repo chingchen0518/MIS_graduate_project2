@@ -63,7 +63,7 @@ const AttractionDetail = ({ attraction, onClose }) => {
             </div>
           </div>
           
-          <div className="price_section">
+          {/* <div className="price_section">
             <span className="price_label">預算：</span>
             <input 
               type="text" 
@@ -71,7 +71,7 @@ const AttractionDetail = ({ attraction, onClose }) => {
               placeholder={`$${attraction.budget || 0}`}
               defaultValue={`$${attraction.budget || 0}`}
             />
-          </div>
+          </div> */}
         </div>
       </div>
     // </div>

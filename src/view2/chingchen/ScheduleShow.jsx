@@ -183,7 +183,7 @@ const ScheduleShow = (props) => {
                         <img alt="User" src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png"/>
                     </div>
                     
-                    <div className="budget_display">$350</div>
+                    {/* <div className="budget_display">$350</div> */}
                     
                     <span className="schedule_date">{props.title}</span>
             </div>

@@ -283,30 +283,35 @@ const ScheduleInsert = ({
 
     //function 10:檢查所有 bar 與所有 schedule_item（非自己）碰撞
     const checkAllBarScheduleItemCollision = () => {
-        setBarCollide(prev => {
-            const updated = attractions.map((_, i) => Array(4).fill(false));
-            for (let i = 0; i < attractions.length; i++) {
-                for (let j = 0; j < 4; j++) {
-                    const barRef = transportBarRefs.current[i]?.[j];
-                    if (!barRef?.current) continue;
-                    const barRect = barRef.current.getBoundingClientRect();
-                    let collide = false;
-                    for (let k = 0; k < attractions.length; k++) {
-                        if (k === i) continue;
-                        const itemRef = scheduleItemRefs.current[k];
-                        if (!itemRef?.current) continue;
-                        const itemRect = itemRef.current.getBoundingClientRect();
-                        if (isRectOverlap(itemRect, barRect)) {
-                            collide = true;
-                            break;
-                        }
+        //     const updated = attractions.map((_, i) => Array(4).fill(false));
+        for (let i = 0; i < attractions.length; i++) {
+            for (let j = 0; j < 4; j++) {
+                const barRef = transportBarRefs.current[i]?.[j];
+                if (!barRef?.current) continue;
+                const barRect = barRef.current.getBoundingClientRect();
+                let collide = false;
+                for (let k = 0; k < attractions.length; k++) {
+                    if (k === i) continue;
+                    const itemRef = scheduleItemRefs.current[k];
+                    if (!itemRef?.current) continue;
+                    const itemRect = itemRef.current.getBoundingClientRect();
+                    if (!isRectOverlap(itemRect, barRect)){
+                        // 恢復時
+                        barRef.current.children[0].classList.remove('bar_collide');
+                    }else{
+                        // 碰撞時
+                        barRef.current.children[0].classList.add('bar_collide');
+                        break;
                     }
-                    updated[i][j] = collide;
                 }
             }
-            return updated;
-        });
+        }
+
     };
+
+    // 拖拽時用節流版碰撞檢查，50ms 一次，並註冊到 window 讓子元件可全域呼叫
+    const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+    window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
 
     //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({

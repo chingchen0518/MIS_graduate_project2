@@ -46,7 +46,11 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
             // 直接設置 Rnd 的位置
             rndRef.current.updatePosition({ x: d.x, y: d.y });
         }
-        // 不 setX/setY
+        // // 拖曳時即時碰撞偵測
+        if (window.throttleCheckAllBarScheduleItemCollision) {
+            window.throttleCheckAllBarScheduleItemCollision();
+        }
+
     };
 
     //function 3:當調整高度停止時

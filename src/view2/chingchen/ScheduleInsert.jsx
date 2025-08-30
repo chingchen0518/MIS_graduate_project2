@@ -63,49 +63,12 @@ const ScheduleInsert = ({
     // barHeightLimits 狀態：每個ScheduleItem的maxBarHeight
     const [barHeightLimits, setBarHeightLimits] = useState([]);
 
-    // 碰撞檢查工具
-    function isRectOverlap(r1, r2) {
-        if (!r1 || !r2) return false;
-        return (
-            r1.left < r2.right &&
-            r1.right > r2.left &&
-            r1.top < r2.bottom &&
-            r1.bottom > r2.top
-        );
-    }
-
-    // 檢查所有 bar 與所有 schedule_item（非自己）碰撞
-    const checkAllBarScheduleItemCollision = () => {
-        setBarCollide(prev => {
-            const updated = attractions.map((_, i) => Array(4).fill(false));
-            for (let i = 0; i < attractions.length; i++) {
-                for (let j = 0; j < 4; j++) {
-                    const barRef = transportBarRefs.current[i]?.[j];
-                    if (!barRef?.current) continue;
-                    const barRect = barRef.current.getBoundingClientRect();
-                    let collide = false;
-                    for (let k = 0; k < attractions.length; k++) {
-                        if (k === i) continue;
-                        const itemRef = scheduleItemRefs.current[k];
-                        if (!itemRef?.current) continue;
-                        const itemRect = itemRef.current.getBoundingClientRect();
-                        if (isRectOverlap(itemRect, barRect)) {
-                            collide = true;
-                            break;
-                        }
-                    }
-                    updated[i][j] = collide;
-                }
-            }
-            return updated;
-        });
-    };
 
     // 拖拽時用節流版碰撞檢查，50ms 一次
-    const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+    // const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
 
     // 讓子元件可即時呼叫
-    window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
+    // window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
 
 
     // 監聽 attractions 變動時初始化 barCollide 與 barHeightLimits
@@ -307,9 +270,42 @@ const ScheduleInsert = ({
 
 
 
-    //function 9:顯示某個景點的營業時間
-    const showOperatingTime = () => {
-        //還沒收到前面的時間
+    //function 9:碰撞檢查工具
+    function isRectOverlap(r1, r2) {
+        if (!r1 || !r2) return false;
+        return (
+            r1.left < r2.right &&
+            r1.right > r2.left &&
+            r1.top < r2.bottom &&
+            r1.bottom > r2.top
+        );
+    }
+
+    //function 10:檢查所有 bar 與所有 schedule_item（非自己）碰撞
+    const checkAllBarScheduleItemCollision = () => {
+        setBarCollide(prev => {
+            const updated = attractions.map((_, i) => Array(4).fill(false));
+            for (let i = 0; i < attractions.length; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const barRef = transportBarRefs.current[i]?.[j];
+                    if (!barRef?.current) continue;
+                    const barRect = barRef.current.getBoundingClientRect();
+                    let collide = false;
+                    for (let k = 0; k < attractions.length; k++) {
+                        if (k === i) continue;
+                        const itemRef = scheduleItemRefs.current[k];
+                        if (!itemRef?.current) continue;
+                        const itemRect = itemRef.current.getBoundingClientRect();
+                        if (isRectOverlap(itemRect, barRect)) {
+                            collide = true;
+                            break;
+                        }
+                    }
+                    updated[i][j] = collide;
+                }
+            }
+            return updated;
+        });
     };
 
     //use Drop(處理drag and drop事件),還沒確認的
@@ -451,6 +447,7 @@ const ScheduleInsert = ({
                                 scheduleItemRef={scheduleItemRefs.current[index]}
                                 height={attraction.height}
                                 a_id={attraction.a_id}
+                                sequence={attraction.sequence}
                                 key={`attraction-${index}`}
                                 name={attraction.name}
                                 position={attraction.position}

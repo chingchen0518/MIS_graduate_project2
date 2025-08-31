@@ -185,6 +185,9 @@ const ScheduleShow = (props) => {
     useLayoutEffect(() => {
         if (scheduleItems.length > 0) {
             checkAllBarScheduleItemCollision();
+            // 再多偵測幾次，確保圖片等載入完成
+            setTimeout(() => checkAllBarScheduleItemCollision(), 1000);
+            setTimeout(() => checkAllBarScheduleItemCollision(), 3000);
         }
     }, [scheduleItems, scheduleWidths]);
 

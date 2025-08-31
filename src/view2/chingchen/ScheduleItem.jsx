@@ -126,7 +126,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                     borderRadius: '8px',
                     padding: '3px', // 邊框厚度
                     boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
-                    zIndex: sequence,
+                    zIndex: 1,
                     // opacity: isDragging ? 0.5 : 1,
                     cursor: editable ? 'move' : 'default',
                     boxSizing: 'border-box',

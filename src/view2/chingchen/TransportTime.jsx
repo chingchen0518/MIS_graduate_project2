@@ -116,7 +116,7 @@ const TransportBar = React.forwardRef(function TransportBar({ a_id,type, value, 
                     borderRadius: 4,
                     fontSize: 13,
                     whiteSpace: 'nowrap',
-                    zIndex: 9999,
+                    zIndex: 2,
                     opacity: 1
 
                 }}>

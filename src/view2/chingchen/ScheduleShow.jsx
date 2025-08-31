@@ -1,5 +1,5 @@
 //不可編輯的schedule
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useLayoutEffect } from 'react';
 
 import { SelectedScheduleContext } from './page1.jsx';
 import './schedule.css';
@@ -101,6 +101,8 @@ const ScheduleShow = (props) => {
     //function 2:碰撞檢查工具
         function isRectOverlap(r1, r2) {
             if (!r1 || !r2) return false;
+            // console.log("r1:",r1);
+            // console.log("r2:",r2);
             return (
                 r1.left < r2.right &&
                 r1.right > r2.left &&
@@ -131,6 +133,7 @@ const ScheduleShow = (props) => {
     };
 
     // function 4:處理高度和顔色
+    // 參考 ScheduleInsert 的碰撞偵測寫法
     const checkAllBarScheduleItemCollision = () => {
         for (let i = 0; i < scheduleItems.length; i++) {
             
@@ -139,9 +142,15 @@ const ScheduleShow = (props) => {
 
                
                 if (!barRef?.current) continue;
-                
+
+                // 先還原高度和 class
+                if (barRef.current.children[0]) {
+                    // barRef.current.children[0].style.height = '';
+                    barRef.current.children[0].classList.remove('bar_collide');
+                }
+
                 const barRect = barRef.current.getBoundingClientRect();
-                
+                let collided = false;
                 for (let k = 0; k < scheduleItems.length; k++) {
 
                     if (k === i) continue;
@@ -150,26 +159,34 @@ const ScheduleShow = (props) => {
                     
                     if (!itemRef?.current) continue;
                     const itemRect = itemRef.current.getBoundingClientRect();
-                    if (isRectOverlap(itemRect, barRect)){
+                    console.log("itemRect:",itemRect)
+                    console.log("barRect",barRect);
+                    // if (isRectOverlap(itemRect, barRect)){
+                    if (isRectOverlap(itemRect, barRect)){    
+
+                        console.log("abcdefg");
                         // 碰撞時
-                        barRef.current.children[0].classList.add('bar_collide');
-                        barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect,99999) + 'px';
+                        if (barRef.current.children[0]) {
+                            console.log("abcdefg");
+                            barRef.current.children[0].classList.add('bar_collide');
+                            // 如需高度調整可加上：
+                            barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect, 99999) + 'px';
+                        }
+                        collided = true;
                         break;
                     }
                 }
+                // 無碰撞時已還原高度與 class，無需額外處理
             }
         }
     };
 
-    useEffect(() => {
-    // 等待 DOM 完全渲染
-    if (scheduleItems.length > 0) {
-        setTimeout(() => {
+
+    useLayoutEffect(() => {
+        if (scheduleItems.length > 0) {
             checkAllBarScheduleItemCollision();
-        }, 0);
-        // 或用 requestAnimationFrame(() => checkAllBarScheduleItemCollision());
-    }
-    }, [scheduleItems]);
+        }
+    }, [scheduleItems, scheduleWidths]);
 
     // 點擊與 hover 處理
     // 點擊時將選取狀態交由 Context 控制，並顯示/隱藏路線

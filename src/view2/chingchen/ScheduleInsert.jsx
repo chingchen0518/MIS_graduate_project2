@@ -304,7 +304,7 @@ const ScheduleInsert = ({
     };
 
     const originalBarHeights = Array.from({ length: attractions.length }, () => Array(4).fill(null));
-
+    
     //function 11:檢查所有 bar 與所有 schedule_item（非自己）碰撞
     const checkAllBarScheduleItemCollision = () => {
         
@@ -314,7 +314,6 @@ const ScheduleInsert = ({
                 const barRef = transportBarRefs.current[i]?.[j];
 
                 if (!originalBarHeights[i][j] && barRef?.current) {
-                    // console.log("123");
                     originalBarHeights[i][j] = barRef.current.getBoundingClientRect().height;
                 }
 
@@ -333,7 +332,7 @@ const ScheduleInsert = ({
                     if (!isRectOverlap(itemRect, barRect)){
                         // 恢復時
                         barRef.current.children[0].classList.remove('bar_collide');
-                        barRef.current.style.height = updateBarHeights(barRect, itemRect,originalBarHeights[i][j]) + 'px';
+                        barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect,originalBarHeights[i][j]) + 'px';
                     }else{
                         // 碰撞時
                         barRef.current.children[0].classList.add('bar_collide');

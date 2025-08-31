@@ -1,5 +1,7 @@
 .bar.bar_collide {
-    background-color: red;
+    /* background-color: red; */
+    border:3px rgb(245, 2, 2) solid;
+    opacity:0.5;
 }
 
 .car{

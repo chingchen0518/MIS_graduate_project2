@@ -159,7 +159,7 @@ app.get('/api/travel', (req, res) => {
 
 
 // ====================================view 1===========================
-const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_data.json'); 
+const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_data.json');
 const filePath_ReAttraction = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
 const filePath_comment = path.join(__dirname, 'models', 'data', 'comment_data.json');
 const filePath_trip = path.join(__dirname, 'models', 'data', 'trip_data.json');
@@ -281,9 +281,9 @@ app.post('/api/switchvote', async (req, res) => {
   }
 
   const currentVoteCol = type === 'like' ? 'vote_like' : 'vote_love';
-  const currentWhoCol  = type === 'like' ? 'who_like'  : 'who_love';
-  const otherVoteCol   = type === 'like' ? 'vote_love' : 'vote_like';
-  const otherWhoCol    = type === 'like' ? 'who_love'  : 'who_like';
+  const currentWhoCol = type === 'like' ? 'who_like' : 'who_love';
+  const otherVoteCol = type === 'like' ? 'vote_love' : 'vote_like';
+  const otherWhoCol = type === 'like' ? 'who_love' : 'who_like';
 
   try {
     const data = JSON.parse(fs.readFileSync(filePath_ReAttraction, 'utf8'));
@@ -305,7 +305,7 @@ app.post('/api/switchvote', async (req, res) => {
     targetAttr.who_love = targetAttr.who_love || [];
 
     const inCurrent = targetAttr[currentWhoCol].includes(user_id);
-    const inOther   = targetAttr[otherWhoCol].includes(user_id);
+    const inOther = targetAttr[otherWhoCol].includes(user_id);
 
     // 1) 如果已經投過 → 移除（減 1）
     if (inCurrent) {
@@ -1200,9 +1200,15 @@ app.post('/api/share-trip', async (req, res) => {
           return res.status(200).json({ message: 'User has already joined the trip' });
         }
 
+        // 隨機色號產生
+        function getRandomColor() {
+          return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        }
+        const color = getRandomColor();
+
         // 尚未加入 → 插入 Join
-        const insertJoinSql = 'INSERT INTO `Join` (t_id, u_id) VALUES (?, ?)';
-        connection.query(insertJoinSql, [tripId, userId], (insertErr) => {
+        const insertJoinSql = 'INSERT INTO `Join` (t_id, u_id, color) VALUES (?, ?, ?)';
+        connection.query(insertJoinSql, [tripId, userId, color], (insertErr) => {
           if (insertErr) {
             console.error('❌ Failed to insert Join:', insertErr);
             return res.status(500).json({ message: 'Server error (Failed to join trip)' });
@@ -1237,7 +1243,7 @@ Wish you a pleasant journey!
       });
     } else {
       // 使用者不存在 → 寄邀請信
-  const subject = `You have been added to the trip "${tripTitle}"!`;
+      const subject = `You have been added to the trip "${tripTitle}"!`;
       const body =
         'Hello,\n\n' +
         `You have been invited to join the trip: "${tripTitle}"\n\n` +
@@ -1331,6 +1337,11 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
         // 如果有 invite，做旅程加入
         if (invite) {
           const decodedInvite = decodeURIComponent(invite);
+          // 隨機色號產生
+          function getRandomColor() {
+            return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+          }
+          const color = getRandomColor();
           // 查詢所有 Trip
           const tripSql = 'SELECT t_id, hashedTid FROM Trip WHERE hashedTid IS NOT NULL AND hashedTid != ""';
           connection.query(tripSql, async (tripErr, trips) => {
@@ -1343,8 +1354,8 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
                 const match = await bcrypt.compare(String(trip.t_id), decodedInvite);
                 if (match) {
                   // 找到對應 t_id，插入 Join
-                  const joinSql = 'INSERT INTO `Join` (t_id, u_id) VALUES (?, ?)';
-                  connection.query(joinSql, [trip.t_id, user.u_id], (joinErr) => {
+                  const joinSql = 'INSERT INTO `Join` (t_id, u_id, color) VALUES (?, ?, ?)';
+                  connection.query(joinSql, [trip.t_id, user.u_id, color], (joinErr) => {
                     if (joinErr) {
                       console.error('❌ Failed to insert Join:', joinErr);
                     }
@@ -1573,7 +1584,7 @@ app.get('/api/fake-data', async (req, res) => {
       });
     });
 
-    
+
 
     // 插入Attraction
     const attractionSql = `
@@ -1607,7 +1618,7 @@ app.get('/api/fake-data', async (req, res) => {
         resolve();
       });
     });
-    
+
     //support
     const supportSql = `
       INSERT INTO Support (u_id, a_id, t_id, reason, onelove, twolove)
@@ -2414,6 +2425,55 @@ app.post('/api/update-trip-time', (req, res) => {
       time,
     });
   });
+});
+
+app.post('/api/trip-create', async (req, res) => {
+  try {
+    const { title, country, time, s_date, e_date, s_time, e_time, u_id } = req.body;
+    const stage = 'B';
+    const finished_day = `0`;
+
+    // 檢查必填欄位
+    if (!title || !country || !time || !s_date || !e_date || !s_time || !e_time || !u_id) {
+      return res.status(400).json({ message: 'Please fill in all required fields.' });
+    }
+
+    const sql = `
+      INSERT INTO Trip (title, country, time, s_date, e_date, s_time, e_time, u_id, stage, stage_date, finished_day)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
+    `;
+    connection.query(
+      sql,
+      [title, country, time, s_date, e_date, s_time, e_time, u_id, stage, finished_day],
+      (err, result) => {
+        if (err) {
+          console.error('❌ Failed to create trip:', err);
+          return res.status(500).json({ message: 'Server error (Failed to create trip)' });
+        }
+        const tripId = result.insertId;
+
+        // 隨機色號產生
+        function getRandomColor() {
+          return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        }
+        const color = getRandomColor();
+
+        // 插入 Join
+        const joinSql = 'INSERT INTO `Join` (u_id, t_id, color) VALUES (?, ?, ?)';
+        connection.query(joinSql, [u_id, tripId, color], (joinErr) => {
+          if (joinErr) {
+            console.error('❌ Failed to insert Join:', joinErr);
+            // Trip 已建立，Join失敗也回傳成功，但可加提示
+            return res.status(200).json({ message: 'Trip created, but failed to join', tripId });
+          }
+          res.status(200).json({ message: 'Trip and Join created successfully!', tripId, color });
+        });
+      }
+    );
+  } catch (error) {
+    console.error('❌ Error in trip-create:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // 不可以刪除！！！

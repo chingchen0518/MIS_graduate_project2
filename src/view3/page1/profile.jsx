@@ -161,7 +161,7 @@ function Profile() {
                                             <FontAwesomeIcon icon={faEdit} /> 編輯
                                         </button> */}
 
-                                        <button className="all_btn" onClick={() => navigate('/part1')}>
+                                        <button className="all_btn" onClick={() => navigate('/Backend')}>
                                             <FontAwesomeIcon icon={faPlus} /> Trips Attended
                                         </button>
                                         <button className="all_btn" onClick={() => navigate('/logout')}>

@@ -23,11 +23,11 @@ const ForgotPassword = () => {
         if (step === 1) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!email) {
-                setError('請輸入電子郵件！');
+                setError('Please enter your email!');
                 return;
             }
             if (!emailRegex.test(email)) {
-                setError('請輸入有效的電子郵件格式');
+                setError('Please enter a valid email address');
                 return;
             }
 
@@ -43,29 +43,29 @@ const ForgotPassword = () => {
                 setLoading(false);
 
                 if (response.ok) {
-                    setSuccess(data.message || '驗證成功');
+                    setSuccess(data.message || 'Verification successful');
                     setTimeout(() => {
                         setStep(2);
                         setSuccess('');
                     }, 500);
                 } else {
-                    setError(data.message || '無法驗證電子郵件');
+                    setError(data.message || 'Unable to verify email');
                 }
             } catch (err) {
                 setLoading(false);
-                setError('伺服器錯誤，請稍後再試');
+                setError('Server error, please try again later');
             }
         } else if (step === 2) {
             if (!newPassword || !confirmPassword) {
-                setError('請輸入並確認新密碼');
+                setError('Please enter and confirm your new password');
                 return;
             }
             if (newPassword !== confirmPassword) {
-                setError('兩次輸入的密碼不一致');
+                setError('Passwords do not match');
                 return;
             }
             if (newPassword.length < 6) {
-                setError('密碼必須至少6個字符');
+                setError('Password must be at least 6 characters');
                 return;
             }
 
@@ -84,16 +84,16 @@ const ForgotPassword = () => {
                 setLoading(false);
 
                 if (response.ok) {
-                    setSuccess(data.message || '密碼已成功重設！您可以回去登入囉～');
+                    setSuccess(data.message || 'Password reset successful! You can log in now.');
                     setTimeout(() => {
                         navigate('/Login');
                     }, 1000);
                 } else {
-                    setError(data.message || '密碼重設失敗');
+                    setError(data.message || 'Password reset failed');
                 }
             } catch (err) {
                 setLoading(false);
-                setError('伺服器錯誤，請稍後再試');
+                setError('Server error, please try again later');
             }
         }
     };
@@ -114,7 +114,7 @@ const ForgotPassword = () => {
                         </div>
                         <h1 className="all_title">Vistour</h1>
                     </div>
-                    <p className="all_subtitle">你的旅遊好幫手</p>
+                    <p className="all_subtitle">Your travel assistant</p>
                 </div>
                 <div className="body">
                     {success && (
@@ -134,14 +134,14 @@ const ForgotPassword = () => {
                         {step === 1 ? (
                             <>
                                 <div className="all_form-group">
-                                    <label htmlFor="email">電子郵件</label>
+                                    <label htmlFor="email">Email</label>
                                     <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faEnvelope} />
                                         <input
                                             type="email"
                                             id="email"
                                             className="form-control"
-                                            placeholder="請輸入您的電子郵件地址"
+                                            placeholder="Please enter your email address"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value.trim())}
                                             required
@@ -149,22 +149,22 @@ const ForgotPassword = () => {
                                     </div>
                                 </div>
                                 <p className="forget_text">
-                                    我們將向您發送密碼重設說明。<br />
-                                    如果您記不住註冊時使用的電子郵件，<br />
-                                    請聯繫客服。
+                                    We will send you instructions to reset your password.<br />
+                                    If you don't remember the email you registered with,<br />
+                                    please contact customer service.
                                 </p>
                             </>
                         ) : (
                             <>
                                 <div className="all_form-group">
-                                    <label htmlFor="newPassword">新密碼</label>
+                                    <label htmlFor="newPassword">New Password</label>
                                     <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faLock} />
                                         <input
                                             type="password"
                                             id="newPassword"
                                             className="form-control"
-                                            placeholder="請輸入新密碼"
+                                            placeholder="Please enter your new password"
                                             value={newPassword}
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             required
@@ -173,14 +173,14 @@ const ForgotPassword = () => {
                                     </div>
                                 </div>
                                 <div className="all_form-group">
-                                    <label htmlFor="confirmPassword">確認密碼</label>
+                                    <label htmlFor="confirmPassword">Confirm Password</label>
                                     <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faLock} />
                                         <input
                                             type="password"
                                             id="confirmPassword"
                                             className="form-control"
-                                            placeholder="請再次輸入新密碼"
+                                            placeholder="Please confirm your new password"
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             required
@@ -194,12 +194,12 @@ const ForgotPassword = () => {
                             className="all_btn"
                             disabled={loading}
                         >
-                            {loading ? '處理中...' : step === 1 ? '請求重設密碼' : '提交新密碼'}
+                            {loading ? 'Processing...' : step === 1 ? 'Request Password Reset' : 'Submit New Password'}
                         </button>
                     </form>
                 </div>
                 <div className="all_footer">
-                    記得密碼？ <a href="/Login">立即登入</a>
+                    Remember your password? <a href="/Login">Log in now</a>
                 </div>
             </div>
         </div>

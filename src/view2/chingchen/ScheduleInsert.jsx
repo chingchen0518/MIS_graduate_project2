@@ -22,6 +22,7 @@ import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import { function1 } from './TransportTime';
 import { fetchAttractions, buildPrompt, scheduleGenerate } from './AI_generate_schedule.js'; 
+import { min } from 'd3';
 
 // 使用 lazy 進行按需加載
 const ScheduleItem = lazy(() => import('./ScheduleItem'));
@@ -63,49 +64,12 @@ const ScheduleInsert = ({
     // barHeightLimits 狀態：每個ScheduleItem的maxBarHeight
     const [barHeightLimits, setBarHeightLimits] = useState([]);
 
-    // 碰撞檢查工具
-    function isRectOverlap(r1, r2) {
-        if (!r1 || !r2) return false;
-        return (
-            r1.left < r2.right &&
-            r1.right > r2.left &&
-            r1.top < r2.bottom &&
-            r1.bottom > r2.top
-        );
-    }
-
-    // 檢查所有 bar 與所有 schedule_item（非自己）碰撞
-    const checkAllBarScheduleItemCollision = () => {
-        setBarCollide(prev => {
-            const updated = attractions.map((_, i) => Array(4).fill(false));
-            for (let i = 0; i < attractions.length; i++) {
-                for (let j = 0; j < 4; j++) {
-                    const barRef = transportBarRefs.current[i]?.[j];
-                    if (!barRef?.current) continue;
-                    const barRect = barRef.current.getBoundingClientRect();
-                    let collide = false;
-                    for (let k = 0; k < attractions.length; k++) {
-                        if (k === i) continue;
-                        const itemRef = scheduleItemRefs.current[k];
-                        if (!itemRef?.current) continue;
-                        const itemRect = itemRef.current.getBoundingClientRect();
-                        if (isRectOverlap(itemRect, barRect)) {
-                            collide = true;
-                            break;
-                        }
-                    }
-                    updated[i][j] = collide;
-                }
-            }
-            return updated;
-        });
-    };
 
     // 拖拽時用節流版碰撞檢查，50ms 一次
-    const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+    // const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
 
     // 讓子元件可即時呼叫
-    window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
+    // window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
 
 
     // 監聽 attractions 變動時初始化 barCollide 與 barHeightLimits
@@ -307,10 +271,82 @@ const ScheduleInsert = ({
 
 
 
-    //function 9:顯示某個景點的營業時間
-    const showOperatingTime = () => {
-        //還沒收到前面的時間
+    //function 9:碰撞檢查工具
+    function isRectOverlap(r1, r2) {
+        if (!r1 || !r2) return false;
+        return (
+            r1.left < r2.right &&
+            r1.right > r2.left &&
+            r1.top < r2.bottom &&
+            r1.bottom > r2.top
+        );
+    }
+    
+    //function 10:高度更新工具
+    const updateBarHeights = (current_barRef,current_itemRect,originalBarHeight) => {
+        let distance = null;
+        // barRect 在 itemRect 上方
+        if (current_barRef.top < current_itemRect.top) {
+            distance = current_itemRect.top - current_barRef.top;
+        } else if (current_barRef.bottom > current_itemRect.bottom) {
+            distance = current_barRef.bottom - current_itemRect.bottom;
+        } else {
+            // bar 在 item 內部或完全重疊
+            distance = 0;
+        }
+        // 取最小距離
+        let minDistance = null;
+        if (minDistance === null || distance < minDistance) {
+            minDistance = distance;
+        }
+
+        return Math.min(minDistance, originalBarHeight)
     };
+
+    const originalBarHeights = Array.from({ length: attractions.length }, () => Array(4).fill(null));
+    
+    //function 11:檢查所有 bar 與所有 schedule_item（非自己）碰撞
+    const checkAllBarScheduleItemCollision = () => {
+        
+        for (let i = 0; i < attractions.length; i++) {
+            
+            for (let j = 0; j < 4; j++) {
+                const barRef = transportBarRefs.current[i]?.[j];
+
+                if (!originalBarHeights[i][j] && barRef?.current) {
+                    originalBarHeights[i][j] = barRef.current.getBoundingClientRect().height;
+                }
+
+                if (!barRef?.current) continue;
+                
+                const barRect = barRef.current.getBoundingClientRect();
+                
+                for (let k = 0; k < attractions.length; k++) {
+
+                    if (k === i) continue;
+
+                    const itemRef = scheduleItemRefs.current[k];
+                    
+                    if (!itemRef?.current) continue;
+                    const itemRect = itemRef.current.getBoundingClientRect();
+                    if (!isRectOverlap(itemRect, barRect)){
+                        // 恢復時
+                        barRef.current.children[0].classList.remove('bar_collide');
+                        barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect,originalBarHeights[i][j]) + 'px';
+                    }else{
+                        // 碰撞時
+                        barRef.current.children[0].classList.add('bar_collide');
+                        barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect,originalBarHeights[i][j]) + 'px';
+                        break;
+                    }
+                }
+            }
+        }
+    };
+
+    // 拖拽時用節流版碰撞檢查，50ms 一次，並註冊到 window 讓子元件可全域呼叫
+    const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+    window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
 
     //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({
@@ -424,7 +460,7 @@ const ScheduleInsert = ({
             <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
             <div className="schedule_header">
 
-                <div className="budget_display">$350</div>
+                {/* <div className="budget_display">$350</div> */}
                 
                 <div className="button_display">
                     <button className="cancel_btn" onClick={handleCancel}>取消</button>
@@ -451,6 +487,7 @@ const ScheduleInsert = ({
                                 scheduleItemRef={scheduleItemRefs.current[index]}
                                 height={attraction.height}
                                 a_id={attraction.a_id}
+                                sequence={attraction.sequence}
                                 key={`attraction-${index}`}
                                 name={attraction.name}
                                 position={attraction.position}

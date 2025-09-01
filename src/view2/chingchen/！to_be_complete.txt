@@ -9,3 +9,4 @@
 8. db.js中的/api/view2_schedule_list_insert的scheduleDate的默認值
 9. db.js中的/api/view2_schedule_list_insert的t_id和u_id的值
 10.ScheduleInsert的function 6:重新排序行程還沒套用
+11.trips.js的stage_date暫時改爲allow null

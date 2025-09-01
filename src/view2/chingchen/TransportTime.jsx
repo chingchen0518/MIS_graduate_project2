@@ -1,6 +1,5 @@
 import React, { useImperativeHandle, useState, forwardRef, useEffect } from "react";
-import { useDrag } from 'react-dnd';
-import { Rnd } from "react-rnd";
+import './TransportTime.css'
 
 // function1:計算行程所有景點間交通時間的函數
 const function1 = async (attractions, s_id, date) => {
@@ -76,7 +75,7 @@ const TransportBar = React.forwardRef(function TransportBar({ a_id,type, value, 
     return (
         <div
             ref={ref}
-            className={`transport_method ${type} transport_bar`}
+            className={`transport_method_bar`}
             style={{
                     height: `${height}px`,
                     // backgroundColor: color,
@@ -91,10 +90,10 @@ const TransportBar = React.forwardRef(function TransportBar({ a_id,type, value, 
         >
             {/* bar */}
             <div
-                className={`bar`}
+                className={`bar transport_bar ${type}`}
                 style={{
                     height: `${height}px`,
-                    backgroundColor: color,
+                    // backgroundColor: color,
                     width: '100%',
                     position: 'relative',
                     cursor: value > 0 ? 'pointer' : 'default',
@@ -117,7 +116,7 @@ const TransportBar = React.forwardRef(function TransportBar({ a_id,type, value, 
                     borderRadius: 4,
                     fontSize: 13,
                     whiteSpace: 'nowrap',
-                    zIndex: 9999,
+                    zIndex: 2,
                     opacity: 1
 
                 }}>

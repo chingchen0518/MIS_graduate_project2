@@ -14,7 +14,6 @@ function Profile() {
 
     useEffect(() => {
         if (!user) {
-            alert('尚未登入， 即將跳轉至登入頁面');
             setTimeout(() => {
                 navigate('/Login');
             }, 500);
@@ -30,7 +29,7 @@ function Profile() {
     }, [user]);
 
     if (!profile) {
-        return <div>尚未登入，正在跳轉中...</div>;
+        return <div>Not logged in, redirecting...</div>;
     }
 
     const handleEdit = () => setEditing(true);
@@ -64,13 +63,13 @@ function Profile() {
                         </div>
                         <h1 className="all_title">Vistour</h1>
                     </div>
-                    <p className="all_subtitle">個人資料</p>
+                    <p className="all_subtitle">Profile</p>
                 </div>
                 <div className="profile-card">
                     <div className="profile-card-horizontal">
                         <div className="profile-avatar-outer">
                             <div className="profile-avatar-section-horizontal">
-                                <img src={`/img/avatar/${profile.u_img}`} alt="頭貼" className="profile-avatar-horizontal" />
+                                <img src={`/img/avatar/${profile.u_img}`} alt="Avatar" className="profile-avatar-horizontal" />
                             </div>
                         </div>
 
@@ -91,7 +90,7 @@ function Profile() {
                                                 readOnly
                                                 placeholder="UID"
                                             />
-                                            <small className="note">此欄位無法修改</small>
+                                            <small className="note">This field is not editable</small>
                                         </div>
                                         <div className="all_input-with-icon">
                                             <FontAwesomeIcon icon={faEnvelope} />
@@ -103,7 +102,7 @@ function Profile() {
                                                 value={form.email}
                                                 onChange={handleChange}
                                                 required
-                                                placeholder="信箱"
+                                                placeholder="Email"
                                             />
                                         </div>
                                         <div className="all_input-with-icon">
@@ -116,7 +115,7 @@ function Profile() {
                                                 value={form.account}
                                                 onChange={handleChange}
                                                 required
-                                                placeholder="帳號"
+                                                placeholder="Account"
                                             />
                                         </div>
                                         <div className="all_input-with-icon">
@@ -129,33 +128,33 @@ function Profile() {
                                                 value="******"
                                                 onChange={handleChange}
                                                 required
-                                                placeholder="密碼"
+                                                placeholder="Password"
                                             />
                                         </div>
                                     </div>
 
                                     <div className="profile-actions-horizontal">
-                                        <button type="submit" className="all_btn">儲存</button>
-                                        <button type="button" className="all_btn" onClick={handleCancel}>取消</button>
+                                        <button type="submit" className="all_btn">Save</button>
+                                        <button type="button" className="all_btn" onClick={handleCancel}>Cancel</button>
                                     </div>
                                 </form>
                             ) : (
                                 <div className="profile-info-horizontal">
                                     <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faUser} />
-                                        <span>UID：{profile.u_id}</span>
+                                        <span>User ID: {profile.u_id}</span>
                                     </div>
                                     <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faEnvelope} />
-                                        <span>信箱：{profile.u_email}</span>
+                                        <span>Email: {profile.u_email}</span>
                                     </div>
                                     <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faAddressCard} />
-                                        <span>帳號：{profile.u_account}</span>
+                                        <span>Account: {profile.u_account}</span>
                                     </div>
                                     <div className="all_input-with-icon">
                                         <FontAwesomeIcon icon={faKey} />
-                                        <span>密碼：******</span>
+                                        <span>Password: ******</span>
                                     </div>
                                     <div className="profile-actions-horizontal">
                                         {/* <button className="all_btn" onClick={handleEdit}>
@@ -163,10 +162,10 @@ function Profile() {
                                         </button> */}
 
                                         <button className="all_btn" onClick={() => navigate('/part1')}>
-                                            <FontAwesomeIcon icon={faPlus} /> 新增旅程
+                                            <FontAwesomeIcon icon={faPlus} /> Trips Attended
                                         </button>
                                         <button className="all_btn" onClick={() => navigate('/logout')}>
-                                            <FontAwesomeIcon icon={faSignOutAlt} /> 登出
+                                            <FontAwesomeIcon icon={faSignOutAlt} /> Logout
                                         </button>
                                     </div>
                                 </div>
@@ -176,7 +175,7 @@ function Profile() {
 
                     <div className="profile-history-card">
                         <div className="profile-history-title">
-                            <FontAwesomeIcon icon={faHistory} /> 參加過的行程
+                            <FontAwesomeIcon icon={faHistory} /> Trips Attended
                         </div>
                         
                         <ul className="profile-history-list">
@@ -201,7 +200,7 @@ function Profile() {
                                     </li>
                                 ))
                             ) : (
-                                <li className="profile-history-empty">目前沒有參加過的行程</li>
+                                <li className="profile-history-empty">No Trips Attended</li>
                             )}
                         </ul>
                     </div>

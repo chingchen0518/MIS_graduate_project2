@@ -8,8 +8,12 @@ import ScheduleInsert from './ScheduleInsert.jsx';
 import ScheduleShow from './ScheduleShow.jsx';
 import DateSelector from '../Liu/DateSelector';
 import './ScheduleContainer.css';
+const user = JSON.parse(localStorage.getItem('user'));
+const trip = JSON.parse(localStorage.getItem('trip'))
+
 
 const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShowRoute, onHideRoute }) => {
+    
     //State
     const [schedules, setSchedules] = useState([]); //儲存DB讀取的schedule
     const [loading, setLoading] = useState(true);
@@ -21,6 +25,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
 
     const timeColumnRef = useRef(null);
 
+    console.log(user, trip)
+    
     // function 1：處理日期選擇變更
     const handleDateChange = (date) => {
         setSelectedDate(date);
@@ -142,7 +148,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
                 <h2 className="schedule_container_title">🚩旅遊行程</h2>
                 <div className="date-selector-wrapper">
                 <DateSelector 
-                    t_id={1} //@==@記得改掉@==@
+                    t_id={trip.tid} //@==@記得改掉@==@
                     onDateChange={handleDateChange}
                 />
                 </div>

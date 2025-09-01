@@ -9,6 +9,8 @@ import Header from '../../components/header.jsx'
 
 import './Page1.css';
 
+const user = JSON.parse(localStorage.getItem('user'));
+const trip = JSON.parse(localStorage.getItem('trip'))
 
 // 建立 Context
 export const SelectedScheduleContext = createContext({

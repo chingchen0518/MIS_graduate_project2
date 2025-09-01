@@ -30,7 +30,7 @@ function Header() {
   const [tripId, setTripId] = useState(trip.tid || 1);//之後要修改
   const [tripTitle, setTripTitle] = useState(trip.title);
 
-  const stepNames = ['行程背景', '選擇景點', '建議行程', '行程比較', '行程確定'];
+  const stepNames = ['Background', 'Select', 'Suggested', 'Comparison', 'Confirmed'];
 
   const mapStageToNumber = (stage) => {
     const stageOrder = { A: 1, B: 2, C: 3, D: 4, E: 5 };
@@ -70,7 +70,7 @@ function Header() {
       setStageDate(data.stage_date);
       setHasUpdated(false); // 重置 flag
     } catch (e) {
-      console.error('API 錯誤:', e);
+      console.error('API Error:', e);
     }
   };
 
@@ -133,7 +133,7 @@ function Header() {
       setShowModal(false);
       setEmail('');
     } catch (err) {
-      alert('發送失敗，請稍後再試');
+      alert('Failed to send, please try again later');
       console.error(err);
     }
   };
@@ -164,7 +164,7 @@ function Header() {
                   padding: 0,
                 }}
                 onClick={() => setShowTimeModal(true)}
-                title="查看目前時間設定"
+                title="View current time settings"
               >
                 ⚙️
               </button>
@@ -184,10 +184,10 @@ function Header() {
               />
             )}
           </span>
-          時間倒數: <CountdownTimer deadline={deadline} stage={stage} />
+          Time Remaining: <CountdownTimer deadline={deadline} stage={stage} />
         </span>
         <button className="share-button" onClick={() => setShowModal(true)}>
-          分享旅程
+          Share Trip
         </button>
       </div>
       <div className="flow-steps">
@@ -214,7 +214,7 @@ function Header() {
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h3>輸入對方的 Gmail</h3>
+            <h3>Enter the recipient's Gmail</h3>
             <input
               type="email"
               value={email}
@@ -223,8 +223,8 @@ function Header() {
               required
             />
             <div className="modal-buttons">
-              <button onClick={handleSendEmail}>發送邀請</button>
-              <button onClick={() => setShowModal(false)}>取消</button>
+              <button onClick={handleSendEmail}>Send Invitation</button>
+              <button onClick={() => setShowModal(false)}>Cancel</button>
             </div>
           </div>
         </div>

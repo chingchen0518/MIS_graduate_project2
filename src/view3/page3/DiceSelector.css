@@ -9,6 +9,7 @@
 }
 
 .panel {
+  position: relative; /* 為了讓倒數 badge 能定位 */
   width: 100%;
   max-width: 640px;
   background: #d6e6f7;           /* 淡藍 */
@@ -117,7 +118,7 @@
 }
 
 .roll-btn:hover {
-  background-color: #6a9ae2; /* 接近 #94cae7 的 hover 感 */
+  background-color: #6a9ae2; /* hover */
   transform: translateY(-1px);
   box-shadow: 0 12px 26px rgba(80,120,193,0.34);
 }
@@ -141,5 +142,101 @@
   color: #5078c1;
   border: 2px solid #94cae7;
   box-shadow: 0 6px 14px rgba(148,202,231,0.35);
+  font-weight: 700;
+}
+
+/* 輸入與按鈕的排版列 */
+.input-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.roll-input {
+  width: 120px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 2px solid #94cae7;
+  background: #ffffff;
+  color: #5078c1;
+  font-weight: 700;
+  outline: none;
+  box-shadow: 0 6px 14px rgba(148,202,231,0.18) inset;
+}
+
+.small-btn {
+  background-color: #94cae7;
+  color: #1d3b6b;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .2s ease, background-color .2s ease;
+  box-shadow: 0 8px 18px rgba(148,202,231,0.28);
+}
+.small-btn:hover {
+  background-color: #b3d9f1;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(148,202,231,0.34);
+}
+.small-btn:disabled {
+  opacity: .7;
+  cursor: not-allowed;
+}
+
+/* 送出名單 */
+.submitted-list {
+  max-width: 360px;
+  margin: 14px auto 0;
+  background: #fefefe;
+  border: 1px solid #e4f0ff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: #355a99;
+  font-size: 14px;
+}
+.submitted-list h4 {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  color: #5078c1;
+}
+.submitted-list ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+/* 右上角倒數 */
+.timer-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #fff7e6;
+  color: #8a5a00;
+  border: 1px solid #ffd591;
+  font-weight: 700;
+  box-shadow: 0 6px 14px rgba(255, 202, 138, 0.25);
+}
+.timer-badge .sandglass {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* 截止提示 */
+.closed-banner {
+  margin: 12px auto 0;
+  width: fit-content;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #ffeaea;
+  color: #a8071a;
+  border: 1px solid #ffccc7;
   font-weight: 700;
 }

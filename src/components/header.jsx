@@ -56,7 +56,7 @@ function Header() {
   // 取得旅程資料
   const fetchTripData = async () => {
     try {
-      const res = await fetch(`/api/trip/${tripId}`);
+      const res = await fetch(`http://localhost:3001/api/trip/${tripId}`);
       const data = await res.json();
 
       setTripId(data.tripId);

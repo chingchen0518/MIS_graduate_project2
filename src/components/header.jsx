@@ -56,7 +56,7 @@ function Header() {
   // 取得旅程資料
   const fetchTripData = async () => {
     try {
-      const res = await fetch(`/api/trip/${tripId}`);
+      const res = await fetch(`http://localhost:3001/api/trip/${tripId}`);
       const data = await res.json();
 
       setTripId(data.tripId);
@@ -93,7 +93,7 @@ function Header() {
             nowDateTime.getMinutes()
           )}:${pad(nowDateTime.getSeconds())}`;
 
-          const res = await fetch('/api/update-stage-date', {
+          const res = await fetch('http://localhost:3001/api/update-stage-date', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -123,7 +123,7 @@ function Header() {
 
   const handleSendEmail = async () => {
     try {
-      const res = await fetch('/api/share-trip', {
+      const res = await fetch('http://localhost:3001/api/share-trip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, tripId, tripTitle }),

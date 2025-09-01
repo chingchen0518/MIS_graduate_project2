@@ -159,7 +159,7 @@ app.get('/api/travel', (req, res) => {
 
 
 // ====================================view 1===========================
-const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_data.json'); 
+const filePath_attraction = path.join(__dirname, 'models', 'data', 'attraction_data.json');
 const filePath_ReAttraction = path.join(__dirname, 'models', 'data', 'ReAttraction_data.json');
 const filePath_comment = path.join(__dirname, 'models', 'data', 'comment_data.json');
 const filePath_trip = path.join(__dirname, 'models', 'data', 'trip_data.json');
@@ -281,9 +281,9 @@ app.post('/api/switchvote', async (req, res) => {
   }
 
   const currentVoteCol = type === 'like' ? 'vote_like' : 'vote_love';
-  const currentWhoCol  = type === 'like' ? 'who_like'  : 'who_love';
-  const otherVoteCol   = type === 'like' ? 'vote_love' : 'vote_like';
-  const otherWhoCol    = type === 'like' ? 'who_love'  : 'who_like';
+  const currentWhoCol = type === 'like' ? 'who_like' : 'who_love';
+  const otherVoteCol = type === 'like' ? 'vote_love' : 'vote_like';
+  const otherWhoCol = type === 'like' ? 'who_love' : 'who_like';
 
   try {
     const data = JSON.parse(fs.readFileSync(filePath_ReAttraction, 'utf8'));
@@ -305,7 +305,7 @@ app.post('/api/switchvote', async (req, res) => {
     targetAttr.who_love = targetAttr.who_love || [];
 
     const inCurrent = targetAttr[currentWhoCol].includes(user_id);
-    const inOther   = targetAttr[otherWhoCol].includes(user_id);
+    const inOther = targetAttr[otherWhoCol].includes(user_id);
 
     // 1) 如果已經投過 → 移除（減 1）
     if (inCurrent) {
@@ -1097,8 +1097,8 @@ app.get('/api/trip-dates/:tripId', (req, res) => {
 
   connection.query(sql, [tripId], (err, rows) => {
     if (err) {
-      console.error('❌ 查詢 trip 日期時出錯：', err.message);
-      return res.status(500).json({ error: `查詢失敗：${err.message}` });
+      console.error('❌ Error querying trip dates:', err.message);
+      return res.status(500).json({ error: `Query failed: ${err.message}` });
     }
 
     if (rows.length === 0) {
@@ -1134,12 +1134,12 @@ app.post('/api/share-trip', async (req, res) => {
   const { email, tripId, tripTitle } = req.body;
 
   if (!email || !tripId || !tripTitle) {
-    return res.status(400).json({ message: '缺少 email、tripId 或 tripTitle' });
+    return res.status(400).json({ message: 'Missing email, tripId or tripTitle' });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: 'Email 格式錯誤' });
+    return res.status(400).json({ message: 'Invalid email format' });
   }
 
   const hash = await bcrypt.hash(String(tripId), 10);
@@ -1153,13 +1153,13 @@ app.post('/api/share-trip', async (req, res) => {
     const sql = 'UPDATE Trip SET hashedTid = ? WHERE t_id = ?';
     connection.query(sql, [encoded, tripId], (err) => {
       if (err) {
-        console.error('❌ 更新密碼錯誤：', err.message);
-        return res.status(500).json({ message: '伺服器錯誤' });
+        console.error('❌ Failed to update password:', err.message);
+        return res.status(500).json({ message: 'Server error' });
       }
     });
   } catch (err) {
-    console.error('❌ 加密錯誤：', err.message);
-    return res.status(500).json({ message: 'tid加密失敗' });
+    console.error('❌ Failed to encrypt password:', err.message);
+    return res.status(500).json({ message: 'Failed to encrypt tid' });
   }
 
   const registerUrl = `http://localhost:5173/signin?invite=${encoded}`;
@@ -1180,8 +1180,8 @@ app.post('/api/share-trip', async (req, res) => {
   const userSql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
   connection.query(userSql, [email], (err, users) => {
     if (err) {
-      console.error('❌ 查詢使用者失敗：', err);
-      return res.status(500).json({ message: '伺服器錯誤（使用者查詢）' });
+      console.error('❌ Failed to query users:', err);
+      return res.status(500).json({ message: 'Server error (user query)' });
     }
 
     const userExists = users.length > 0;
@@ -1192,32 +1192,38 @@ app.post('/api/share-trip', async (req, res) => {
       const checkJoinSql = 'SELECT * FROM `Join` WHERE t_id = ? AND u_id = ?';
       connection.query(checkJoinSql, [tripId, userId], (checkErr, joinRows) => {
         if (checkErr) {
-          console.error('❌ 查詢 Join 錯誤：', checkErr);
-          return res.status(500).json({ message: '伺服器錯誤1（Join 查詢）' });
+          console.error('❌ Failed to query Join:', checkErr);
+          return res.status(500).json({ message: 'Server error (Join query)' });
         }
 
         if (joinRows.length > 0) {
-          return res.status(200).json({ message: '該使用者已經加入過行程' });
+          return res.status(200).json({ message: 'User has already joined the trip' });
         }
 
+        // 隨機色號產生
+        function getRandomColor() {
+          return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        }
+        const color = getRandomColor();
+
         // 尚未加入 → 插入 Join
-        const insertJoinSql = 'INSERT INTO `Join` (t_id, u_id) VALUES (?, ?)';
-        connection.query(insertJoinSql, [tripId, userId], (insertErr) => {
+        const insertJoinSql = 'INSERT INTO `Join` (t_id, u_id, color) VALUES (?, ?, ?)';
+        connection.query(insertJoinSql, [tripId, userId, color], (insertErr) => {
           if (insertErr) {
-            console.error('❌ 加入 Join 錯誤2：', insertErr);
-            return res.status(500).json({ message: '伺服器錯誤2（無法加入旅程）' });
+            console.error('❌ Failed to insert Join:', insertErr);
+            return res.status(500).json({ message: 'Server error (Failed to join trip)' });
           }
 
-          const subject = `您已被加入「${tripTitle}」行程！`;
+          const subject = `You have been added to the trip "${tripTitle}"!`;
           const body = `
-您好，
+Hello,
 
-您已被加入旅程：「${tripTitle}」
-若您尚未登入，請前往系統查看。
+You have been added to the trip: "${tripTitle}"
+If you are not logged in, please check the system.
 
-👉 加入我們的 LINE 官方帳號：${lineUrl}
+👉 Join our LINE official account: ${lineUrl}
 
-祝您旅途愉快！
+Wish you a pleasant journey!
           `;
 
           transporter.sendMail({
@@ -1227,23 +1233,23 @@ app.post('/api/share-trip', async (req, res) => {
             text: body,
           }, (mailErr) => {
             if (mailErr) {
-              console.error('❌ 寄信失敗：', mailErr);
-              return res.status(500).json({ message: '加入成功但寄信失敗' });
+              console.error('❌ Failed to send email:', mailErr);
+              return res.status(500).json({ message: 'Join successful but failed to send email' });
             }
 
-            return res.status(200).json({ message: '使用者已加入並通知成功' });
+            return res.status(200).json({ message: 'User has been added and notified successfully' });
           });
         });
       });
     } else {
       // 使用者不存在 → 寄邀請信
-      const subject = `邀請您加入「${tripTitle}」，請先註冊`;
+      const subject = `You have been added to the trip "${tripTitle}"!`;
       const body =
-        '您好，\n\n' +
-        `您被邀請參與旅程：「${tripTitle}」\n\n` +
-        `👉 加入我們的 LINE 官方帳號：${lineUrl}\n\n` +
-        `👉 先點此註冊並加入旅程：${registerUrl}\n` +
-        '祝您旅途愉快！';
+        'Hello,\n\n' +
+        `You have been invited to join the trip: "${tripTitle}"\n\n` +
+        `👉 Join our LINE official account: ${lineUrl}\n\n` +
+        `👉 Click here to register and join the trip: ${registerUrl}\n` +
+        'Have a great trip!';
 
 
       transporter.sendMail({
@@ -1253,11 +1259,11 @@ app.post('/api/share-trip', async (req, res) => {
         text: body,
       }, (mailErr) => {
         if (mailErr) {
-          console.error('❌ 邀請信寄送失敗：', mailErr);
-          return res.status(500).json({ message: '寄送邀請信失敗' });
+          console.error('❌ Failed to send invitation email:', mailErr);
+          return res.status(500).json({ message: 'Failed to send invitation email' });
         }
 
-        return res.status(200).json({ message: '尚未註冊，邀請信已寄出' });
+        return res.status(200).json({ message: 'Not registered yet, invitation email sent' });
       });
     }
   });
@@ -1267,29 +1273,29 @@ app.post('/api/share-trip', async (req, res) => {
 app.post('/api/view3_login', (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ message: '缺少帳號或密碼' });
+    return res.status(400).json({ message: 'Missing email or password' });
   }
 
   const sql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
   connection.query(sql, [email], async (err, results) => {
     if (err) {
-      console.error('❌ 查詢錯誤：', err.message);
-      return res.status(500).json({ message: '伺服器錯誤' });
+      console.error('❌ Failed to query user:', err.message);
+      return res.status(500).json({ message: 'Server error' });
     }
 
     if (results.length === 0) {
-      return res.status(401).json({ message: '帳號不存在' });
+      return res.status(401).json({ message: 'Account does not exist' });
     }
 
     const user = results[0];
     const isMatch = await bcrypt.compare(password, user.u_password);
 
     if (!isMatch) {
-      return res.status(401).json({ message: '密碼錯誤' });
+      return res.status(401).json({ message: 'Incorrect password' });
     }
 
     return res.status(200).json({
-      message: '登入成功！',
+      message: 'Login successful!',
       redirect: '/profile',
       user: {
         uid: user.u_id,
@@ -1308,7 +1314,7 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
     const avatarFile = req.file;
 
     if (!email || !account || !password) {
-      return res.status(400).json({ message: '請填寫完整資訊' });
+      return res.status(400).json({ message: 'Please fill in all required fields' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -1317,25 +1323,30 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
     const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
     connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err, result) => {
       if (err) {
-        console.error('❌ 註冊錯誤:', err);
-        return res.status(500).json({ message: '伺服器錯誤' });
+        console.error('❌ Registration error:', err);
+        return res.status(500).json({ message: 'Server error' });
       }
       // 查詢剛新增的 user
       const selectSql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
       connection.query(selectSql, [email], async (err2, rows) => {
         if (err2 || rows.length === 0) {
-          return res.status(500).json({ message: '查詢新用戶失敗' });
+          return res.status(500).json({ message: 'Failed to query new user' });
         }
         const user = rows[0];
 
         // 如果有 invite，做旅程加入
         if (invite) {
           const decodedInvite = decodeURIComponent(invite);
+          // 隨機色號產生
+          function getRandomColor() {
+            return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+          }
+          const color = getRandomColor();
           // 查詢所有 Trip
           const tripSql = 'SELECT t_id, hashedTid FROM Trip WHERE hashedTid IS NOT NULL AND hashedTid != ""';
           connection.query(tripSql, async (tripErr, trips) => {
             if (tripErr) {
-              console.error('❌ 查詢 Trip 失敗:', tripErr);
+              console.error('❌ Failed to query Trips:', tripErr);
               // 不阻斷註冊流程
             } else {
               let joined = false;
@@ -1343,10 +1354,10 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
                 const match = await bcrypt.compare(String(trip.t_id), decodedInvite);
                 if (match) {
                   // 找到對應 t_id，插入 Join
-                  const joinSql = 'INSERT INTO `Join` (t_id, u_id) VALUES (?, ?)';
-                  connection.query(joinSql, [trip.t_id, user.u_id], (joinErr) => {
+                  const joinSql = 'INSERT INTO `Join` (t_id, u_id, color) VALUES (?, ?, ?)';
+                  connection.query(joinSql, [trip.t_id, user.u_id, color], (joinErr) => {
                     if (joinErr) {
-                      console.error('❌ 插入 Join 失敗:', joinErr);
+                      console.error('❌ Failed to insert Join:', joinErr);
                     }
                   });
                   joined = true;
@@ -1354,12 +1365,12 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
                 }
               }
               if (!joined) {
-                console.log('❌ 沒有找到對應的旅程 invite');
+                console.log('❌ No matching trip invite found');
               }
             }
             // 回傳註冊成功
             return res.status(200).json({
-              message: '✅ 註冊成功',
+              message: '✅ Signup successful',
               redirect: '/profile',
               user: {
                 uid: user.u_id,
@@ -1368,13 +1379,15 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
                 email: user.u_email,
                 password: user.u_password,
                 account: user.u_account,
+                tid: trip.t_id, // 加這行
+                title: trip.title // 如果需要 title
               }
             });
           });
         } else {
           // 沒有 invite，正常回傳
           return res.status(200).json({
-            message: '✅ 註冊成功',
+            message: '✅ Signup successful',
             redirect: '/profile',
             user: {
               uid: user.u_id,
@@ -1389,30 +1402,30 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
       });
     });
   } catch (error) {
-    console.error('❌ 加密或其他錯誤:', error);
-    return res.status(500).json({ message: '伺服器錯誤' });
+    console.error('❌ Failed to encrypt or other errors:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 
 app.post('/api/view3_forgot_password', (req, res) => {
   const { email } = req.body;
   if (!email) {
-    return res.status(400).json({ message: '缺少電子郵件' });
+    return res.status(400).json({ message: 'Missing email' });
   }
 
   const sql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
   connection.query(sql, [email], (err, results) => {
     if (err) {
-      console.error('❌ 查詢錯誤：', err.message);
-      return res.status(500).json({ message: '伺服器錯誤' });
+      console.error('❌ Failed to query user:', err.message);
+      return res.status(500).json({ message: 'Server error (Failed to query user)' });
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: '電子郵件未註冊' });
+      return res.status(404).json({ message: 'Email not registered' });
     }
 
     // // 這裡可以加入發送重設密碼郵件的邏輯
-    return res.status(200).json({ message: '查詢到該帳號!' });
+    return res.status(200).json({ message: 'Account found!' });
   });
 });
 
@@ -1420,7 +1433,7 @@ app.post('/api/view3_reset_password', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: '缺少電子郵件或密碼' });
+    return res.status(400).json({ message: 'Missing email or password' });
   }
 
   try {
@@ -1431,19 +1444,19 @@ app.post('/api/view3_reset_password', async (req, res) => {
     const sql = 'UPDATE User SET u_password = ? WHERE u_email = ?';
     connection.query(sql, [hashedPassword, email], (err, result) => {
       if (err) {
-        console.error('❌ 更新密碼錯誤：', err.message);
-        return res.status(500).json({ message: '伺服器錯誤' });
+        console.error('❌ Failed to update password:', err.message);
+        return res.status(500).json({ message: 'Server error (Failed to update password)' });
       }
 
       if (result.affectedRows === 0) {
-        return res.status(404).json({ message: '找不到該用戶' });
+        return res.status(404).json({ message: 'User not found' });
       }
 
-      return res.status(200).json({ message: '密碼重設成功' });
+      return res.status(200).json({ message: 'Password reset successful' });
     });
   } catch (err) {
-    console.error('❌ 加密錯誤：', err.message);
-    return res.status(500).json({ message: '密碼加密失敗' });
+    console.error('❌ Failed to encrypt password:', err.message);
+    return res.status(500).json({ message: 'Server error (Failed to encrypt password)' });
   }
 });
 
@@ -1573,7 +1586,7 @@ app.get('/api/fake-data', async (req, res) => {
       });
     });
 
-    
+
 
     // 插入Attraction
     const attractionSql = `
@@ -1607,7 +1620,7 @@ app.get('/api/fake-data', async (req, res) => {
         resolve();
       });
     });
-    
+
     //support
     const supportSql = `
       INSERT INTO Support (u_id, a_id, t_id, reason, onelove, twolove)
@@ -2172,12 +2185,12 @@ app.get('/api/trip_users/:t_id', (req, res) => {
 
   connection.query(query, [t_id], (err, results) => {
     if (err) {
-      console.error('❌ 取得trip參與使用者時出錯：', err.message);
+      console.error('❌ Error fetching trip participants:', err.message);
       res.status(500).json({ error: err.message });
       return;
     }
 
-    console.log(`✅ 成功取得trip ${t_id} 的參與使用者：`, results);
+    console.log(`✅ Successfully fetched participants for trip ${t_id}:`, results);
     res.json({
       success: true,
       users: results
@@ -2204,7 +2217,7 @@ app.get('/api/view3_trip_budget_range/:t_id', (req, res) => {
 
   connection.query(minQuery, [t_id], (err, minResults) => {
     if (err) {
-      console.error('❌ 取得trip最小預算時出錯：', err.message);
+      console.error('❌ Error fetching trip minimum budget:', err.message);
       res.status(500).json({ error: err.message });
       return;
     }
@@ -2224,7 +2237,7 @@ app.get('/api/view3_trip_budget_range/:t_id', (req, res) => {
 
     connection.query(maxQuery, [t_id], (err, maxResults) => {
       if (err) {
-        console.error('❌ 取得trip最大預算時出錯：', err.message);
+        console.error('❌ Error fetching trip maximum budget:', err.message);
         res.status(500).json({ error: err.message });
         return;
       }
@@ -2232,7 +2245,7 @@ app.get('/api/view3_trip_budget_range/:t_id', (req, res) => {
       const minBudget = minResults[0]?.min_budget || 0;
       const maxBudget = maxResults[0]?.max_budget || 1000;
 
-      console.log(`✅ 成功取得trip ${t_id} 預算範圍: ${minBudget} - ${maxBudget}`);
+      console.log(`✅ Successfully fetched budget range for trip ${t_id}: ${minBudget} - ${maxBudget}`);
       res.json({
         success: true,
         minBudget: minBudget,
@@ -2245,7 +2258,7 @@ app.get('/api/trip/:id', (req, res) => {
   const tripId = req.params.id;
 
   if (!tripId) {
-    return res.status(400).json({ message: '缺少旅程 ID' });
+    return res.status(400).json({ message: 'Missing trip ID' });
   }
 
   const sql = `
@@ -2258,12 +2271,12 @@ app.get('/api/trip/:id', (req, res) => {
 
   connection.query(sql, [tripId], (err, results) => {
     if (err) {
-      console.error('❌ 查詢錯誤：', err.message);
-      return res.status(500).json({ message: '伺服器錯誤' });
+      console.error('❌ Error fetching trip details:', err.message);
+      return res.status(500).json({ message: 'Server error (Failed to fetch trip details)' });
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: '找不到該旅程資料' });
+      return res.status(404).json({ message: 'Trip not found' });
     }
 
     const trip = results[0];
@@ -2303,12 +2316,12 @@ app.get('/api/trip/:id', (req, res) => {
 app.post('/api/update-stage-date', (req, res) => {
   const { tripId, stage_date, days, finishedDay } = req.body;
   if (!tripId || !stage_date) {
-    return res.status(400).json({ message: '缺少 tripId 或 stage_date' });
+    return res.status(400).json({ message: 'Missing tripId or stage_date' });
   }
   const selectSql = 'SELECT stage FROM trip WHERE t_id = ? LIMIT 1';
   connection.query(selectSql, [tripId], (err, results) => {
-    if (err) return res.status(500).json({ message: '伺服器錯誤' });
-    if (results.length === 0) return res.status(404).json({ message: '找不到該旅程資料' });
+    if (err) return res.status(500).json({ message: 'Server error' });
+    if (results.length === 0) return res.status(404).json({ message: 'Trip not found' });
 
     let currentStage = results[0].stage;
     let nextStage = currentStage;
@@ -2334,10 +2347,10 @@ app.post('/api/update-stage-date', (req, res) => {
       // 其他階段照原本邏輯
       const updateSql = 'UPDATE trip SET stage_date = ?, stage = ?, finished_day = ? WHERE t_id = ?';
       connection.query(updateSql, [stage_date, nextStage, newFinishedDay, tripId], (err, result) => {
-        if (err) return res.status(500).json({ message: '伺服器錯誤' });
+        if (err) return res.status(500).json({ message: 'Server error' });
 
         res.status(200).json({
-          message: '更新成功',
+          message: 'Update successful',
           tripId,
           stage: nextStage,
           stage_date,
@@ -2359,11 +2372,11 @@ app.get('/api/user/:uid', (req, res) => {
   `;
   connection.query(userSql, [uid], (err, userResults) => {
     if (err) {
-      console.error('❌ 查詢使用者失敗：', err.message);
-      return res.status(500).json({ error: '伺服器錯誤' });
+      console.error('❌ Error fetching user:', err.message);
+      return res.status(500).json({ error: 'Server error (Failed to fetch user)' });
     }
     if (userResults.length === 0) {
-      return res.status(404).json({ error: '找不到該使用者' });
+      return res.status(404).json({ error: 'User not found' });
     }
     const user = userResults[0];
 
@@ -2371,8 +2384,8 @@ app.get('/api/user/:uid', (req, res) => {
     const joinSql = `SELECT t_id FROM \`Join\` WHERE u_id = ?`;
     connection.query(joinSql, [uid], (err2, joinResults) => {
       if (err2) {
-        console.error('❌ 查詢 Join 失敗：', err2.message);
-        return res.status(500).json({ error: '伺服器錯誤' });
+        console.error('❌ Error fetching user trips:', err2.message);
+        return res.status(500).json({ error: 'Server error (Failed to fetch user trips)' });
       }
       const tIds = joinResults.map(j => j.t_id);
       if (tIds.length === 0) {
@@ -2387,59 +2400,8 @@ app.get('/api/user/:uid', (req, res) => {
       WHERE t_id IN (?)`;
       connection.query(tripSql, [tIds], (err3, tripResults) => {
         if (err3) {
-          console.error('❌ 查詢 Trip 失敗：', err3.message);
-          return res.status(500).json({ error: '伺服器錯誤' });
-        }
-        // 回傳 user 資料 + trips 陣列
-        res.json({
-          ...user,
-          trips: tripResults // [{ t_id, title, stage }]
-        });
-      });
-    });
-  });
-});
-app.get('/api/user/:uid', (req, res) => {
-  const { uid } = req.params;
-  // 查詢 User
-  const userSql = `
-    SELECT *
-    FROM User
-    WHERE u_id = ?
-    LIMIT 1
-  `;
-  connection.query(userSql, [uid], (err, userResults) => {
-    if (err) {
-      console.error('❌ 查詢使用者失敗：', err.message);
-      return res.status(500).json({ error: '伺服器錯誤' });
-    }
-    if (userResults.length === 0) {
-      return res.status(404).json({ error: '找不到該使用者' });
-    }
-    const user = userResults[0];
-
-    // 查詢 Join 取得所有 t_id
-    const joinSql = `SELECT t_id FROM \`Join\` WHERE u_id = ?`;
-    connection.query(joinSql, [uid], (err2, joinResults) => {
-      if (err2) {
-        console.error('❌ 查詢 Join 失敗：', err2.message);
-        return res.status(500).json({ error: '伺服器錯誤' });
-      }
-      const tIds = joinResults.map(j => j.t_id);
-      if (tIds.length === 0) {
-        // 沒有參加任何行程
-        return res.json({ ...user, trips: [] });
-      }
-
-      // 查詢 Trip 時，直接回傳 s_date，不用 new Date 處理
-      const tripSql = `
-      SELECT t_id, title, stage, DATE_FORMAT(s_date, '%Y-%m-%d') AS s_date
-      FROM Trip
-      WHERE t_id IN (?)`;
-      connection.query(tripSql, [tIds], (err3, tripResults) => {
-        if (err3) {
-          console.error('❌ 查詢 Trip 失敗：', err3.message);
-          return res.status(500).json({ error: '伺服器錯誤' });
+          console.error('❌ Error fetching trip details:', err3.message);
+          return res.status(500).json({ error: 'Server error (Failed to fetch trip details)' });
         }
         // 回傳 user 資料 + trips 陣列
         res.json({
@@ -2454,17 +2416,66 @@ app.get('/api/user/:uid', (req, res) => {
 app.post('/api/update-trip-time', (req, res) => {
   const { t_id, time } = req.body;   // 改成 t_id
   if (!t_id || !time) {
-    return res.status(400).json({ message: '缺少 t_id 或 time' });
+    return res.status(400).json({ message: 'Missing t_id or time' });
   }
   const updateSql = 'UPDATE trip SET time = ? WHERE t_id = ?';
   connection.query(updateSql, [time, t_id], (err, result) => {
-    if (err) return res.status(500).json({ message: '伺服器錯誤' });
+    if (err) return res.status(500).json({ message: 'Server error (Failed to update trip time)' });
     res.status(200).json({
-      message: '更新成功',
+      message: 'Update successful',
       t_id,
       time,
     });
   });
+});
+
+app.post('/api/trip-create', async (req, res) => {
+  try {
+    const { title, country, time, s_date, e_date, s_time, e_time, u_id } = req.body;
+    const stage = 'B';
+    const finished_day = `0`;
+
+    // 檢查必填欄位
+    if (!title || !country || !time || !s_date || !e_date || !s_time || !e_time || !u_id) {
+      return res.status(400).json({ message: 'Please fill in all required fields.' });
+    }
+
+    const sql = `
+      INSERT INTO Trip (title, country, time, s_date, e_date, s_time, e_time, u_id, stage, stage_date, finished_day)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
+    `;
+    connection.query(
+      sql,
+      [title, country, time, s_date, e_date, s_time, e_time, u_id, stage, finished_day],
+      (err, result) => {
+        if (err) {
+          console.error('❌ Failed to create trip:', err);
+          return res.status(500).json({ message: 'Server error (Failed to create trip)' });
+        }
+        const tripId = result.insertId;
+
+        // 隨機色號產生
+        function getRandomColor() {
+          return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        }
+        const color = getRandomColor();
+
+        // 插入 Join
+        const joinSql = 'INSERT INTO `Join` (u_id, t_id, color) VALUES (?, ?, ?)';
+        connection.query(joinSql, [u_id, tripId, color], (joinErr) => {
+          if (joinErr) {
+            console.error('❌ Failed to insert Join:', joinErr);
+            // Trip 已建立，Join失敗也回傳成功，但可加提示
+            return res.status(200).json({ message: 'Trip created, but failed to join', tripId });
+          }
+          res.status(200).json({ message: 'Trip and Join created successfully!', tripId, color });
+        });
+      }
+    );
+  } catch (error) {
+    console.error('❌ Error in trip-create:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // 不可以刪除！！！

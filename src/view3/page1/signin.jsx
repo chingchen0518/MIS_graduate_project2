@@ -55,7 +55,7 @@ function Signin() {
                 if (form.avatar) formData.append('avatar', form.avatar);
                 if (invite) formData.append('invite', invite);
 
-                const response = await fetch('/api/view3_signin', {
+                const response = await fetch('http://localhost:3001/api/view3_signin', {
                     method: 'POST',
                     body: formData,
                 });

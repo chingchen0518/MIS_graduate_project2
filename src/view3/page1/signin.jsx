@@ -32,12 +32,12 @@ function Signin() {
 
     const validate = () => {
         const errs = [];
-        if (!form.name.trim()) errs.push("姓名不能為空");
-        if (!form.email.trim()) errs.push("電子郵件不能為空");
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.push("請輸入有效的電子郵件地址");
-        if (!form.password) errs.push("密碼不能為空");
-        else if (form.password.length < 6) errs.push("密碼必須至少6個字符");
-        if (form.password !== form.confirmPassword) errs.push("兩次輸入的密碼不一致");
+        if (!form.name.trim()) errs.push("Name cannot be empty");
+        if (!form.email.trim()) errs.push("Email cannot be empty");
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.push("Please enter a valid email address");
+        if (!form.password) errs.push("Password cannot be empty");
+        else if (form.password.length < 6) errs.push("Password must be at least 6 characters");
+        if (form.password !== form.confirmPassword) errs.push("Passwords do not match");
         return errs;
     };
 
@@ -63,7 +63,7 @@ function Signin() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert('註冊成功！');
+                    alert('Registration successful!');
                     localStorage.setItem('user', JSON.stringify(data.user));
                     setForm(initialState);
                     setErrors([]);
@@ -71,10 +71,10 @@ function Signin() {
                         navigate('/Profile');
                     }, 500);
                 } else {
-                    setErrors([data?.message || `註冊失敗 (狀態碼: ${response.status})`]);
+                    setErrors([data?.message || `Registration failed (Status Code: ${response.status})`]);
                 }
             } catch (err) {
-                setErrors([`發生錯誤，請確認伺服器已啟動。錯誤訊息: ${err.message}`]);
+                setErrors([`An error occurred, please ensure the server is running. Error message: ${err.message}`]);
             }
         }
     };
@@ -96,7 +96,7 @@ function Signin() {
                         </div>
                         <h1 className="all_title">Vistour</h1>
                     </div>
-                    <p className="all_subtitle">註冊新帳號</p>
+                    <p className="all_subtitle">Register a new account</p>
                 </div>
 
                 <div className="body">
@@ -112,7 +112,7 @@ function Signin() {
 
                     <form onSubmit={handleSubmit} encType="multipart/form-data" method="POST">
                         <div className="all_form-group">
-                            <label htmlFor="name">姓名</label>
+                            <label htmlFor="name">Name</label>
                             <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faUser} />
                                 <input
@@ -120,7 +120,7 @@ function Signin() {
                                     id="name"
                                     name="name"
                                     className="form-control"
-                                    placeholder="請輸入姓名"
+                                    placeholder="Please enter your name"
                                     value={form.name}
                                     onChange={handleChange}
                                     required
@@ -129,7 +129,7 @@ function Signin() {
                         </div>
 
                         <div className="all_form-group">
-                            <label htmlFor="email">電子郵件</label>
+                            <label htmlFor="email">Email</label>
                             <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faEnvelope} />
                                 <input
@@ -137,7 +137,7 @@ function Signin() {
                                     id="email"
                                     name="email"
                                     className="form-control"
-                                    placeholder="請輸入電子郵件"
+                                    placeholder="Please enter your email"
                                     value={form.email}
                                     onChange={handleChange}
                                     required
@@ -145,7 +145,7 @@ function Signin() {
                             </div>
                         </div>
                         <div className="all_form-group">
-                            <label htmlFor="account">帳號</label>
+                            <label htmlFor="account">Account</label>
                             <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faAddressCard} />
                                 <input
@@ -153,7 +153,7 @@ function Signin() {
                                     id="account"
                                     name="account"
                                     className="form-control"
-                                    placeholder="請輸入帳號"
+                                    placeholder="Please enter your account"
                                     value={form.account}
                                     onChange={handleChange}
                                     required
@@ -163,7 +163,7 @@ function Signin() {
 
                         <div className="form-row">
                             <div className="all_form-group">
-                                <label htmlFor="password">密碼</label>
+                                <label htmlFor="password">Password</label>
                                 <div className="all_input-with-icon">
                                     <FontAwesomeIcon icon={faLock} />
                                     <input
@@ -171,7 +171,7 @@ function Signin() {
                                         id="password"
                                         name="password"
                                         className="form-control"
-                                        placeholder="請輸入密碼"
+                                        placeholder="Please enter your password"
                                         value={form.password}
                                         onChange={handleChange}
                                         required
@@ -180,7 +180,7 @@ function Signin() {
                             </div>
 
                             <div className="all_form-group">
-                                <label htmlFor="confirmPassword">確認密碼</label>
+                                <label htmlFor="confirmPassword">Confirm Password</label>
                                 <div className="all_input-with-icon">
                                     <FontAwesomeIcon icon={faLock} />
                                     <input
@@ -188,7 +188,7 @@ function Signin() {
                                         id="confirmPassword"
                                         name="confirmPassword"
                                         className="form-control"
-                                        placeholder="請再次輸入密碼"
+                                        placeholder="Please re-enter your password"
                                         value={form.confirmPassword}
                                         onChange={handleChange}
                                         required
@@ -197,7 +197,7 @@ function Signin() {
                             </div>
                         </div>
                         <div className="all_form-group">
-                            <label htmlFor="avatar">新增頭貼</label>
+                            <label htmlFor="avatar">Add Avatar</label>
                             <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faAddressCard} />
                                 <input
@@ -211,13 +211,13 @@ function Signin() {
                             </div>
                         </div>
 
-                        <button type="submit" className="all_btn">註冊</button>
+                        <button type="submit" className="all_btn">Register</button>
                     </form>
                 </div>
 
                 <div className="all_footer">
                     <p className="login-link">
-                        已有帳號？ <a href="/Login">立即登入</a>
+                        Already have an account? <a href="/Login">Log in now</a>
                     </p>
                 </div>
             </div>

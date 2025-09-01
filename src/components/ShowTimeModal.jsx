@@ -174,24 +174,24 @@ function ShowTimeModal({ tripId, deadline, time, stage_date, onClose }) {
                     time: selectedTime
                 })
             });
-            alert('更新成功');
+            alert('Update successful');
             if (onClose) onClose(true);
         } catch (err) {
-            alert('更新失敗');
+            alert('Update failed');
         }
     };
 
     return (
         <div className="modal">
             <div className="modal-content">
-                <h3>調整時長</h3>
-                <p>目前階段開始時間：<br />{stage_date ? stage_date : '未設定'}</p>
-                <p>設定階段時長：</p>
+                <h3>Adjust Duration</h3>
+                <p>Current Stage Start Time:<br />{stage_date ? stage_date : 'Not Set'}</p>
+                <p>Set Stage Duration:</p>
                 <TimePickerWheel time={time} onChange={setSelectedTime} />
-                <p>計算後截止時間：<br />{deadlineStr}</p>
+                <p>Calculated Deadline:<br />{deadlineStr}</p>
                 <div className="time-modal-buttons">
-                    <button onClick={onClose}>關閉</button>
-                    <button onClick={handleSave}>儲存</button>
+                    <button onClick={onClose}>Close</button>
+                    <button onClick={handleSave}>Save</button>
                 </div>
             </div>
         </div>

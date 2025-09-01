@@ -1379,6 +1379,8 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
                 email: user.u_email,
                 password: user.u_password,
                 account: user.u_account,
+                tid: trip.t_id, // 加這行
+                title: trip.title // 如果需要 title
               }
             });
           });

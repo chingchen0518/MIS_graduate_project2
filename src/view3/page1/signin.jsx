@@ -63,12 +63,18 @@ function Signin() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert('Registration successful!');
                     localStorage.setItem('user', JSON.stringify(data.user));
+                    // 如果有 tid，更新 local 的 trip 資料
+                    if (data.user.tid) {
+                        localStorage.setItem('trip', JSON.stringify({
+                            t_id: data.user.tid,
+                            title: data.user.title || ''
+                        }));
+                    }
                     setForm(initialState);
                     setErrors([]);
                     setTimeout(() => {
-                        navigate('/Profile');
+                        navigate('/Vistour');
                     }, 500);
                 } else {
                     setErrors([data?.message || `Registration failed (Status Code: ${response.status})`]);

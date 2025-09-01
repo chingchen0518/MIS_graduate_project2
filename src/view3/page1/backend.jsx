@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import './backend.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe, faCalendarAlt, faClock, faMapMarkerAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from "react-router-dom";
 
 const initialState = {
     title: "",
@@ -14,6 +15,7 @@ const initialState = {
 };
 
 function Backend() {
+    const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user'));
     const [form, setForm] = useState(initialState);
     const [errors, setErrors] = useState([]);
@@ -73,9 +75,9 @@ function Backend() {
                         title: form.title
                     }));
                     alert('Trip created successfully!');
+                    navigate('/Vistour');
                     setForm(initialState);
                     setErrors([]);
-                } else {
                     setErrors([data?.message || `Creation failed (Status Code: ${response.status})`]);
                 }
             } catch (err) {

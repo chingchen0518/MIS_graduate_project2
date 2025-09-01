@@ -2,11 +2,12 @@ import { DataTypes } from 'sequelize';
 import { sequelize } from '../db_settings.js';
 
 const Trip = sequelize.define('Trip', {
+
   t_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   title: { type: DataTypes.STRING, allowNull: false },
   u_id: { type: DataTypes.INTEGER },
   country: { type: DataTypes.STRING, allowNull: false },
-  stage_date: { type: DataTypes.DATE, allowNull: false },
+  stage_date:{ type: DataTypes.DATE, allowNull: true,defaultValue: '2025-08-10 08:00:00' },//@@==@@暫時改成allownull
   s_date: { type: DataTypes.DATEONLY, allowNull: false },
   e_date: { type: DataTypes.DATEONLY, allowNull: false },
   s_time: { type: DataTypes.TIME, allowNull: false },

@@ -4,7 +4,7 @@ import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
 
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
-const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method, barRefs, scheduleItemRef, barCollide }, ref) => {
+const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method, barRefs, scheduleItemRef, barCollide, maxBarHeight,categoryColor,sequence  }, ref) => {
     // const user = JSON.parse(localStorage.getItem('user'));
     
     const [heightEdit, setheightEdit] = React.useState(height); // 初始高度
@@ -12,6 +12,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
     const [y, setY] = React.useState(position.y); // 初始 Y 座標
     const nameRef = useRef();
     const [fontSize, setFontSize] = useState(16);
+    const rndRef = useRef();
 
     //variables
     var draggingAId = null;
@@ -29,24 +30,43 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
         console.log('目前拖拽的 a_id:', draggingAId);
     }
 
-    //function 1:當調整高度停止時
-    const handleResizeStop = (e, direction, ref, delta, position) => {
+
+    //function 1:調整高度進行中
+    const handleResize = (e, direction, ref, delta, position) => {
         setheightEdit(ref.offsetHeight);
-
-        //如果向上調整高度，要更新y軸坐標
         if (["top"].includes(direction)) {
-            setY(position.y); // 更新 y 座標
+            setY(position.y);
         }
-
-        onValueChange(ref.offsetHeight, position.x, position.y,a_id);//回傳到ScheduleInsert
+        onValueChange(ref.offsetHeight, position.x, position.y, a_id);
     };
 
-    // function 2: 當拖拽停止時
+    //function 2:拖拽進行中
+    const handleDrag = (e, d) => {
+        if (rndRef.current) {
+            // 直接設置 Rnd 的位置
+            rndRef.current.updatePosition({ x: d.x, y: d.y });
+        }
+        // // 拖曳時即時碰撞偵測
+        if (window.throttleCheckAllBarScheduleItemCollision) {
+            window.throttleCheckAllBarScheduleItemCollision();
+        }
+
+    };
+
+    //function 3:當調整高度停止時
+    const handleResizeStop = (e, direction, ref, delta, position) => {
+        setheightEdit(ref.offsetHeight);
+        if (["top"].includes(direction)) {
+            setY(position.y);
+        }
+        onValueChange(ref.offsetHeight, position.x, position.y, a_id);
+    };
+
+    // function 4: 當拖拽停止時
     const handleDragStop = (e, d) => {
-        setX(d.x); // 更新 x 座標
-        setY(d.y); // 更新 y 座標
-        console.log(d.y);
-        onValueChange(heightEdit, d.x, d.y,a_id);//回傳到ScheduleInsert
+        setX(d.x);
+        setY(d.y);
+        onValueChange(heightEdit, d.x, d.y, a_id);
     };
 
     // useEffect 1:調整字體大學小
@@ -74,19 +94,22 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
         background: '#f0f0f0',
         borderRadius: '5px',
         cursor: 'ns-resize',
-        zIndex: 4,
+        zIndex: sequence,
     };
 
     
     return (
         <Rnd
+            ref={rndRef}
             minHeight={0}
             disableDragging={!editable}
             default={{ x: 100, y: 100, width: '100%', height: height }}
             position={{ x: x, y: y }}
             size={{ width: 100, height: editable ? heightEdit : height }}
             enableResizing={{ top: editable, bottom: editable, right: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
+            onResize={handleResize}
             onResizeStop={handleResizeStop}
+            onDrag={handleDrag}
             onDragStop={handleDragStop}
             bounds="parent"
             resizeHandleStyles={{
@@ -94,17 +117,16 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                 bottom: handleStyle,
             }}
             key={`${a_id}`}
+            style={{ zIndex: sequence }}
         >
             <div
                 ref={scheduleItemRef}
                 className="schedule_item"
                 style={{
-                    backgroundColor: '#f0f0f0',
-                    border: '1px solid black',
-                    borderRadius: '5px',
-                    // padding: '10px',
-                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-                    zIndex: 100,
+                    borderRadius: '8px',
+                    padding: '3px', // 邊框厚度
+                    boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
+                    zIndex: 1,
                     // opacity: isDragging ? 0.5 : 1,
                     cursor: editable ? 'move' : 'default',
                     boxSizing: 'border-box',
@@ -113,27 +135,46 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                     justifyContent: 'center',
                     width: '100%',
                     height: '100%',
+                    transition: 'all 0.3s ease',
+                    // 漸層背景作為邊框
+                    background: categoryColor ? categoryColor : 'linear-gradient(45deg, #d0d0d0, #d0d0d0)',
                 }}
             >
-                {/* 内容 */}
+                {/* 內容容器 */}
                 <div
-                    className="attraction_name"
                     style={{
-                        fontWeight: 'bold',
-                        color: '#333',
-                        fontSize: fontSize, // 這行是重點
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
+                        background: '#ffffff',
+                        borderRadius: '5px',
+                        padding: '7px',
                         width: '100%',
-                        textAlign: 'center',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        position: 'relative',
                     }}
                 >
-                    {name}
+                    {/* 内容 */}
+                    <div
+                        className="attraction_name"
+                        style={{
+                            fontWeight: 'bold',
+                            color: '#333',
+                            fontSize: fontSize, // 這行是重點
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            width: '100%',
+                            textAlign: 'center',
+                        }}
+                    >
+                        {name}
+                    </div>
                 </div>
             </div>
 
             {/* 交通時間 */}
+
             <TransportTime 
                 intervalHeight={intervalHeight} 
                 a_id={a_id}
@@ -143,6 +184,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
                 getTransportMethod={getTransportMethod}
                 barRefs={barRefs}
                 barCollide={barCollide}
+                maxBarHeight={maxBarHeight}
             />
 
         </Rnd>

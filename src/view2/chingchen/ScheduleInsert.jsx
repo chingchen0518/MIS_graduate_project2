@@ -1,8 +1,28 @@
+// 節流工具函式（每 interval ms 最多執行一次 fn）
+function throttle(fn, interval) {
+    let last = 0;
+    let timer = null;
+    return function(...args) {
+        const now = Date.now();
+        if (now - last >= interval) {
+            last = now;
+            fn.apply(this, args);
+        } else {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                last = Date.now();
+                fn.apply(this, args);
+            }, interval - (now - last));
+        }
+    };
+}
 import React, { useState, useRef, lazy, Suspense, useEffect } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import { function1 } from './TransportTime';
 import { fetchAttractions, buildPrompt, scheduleGenerate } from './AI_generate_schedule.js'; 
+import { min } from 'd3';
 
 // 使用 lazy 進行按需加載
 const ScheduleItem = lazy(() => import('./ScheduleItem'));
@@ -41,55 +61,42 @@ const ScheduleInsert = ({
     // barCollide 狀態：每個ScheduleItem有4個Bar
     const [barCollide, setBarCollide] = useState([]);
 
-    // 碰撞檢查工具
-    function isRectOverlap(r1, r2) {
-        if (!r1 || !r2) return false;
-        return (
-            r1.left < r2.right &&
-            r1.right > r2.left &&
-            r1.top < r2.bottom &&
-            r1.bottom > r2.top
-        );
-    }
+    // barHeightLimits 狀態：每個ScheduleItem的maxBarHeight
+    const [barHeightLimits, setBarHeightLimits] = useState([]);
 
-    // 檢查所有 bar 與所有 schedule_item（非自己）碰撞
-    const checkAllBarScheduleItemCollision = () => {
-        setBarCollide(prev => {
-            const updated = attractions.map((_, i) => Array(4).fill(false));
-            for (let i = 0; i < attractions.length; i++) {
-                for (let j = 0; j < 4; j++) {
-                    const barRef = transportBarRefs.current[i]?.[j];
-                    if (!barRef?.current) continue;
-                    const barRect = barRef.current.getBoundingClientRect();
-                    let collide = false;
-                    for (let k = 0; k < attractions.length; k++) {
-                        if (k === i) continue;
-                        const itemRef = scheduleItemRefs.current[k];
-                        if (!itemRef?.current) continue;
-                        const itemRect = itemRef.current.getBoundingClientRect();
-                        if (isRectOverlap(itemRect, barRect)) {
-                            collide = true;
-                            break;
-                        }
-                    }
-                    updated[i][j] = collide;
-                }
-            }
-            return updated;
-        });
-    };
 
-    // 監聽 attractions 變動時初始化 barCollide
+    // 拖拽時用節流版碰撞檢查，50ms 一次
+    // const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+
+    // 讓子元件可即時呼叫
+    // window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
+
+
+    // 監聽 attractions 變動時初始化 barCollide 與 barHeightLimits
     useEffect(() => {
         setBarCollide(attractions.map(() => Array(4).fill(false)));
-    }, [attractions.length]);
 
-    // 監聽拖曳/resize時觸發碰撞檢查
+        // 計算每個item的maxBarHeight
+        const limits = attractions.map((attraction, index) => {
+            if (index < attractions.length - 1) {
+                const curY = attraction.y;
+                const curH = attraction.height;
+                const nextY = attractions.find(a => a.sequence === attraction.sequence + 1)?.y;
+                if (typeof nextY === 'number') {
+                    let maxBarHeight = nextY - (curY + curH) + 1;
+                    if (maxBarHeight < 0) maxBarHeight = 0;
+                    return maxBarHeight;
+                }
+            }
+            return null;
+        });
+        setBarHeightLimits(limits);
+    }, [attractions]);
+
+    // 監聽拖曳/resize時觸發碰撞檢查（只在attractions有變化時）
     useEffect(() => {
-        // 這裡可根據需求調整觸發時機
-        const timer = setTimeout(() => checkAllBarScheduleItemCollision(), 100);
-        return () => clearTimeout(timer);
-    });
+        checkAllBarScheduleItemCollision();
+    }, [attractions]);
 
     // function 1:把新的行程新增到資料庫
     const db_insert_schedule = async () => {
@@ -264,10 +271,82 @@ const ScheduleInsert = ({
 
 
 
-    //function 9:顯示某個景點的營業時間
-    const showOperatingTime = () => {
-        //還沒收到前面的時間
+    //function 9:碰撞檢查工具
+    function isRectOverlap(r1, r2) {
+        if (!r1 || !r2) return false;
+        return (
+            r1.left < r2.right &&
+            r1.right > r2.left &&
+            r1.top < r2.bottom &&
+            r1.bottom > r2.top
+        );
+    }
+    
+    //function 10:高度更新工具
+    const updateBarHeights = (current_barRef,current_itemRect,originalBarHeight) => {
+        let distance = null;
+        // barRect 在 itemRect 上方
+        if (current_barRef.top < current_itemRect.top) {
+            distance = current_itemRect.top - current_barRef.top;
+        } else if (current_barRef.bottom > current_itemRect.bottom) {
+            distance = current_barRef.bottom - current_itemRect.bottom;
+        } else {
+            // bar 在 item 內部或完全重疊
+            distance = 0;
+        }
+        // 取最小距離
+        let minDistance = null;
+        if (minDistance === null || distance < minDistance) {
+            minDistance = distance;
+        }
+
+        return Math.min(minDistance, originalBarHeight)
     };
+
+    const originalBarHeights = Array.from({ length: attractions.length }, () => Array(4).fill(null));
+    
+    //function 11:檢查所有 bar 與所有 schedule_item（非自己）碰撞
+    const checkAllBarScheduleItemCollision = () => {
+        
+        for (let i = 0; i < attractions.length; i++) {
+            
+            for (let j = 0; j < 4; j++) {
+                const barRef = transportBarRefs.current[i]?.[j];
+
+                if (!originalBarHeights[i][j] && barRef?.current) {
+                    originalBarHeights[i][j] = barRef.current.getBoundingClientRect().height;
+                }
+
+                if (!barRef?.current) continue;
+                
+                const barRect = barRef.current.getBoundingClientRect();
+                
+                for (let k = 0; k < attractions.length; k++) {
+
+                    if (k === i) continue;
+
+                    const itemRef = scheduleItemRefs.current[k];
+                    
+                    if (!itemRef?.current) continue;
+                    const itemRect = itemRef.current.getBoundingClientRect();
+                    if (!isRectOverlap(itemRect, barRect)){
+                        // 恢復時
+                        barRef.current.children[0].classList.remove('bar_collide');
+                        barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect,originalBarHeights[i][j]) + 'px';
+                    }else{
+                        // 碰撞時
+                        barRef.current.children[0].classList.add('bar_collide');
+                        barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect,originalBarHeights[i][j]) + 'px';
+                        break;
+                    }
+                }
+            }
+        }
+    };
+
+    // 拖拽時用節流版碰撞檢查，50ms 一次，並註冊到 window 讓子元件可全域呼叫
+    const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+    window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
 
     //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({
@@ -377,14 +456,15 @@ const ScheduleInsert = ({
     // console.log("🚖attractions:", attractions);
 
     return (
-        <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
+        <ErrorBoundary>
+            <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
             <div className="schedule_header">
 
-                <div className="budget_display">$350</div>
+                {/* <div className="budget_display">$350</div> */}
                 
                 <div className="button_display">
-                    <button className="confirm_btn" onClick={handleConfirm}>確認</button>
                     <button className="cancel_btn" onClick={handleCancel}>取消</button>
+                    <button className="confirm_btn" onClick={handleConfirm}>完成</button>
                     <button className="generate_btn" onClick={handleGenerate}>AI</button>
                 </div>
 
@@ -400,32 +480,32 @@ const ScheduleInsert = ({
                     {attractions.map((attraction, index) => {
                         // 動態建立ref
                         if (!scheduleItemRefs.current[index]) scheduleItemRefs.current[index] = React.createRef();
-                        // TransportBar 可能有多個，這裡假設每個ScheduleItem有4個Bar
                         if (!transportBarRefs.current[index]) transportBarRefs.current[index] = [React.createRef(), React.createRef(), React.createRef(), React.createRef()];
+
                         return (
                             <ScheduleItem
                                 scheduleItemRef={scheduleItemRefs.current[index]}
-                                height={attraction.height} // 使用計算的高度
+                                height={attraction.height}
                                 a_id={attraction.a_id}
+                                sequence={attraction.sequence}
                                 key={`attraction-${index}`}
                                 name={attraction.name}
                                 position={attraction.position}
                                 width={attraction.width}
-                                index={index} //目前第幾個，暫時用的（用於後面識別schedule_item）
+                                index={index}
                                 scheduleId={scheduleId}
                                 isDraft={isDraft}
-                                onValueChange={(height, x, y,a_id) => { getChildData(height, x, y,a_id); setTimeout(checkAllBarScheduleItemCollision, 0); }}
+                                onValueChange={(height, x, y,a_id) => { getChildData(height, x, y,a_id); checkAllBarScheduleItemCollision(); }}
                                 editable={true}
                                 onDragStop={() => { handleReorder(); setTimeout(checkAllBarScheduleItemCollision, 0); }}
                                 getTransportMethod={(a_id,value) => getTransportMethod(a_id,value)}
                                 intervalHeight={intervalHeight}
                                 nextAId={attractions.find(a => a.sequence === attraction.sequence + 1)?.a_id ?? null}
                                 editmode={true}
-                                transport_method={attraction.transport_method} // 傳遞交通方式
-                                // 傳遞 barRefs 給 TransportTime
+                                transport_method={attraction.transport_method}
                                 barRefs={transportBarRefs.current[index]}
-                                // 新增 barCollide 狀態
                                 barCollide={barCollide[index] || [false, false, false, false]}
+                                maxBarHeight={barHeightLimits[index]}
                             />
                         );
                     })}
@@ -437,7 +517,8 @@ const ScheduleInsert = ({
                 </div>
                 )}
             </div>
-        </div>
+            </div>
+        </ErrorBoundary>
     );
 };
 

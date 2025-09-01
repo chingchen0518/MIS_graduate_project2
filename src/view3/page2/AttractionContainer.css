@@ -28,6 +28,7 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
+    position: relative;
 }
 
 .map_small_container {
@@ -35,7 +36,7 @@
     flex: 1;
     padding: 8px;
     box-sizing: border-box;
-    border: 1px solid black;
+    /* border: 1px solid black; */
     border-radius: 8px;
     overflow-y: hidden;
     overflow-x: hidden;
@@ -44,7 +45,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100px;
+    min-height: 55%;
     /* 設定最小高度避免太小 */
 }
 
@@ -61,19 +62,21 @@
 }
 
 .attraction_details {
-    width: calc(100% - 16px);
-    flex: 1;
-    padding: 8px;
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    height: 45%;
+    padding: 12px;
     box-sizing: border-box;
-    background-color: #ffffff;
-    border: 1px solid black;
-    border-radius: 8px;
+    background-color: transparent;
+    border-radius: 12px;
     overflow-y: auto;
     overflow-x: hidden;
-    margin: 8px 0px 8px 8px;
-    position: relative;
-    min-height: 100px;
-    /* 設定最小高度避免太小 */
+    z-index: 1000;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 

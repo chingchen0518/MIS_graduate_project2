@@ -16,7 +16,7 @@ const Vistor = () => {
 
     const fetchTripData = async () => {
         try {
-            const res = await fetch(`http://localhost:3001/api/trip/${tripId}`);
+            const res = await fetch(`/api/trip/${tripId}`);
             const data = await res.json();
             setTripId(data.tid || data.tripId);
             setStage(data.stage || '未知');

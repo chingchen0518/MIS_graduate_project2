@@ -360,11 +360,11 @@ const ScheduleInsert = ({
             }
 
         // 使用 getClientOffset 獲取拖放預覽的位置，而不是原始元素的位置
-        console.log("Monitor methods:", {
-            getClientOffset: monitor.getClientOffset(),
-            getSourceClientOffset: monitor.getSourceClientOffset(),
-            getDifferenceFromInitialOffset: monitor.getDifferenceFromInitialOffset()
-        });
+        // console.log("Monitor methods:", {
+        //     getClientOffset: monitor.getClientOffset(),
+        //     getSourceClientOffset: monitor.getSourceClientOffset(),
+        //     getDifferenceFromInitialOffset: monitor.getDifferenceFromInitialOffset()
+        // });
         
         const clientOffset = monitor.getClientOffset();
         if (!clientOffset) {
@@ -442,6 +442,7 @@ const ScheduleInsert = ({
                             ];
         const lines = [];
         const intervalHeight = containerHeight / 25; // 調整為空間/25
+        // console.log(intervalHeight);
         // HourIntervalHeight = intervalHeight;
 
         timeColumn.forEach((time, index) => {

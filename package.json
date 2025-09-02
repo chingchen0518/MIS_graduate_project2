@@ -15,6 +15,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@google/genai": "^1.14.0",
+    "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
@@ -22,6 +23,7 @@
     "d3": "^7.9.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5",
     "leaflet": "^1.9.4",
     "multer": "^2.0.2",
     "mysql2": "^3.14.3",
@@ -32,10 +34,11 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.1.0",
-    "react-draggable": "^4.5.0",
+    "react-hot-toast": "^2.6.0",
     "react-rnd": "^10.5.2",
     "react-router-dom": "^7.6.3",
     "rnd": "^1.0.10",
+    "seedrandom": "^3.0.5",
     "sequelize": "^6.37.7"
   },
   "devDependencies": {

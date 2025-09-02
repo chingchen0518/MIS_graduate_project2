@@ -49,6 +49,17 @@
   line-height: 1;
 }
 
+.route_show {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
 .add_schedule_text {
   font-size: 10px;
   color: #333;
@@ -71,6 +82,7 @@
   color: #333;
 }
 
+
 .schedule {
   width: 120px;
   height: calc(100% - 10px);
@@ -86,6 +98,18 @@
   min-width: 120px;
   flex-shrink: 0;
   position: relative;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.schedule-hovered {
+  background-color: #f0f4ff;
+  box-shadow: 0 2px 8px rgba(66, 139, 255, 0.15);
+}
+
+.schedule-selected {
+  background-color: #c3dafe;
+  border-color: #3182ce;
+  box-shadow: 0 4px 16px rgba(49, 130, 206, 0.18);
 }
 
 .schedule.drag_over {
@@ -156,6 +180,7 @@
 
 .schedule_item {
   position: relative;
+  /* z-index: 10; */
 }
 
 
@@ -199,21 +224,19 @@
 }
 
 .confirm_btn {
-  background: #44e63e;
-  color: white;
+  padding: 8px 20px;
+  background: #96b2d1;
+  color: #fff;
   border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 8px;
+  border-radius: 10px;
+  font-size: 15px;
   cursor: pointer;
-  transition: all 0.2s ease;
   margin-right: 10%;
   margin-bottom: 10px;
 }
 
 .confirm_btn:hover {
-  background: #3db83b;
-  transform: scale(1.05);
+  background: #839cb8;
 }
 
 .cancel_btn {
@@ -360,4 +383,9 @@
 
 .schedule.draft .schedule_header {
   background-color: #ffecb3;
+}
+
+.transport_bar{
+    position: absolute;
+    /* z-index: 5; */
 }

@@ -1,7 +1,28 @@
-import React, { useState, useRef, lazy, Suspense } from 'react';
+// 節流工具函式（每 interval ms 最多執行一次 fn）
+function throttle(fn, interval) {
+    let last = 0;
+    let timer = null;
+    return function(...args) {
+        const now = Date.now();
+        if (now - last >= interval) {
+            last = now;
+            fn.apply(this, args);
+        } else {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                last = Date.now();
+                fn.apply(this, args);
+            }, interval - (now - last));
+        }
+    };
+}
+import React, { useState, useRef, lazy, Suspense, useEffect } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
 import { function1 } from './TransportTime';
+import { fetchAttractions, buildPrompt, scheduleGenerate } from './AI_generate_schedule.js'; 
+import { min } from 'd3';
 
 // 使用 lazy 進行按需加載
 const ScheduleItem = lazy(() => import('./ScheduleItem'));
@@ -23,13 +44,59 @@ const ScheduleInsert = ({
     
     var u_id = 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
     var HourIntervalHeight = intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
-    
+    var all_attraction;
     let TheNewSchedule = {};
-
+    
     //state
     const [attractions, setAttractions] = useState([]); //儲存目前放進schedule的attraction
+    const [loading, setLoading] = useState(false);
+
     // var finalScheduleItems = {}; // 儲存最終的行程項目
     const dropRef = useRef(null);
+
+    // 動態管理所有 ScheduleItem 和 TransportBar 的 ref
+    const scheduleItemRefs = useRef([]);
+    const transportBarRefs = useRef([]);
+
+    // barCollide 狀態：每個ScheduleItem有4個Bar
+    const [barCollide, setBarCollide] = useState([]);
+
+    // barHeightLimits 狀態：每個ScheduleItem的maxBarHeight
+    const [barHeightLimits, setBarHeightLimits] = useState([]);
+
+
+    // 拖拽時用節流版碰撞檢查，50ms 一次
+    // const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+
+    // 讓子元件可即時呼叫
+    // window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
+
+
+    // 監聽 attractions 變動時初始化 barCollide 與 barHeightLimits
+    useEffect(() => {
+        setBarCollide(attractions.map(() => Array(4).fill(false)));
+
+        // 計算每個item的maxBarHeight
+        const limits = attractions.map((attraction, index) => {
+            if (index < attractions.length - 1) {
+                const curY = attraction.y;
+                const curH = attraction.height;
+                const nextY = attractions.find(a => a.sequence === attraction.sequence + 1)?.y;
+                if (typeof nextY === 'number') {
+                    let maxBarHeight = nextY - (curY + curH) + 1;
+                    if (maxBarHeight < 0) maxBarHeight = 0;
+                    return maxBarHeight;
+                }
+            }
+            return null;
+        });
+        setBarHeightLimits(limits);
+    }, [attractions]);
+
+    // 監聽拖曳/resize時觸發碰撞檢查（只在attractions有變化時）
+    useEffect(() => {
+        checkAllBarScheduleItemCollision();
+    }, [attractions]);
 
     // function 1:把新的行程新增到資料庫
     const db_insert_schedule = async () => {
@@ -69,6 +136,7 @@ const ScheduleInsert = ({
                             y: attraction.y,
                             height: attraction.height,
                             sequence:attraction.sequence,
+                            transport_method: attraction.transport_method, // 新增交通方式
                         }),
                     });
                 })
@@ -120,12 +188,6 @@ const ScheduleInsert = ({
                 } else {
                     console.error('交通時間計算失敗:', result.error);
                 }
-
-                
-                // db_insert_schedule_item(s_id);//插入schedule中的細項
-                
-                // await ()=>{handleNewSchedule(scheduleData)};//把新增的行程傳回去給schedule_container.jsx
-
             }
         } else {
             alert('此行程已經確認');
@@ -158,11 +220,133 @@ const ScheduleInsert = ({
         setAttractions(updated);
     };
 
-    //function 7:顯示某個景點的營業時間
-    const showOperatingTime = () => {
-        //還沒收到前面的時間
+    // function 7:取得某個景點的交通方式
+    const getTransportMethod = (a_id_for_function, value) => {
+        setAttractions(prev => prev.map(item =>
+            item.a_id === a_id_for_function
+                ? { ...item, transport_method: value }
+                : item
+        ));
+        console.log('🅰️景點', a_id_for_function);
+        console.log('🚖目前選擇的交通方式:', value);
     };
 
+    // function8:AI
+    const handleGenerate = async () => {
+        setLoading(true);
+        all_attraction = await fetchAttractions();
+        const prompt = buildPrompt(all_attraction, { startTime: '09:00', endTime: '17:00', attraction_count: 7 });
+        const originalResponse = await scheduleGenerate(prompt, 1);
+        try {
+            // 解析 AI 回傳的 JSON 字串
+            const arr = JSON.parse(originalResponse);
+            // 逐一建立 NewAttraction 並添加到 setAttractions
+            arr.forEach(item => {
+                // 計算時間和00:00的差距
+                const [sh, sm] = "00:00".split(':').map(Number);
+                const [eh, em] = item.arrival_time.split(':').map(Number);
+                const timeDiff = (eh * 60 + em) - (sh * 60 + sm);
+                
+                const calculated_y = timeDiff * HourIntervalHeight; // 計算 y 座標
+
+                const NewAttraction = {
+                    a_id: item.a_id,
+                    name: item.name,
+                    sequence: item.sequence,
+                    transport_method: 0,
+                    height: item.stay_minutes * HourIntervalHeight,
+                    width: 180,
+                    x: 0,
+                    y: calculated_y,
+                    position: { x: 0, y: calculated_y },
+                };
+                setAttractions(prev => [...prev, NewAttraction]);
+            });
+        } catch (e) {
+            console.warn('解析AI回傳行程失敗', e);
+        }
+        console.log(originalResponse);
+        setLoading(false);
+    }
+
+
+
+    //function 9:碰撞檢查工具
+    function isRectOverlap(r1, r2) {
+        if (!r1 || !r2) return false;
+        return (
+            r1.left < r2.right &&
+            r1.right > r2.left &&
+            r1.top < r2.bottom &&
+            r1.bottom > r2.top
+        );
+    }
+    
+    //function 10:高度更新工具
+    const updateBarHeights = (current_barRef,current_itemRect,originalBarHeight) => {
+        let distance = null;
+        // barRect 在 itemRect 上方
+        if (current_barRef.top < current_itemRect.top) {
+            distance = current_itemRect.top - current_barRef.top;
+        } else if (current_barRef.bottom > current_itemRect.bottom) {
+            distance = current_barRef.bottom - current_itemRect.bottom;
+        } else {
+            // bar 在 item 內部或完全重疊
+            distance = 0;
+        }
+        // 取最小距離
+        let minDistance = null;
+        if (minDistance === null || distance < minDistance) {
+            minDistance = distance;
+        }
+
+        return Math.min(minDistance, originalBarHeight)
+    };
+
+    const originalBarHeights = Array.from({ length: attractions.length }, () => Array(4).fill(null));
+    
+    //function 11:檢查所有 bar 與所有 schedule_item（非自己）碰撞
+    const checkAllBarScheduleItemCollision = () => {
+        
+        for (let i = 0; i < attractions.length; i++) {
+            
+            for (let j = 0; j < 4; j++) {
+                const barRef = transportBarRefs.current[i]?.[j];
+
+                if (!originalBarHeights[i][j] && barRef?.current) {
+                    originalBarHeights[i][j] = barRef.current.getBoundingClientRect().height;
+                }
+
+                if (!barRef?.current) continue;
+                
+                const barRect = barRef.current.getBoundingClientRect();
+                
+                for (let k = 0; k < attractions.length; k++) {
+
+                    if (k === i) continue;
+
+                    const itemRef = scheduleItemRefs.current[k];
+                    
+                    if (!itemRef?.current) continue;
+                    const itemRect = itemRef.current.getBoundingClientRect();
+                    if (!isRectOverlap(itemRect, barRect)){
+                        // 恢復時
+                        barRef.current.children[0].classList.remove('bar_collide');
+                        barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect,originalBarHeights[i][j]) + 'px';
+                    }else{
+                        // 碰撞時
+                        barRef.current.children[0].classList.add('bar_collide');
+                        barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect,originalBarHeights[i][j]) + 'px';
+                        break;
+                    }
+                }
+            }
+        }
+    };
+
+    // 拖拽時用節流版碰撞檢查，50ms 一次，並註冊到 window 讓子元件可全域呼叫
+    const throttleCheckAllBarScheduleItemCollision = throttle(checkAllBarScheduleItemCollision, 50);
+    window.throttleCheckAllBarScheduleItemCollision = throttleCheckAllBarScheduleItemCollision;
 
     //use Drop(處理drag and drop事件),還沒確認的
     const [{ isOver }, drop] = useDrop({
@@ -209,14 +393,8 @@ const ScheduleInsert = ({
         const correctedX = x;
         const correctedY = Math.max(0, Math.min(y, dropTargetRect.height));
 
-        // console.log('Item dropped:', item, 'at position:', { x: correctedX, y: correctedY });
-        // 可能有錯誤---------------------------------------------------------------------------------
-        // const t_id = item.id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
-        const dropTargetId = dropTarget.getAttribute('data-id'); // 獲取 Drop Target 的 ID
-        // const s_id = dropTargetId || 1; // 使用 Drop Target 的 ID 作為 schedule ID，默認為 1
-        // 可能有錯---------------------------------------------------------------------------------
-        // const a_id = item.a_id || 1; // 景點 ID，默認為 1
-
+             const dropTargetId = dropTarget.getAttribute('data-id'); // 獲取 Drop Target 的 ID
+        
         if (monitor.getItemType() === "card") {       
             // 處理從 attraction_card 拖動
             const newAttraction = {
@@ -228,6 +406,7 @@ const ScheduleInsert = ({
                 height: 35, // 調整高度，與 schedule_item.jsx 保持一致 @==@調整成真正的高度
                 width: 180, // 調整寬度，與 schedule_item.jsx 保持一致
                 sequence: attractions.length + 1, // 新增的景點序號
+                transport_method: 0 // 初始交通方式為 0
             };
             
             // setAttractions((prevAttractions) => [...prevAttractions, newAttraction]);
@@ -277,14 +456,16 @@ const ScheduleInsert = ({
     // console.log("🚖attractions:", attractions);
 
     return (
-        <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
+        <ErrorBoundary>
+            <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
             <div className="schedule_header">
 
-                <div className="budget_display">$350</div>
+                {/* <div className="budget_display">$350</div> */}
                 
                 <div className="button_display">
-                    <button className="confirm_btn" onClick={handleConfirm}>確認</button>
                     <button className="cancel_btn" onClick={handleCancel}>取消</button>
+                    <button className="confirm_btn" onClick={handleConfirm}>完成</button>
+                    <button className="generate_btn" onClick={handleGenerate}>AI</button>
                 </div>
 
                 <span className="schedule_date">{title}</span>
@@ -296,33 +477,48 @@ const ScheduleInsert = ({
                 {/* 顯示景點 - 現在只會在草稿狀態下執行 */}
                 {attractions && attractions.length > 0 ? (
                 <Suspense fallback={<div>Loading...</div>}>
-                    {attractions.map((attraction, index) => (
-                        <ScheduleItem
-                            height={HourIntervalHeight} // 使用計算的高度
-                            a_id={attraction.a_id}
-                            key={`attraction-${index}`}
-                            name={attraction.name}
-                            position={attraction.position}
-                            width={attraction.width}
-                            index={index} //目前第幾個，暫時用的（用於後面識別schedule_item）
-                            scheduleId={scheduleId}
-                            isDraft={isDraft}
-                            onValueChange={(height, x, y,a_id) => getChildData(height, x, y,a_id)}
-                            editable={true}
-                            onDragStop={() => handleReorder}
-                            intervalHeight={intervalHeight}
-                            nextAId={attractions.find(a => a.sequence === attraction.sequence + 1)?.a_id ?? null}
-                            editmode={true}
-                        />
-                    ))}
+                    {attractions.map((attraction, index) => {
+                        // 動態建立ref
+                        if (!scheduleItemRefs.current[index]) scheduleItemRefs.current[index] = React.createRef();
+                        if (!transportBarRefs.current[index]) transportBarRefs.current[index] = [React.createRef(), React.createRef(), React.createRef(), React.createRef()];
+
+                        return (
+                            <ScheduleItem
+                                scheduleItemRef={scheduleItemRefs.current[index]}
+                                height={attraction.height}
+                                a_id={attraction.a_id}
+                                sequence={attraction.sequence}
+                                key={`attraction-${index}`}
+                                name={attraction.name}
+                                position={attraction.position}
+                                width={attraction.width}
+                                index={index}
+                                scheduleId={scheduleId}
+                                isDraft={isDraft}
+                                onValueChange={(height, x, y,a_id) => { getChildData(height, x, y,a_id); checkAllBarScheduleItemCollision(); }}
+                                editable={true}
+                                onDragStop={() => { handleReorder(); setTimeout(checkAllBarScheduleItemCollision, 0); }}
+                                getTransportMethod={(a_id,value) => getTransportMethod(a_id,value)}
+                                intervalHeight={intervalHeight}
+                                nextAId={attractions.find(a => a.sequence === attraction.sequence + 1)?.a_id ?? null}
+                                editmode={true}
+                                transport_method={attraction.transport_method}
+                                barRefs={transportBarRefs.current[index]}
+                                barCollide={barCollide[index] || [false, false, false, false]}
+                                maxBarHeight={barHeightLimits[index]}
+                            />
+                        );
+                    })}
                 </Suspense>
                 ) : (
                 <div className="schedule_empty">
-                    <span>拖拽景點到這裡</span>
+                    <span>{loading ? "行程生成中..." : "拖拽景點到這裡"}</span>
+
                 </div>
                 )}
             </div>
-        </div>
+            </div>
+        </ErrorBoundary>
     );
 };
 

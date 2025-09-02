@@ -7,11 +7,6 @@ import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-        console.log('已登入使用者：', user.name, '，ID:', user.uid);
-    } else {
-        console.log('尚未登入');
-    }
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -25,20 +20,21 @@ const Login = () => {
         setSuccess('');
 
         if (!email || !password) {
-            setError('請輸入電子郵件和密碼！');
+            setError('Please enter your email and password!');
             return;
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            setError('請輸入有效的電子郵件格式');
+            setError('Please enter a valid email address');
             return;
         }
 
         setLoading(true);
 
         try {
-            const res = await fetch('/api/view3_login', {
+            let api = `http://localhost:3001/api/view3_login`;
+            const res = await fetch(api, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -47,7 +43,7 @@ const Login = () => {
             const data = await res.json();
 
             if (res.ok) {
-                setSuccess(data.message || '登入成功！');
+                setSuccess(data.message || 'Login successful!');
 
                 if (data.user) {
                     localStorage.setItem('user', JSON.stringify(data.user));
@@ -58,32 +54,32 @@ const Login = () => {
                     navigate(data.redirect || '/profile');
                 }, 1500);
             } else {
-                setError(data.message || '登入失敗！');
+                setError(data.message || 'Login failed!');
             }
         } catch (err) {
-            setError('發生錯誤，請稍後再試');
+            setError('An error occurred, please try again later');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="page">
+        <div className="all_page">
             <div className="floating-shapes">
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
                 <div className="shape" />
             </div>
-            <div className="container">
-                <div className="header">
-                    <div className="logo">
-                        <div className="logo-icon">
+            <div className="main_container">
+                <div className="all_header">
+                    <div className="all_logo">
+                        <div className="all_logo-icon">
                             <FontAwesomeIcon icon={faGlobe} />
                         </div>
-                        <h1 className="title">Vistour</h1>
+                        <h1 className="all_title">Vistour</h1>
                     </div>
-                    <p className="subtitle">你的旅遊好幫手</p>
+                    <p className="all_subtitle">Your travel assistant</p>
                 </div>
                 <div className="body">
                     {success && (
@@ -99,16 +95,16 @@ const Login = () => {
                         </div>
                     )}
                     <form onSubmit={handleSubmit} noValidate>
-                        <div className="form-group">
-                            <label htmlFor="email">電子郵件</label>
-                            <div className="input-with-icon">
+                        <div className="all_form-group">
+                            <label htmlFor="email">Email</label>
+                            <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faEnvelope} />
                                 <input
                                     type="email"
                                     id="email"
                                     name="email"
                                     className="form-control"
-                                    placeholder="請輸入您的電子郵件地址"
+                                    placeholder="Please enter your email address"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value.trim())}
                                     required
@@ -117,16 +113,16 @@ const Login = () => {
                                 />
                             </div>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="password">密碼</label>
-                            <div className="input-with-icon">
+                        <div className="all_form-group">
+                            <label htmlFor="password">Password</label>
+                            <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faLock} />
                                 <input
                                     type="password"
                                     id="password"
                                     name="password"
                                     className="form-control"
-                                    placeholder="請輸入您的密碼"
+                                    placeholder="Please enter your password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
@@ -135,17 +131,13 @@ const Login = () => {
                             </div>
                         </div>
                         <div className="form-options">
-                            <label className="remember-me">
-                                <input type="checkbox" name="remember" />
-                                記住我
-                            </label>
                             <a href="/forgotpassword" className="forgotpassword">
-                                忘記密碼？
+                                Forgot password?
                             </a>
                         </div>
                         <button
                             type="submit"
-                            className="btn"
+                            className="all_btn"
                             disabled={loading}
                             aria-busy={loading}
                             aria-disabled={loading}
@@ -154,16 +146,16 @@ const Login = () => {
                                 <span className="loading" aria-label="Loading" />
                             ) : (
                                 <>
-                                    <span className="btn-text">登入</span>
+                                    <span className="all_btn-text">Login</span>
                                     <FontAwesomeIcon icon={faSignInAlt} style={{ marginLeft: '8px' }} />
                                 </>
                             )}
                         </button>
                     </form>
                 </div>
-                <div className="footer">
+                <div className="all_footer">
                     <p className="register-link">
-                        還沒有帳號？ <a href="/Signin">立即註冊</a>
+                        Don't have an account? <a href="/Signin">Sign up now</a>
                     </p>
                 </div>
             </div>

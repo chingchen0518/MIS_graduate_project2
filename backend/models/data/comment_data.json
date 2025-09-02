@@ -1,0 +1,26 @@
+[
+  {
+    "t_id": 1,
+    "comments": [
+      {
+        "a_id": 1,
+        "user_id": [
+          "aaa",
+          "BBB"
+        ],
+        "content": [
+          "好美！",
+          "I like!!!!!!!"
+        ],
+        "created_at": [
+          "2025-08-18T15:20:30.000Z",
+          "2025-08-20T15:20:30.000Z"
+        ],
+        "link": [
+          "https://blog.hi-lite.com.tw/europe-travel-guide/switzerland-travel-guide",
+          " "
+        ]
+      }
+    ]
+  }
+]

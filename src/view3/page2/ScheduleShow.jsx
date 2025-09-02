@@ -73,6 +73,27 @@ const ScheduleShow = (props) => {
         };
     }, []);
 
+    // 定義景點分類顏色映射（邊框漸變顏色）
+    const getCategoryColor = (category) => {
+        const colorMap = {
+            // 根據資料庫實際分類名稱對應
+            '歷史文化': 'linear-gradient(135deg, #ffdfba, #ffbf69)', // Culture & Heritage - 橘色漸變
+            '自然景觀': 'linear-gradient(135deg, #bae1ff, #baffc9)', // Scenic Spots - 藍綠色漸變
+            '交通運輸': 'linear-gradient(135deg, #f9a1bc, #fbc4ab)', // Transport Rides - 粉色漸變
+            '探索空間': 'linear-gradient(135deg, #dcd6f7, #a6b1e1)', // Discovery Spaces - 紫色漸變
+            '公共廣場': 'linear-gradient(135deg, #c77dff, #ffd6ff)', // Public Squares - 紫粉色漸變
+            
+            // 保留舊的分類名稱以防萬一
+            '文化古蹟': 'linear-gradient(135deg, #ffdfba, #ffbf69)',
+            '風景名勝': 'linear-gradient(135deg, #bae1ff, #baffc9)',
+            
+            // 預設顏色
+            'default': 'linear-gradient(135deg, #f0f0f0, #d0d0d0)'
+        };
+        
+        return colorMap[category] || colorMap['default'];
+    };
+
     // Use Effect 2:從DB讀取別人的行程的schedule_item，按日期過濾
     useEffect(() => {
         let api = `http://localhost:3001/api/view2_schedule_include_show/${props.t_id}/${props.s_id}`;
@@ -311,6 +332,8 @@ const ScheduleShow = (props) => {
                         nextAId={null} // 在Show模式下不需要next景點資訊
                         a_id={scheduleItem.a_id}
                         isSelected={selectedAttractions.includes(scheduleItem.a_id)} // 傳遞是否被選中
+                        categoryColor={getCategoryColor(scheduleItem.category)} // 傳遞分類顏色
+                        category={scheduleItem.category} // 傳遞分類名稱
                     />
                 ))}
             </div>

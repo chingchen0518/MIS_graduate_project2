@@ -28,7 +28,7 @@
 .add_schedule_icon {
   width: 40px;
   height: 40px;
-  background-color: #4A90E2;
+  background-color: #ffe1a8;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -38,15 +38,18 @@
 }
 
 .add_schedule_icon:hover {
-  background-color: #357abd;
+  background-color: #ff8347;
   transform: scale(1.1);
 }
 
 .plus_icon {
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-  line-height: 1;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: black;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .add_schedule_text {
@@ -243,39 +246,39 @@
 }
 
 .confirm_btn {
-  background: #44e63e;
-  color: white;
+  background: #f8e0bb;
+  color: #333;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 4px 8px;
-  font-size: 8px;
+  font-size: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-right: 10%;
+  margin-right: 1%;
   margin-bottom: 10px;
+
 }
 
 .confirm_btn:hover {
-  background: #3db83b;
-  transform: scale(1.05);
+  background: #f2d2a2;
 }
 
 .cancel_btn {
-  background: #f13f3f;
+  background: #96b2d1;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 4px 8px;
-  font-size: 8px;
+  font-size: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-right: 10%;
   margin-bottom: 10px;
 
 }
 
 .cancel_btn:hover {
-  background: #e53e3e;
-  transform: scale(1.05);
+  background: #c4d1d9;
 }
 
 .schedule_empty {

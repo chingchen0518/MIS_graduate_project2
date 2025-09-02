@@ -701,17 +701,21 @@ app.get('/api/view2_attraction_list', (req, res) => {
 });
 
 app.get('/api/view2_schedule_list', (req, res) => {
-  const { date } = req.query;
+    const { date, t_id } = req.query;
 
-  let sql = 'SELECT * FROM Schedule';
-  let params = [];
+    let date_db = date || '2025-08-01';
+    let t_id_db = t_id || 1;
+
+    let sql = 'SELECT * FROM Schedule WHERE t_id = ? AND date = ?';
+    let params = [t_id_db, date_db];
 
   // 如果有提供日期參數，則按日期過濾
-  if (date) {
-    sql += ' WHERE date = ?';
-    params.push(date);
-    console.log('📅 按日期過濾 Schedule:', date);
-  }
+//   if (date) {
+//     sql += ' AND date = ?';
+//     params.push(date);
+//     console.log('📅 按日期過濾 Schedule:', date);
+//   }
+
 
   // 添加排序：先按日期，再按day欄位排序
   sql += ' ORDER BY date ASC, day ASC';

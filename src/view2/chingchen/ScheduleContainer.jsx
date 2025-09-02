@@ -74,12 +74,15 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
     useEffect(() => {
         setLoading(true);
 
-        let api = 'http://localhost:3001/api/view2_schedule_list';
+        let api = `http://localhost:3001/api/view2_schedule_list?t_id=${trip.tid}`;
+        
+        //添加日期
         if (selectedDate) {
-            api += `?date=${encodeURIComponent(selectedDate)}`;
+            api += `&date=${encodeURIComponent(selectedDate)}`;
             // console.log('🔍 按日期載入 Schedule:', selectedDate);
         }
         
+
         fetch(api)
         .then(response => {
             if (!response.ok) {

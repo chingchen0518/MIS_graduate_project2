@@ -159,8 +159,8 @@ const ScheduleShow = (props) => {
                     
                     if (!itemRef?.current) continue;
                     const itemRect = itemRef.current.getBoundingClientRect();
-                    console.log("itemRect:",itemRect)
-                    console.log("barRect",barRect);
+                    // console.log("itemRect:",itemRect)
+                    // console.log("barRect",barRect);
                     // if (isRectOverlap(itemRect, barRect)){
                     if (isRectOverlap(itemRect, barRect)){    
 

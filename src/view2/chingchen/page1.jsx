@@ -43,7 +43,7 @@ const Page1 = () => {
     // function 2: 處理顯示路線
     const handleShowRoute = (routeData) => {
         setCurrentRoute(routeData);
-        console.log('顯示路線：', routeData);
+        // console.log('顯示路線：', routeData);
     };
 
     // function 3: 處理隱藏路線

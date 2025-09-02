@@ -9,6 +9,8 @@ import Header from '../../components/header.jsx'
 
 import './Page1.css';
 
+const user = JSON.parse(localStorage.getItem('user'));
+const trip = JSON.parse(localStorage.getItem('trip'))
 
 // 建立 Context
 export const SelectedScheduleContext = createContext({
@@ -41,7 +43,7 @@ const Page1 = () => {
     // function 2: 處理顯示路線
     const handleShowRoute = (routeData) => {
         setCurrentRoute(routeData);
-        console.log('顯示路線：', routeData);
+        // console.log('顯示路線：', routeData);
     };
 
     // function 3: 處理隱藏路線

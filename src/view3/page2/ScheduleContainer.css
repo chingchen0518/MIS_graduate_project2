@@ -25,6 +25,43 @@
   gap: 20px;
 }
 
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.date-selector-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.sort-selector-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.sort-selector {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.sort-selector:hover {
+  border-color: #4A90E2;
+}
+
+.sort-selector:focus {
+  outline: none;
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
 .schedule_container_title {
 
   font-size: 22px;
@@ -95,8 +132,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 80px; /* 對應時間欄的 padding-top */
-  height: 200px; /* 給定一個合適的高度 */
+  margin-top: 80px;
+  /* 對應時間欄的 padding-top */
+  height: 200px;
+  /* 給定一個合適的高度 */
 }
 
 .add_schedule_column {
@@ -111,7 +150,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* 改為頂部對齊 */
+  justify-content: flex-start;
+  /* 改為頂部對齊 */
   box-sizing: border-box;
   min-width: 120px;
   flex-shrink: 0;
@@ -125,7 +165,8 @@
   border-bottom: 1px solid #ddd;
   padding-bottom: 6px;
   position: relative;
-  height: 42px; /* 與 schedule_header 相同高度 */
+  height: 42px;
+  /* 與 schedule_header 相同高度 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -153,11 +194,13 @@
   color: white;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
-  outline: none; /* 移除點擊後的粗線邊框 */
+  outline: none;
+  /* 移除點擊後的粗線邊框 */
 }
 
 .add_schedule_button:focus {
-  outline: none; /* 確保focus狀態也沒有邊框 */
+  outline: none;
+  /* 確保focus狀態也沒有邊框 */
 }
 
 .add_schedule_button:hover {

@@ -1,0 +1,36 @@
+.attraction-connector-container {
+    position: relative;
+}
+
+.attraction-connector-svg {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: none !important;
+    z-index: 1000 !important;
+    overflow: hidden !important;
+    /* 固定在視窗上，覆蓋整個頁面，隱藏超出部分 */
+}
+
+.attraction-connection {
+    stroke-linejoin: round;
+    transition: all 0.3s ease;
+    pointer-events: all !important; /* 覆蓋父元素的 pointer-events: none */
+}
+
+/* 懸停效果的過渡動畫 */
+.attraction-connection:hover {
+    filter: drop-shadow(0 0 6px currentColor);
+}
+
+/* 高亮狀態 */
+.attraction-connection.highlighted {
+    filter: drop-shadow(0 0 10px currentColor) brightness(1.2);
+}
+
+/* 黯淡狀態 */
+.attraction-connection.dimmed {
+    opacity: 0.3;
+}

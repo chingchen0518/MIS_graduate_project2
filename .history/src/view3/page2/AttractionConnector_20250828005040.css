@@ -1,0 +1,24 @@
+.attraction-connector-container {
+    position: relative;
+}
+
+.attraction-connector-svg {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: auto !important;  /* 允許鼠標事件 */
+    z-index: 1000 !important;
+    overflow: hidden !important;
+    /* 固定在視窗上，覆蓋整個頁面，隱藏超出部分 */
+}
+
+.attraction-connection {
+    stroke-linejoin: round;
+}
+
+/* 懸停效果的增強 */
+.attraction-connection:hover {
+    filter: drop-shadow(0 0 6px currentColor);  /* 添加發光效果 */
+}

@@ -1054,20 +1054,37 @@ app.post('/api/schedule_vote/:t_id/:s_id/:u_id/:date', (req, res) => {
       }
 
       if (existing.length > 0) {
-        // 更新現有投票
-        const updateQuery = vote_type === 'like'
-          ? `UPDATE Evaluate SET good = true, bad = false WHERE u_id = ? AND s_id = ? AND t_id = ?`
-          : `UPDATE Evaluate SET good = false, bad = true WHERE u_id = ? AND s_id = ? AND t_id = ?`;
+        // 如果重複點擊（取消投票），則直接刪除該投票紀錄
+        if (
+          (vote_type === 'like' && existing[0].good === 1) ||
+          (vote_type === 'dislike' && existing[0].bad === 1)
+        ) {
+          const deleteQuery = `DELETE FROM Evaluate WHERE u_id = ? AND s_id = ? AND t_id = ?`;
+          connection.query(deleteQuery, [u_id, s_id, t_id], (err, result) => {
+            if (err) {
+              console.error('Error deleting vote:', err);
+              res.status(500).send('Failed to delete vote');
+            } else {
+              console.log(`Vote deleted for t_id:${t_id}, s_id:${s_id}, u_id:${u_id}, date:${date}, type:${vote_type}`);
+              res.status(200).json({ message: 'Vote deleted successfully' });
+            }
+          });
+        } else {
+          // 更新現有投票
+          const updateQuery = vote_type === 'like'
+            ? `UPDATE Evaluate SET good = true, bad = false WHERE u_id = ? AND s_id = ? AND t_id = ?`
+            : `UPDATE Evaluate SET good = false, bad = true WHERE u_id = ? AND s_id = ? AND t_id = ?`;
 
-        connection.query(updateQuery, [u_id, s_id, t_id], (err, result) => {
-          if (err) {
-            console.error('Error updating vote:', err);
-            res.status(500).send('Failed to update vote');
-          } else {
-            console.log(`Vote updated for t_id:${t_id}, s_id:${s_id}, u_id:${u_id}, date:${date}, type:${vote_type}`);
-            res.status(200).json({ message: 'Vote updated successfully' });
-          }
-        });
+          connection.query(updateQuery, [u_id, s_id, t_id], (err, result) => {
+            if (err) {
+              console.error('Error updating vote:', err);
+              res.status(500).send('Failed to update vote');
+            } else {
+              console.log(`Vote updated for t_id:${t_id}, s_id:${s_id}, u_id:${u_id}, date:${date}, type:${vote_type}`);
+              res.status(200).json({ message: 'Vote updated successfully' });
+            }
+          });
+        }
       } else {
         // 插入新投票
         const insertQuery = `INSERT INTO Evaluate (u_id, s_id, t_id, good, bad) VALUES (?, ?, ?, ?, ?)`;

@@ -10,6 +10,7 @@ const ScheduleShow = (props) => {
     const [scheduleWidths, setScheduleWidths] = useState(0);
     const [totalBudget, setTotalBudget] = useState(0); // 新增：總預算
     const [voteData, setVoteData] = useState({ total_likes: 0, total_dislikes: 0 }); // 新增：投票數據
+    const [currentUserVote, setCurrentUserVote] = useState(null); // 新增：當前用戶的投票狀態
 
     // 從props獲取篩選條件
     const { costRange = [0, 1000], selectedAttractions = [], selectedUsers = [] } = props.filterConditions || {};
@@ -142,12 +143,14 @@ const ScheduleShow = (props) => {
         }
     }, [props.s_id, props.date]);
 
-    // Use Effect 4: 獲取投票數據
+    // Use Effect 4: 獲取投票數據和當前用戶投票狀態
     useEffect(() => {
         const fetchVotes = async () => {
             try {
                 const formattedDate = formatDate(props.date);
                 console.log(`Fetching votes for t_id: ${props.t_id}, s_id: ${props.s_id}, date: ${formattedDate}`);
+
+                // 獲取總投票數據
                 const response = await fetch(`http://localhost:3001/api/schedule_votes/${props.t_id}/${props.s_id}/${formattedDate}`);
                 console.log('Votes response status:', response.status);
                 if (response.ok) {
@@ -158,6 +161,16 @@ const ScheduleShow = (props) => {
                     console.error('Votes API failed with status:', response.status);
                     const errorText = await response.text();
                     console.error('Votes API error:', errorText);
+                }
+
+                // 獲取當前用戶的投票狀態
+                const currentUserId = 1; // 這裡需要從props或context獲取實際用戶ID
+                const userVoteResponse = await fetch(`http://localhost:3001/api/user_vote/${props.t_id}/${props.s_id}/${currentUserId}/${formattedDate}`);
+                if (userVoteResponse.ok) {
+                    const userVoteData = await userVoteResponse.json();
+                    setCurrentUserVote(userVoteData.vote_type || null);
+                } else {
+                    setCurrentUserVote(null);
                 }
             } catch (error) {
                 console.error('Error fetching votes:', error);
@@ -172,19 +185,24 @@ const ScheduleShow = (props) => {
     // 投票處理函數
     const handleVote = async (voteType) => {
         try {
-            // 這裡需要當前用戶的ID，暫時使用固定值1，實際應該從props或context獲取
-            const currentUserId = 1;
+            const currentUserId = 1; // 這裡需要當前用戶的ID，暫時使用固定值1，實際應該從props或context獲取
             const formattedDate = formatDate(props.date);
+
+            // 如果點擊的是已經投過的票，則取消投票
+            const finalVoteType = currentUserVote === voteType ? null : voteType;
 
             const response = await fetch(`http://localhost:3001/api/schedule_vote/${props.t_id}/${props.s_id}/${currentUserId}/${formattedDate}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ vote_type: voteType }),
+                body: JSON.stringify({ vote_type: finalVoteType }),
             });
 
             if (response.ok) {
+                // 更新當前用戶投票狀態
+                setCurrentUserVote(finalVoteType);
+
                 // 重新獲取投票數據
                 const voteResponse = await fetch(`http://localhost:3001/api/schedule_votes/${props.t_id}/${props.s_id}/${formattedDate}`);
                 if (voteResponse.ok) {
@@ -246,20 +264,50 @@ const ScheduleShow = (props) => {
                         <img alt="User" src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png" />
                     </div>
                     <div className="vote_buttons">
-                        <button
-                            className="vote_button like_button"
-                            onClick={() => handleVote('like')}
-                            title="讚"
-                        >
-                            👍 {voteData.total_likes}
-                        </button>
-                        <button
-                            className="vote_button dislike_button"
-                            onClick={() => handleVote('dislike')}
-                            title="倒讚"
-                        >
-                            👎 {voteData.total_dislikes}
-                        </button>
+                        <div className="vote_bar_container">
+                            <div
+                                className="vote_bar like_section"
+                                style={{
+                                    width: voteData.total_likes + voteData.total_dislikes === 0
+                                        ? '50%'
+                                        : `${Math.max(10, Math.min(90, (voteData.total_likes / (voteData.total_likes + voteData.total_dislikes)) * 100))}%`,
+                                    backgroundColor: currentUserVote === 'like' ? '#388E3C' : '#4CAF50',
+                                    height: '30px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    borderTopLeftRadius: '5px',
+                                    borderBottomLeftRadius: '5px',
+                                    boxShadow: currentUserVote === 'like' ? 'inset 0 2px 4px rgba(0,0,0,0.2)' : 'none'
+                                }}
+                                onClick={() => handleVote('like')}
+                                title={currentUserVote === 'like' ? `已讚 - 點擊取消 (${voteData.total_likes})` : `讚 (${voteData.total_likes})`}
+                            >
+                                👍
+                            </div>
+                            <div
+                                className="vote_bar dislike_section"
+                                style={{
+                                    width: voteData.total_likes + voteData.total_dislikes === 0
+                                        ? '50%'
+                                        : `${Math.max(10, Math.min(90, (voteData.total_dislikes / (voteData.total_likes + voteData.total_dislikes)) * 100))}%`,
+                                    backgroundColor: currentUserVote === 'dislike' ? '#C62828' : '#f44336',
+                                    height: '30px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    borderTopRightRadius: '5px',
+                                    borderBottomRightRadius: '5px',
+                                    boxShadow: currentUserVote === 'dislike' ? 'inset 0 2px 4px rgba(0,0,0,0.2)' : 'none'
+                                }}
+                                onClick={() => handleVote('dislike')}
+                                title={currentUserVote === 'dislike' ? `已倒讚 - 點擊取消 (${voteData.total_dislikes})` : `倒讚 (${voteData.total_dislikes})`}
+                            >
+                                👎
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className="budget_display">${totalBudget}</div>

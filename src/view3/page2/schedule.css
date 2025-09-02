@@ -114,38 +114,39 @@
 
 .vote_buttons {
   display: flex;
-  gap: 4px;
   margin-top: -6px;
+  width: 100%;
 }
 
-.vote_button {
-  background: none;
-  border: none;
-  font-size: 12px;
-  padding: 2px 4px;
-  border-radius: 4px;
-  cursor: pointer;
+.vote_bar_container {
+  display: flex;
+  width: 100%;
+  height: 30px;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+}
+
+.vote_bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
-  min-width: 30px;
-  text-align: center;
+  font-size: 14px;
 }
 
-.like_button {
-  background-color: #e8f5e8;
-  color: #2e7d32;
+.vote_bar:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
 }
 
-.like_button:hover {
-  background-color: #c8e6c9;
+.like_section {
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.dislike_button {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.dislike_button:hover {
-  background-color: #ffcdd2;
+.dislike_section {
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .button_display {

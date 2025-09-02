@@ -709,13 +709,7 @@ app.get('/api/view2_schedule_list', (req, res) => {
     let sql = 'SELECT * FROM Schedule WHERE t_id = ? AND date = ?';
     let params = [t_id_db, date_db];
 
-  // 如果有提供日期參數，則按日期過濾
-//   if (date) {
-//     sql += ' AND date = ?';
-//     params.push(date);
-//     console.log('📅 按日期過濾 Schedule:', date);
-//   }
-
+    console.log(sql)
 
   // 添加排序：先按日期，再按day欄位排序
   sql += ' ORDER BY date ASC, day ASC';
@@ -959,7 +953,7 @@ app.get('/api/view2_get_transport_time/:a_id/:nextAid', async (req, res) => {
     } else {
       // 找到資料，直接返回
     //   console.log(`✅ 找到現有資料:`, results);
-    //   res.status(200).json(results);
+      res.status(200).json(results);
     }
   });
 });

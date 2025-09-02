@@ -31,7 +31,7 @@ const ScheduleInsert = ({
         t_id,
         date, 
         title, 
-        initialAttractions,
+        u_id,
         day, 
         scheduleId,
         isDraft = true,
@@ -42,7 +42,7 @@ const ScheduleInsert = ({
         intervalHeight,
     }) => {
     
-    var u_id = 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
+    var u_id = u_id || 1; // @==@假設用戶ID為1，實際應根據您的應用邏輯獲取
     var HourIntervalHeight = intervalHeight/60;//計算每個小時這些schedule中的高度（會在render grid里修改）
     var all_attraction;
     let TheNewSchedule = {};

@@ -10,7 +10,7 @@ import DateSelector from '../Liu/DateSelector';
 import './ScheduleContainer.css';
 const user = JSON.parse(localStorage.getItem('user'));
 const trip = JSON.parse(localStorage.getItem('trip'))
-
+console.log('ScheduleContainer user:', user.uid);
 
 const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShowRoute, onHideRoute }) => {
     
@@ -25,7 +25,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
 
     const timeColumnRef = useRef(null);
 
-    console.log(user, trip)
+    // console.log(user, trip)
     
     // function 1：處理日期選擇變更
     const handleDateChange = (date) => {
@@ -170,7 +170,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
             
             {showScheduleInsert && (
                 <ScheduleInsert
-                    t_id={1} //@==@t_id要替換
+                    t_id={trip.tid} //@==@t_id要替換
+                    u_id={user.uid}
                     date = {selectedDate}
                     ScheduleInsertShow={handleShowScheduleInsert}
                     handleNewSchedule={getNewSchedule}
@@ -194,8 +195,9 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
             schedules.map((schedule) => (
                 <ScheduleShow
                     key={'schedule-' + schedule.s_id}
+                    u_id={user.uid}
+                    t_id={trip.tid}
                     s_id={schedule.s_id}
-                    t_id={t_id}
                     title={schedule.title}
                     day={schedule.day}
                     intervalHeight={timeColumnHeight / (timeSlots.length + 1)}

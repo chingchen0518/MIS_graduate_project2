@@ -1,0 +1,345 @@
+/* 景點詳情外層容器 */
+.attraction_details {
+  /* width: 100%; */
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* 餐廳卡片樣式 */
+.attraction_card_layout {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  max-height: 300px;
+  padding: 12px;
+  box-sizing: border-box;
+  display: flex;
+  gap: 12px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  margin-top: 10px;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 佔位符樣式 */
+.attraction_placeholder {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 2px dashed #ccc;
+  background: #f9f9f9;
+  color: #666;
+}
+
+.attraction_placeholder_content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.placeholder_icon {
+  font-size: 48px;
+  color: #999;
+}
+
+.placeholder_title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.placeholder_text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 300px;
+  color: #666;
+}
+
+.placeholder_arrow {
+  font-size: 32px;
+  color: #007bff;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateX(0);
+  }
+  40% {
+    transform: translateX(10px);
+  }
+  60% {
+    transform: translateX(5px);
+  }
+}
+
+.attraction_image {
+  flex-shrink: 0;
+  width: 80px;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.attraction_image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.attraction_info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  padding-bottom: 25px;
+  padding-right: 50px;
+  position: relative;
+}
+
+.attraction_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.attraction_title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  flex: 1;
+}
+
+.action_icon {
+  background: #f0f0f0;
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.week_schedule {
+  margin: 4px 0;
+}
+
+.week_days {
+  display: flex;
+  gap: 3px;
+}
+
+.day {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  color: #666;
+  font-weight: 500;
+}
+
+.day.active {
+  background: #ff6b35;
+  color: white;
+}
+
+.location_info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.location,
+.hours,
+.phone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+}
+
+.location_icon,
+.time_icon,
+.phone_icon {
+  font-size: 10px;
+  width: 12px;
+  text-align: center;
+}
+
+.address,
+.time,
+.number {
+  color: #666;
+  font-size: 9px;
+}
+
+.price_section {
+  position: absolute;
+  bottom: 20px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 6px;
+  background: #fff3e0;
+  border-radius: 10px;
+  border: 1px solid #ff9800;
+  width: fit-content;
+  font-size: 9px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.price_label {
+  font-size: 8px;
+  color: #666;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.price_input {
+  font-size: 9px;
+  font-weight: bold;
+  color: #ff9800;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 30px;
+  padding: 1px 2px;
+  text-align: center;
+  border-radius: 3px;
+}
+
+.price_input:focus {
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.price_input::placeholder {
+  color: #ff9800;
+  opacity: 0.8;
+}
+
+.no_selection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #666;
+  font-size: 12px;
+}
+
+.details_section h3 {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+  border-left: 3px solid #FF9800;
+  padding-left: 6px;
+}
+
+.details_section p {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.info_grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.info_item {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.info_label {
+  font-weight: bold;
+  color: #333;
+  margin-right: 6px;
+  font-size: 11px;
+}
+
+.info_value {
+  color: #666;
+  font-size: 11px;
+}
+
+.details_section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.details_section li {
+  padding: 4px 0;
+  border-bottom: 1px solid #eee;
+  color: #555;
+  position: relative;
+  padding-left: 15px;
+  font-size: 11px;
+}
+
+.details_section li:before {
+  content: "•";
+  color: #FF9800;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.details_section li:last-child {
+  border-bottom: none;
+}
+
+/* 關閉按鈕樣式 */
+.close_button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 14px;
+  height: 34px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  /* color: #666; */
+  transition: all 0.2s ease;
+  z-index: 1001;
+  border: none;
+  outline: none;
+}
+
+.close_button:hover {
+  background: #e0e0e0;
+  /* color: #333; */
+  transform: scale(1.1);
+}
+
+.close_button:active {
+  transform: scale(0.95);
+}
+
+.close_button:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}

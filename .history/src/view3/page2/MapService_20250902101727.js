@@ -63,13 +63,11 @@ export class MapService {
   initMap(container, options = {}, region = 'global') {
     // 如果地圖已經初始化，先清理
     if (this.map) {
-      console.warn('地圖已存在，正在清理...');
       this.destroy();
     }
 
     // 檢查容器是否已經被 Leaflet 初始化
     if (container._leaflet_id) {
-      console.warn('容器已被 Leaflet 初始化，正在重置...');
       delete container._leaflet_id;
       // 清空容器內容
       container.innerHTML = '';
@@ -96,25 +94,24 @@ export class MapService {
     };
 
     const mapOptions = { ...defaultOptions, ...options };
-    
+
     try {
       this.map = L.map(container, mapOptions);
     } catch (error) {
-      console.error('地圖初始化失敗:', error);
       throw new Error('Map container is already initialized.');
     }
-    
+
     // 添加地圖圖層
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
       maxZoom: 18
     }).addTo(this.map);
-    
+
     // 設定地區邊界
     if (config.BOUNDS) {
       this.map.fitBounds(config.BOUNDS);
     }
-    
+
     return this.map;
   }
 
@@ -153,7 +150,7 @@ export class MapService {
         this.map = null;
       }
     } catch (error) {
-      console.error('地圖清理過程中發生錯誤:', error);
+      // Error handling without console output
     }
   }
 
@@ -171,7 +168,7 @@ export class MapService {
     };
 
     const markerOptions = { ...defaultOptions, ...options };
-    
+
     let marker;
     if (markerOptions.icon) {
       marker = L.marker(coords, { icon: markerOptions.icon });
@@ -189,7 +186,7 @@ export class MapService {
 
     marker.addTo(this.map);
     this.markers.set(id, marker);
-    
+
     return marker;
   }
 
@@ -233,7 +230,7 @@ export class MapService {
         ${sequence}
       </div>
     `;
-    
+
     return L.divIcon({
       html: html,
       className: 'sequence-marker',
@@ -276,14 +273,14 @@ export class MapService {
 
     const routeStyle = { ...defaultStyle, ...style };
     const polyline = L.polyline(coordinates, routeStyle).addTo(this.map);
-    
+
     if (id) {
       this.routeLines.set(id, polyline);
     } else {
       // 舊的 API 相容性
       this.routeLines.set(`route_${Date.now()}`, polyline);
     }
-    
+
     return polyline;
   }
 
@@ -295,39 +292,39 @@ export class MapService {
   drawMultipleRoutes(routesData, groupId = 'default') {
     // 清除舊的路線群組
     this.clearRouteGroup(groupId);
-    
+
     const routeGroup = [];
-    
+
     Object.entries(routesData).forEach(([transportKey, routeData]) => {
       if (routeData && routeData.plan && routeData.plan.itineraries) {
         const coordinates = this.extractRouteCoordinates(routeData);
-        
+
         if (coordinates.length > 0) {
           const color = TRANSPORT_COLORS[transportKey] || TRANSPORT_COLORS.default;
           const routeId = `${groupId}_${transportKey}`;
-          
+
           const polyline = this.drawRoute(coordinates, {
             color: color,
             weight: 4,
             opacity: 0.7,
             dashArray: transportKey === 'walk' ? '5, 5' : null
           }, routeId);
-          
+
           // 添加路線資訊彈窗
           const duration = Math.round(routeData.plan.itineraries[0].duration / 60);
           const distance = (routeData.plan.itineraries[0].walkDistance / 1000).toFixed(1);
-          
+
           polyline.bindPopup(`
             <strong>${this.getTransportName(transportKey)}</strong><br>
             時間: ${duration} 分鐘<br>
             距離: ${distance} 公里
           `);
-          
+
           routeGroup.push(polyline);
         }
       }
     });
-    
+
     this.routeGroups.set(groupId, routeGroup);
   }
 
@@ -440,36 +437,36 @@ export class MapService {
     const len = encoded.length;
     let lat = 0;
     let lng = 0;
-    
+
     while (index < len) {
       let b;
       let shift = 0;
       let result = 0;
-      
+
       do {
         b = encoded.charCodeAt(index++) - 63;
         result |= (b & 0x1f) << shift;
         shift += 5;
       } while (b >= 0x20);
-      
+
       const dlat = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
       lat += dlat;
-      
+
       shift = 0;
       result = 0;
-      
+
       do {
         b = encoded.charCodeAt(index++) - 63;
         result |= (b & 0x1f) << shift;
         shift += 5;
       } while (b >= 0x20);
-      
+
       const dlng = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
       lng += dlng;
-      
+
       points.push([lat / 1e5, lng / 1e5]);
     }
-    
+
     return points;
   }
 
@@ -480,7 +477,7 @@ export class MapService {
    */
   extractRouteCoordinates(routeData) {
     const coordinates = [];
-    
+
     if (routeData?.plan?.itineraries?.[0]?.legs) {
       routeData.plan.itineraries[0].legs.forEach(leg => {
         if (leg.legGeometry?.points) {
@@ -504,7 +501,7 @@ export class MapService {
         }
       });
     }
-    
+
     return coordinates;
   }
 

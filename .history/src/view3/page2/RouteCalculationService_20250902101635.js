@@ -48,8 +48,6 @@ class RouteCalculationService {
   /*單一路線計算（回到原本的多URL測試，但加強調試）*/
   async calculateRoute(fromCoords, toCoords, date, mode = 'WALK') {
     try {
-      console.log(`計算 ${mode} 路線...`, { fromCoords, toCoords, date, mode });
-      
       const fromPlace = `${fromCoords[0]},${fromCoords[1]}`; //起點的經緯度
       const toPlace = `${toCoords[0]},${toCoords[1]}`;//終點的經緯度
       const otpDate = this.formatDateForOTP(date);
@@ -104,18 +102,13 @@ class RouteCalculationService {
       const primaryVariant = urlVariants[0];
       
       try {
-        console.log(`🔍 嘗試 ${primaryVariant.name}: ${primaryVariant.url}`);
-        
         const response = await fetch(primaryVariant.url, {
           headers: { 'Accept': 'application/json' }
         });
         
         if (!response.ok) {
-          console.error(`📊 API 回應錯誤: ${response.status} ${response.statusText}`);
-          
           // 如果是 404 且使用 switzerland router，嘗試 default router
           if (response.status === 404 && primaryVariant.url.includes('/switzerland/')) {
-            console.log('🔄 嘗試使用 default router...');
             const fallbackUrl = primaryVariant.url.replace('/switzerland/', '/default/');
             const fallbackResponse = await fetch(fallbackUrl, {
               headers: { 'Accept': 'application/json' }
@@ -123,18 +116,13 @@ class RouteCalculationService {
             
             if (fallbackResponse.ok) {
               const fallbackData = await fallbackResponse.json();
-              console.log(`✅ ${mode} fallback 成功:`, fallbackData);
               
               // 檢查是否有路線
               if (fallbackData.plan?.itineraries?.length > 0) {
-                console.log(`🎯 路線數量: ${fallbackData.plan.itineraries.length}`);
-                console.log(`⏱️ 第一條路線時間: ${Math.round(fallbackData.plan.itineraries[0].duration / 60)} 分鐘`);
-                
                 // 檢查是否有幾何資料
                 const hasGeometry = fallbackData.plan.itineraries[0].legs?.some(leg => 
                   leg.legGeometry?.points && leg.legGeometry.points.length > 20
                 );
-                console.log(`🗺️ 是否有詳細幾何資料: ${hasGeometry ? '是（真實路線）' : '否（可能是直線）'}`);
                 
                 return fallbackData;
               }
@@ -159,13 +147,9 @@ class RouteCalculationService {
           }
         }
         
-        console.log(`📝 ${mode} 路線結果:`, data);
-        
         // 檢查是否有錯誤信息
         if (data.error) {
-          console.error(`⚠️ OTP 錯誤:`, data.error);
           if (mode === 'TRANSIT,WALK') {
-            console.error('🚌 大眾運輸錯誤詳情:', data.error);
             throw new Error(`大眾運輸計算失敗: ${data.error.message || 'GTFS 數據可能未載入'}`);
           }
           throw new Error(data.error.message || 'OTP 服務錯誤');
@@ -173,9 +157,6 @@ class RouteCalculationService {
         
         // 檢查是否有計劃資料
         if (!data.plan || !data.plan.itineraries || data.plan.itineraries.length === 0) {
-          console.warn(`⚠️ ${mode} 沒有找到可行路線`);
-          console.log('📄 完整回應數據:', JSON.stringify(data, null, 2));
-          
           if (mode === 'TRANSIT,WALK') {
             throw new Error('大眾運輸無可行路線：可能是 GTFS 數據缺失或站點距離過遠');
           }
@@ -187,17 +168,14 @@ class RouteCalculationService {
         const hasGeometry = data.plan.itineraries[0].legs?.some(leg => 
           leg.legGeometry?.points && leg.legGeometry.points.length > 20
         );
-        console.log(`🗺️ 是否有詳細幾何資料: ${hasGeometry ? '是（真實路線）' : '否（可能是直線）'}`);
         
         return data;
         
       } catch (error) {
-        console.error(`💥 ${mode} 路線計算失敗:`, error.message);
         throw error;
       }
       
       // 所有格式都失敗，創建後備路線
-      console.log(`🔄 ${mode} 所有 URL 格式都失敗，創建直線路線`);
       return this.createFallbackRoute(fromCoords, toCoords, mode);
       
     } catch (error) {
@@ -210,16 +188,11 @@ class RouteCalculationService {
     const transportModes = this.getTransportModes();
     const routeResults = {};
     
-    console.log(`開始計算所有交通方式路線: [${fromCoords}] → [${toCoords}]`);
-    
     for (const [key, transport] of Object.entries(transportModes)) {
       try {
-        console.log(`計算 ${transport.name} 路線...`);
         const route = await this.calculateRoute(fromCoords, toCoords, date, transport.mode);
         routeResults[key] = route;
-        console.log(`${transport.name} 路線計算成功`);
       } catch (error) {
-        console.error(`${transport.name} 路線計算錯誤:`, error.message);
         routeResults[key] = null;
       }
     }
@@ -236,19 +209,14 @@ class RouteCalculationService {
     const allRouteData = [];
     const date = travelDate.replace(/-/g, '-');
     
-    console.log(`開始計算行程路線，共 ${itinerary.length - 1} 段`);
-    
     for (let i = 0; i < itinerary.length - 1; i++) {
       const from = itinerary[i];
       const to = itinerary[i + 1];
-      
-      console.log(`計算第 ${i + 1} 段: ${from.name} → ${to.name}`);
       
       try {
         const segmentRoutes = await this.calculateAllRoutes(from.coords, to.coords, date);
         allRouteData.push(segmentRoutes);
       } catch (error) {
-        console.error(`第 ${i + 1} 段路線計算失敗:`, error);
         allRouteData.push({});
       }
     }

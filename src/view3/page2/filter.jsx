@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import React, { useState, useEffect, useCallback } from 'react';
 import './Filter.css';
 
@@ -23,11 +28,11 @@ const Filter = ({ t_id, onCategoryChange, onFilterChange, onAttractionSelect }) 
                 setLoading(true);
 
                 // 獲取指定trip的景點類別
-                const categoriesResponse = await fetch(`http://localhost:3001/api/attraction_categories/${t_id}`);
+                const categoriesResponse = await fetch(`${BASE_URL}/api/attraction_categories/${t_id}`);
                 const categoriesData = await categoriesResponse.json();
 
                 // 獲取該trip的預算範圍
-                const budgetResponse = await fetch(`http://localhost:3001/api/view3_trip_budget_range/${t_id}`);
+                const budgetResponse = await fetch(`${BASE_URL}/api/view3_trip_budget_range/${t_id}`);
                 const budgetData = await budgetResponse.json();
 
                 if (categoriesData.success) {
@@ -45,7 +50,7 @@ const Filter = ({ t_id, onCategoryChange, onFilterChange, onAttractionSelect }) 
 
                 // 獲取該trip的所有景點
                 try {
-                    const attractionsResponse = await fetch(`http://localhost:3001/api/view2_attraction_list`);
+                    const attractionsResponse = await fetch(`${BASE_URL}/api/view2_attraction_list`);
                     const attractionsData = await attractionsResponse.json();
 
                     if (attractionsData && Array.isArray(attractionsData)) {

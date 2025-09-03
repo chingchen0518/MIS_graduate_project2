@@ -2516,6 +2516,29 @@ app.post('/api/trip-create', async (req, res) => {
   }
 });
 
+app.post('/api/evaluate/max-good-bad', (req, res) => {
+  const { tid } = req.body;
+
+  const sql = 'SELECT s_id, (good - bad) AS score FROM evaluate WHERE t_id = ?';
+  connection.query(sql, [tid], (err, results) => {
+    if (err) {
+      console.error('❌ Error in max-good-bad:', err);
+      return res.status(500).json({ message: '資料庫錯誤', error: err.message });
+    }
+
+    if (!results.length) {
+      return res.json({ maxSids: [], message: '查無資料' });
+    }
+
+    const maxScore = Math.max(...results.map(r => r.score));
+    const maxSids = results.filter(r => r.score === maxScore).map(r => r.s_id);
+
+    res.json({ maxSids, message: '查詢成功' });
+  });
+});
+
+
+
 // 不可以刪除！！！
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);

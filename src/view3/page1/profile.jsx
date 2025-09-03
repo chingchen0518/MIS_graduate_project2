@@ -208,7 +208,7 @@ function Profile() {
                 </div>
                 <div className="all_footer">
                     <p className="register-link">
-                        <a href="/">回首頁</a>
+                        <a href="/">Back to Homepage</a>
                     </p>
                 </div>
             </div>

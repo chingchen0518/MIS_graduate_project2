@@ -1,4 +1,9 @@
 
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import React, { useState } from "react";
 
 const TEST_API_GPT = () => {
@@ -10,11 +15,11 @@ const TEST_API_GPT = () => {
     const [attr, setAttr] = useState([]);
 
     // 获取景点列表
-    const fetchAttractions = async () => {
-        const res = await fetch("http://localhost:3001/api/view2_attraction_list");
-        if (!res.ok) throw new Error("无法获取景点数据");
-        return await res.json();
-    };
+  const fetchAttractions = async () => {
+    const res = await fetch(`${BASE_URL}/api/view2_attraction_list`);
+    if (!res.ok) throw new Error("无法获取景点数据");
+    return await res.json();
+  };
 
     
     // 组装prompt，支持自定义时间与景点数

@@ -71,7 +71,7 @@ const Filter = ({ t_id, onCategoryChange, onFilterChange, onAttractionSelect }) 
 
                 // 獲取該trip的參與使用者
                 try {
-                    const usersResponse = await fetch(`http://localhost:3001/api/trip_users/${t_id}`);
+                    const usersResponse = await fetch(`${BASE_URL}/api/trip_users/${t_id}`);
                     const usersData = await usersResponse.json();
 
                     if (usersData.success && usersData.users) {

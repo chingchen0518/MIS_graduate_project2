@@ -20,6 +20,9 @@ console.log("host in db_settings:",host )
 const sequelize = new Sequelize('travel', 'root', '20250101', {
   host: host,
   dialect: 'mysql',
+  dialectOptions: {
+    allowPublicKeyRetrieval: true,
+  },
 });
 
 export { sequelize };

@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import React, { useState, useEffect, useRef } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -54,7 +59,7 @@ const ScheduleContainer = ({ t_id, usedAttractions = [], onAttractionUsed, onSho
         const schedulesWithDetails = await Promise.all(
             schedulesToSort.map(async (schedule) => {
                 try {
-                    const response = await fetch(`http://localhost:3001/api/view2_schedule_include_show/${schedule.t_id || 1}/${schedule.s_id}`);
+                    const response = await fetch(`${BASE_URL}/api/view2_schedule_include_show/${schedule.t_id || 1}/${schedule.s_id}`);
                     if (response.ok) {
                         const attractions = await response.json();
 
@@ -129,7 +134,7 @@ const ScheduleContainer = ({ t_id, usedAttractions = [], onAttractionUsed, onSho
         const fetchAndSortSchedules = async () => {
             setLoading(true);
 
-            let api = 'http://localhost:3001/api/view2_schedule_list';
+            let api = `${BASE_URL}/api/view2_schedule_list`;
             if (selectedDate) {
                 api += `?date=${encodeURIComponent(selectedDate)}`;
             }

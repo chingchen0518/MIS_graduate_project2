@@ -4,6 +4,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faAddressCard, faPlus, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
+let BASE_URL = import.meta.env.VITE_API_URL;
+const PORT = import.meta.env.PORT || 3001;
+if (BASE_URL && !BASE_URL.startsWith('http')) {
+    BASE_URL = `http://${BASE_URL}`;
+}
+if (PORT) {
+    BASE_URL = `${BASE_URL}:${PORT}`;
+}
+
 function Profile() {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user'));
@@ -22,7 +31,7 @@ function Profile() {
 
     useEffect(() => {
         if (user?.uid) {
-            fetch(`http://localhost:3001/api/user/${user.uid}`)
+            fetch(`${BASE_URL}/api/user/${user.uid}`)
                 .then(res => res.json())
                 .then(data => setProfile(data));
         }

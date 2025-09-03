@@ -5,6 +5,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faGlobe, faCheckCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom'; // ✅ 這行你可能已經有了
 
+let BASE_URL = import.meta.env.VITE_API_URL;
+const PORT = import.meta.env.PORT || 3001;
+if (BASE_URL && !BASE_URL.startsWith('http')) {
+    BASE_URL = `http://${BASE_URL}`;
+}
+if (PORT) {
+    BASE_URL = `${BASE_URL}:${PORT}`;
+}
+
 const ForgotPassword = () => {
     const navigate = useNavigate(); // ✅ 少了這行！
     const [email, setEmail] = useState('');
@@ -33,7 +42,7 @@ const ForgotPassword = () => {
 
             try {
                 setLoading(true);
-                const response = await fetch('/api/view3_forgot_password', {
+                const response = await fetch(`${BASE_URL}/api/view3_forgot_password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email }),
@@ -71,7 +80,7 @@ const ForgotPassword = () => {
 
             try {
                 setLoading(true);
-                const response = await fetch('/api/view3_reset_password', {
+                const response = await fetch(`${BASE_URL}/api/view3_reset_password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

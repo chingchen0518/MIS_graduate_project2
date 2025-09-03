@@ -4,6 +4,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe, faCalendarAlt, faClock, faMapMarkerAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
+let BASE_URL = import.meta.env.VITE_API_URL;
+const PORT = import.meta.env.PORT || 3001;
+if (BASE_URL && !BASE_URL.startsWith('http')) {
+    BASE_URL = `http://${BASE_URL}`;
+}
+if (PORT) {
+    BASE_URL = `${BASE_URL}:${PORT}`;
+}
+
 const initialState = {
     title: "",
     country: "",
@@ -52,7 +61,7 @@ function Backend() {
                 const formatted_s_time = formatTimeWithSeconds(form.s_time);
                 const formatted_e_time = formatTimeWithSeconds(form.e_time);
 
-                const response = await fetch('http://localhost:3001/api/trip-create', {
+                const response = await fetch(`${BASE_URL}/api/trip-create`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

@@ -34,7 +34,7 @@ const function1 = async (attractions, s_id, date) => {
                 console.log(' 發送交通時間計算 API 請求資料:', requestData);
                 
                 //發送 API 請求，調用後端的交通時間計算 API
-                const response = await fetch('http://localhost:3001/api/calculate-schedule-transport-times', {
+                const response = await fetch(`${BASE_URL}/api/calculate-schedule-transport-times`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

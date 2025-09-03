@@ -30,7 +30,7 @@ const HomePage = () => {
          {/* view2的這里 */}
         <ul className="view_2" style={{ margin: '20px',padding:'20px',border:'1px solid'}}>
             <li className="homepage_li"><a href="/attraction">attraction</a></li>
-            <li className="homepage_li"><a href="/page1">page1</a></li>
+            <li className="homepage_li blue"><a className="blue" href="/page1">⑤page1</a></li>
             <li className="homepage_li"><a href="/map">map</a></li>
             <li className="homepage_li"><a href="/MapDisplay">MapDisplay</a></li>
             <li className="homepage_li"><a href="/ResizableBox">ResizableBox</a></li>
@@ -45,14 +45,15 @@ const HomePage = () => {
         {/* view3的這里 */}
         <ul className="view_3" style={{ margin: '20px',padding:'20px',border:'1px solid'}}>
             <li className="homepage_li"><a href="/header">header</a></li>
-            <li className="homepage_li"><a href="/login">login</a></li>
+            <li className="homepage_li blue"><a className="blue" href="/signin">①signUp</a></li>
+            <li className="homepage_li blue"><a className="blue" href="/login">②login</a></li>
+            <li className="homepage_li blue"><a className="blue" href="/Profile">③Profile</a></li>
+            <li className="homepage_li"><a className="blue" href="/Vistour">④Vistour</a></li>
             <li className="homepage_li"><a href="/logout">logout</a></li>
-            <li className="homepage_li"><a href="/signin">signin</a></li>
             <li className="homepage_li"><a href="/forgotPassword">forgotPassword</a></li>
-            <li className="homepage_li"><a href="/Profile">Profile</a></li>
             <li className="homepage_li"><a href="/page2">page2</a></li>
             <li className="homepage_li"><a href="/page3">page3</a></li>
-            <li className="homepage_li"><a href="/Vistour">Vistour</a></li>
+            
             <li className="homepage_li"><a href="/Backend">Backend</a></li>
         </ul>
 

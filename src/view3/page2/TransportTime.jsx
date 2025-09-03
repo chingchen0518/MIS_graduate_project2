@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import React, { useImperativeHandle, useState, forwardRef, useEffect } from "react";
 import './TransportTime.css'
 
@@ -22,7 +27,7 @@ const function1 = async (attractions, s_id, date) => {
                 };
 
                 //發送 API 請求，調用後端的交通時間計算 API
-                const response = await fetch('http://localhost:3001/api/calculate-schedule-transport-times', {
+                const response = await fetch(`${BASE_URL}/api/calculate-schedule-transport-times`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -120,7 +125,7 @@ const TransportTime = ({ transport_method, editmode = false, intervalHeight = 60
     // Use Effect：從DB讀取景點的交通時間（如果有下一個景點要讀取，否則不用）
     useEffect(() => {
         if (nextAId) {
-            let api = `http://localhost:3001/api/view2_get_transport_time/${a_id}/${nextAId}`;
+            let api = `${BASE_URL}/api/view2_get_transport_time/${a_id}/${nextAId}`;
 
             fetch(api)
                 .then((response) => {

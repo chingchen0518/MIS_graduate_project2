@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import React, { useState, useEffect } from 'react';
 import './DateSelector.css';
 
@@ -13,7 +18,7 @@ const DateSelector = ({ t_id, onDateChange }) => {
   useEffect(() => {
     const fetchTripDates = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/trip-dates/${t_id}`);
+  const response = await fetch(`${BASE_URL}/api/trip-dates/${t_id}`);
 
         if (response.ok) {
           const data = await response.json();

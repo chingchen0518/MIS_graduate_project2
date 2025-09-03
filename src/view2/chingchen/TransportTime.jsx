@@ -1,6 +1,13 @@
 import React, { useImperativeHandle, useState, forwardRef, useEffect } from "react";
 import './TransportTime.css'
 
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+
+const PORT = import.meta.env.PORT || 3001;
+
+let BASE_URL = NGROK_URL|| `http://${HOST_URL}:${PORT}`;
+
 // function1:計算行程所有景點間交通時間的函數
 const function1 = async (attractions, s_id, date) => {
     // 行程確認後，計算所有景點間的交通時間
@@ -30,7 +37,8 @@ const function1 = async (attractions, s_id, date) => {
                 const response = await fetch('http://localhost:3001/api/calculate-schedule-transport-times', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true',
                     },
                     body: JSON.stringify(requestData)
                 });
@@ -136,9 +144,13 @@ const TransportTime = ({ transport_method,editmode=false, intervalHeight,a_id,ne
     // Use Effect：從DB讀取景點的交通時間（如果有下一個景點要讀取，否則不用）
     useEffect(() => {
         if(nextAId){
-            let api = `http://localhost:3001/api/view2_get_transport_time/${a_id}/${nextAId}`;
+            let api = `${BASE_URL}/api/view2_get_transport_time/${a_id}/${nextAId}`;
 
-            fetch(api)
+            fetch(api, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                },
+            })
             .then((response) => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

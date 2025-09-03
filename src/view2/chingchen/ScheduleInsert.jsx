@@ -1,3 +1,10 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+
+const PORT = import.meta.env.PORT || 3001;
+
+let BASE_URL = NGROK_URL|| `http://${HOST_URL}:${PORT}`;
+
 // 節流工具函式（每 interval ms 最多執行一次 fn）
 function throttle(fn, interval) {
     let last = 0;
@@ -101,9 +108,12 @@ const ScheduleInsert = ({
     // function 1:把新的行程新增到資料庫
     const db_insert_schedule = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/view2_schedule_list_insert', {
+            const res = await fetch(`${BASE_URL}/api/view2_schedule_list_insert`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true',
+                },
                 body: JSON.stringify({ t_id, date, u_id, day, title }),
             });
             const data = await res.json();
@@ -124,10 +134,12 @@ const ScheduleInsert = ({
         try {
             await Promise.all(
                 attractions.map(async (attraction) => {
-                    // console.log('🚖🚖🚖 attraction:', attraction);
-                    await fetch('http://localhost:3001/api/view2_schedule_include_insert', {
+                    await fetch(`${BASE_URL}/api/view2_schedule_include_insert`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true',
+                        },
                         body: JSON.stringify({
                             a_id: attraction.a_id,
                             t_id: t_id,

@@ -2472,6 +2472,6 @@ app.post('/api/trip-create', async (req, res) => {
 });
 
 // 不可以刪除！！！
-app.listen(port, host, () => {
-  console.log(`Server is running on http://${host}:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });

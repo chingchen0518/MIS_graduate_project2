@@ -10,10 +10,10 @@ import Header from '../../components/header.jsx';
 import './Page2.css';
 
 const Page2 = () => {
-    // 從 localStorage 獲取用戶和行程資料
+    // 從 localStorage 獲取用戶和行程信息
     const user = JSON.parse(localStorage.getItem('user'));
     const trip = JSON.parse(localStorage.getItem('trip'));
-
+    
     //state
     const [usedAttractions, setUsedAttractions] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -32,21 +32,22 @@ const Page2 = () => {
         selectedUsers: filterConditionsState.selectedUsers
     }), [filterConditionsState.costRange, filterConditionsState.selectedAttractions, filterConditionsState.selectedUsers]);
 
-    // 從localStorage獲取t_id
+    // 從URL參數獲取t_id，如果沒有則從localStorage獲取
     useEffect(() => {
-        // 優先從localStorage獲取
-        if (trip && trip.tid) {
-            setT_id(parseInt(trip.tid));
+        const tripId = searchParams.get('t_id');
+        if (tripId) {
+            // 優先使用 URL 參數
+            setT_id(parseInt(tripId));
+        } else if (trip?.tid) {
+            // 如果URL沒有t_id參數，嘗試從localStorage的trip獲取
+            setT_id(trip.tid);
+            console.log('已登入行程：', trip.title, ', ID:', trip.tid);
         } else {
-            // 如果localStorage中沒有，嘗試從URL參數獲取
-            const tripId = searchParams.get('t_id');
-            if (tripId) {
-                setT_id(parseInt(tripId));
-            } else {
-                console.log('未找到行程ID，請先選擇行程');
-            }
+            // 如果都沒有，提示用戶需要先選擇行程
+            console.warn('未找到行程ID，請先建立或選擇行程');
+            setT_id(null); // 設為 null 而不是 1，這樣可以顯示提示信息
         }
-    }, [trip, searchParams]);
+    }, [searchParams, trip]);
 
     //function 1: 處理景點被使用的狀態
     const handleAttractionUsed = useCallback((a_id, isUsed = true) => {

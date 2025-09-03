@@ -5,7 +5,7 @@ const Filter = ({ t_id: propsTId, onCategoryChange, onFilterChange, onAttraction
     // 從 localStorage 獲取用戶和行程資料
     const user = JSON.parse(localStorage.getItem('user'));
     const trip = JSON.parse(localStorage.getItem('trip'));
-
+    
     // 使用從localStorage獲取的t_id，如果沒有則使用props中的t_id
     const t_id = trip?.tid ? parseInt(trip.tid) : propsTId;
     const [isExpanded, setIsExpanded] = useState(false);
@@ -81,23 +81,12 @@ const Filter = ({ t_id: propsTId, onCategoryChange, onFilterChange, onAttraction
                         setSelectedUsers([]);
                     }
                 } catch (userError) {
-                    // 嘗試使用localStorage中的用戶資料
-                    if (user && user.uid) {
-                        const currentUser = {
-                            u_id: user.uid,
-                            u_name: user.name || '目前用戶',
-                            u_img: user.img || 'avatar.jpg',
-                            color: '#FF5733'
-                        };
-                        setUsers([currentUser]);
-                    } else {
-                        // 設置預設使用者數據
-                        const defaultUsers = [
-                            { u_id: 1, u_name: '使用者1', u_img: 'avatar.jpg', color: '#FF5733' },
-                            { u_id: 2, u_name: '使用者2', u_img: null, color: '#33A1FF' }
-                        ];
-                        setUsers(defaultUsers);
-                    }
+                    // 設置預設使用者數據
+                    const defaultUsers = [
+                        { u_id: 1, u_name: '使用者1', u_img: 'avatar.jpg', color: '#FF5733' },
+                        { u_id: 2, u_name: '使用者2', u_img: null, color: '#33A1FF' }
+                    ];
+                    setUsers(defaultUsers);
                     setSelectedUsers([]); // 初始狀態：沒有使用者被選中
                 }
             } catch (error) {

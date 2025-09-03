@@ -2476,6 +2476,28 @@ app.post('/api/update-trip-time', (req, res) => {
   });
 });
 
+app.post('/api/view2_change_trip_data', (req, res) => {
+  // 將所有 Trip 資料的指定欄位批次更新為指定值
+  const updateSql = `UPDATE trip SET 
+    s_date = '2025-09-03',
+    e_date = '2025-09-10',
+    s_time = '10:00',
+    e_time = '19:00',
+    stage = 'A',
+    stage_date = '2025-09-03 10:00:00',
+    time = '00:01:00'`;
+  connection.query(updateSql, (err, result) => {
+    if (err) {
+      console.error('❌ Failed to update trip data:', err);
+      return res.status(500).json({ message: 'Server error (Failed to update trip data)' });
+    }
+    res.status(200).json({
+      message: 'All trip data updated successfully',
+      affectedRows: result.affectedRows
+    });
+  });
+});
+
 app.post('/api/trip-create', async (req, res) => {
   try {
     const { title, country, time, s_date, e_date, s_time, e_time, u_id } = req.body;

@@ -840,7 +840,6 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
           date: scheduleDate,
           message: 'Schedule created successfully'
         };
-        ㄇ
         console.log('✅ 準備返回的響應:', response);
         res.json(response);
       }

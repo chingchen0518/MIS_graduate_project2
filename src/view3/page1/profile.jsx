@@ -11,6 +11,7 @@ function Profile() {
     const [profile, setProfile] = useState(null);
     const [editing, setEditing] = useState(false);
     const [form, setForm] = useState(user);
+    console.log('User:', user);
 
     useEffect(() => {
         if (!user) {

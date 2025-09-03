@@ -1015,70 +1015,98 @@ app.get('/api/schedule_votes/:t_id/:s_id/:date', (req, res) => {
   });
 });
 
+// 新增API：獲取特定用戶對行程的投票狀態
+app.get('/api/user_vote/:t_id/:s_id/:u_id', (req, res) => {
+  const { t_id, s_id, u_id } = req.params;
+
+  const query = `SELECT good, bad FROM Evaluate WHERE t_id = ? AND s_id = ? AND u_id = ?`;
+
+  connection.query(query, [t_id, s_id, u_id], (err, results) => {
+    if (err) {
+      console.error('Error fetching user vote:', err);
+      res.status(500).json({ error: 'Failed to fetch user vote' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(200).json({ vote_type: null });
+    } else {
+      const vote = results[0];
+      let vote_type = null;
+      if (vote.good === 1 || vote.good === true) {
+        vote_type = 'like';
+      } else if (vote.bad === 1 || vote.bad === true) {
+        vote_type = 'dislike';
+      }
+      res.status(200).json({ vote_type });
+    }
+  });
+});
+
 
 // 新增API：投票給行程
 app.post('/api/schedule_vote/:t_id/:s_id/:u_id/:date', (req, res) => {
   const { t_id, s_id, u_id, date } = req.params;
-  const { vote_type } = req.body; // 'like' 或 'dislike'
+  const { vote_type } = req.body; // 'like'、'dislike' 或 null (取消投票)
 
-  // 首先驗證Schedule是否存在於指定日期
-  const validateQuery = `SELECT * FROM Schedule WHERE t_id = ? AND s_id = ? AND date = ?`;
+  // 檢查是否已經投票過
+  const checkQuery = `SELECT * FROM Evaluate WHERE u_id = ? AND s_id = ? AND t_id = ?`;
 
-  connection.query(validateQuery, [t_id, s_id, date], (validateErr, scheduleExists) => {
-    if (validateErr) {
-      console.error('Error validating schedule:', validateErr);
-      res.status(500).send('Failed to validate schedule');
+  connection.query(checkQuery, [u_id, s_id, t_id], (err, existing) => {
+    if (err) {
+      console.error('Error checking existing vote:', err);
+      res.status(500).json({ error: 'Failed to check existing vote' });
       return;
     }
 
-    if (scheduleExists.length === 0) {
-      res.status(404).send('Schedule not found for the specified date');
-      return;
-    }
-
-    // 檢查是否已經投票過
-    const checkQuery = `SELECT * FROM Evaluate WHERE u_id = ? AND s_id = ? AND t_id = ?`;
-
-    connection.query(checkQuery, [u_id, s_id, t_id], (err, existing) => {
-      if (err) {
-        console.error('Error checking existing vote:', err);
-        res.status(500).send('Failed to check existing vote');
-        return;
-      }
-
+    // 如果 vote_type 是 null，表示要取消投票
+    if (vote_type === null) {
       if (existing.length > 0) {
-        // 更新現有投票
-        const updateQuery = vote_type === 'like'
-          ? `UPDATE Evaluate SET good = true, bad = false WHERE u_id = ? AND s_id = ? AND t_id = ?`
-          : `UPDATE Evaluate SET good = false, bad = true WHERE u_id = ? AND s_id = ? AND t_id = ?`;
-
-        connection.query(updateQuery, [u_id, s_id, t_id], (err, result) => {
+        const deleteQuery = `DELETE FROM Evaluate WHERE u_id = ? AND s_id = ? AND t_id = ?`;
+        connection.query(deleteQuery, [u_id, s_id, t_id], (err, result) => {
           if (err) {
-            console.error('Error updating vote:', err);
-            res.status(500).send('Failed to update vote');
+            console.error('Error deleting vote:', err);
+            res.status(500).json({ error: 'Failed to delete vote' });
           } else {
-            console.log(`Vote updated for t_id:${t_id}, s_id:${s_id}, u_id:${u_id}, date:${date}, type:${vote_type}`);
-            res.status(200).json({ message: 'Vote updated successfully' });
+            res.status(200).json({ message: 'Vote cancelled successfully' });
           }
         });
       } else {
-        // 插入新投票
-        const insertQuery = `INSERT INTO Evaluate (u_id, s_id, t_id, good, bad) VALUES (?, ?, ?, ?, ?)`;
-        const values = vote_type === 'like'
-          ? [u_id, s_id, t_id, true, false]
-          : [u_id, s_id, t_id, false, true];
-
-        connection.query(insertQuery, values, (err, result) => {
-          if (err) {
-            console.error('Error inserting vote:', err);
-            res.status(500).send('Failed to insert vote');
-          } else {
-            console.log(`New vote created for t_id:${t_id}, s_id:${s_id}, u_id:${u_id}, date:${date}, type:${vote_type}`);
-            res.status(200).json({ message: 'Vote recorded successfully' });
-          }
-        });
+        res.status(200).json({ message: 'No vote to cancel' });
       }
-    });
+      return;
+    }
+
+    if (existing.length > 0) {
+      // 更新現有投票
+      const updateQuery = vote_type === 'like'
+        ? `UPDATE Evaluate SET good = true, bad = false WHERE u_id = ? AND s_id = ? AND t_id = ?`
+        : `UPDATE Evaluate SET good = false, bad = true WHERE u_id = ? AND s_id = ? AND t_id = ?`;
+
+      connection.query(updateQuery, [u_id, s_id, t_id], (err, result) => {
+        if (err) {
+          console.error('Error updating vote:', err);
+          res.status(500).json({ error: 'Failed to update vote' });
+        } else {
+          res.status(200).json({ message: 'Vote updated successfully' });
+        }
+      });
+    } else {
+      // 插入新投票
+      const insertQuery = `INSERT INTO Evaluate (u_id, s_id, t_id, good, bad) VALUES (?, ?, ?, ?, ?)`;
+      const values = vote_type === 'like'
+        ? [u_id, s_id, t_id, true, false]
+        : [u_id, s_id, t_id, false, true];
+
+      connection.query(insertQuery, values, (err, result) => {
+        if (err) {
+          console.error('Error inserting vote:', err);
+          res.status(500).json({ error: 'Failed to insert vote' });
+        } else {
+          res.status(200).json({ message: 'Vote recorded successfully' });
+        }
+      });
+    }
   });
 });
 

@@ -1,0 +1,74 @@
+.attraction-connector-container {
+    position: relative;
+}
+
+.attraction-connector-svg {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: none !important;
+    z-index: 1000 !important;
+    overflow: hidden !important;
+    /* 固定在視窗上，覆蓋整個頁面，隱藏超出部分 */
+}
+
+.attraction-connection {
+    stroke-linejoin: round;
+    transition: all 0.2s ease;
+}
+
+/* 提示框樣式 */
+.connection-tooltip {
+    animation: fadeIn 0.2s ease-in-out;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 詳細信息彈窗樣式 */
+.connection-detail-modal {
+    animation: modalSlideIn 0.3s ease-out;
+    border: 1px solid #e0e0e0;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.modal-backdrop {
+    animation: backdropFadeIn 0.3s ease-out;
+}
+
+@keyframes backdropFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* 懸停時關閉按鈕效果 */
+.connection-detail-modal button:hover {
+    background-color: #f5f5f5 !important;
+    color: #333 !important;
+}

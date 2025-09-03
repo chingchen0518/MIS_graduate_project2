@@ -2,7 +2,10 @@ import React, { useImperativeHandle, useState,useRef, forwardRef, useEffect } fr
 import { useDrag,useDragLayer } from 'react-dnd';
 import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
-
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
 const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method, barRefs, scheduleItemRef, barCollide, maxBarHeight,categoryColor,sequence  }, ref) => {
     // const user = JSON.parse(localStorage.getItem('user'));
@@ -27,7 +30,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
         // 取得 a_id
         draggingAId = isDragging && draggingItem ? draggingItem.a_id : null;
         // 你可以把 draggingAId 傳給子組件或用於 UI
-        console.log('目前拖拽的 a_id:', draggingAId);
+        // console.log('目前拖拽的 a_id:', draggingAId);
     }
 
 
@@ -68,21 +71,6 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
         setY(d.y);
         onValueChange(heightEdit, d.x, d.y, a_id);
     };
-
-    // useEffect 1:調整字體大學小
-    // useEffect(() => {
-    // function resizeFont() {
-    //     if (nameRef.current) {
-    //         const parentWidth = nameRef.current.parentElement.offsetWidth;
-    //         // 這裡根據寬度自訂縮放規則
-    //         const newFontSize = Math.max(0, Math.min(16, parentWidth / 30));
-    //         setFontSize(newFontSize);
-    //     }
-    //     }
-    //     resizeFont();
-    //     window.addEventListener('resize', resizeFont);
-    //     return () => window.removeEventListener('resize', resizeFont);
-    // }, []);
   
     const handleStyle = {
         height: '8px',

@@ -5,6 +5,11 @@ import { SelectedScheduleContext } from './page1.jsx';
 import './schedule.css';
 import ScheduleItem from './ScheduleItem.jsx'; // 引入 ScheduleItem 組件
 
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 
 const ScheduleShow = (props) => {
     // state
@@ -58,7 +63,7 @@ const ScheduleShow = (props) => {
     }, []);
 
     useEffect(() => {
-        let api = `http://localhost:3001/api/view2_schedule_include_show/${props.t_id}/${props.s_id}`;
+        let api = `${BASE_URL}/api/view2_schedule_include_show/${props.t_id}/${props.s_id}`;
         fetch(api)
         .then((response) => {
             if (!response.ok) {
@@ -159,8 +164,8 @@ const ScheduleShow = (props) => {
                     
                     if (!itemRef?.current) continue;
                     const itemRect = itemRef.current.getBoundingClientRect();
-                    console.log("itemRect:",itemRect)
-                    console.log("barRect",barRect);
+                    // console.log("itemRect:",itemRect)
+                    // console.log("barRect",barRect);
                     // if (isRectOverlap(itemRect, barRect)){
                     if (isRectOverlap(itemRect, barRect)){    
 

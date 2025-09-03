@@ -4,14 +4,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faAddressCard, faPlus, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
-let BASE_URL = import.meta.env.VITE_API_URL;
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+
 const PORT = import.meta.env.PORT || 3001;
-if (BASE_URL && !BASE_URL.startsWith('http')) {
-    BASE_URL = `http://${BASE_URL}`;
-}
-if (PORT) {
-    BASE_URL = `${BASE_URL}:${PORT}`;
-}
+
+let BASE_URL = NGROK_URL|| `http://${HOST_URL}:${PORT}`;
 
 function Profile() {
     const navigate = useNavigate();
@@ -31,7 +29,11 @@ function Profile() {
 
     useEffect(() => {
         if (user?.uid) {
-            fetch(`${BASE_URL}/api/user/${user.uid}`)
+            fetch(`${BASE_URL}/api/user/${user.uid}`, {
+              headers: {
+                'ngrok-skip-browser-warning': 'true'
+              }
+            })
                 .then(res => res.json())
                 .then(data => setProfile(data));
         }

@@ -5,14 +5,12 @@ import { faGlobe, faEnvelope, faUser, faLock, faAddressCard } from '@fortawesome
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
-let BASE_URL = import.meta.env.VITE_API_URL;
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+
 const PORT = import.meta.env.PORT || 3001;
-if (BASE_URL && !BASE_URL.startsWith('http')) {
-    BASE_URL = `http://${BASE_URL}`;
-}
-if (PORT) {
-    BASE_URL = `${BASE_URL}:${PORT}`;
-}
+
+let BASE_URL = NGROK_URL|| `http://${HOST_URL}:${PORT}`;
 
 const initialState = {
     name: "",
@@ -65,8 +63,11 @@ function Signin() {
                 if (invite) formData.append('invite', invite);
 
                 const response = await fetch(`${BASE_URL}/api/view3_signin`, {
-                    method: 'POST',
-                    body: formData,
+                        method: 'POST',
+                        headers: {
+                            'ngrok-skip-browser-warning': 'true'
+                        },
+                        body: formData,
                 });
 
                 const data = await response.json();

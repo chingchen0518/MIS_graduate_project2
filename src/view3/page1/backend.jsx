@@ -4,14 +4,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe, faCalendarAlt, faClock, faMapMarkerAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
-let BASE_URL = import.meta.env.VITE_API_URL;
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+
 const PORT = import.meta.env.PORT || 3001;
-if (BASE_URL && !BASE_URL.startsWith('http')) {
-    BASE_URL = `http://${BASE_URL}`;
-}
-if (PORT) {
-    BASE_URL = `${BASE_URL}:${PORT}`;
-}
+
+let BASE_URL = NGROK_URL|| `http://${HOST_URL}:${PORT}`;
 
 const initialState = {
     title: "",
@@ -61,9 +59,12 @@ function Backend() {
                 const formatted_s_time = formatTimeWithSeconds(form.s_time);
                 const formatted_e_time = formatTimeWithSeconds(form.e_time);
 
-                const response = await fetch(`${BASE_URL}/api/trip-create`, {
+            const response = await fetch(`${BASE_URL}/api/trip-create`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
                     body: JSON.stringify({
                         title: form.title,
                         country: form.country,
@@ -74,7 +75,7 @@ function Backend() {
                         time: formattedTime,
                         u_id: user?.uid
                     })
-                });
+            });
 
                 const data = await response.json();
 

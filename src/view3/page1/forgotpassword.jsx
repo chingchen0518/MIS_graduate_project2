@@ -5,14 +5,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faGlobe, faCheckCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom'; // ✅ 這行你可能已經有了
 
-let BASE_URL = import.meta.env.VITE_API_URL;
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+
 const PORT = import.meta.env.PORT || 3001;
-if (BASE_URL && !BASE_URL.startsWith('http')) {
-    BASE_URL = `http://${BASE_URL}`;
-}
-if (PORT) {
-    BASE_URL = `${BASE_URL}:${PORT}`;
-}
+
+let BASE_URL = NGROK_URL|| `http://${HOST_URL}:${PORT}`;
 
 const ForgotPassword = () => {
     const navigate = useNavigate(); // ✅ 少了這行！

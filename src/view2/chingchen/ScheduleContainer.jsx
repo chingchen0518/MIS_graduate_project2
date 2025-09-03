@@ -10,7 +10,7 @@ import DateSelector from '../Liu/DateSelector';
 import './ScheduleContainer.css';
 const user = JSON.parse(localStorage.getItem('user'));
 const trip = JSON.parse(localStorage.getItem('trip'))
-console.log('ScheduleContainer user:', user.uid);
+// console.log('ScheduleContainer user:', user.uid);
 
 const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShowRoute, onHideRoute }) => {
     

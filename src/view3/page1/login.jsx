@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const user = JSON.parse(localStorage.getItem('user'));
-    const [email, setEmail] = useState('');
+    const [account, setaccount] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -19,14 +19,8 @@ const Login = () => {
         setError('');
         setSuccess('');
 
-        if (!email || !password) {
-            setError('Please enter your email and password!');
-            return;
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError('Please enter a valid email address');
+        if (!account || !password) {
+            setError('Please enter your account and password!');
             return;
         }
 
@@ -37,7 +31,7 @@ const Login = () => {
             const res = await fetch(api, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ account, password }),
             });
 
             const data = await res.json();
@@ -96,20 +90,19 @@ const Login = () => {
                     )}
                     <form onSubmit={handleSubmit} noValidate>
                         <div className="all_form-group">
-                            <label htmlFor="email">Email</label>
+                            <label htmlFor="account">Account</label>
                             <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faEnvelope} />
                                 <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
+                                    id="account"
+                                    type="text"
                                     className="form-control"
-                                    placeholder="Please enter your email address"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value.trim())}
+                                    placeholder="Please enter your account"
+                                    value={account}
+                                    onChange={(e) => setaccount(e.target.value.trim())}
                                     required
-                                    autoComplete="email"
-                                    aria-describedby="emailHelp"
+                                    autoComplete="account"
+                                    aria-describedby="accountHelp"
                                 />
                             </div>
                         </div>

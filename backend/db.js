@@ -701,15 +701,15 @@ app.get('/api/view2_attraction_list', (req, res) => {
 });
 
 app.get('/api/view2_schedule_list', (req, res) => {
-    const { date, t_id } = req.query;
+  const { date, t_id } = req.query;
 
-    let date_db = date || '2025-08-01';
-    let t_id_db = t_id || 1;
+  let date_db = date || '2025-08-01';
+  let t_id_db = t_id || 1;
 
-    let sql = 'SELECT * FROM Schedule WHERE t_id = ? AND date = ?';
-    let params = [t_id_db, date_db];
+  let sql = 'SELECT * FROM Schedule WHERE t_id = ? AND date = ?';
+  let params = [t_id_db, date_db];
 
-    console.log(sql)
+  console.log(sql)
 
   // 添加排序：先按日期，再按day欄位排序
   sql += ' ORDER BY date ASC, day ASC';
@@ -840,7 +840,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
           date: scheduleDate,
           message: 'Schedule created successfully'
         };
-
+        ㄇ
         console.log('✅ 準備返回的響應:', response);
         res.json(response);
       }
@@ -952,7 +952,7 @@ app.get('/api/view2_get_transport_time/:a_id/:nextAid', async (req, res) => {
       }
     } else {
       // 找到資料，直接返回
-    //   console.log(`✅ 找到現有資料:`, results);
+      //   console.log(`✅ 找到現有資料:`, results);
       res.status(200).json(results);
     }
   });
@@ -1293,13 +1293,13 @@ Wish you a pleasant journey!
 });
 // 加密驗證 API
 app.post('/api/view3_login', (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Missing email or password' });
+  const { account, password } = req.body;
+  if (!account || !password) {
+    return res.status(400).json({ message: 'Missing account or password' });
   }
 
-  const sql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
-  connection.query(sql, [email], async (err, results) => {
+  const sql = 'SELECT * FROM User WHERE u_account = ? LIMIT 1';
+  connection.query(sql, [account], async (err, results) => {
     if (err) {
       console.error('❌ Failed to query user:', err.message);
       return res.status(500).json({ message: 'Server error' });
@@ -1330,67 +1330,100 @@ app.post('/api/view3_login', (req, res) => {
     });
   });
 });
-app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
-  try {
-    const { name, email, account, password, invite } = req.body; // 多了 invite
-    const avatarFile = req.file;
+app.post('/api/view3_signin', upload.single('avatar'), (req, res) => {
+  const { name, email, account, password, invite } = req.body;
+  const avatarFile = req.file;
 
-    if (!email || !account || !password) {
-      return res.status(400).json({ message: 'Please fill in all required fields' });
+  if (!email || !account || !password) {
+    return res.status(400).json({ message: 'Please fill in all required fields' });
+  }
+
+  const checkAccountSql = 'SELECT * FROM User WHERE u_account = ? LIMIT 1';
+  connection.query(checkAccountSql, [account], async (checkErr, checkRows) => {
+    if (checkErr) {
+      return res.status(500).json({ message: 'Server error (account check)' });
+    }
+    if (checkRows.length > 0) {
+      return res.status(400).json({ message: 'Account already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const avatarFilename = avatarFile ? avatarFile.filename : 'avatar.jpg';
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const avatarFilename = avatarFile ? avatarFile.filename : 'avatar.jpg';
 
-    const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
-    connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err, result) => {
-      if (err) {
-        console.error('❌ Registration error:', err);
-        return res.status(500).json({ message: 'Server error' });
-      }
-      // 查詢剛新增的 user
-      const selectSql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
-      connection.query(selectSql, [email], async (err2, rows) => {
-        if (err2 || rows.length === 0) {
-          return res.status(500).json({ message: 'Failed to query new user' });
+      const sql = 'INSERT INTO User (u_name, u_email, u_account, u_password, u_img) VALUES (?, ?, ?, ?, ?)';
+      connection.query(sql, [name, email, account, hashedPassword, avatarFilename], (err, result) => {
+        if (err) {
+          console.error('❌ Registration error:', err);
+          return res.status(500).json({ message: 'Server error' });
         }
-        const user = rows[0];
-
-        // 如果有 invite，做旅程加入
-        if (invite) {
-          const decodedInvite = decodeURIComponent(invite);
-          // 隨機色號產生
-          function getRandomColor() {
-            return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        // 查詢剛新增的 user
+        const selectSql = 'SELECT * FROM User WHERE u_email = ? LIMIT 1';
+        connection.query(selectSql, [email], async (err2, rows) => {
+          if (err2 || rows.length === 0) {
+            return res.status(500).json({ message: 'Failed to query new user' });
           }
-          const color = getRandomColor();
-          // 查詢所有 Trip
-          const tripSql = 'SELECT t_id, hashedTid FROM Trip WHERE hashedTid IS NOT NULL AND hashedTid != ""';
-          connection.query(tripSql, async (tripErr, trips) => {
-            if (tripErr) {
-              console.error('❌ Failed to query Trips:', tripErr);
-              // 不阻斷註冊流程
-            } else {
-              let joined = false;
-              for (const trip of trips) {
-                const match = await bcrypt.compare(String(trip.t_id), decodedInvite);
-                if (match) {
-                  // 找到對應 t_id，插入 Join
-                  const joinSql = 'INSERT INTO `Join` (t_id, u_id, color) VALUES (?, ?, ?)';
-                  connection.query(joinSql, [trip.t_id, user.u_id, color], (joinErr) => {
-                    if (joinErr) {
-                      console.error('❌ Failed to insert Join:', joinErr);
-                    }
-                  });
-                  joined = true;
-                  break;
-                }
-              }
-              if (!joined) {
-                console.log('❌ No matching trip invite found');
-              }
+          const user = rows[0];
+
+          // 如果有 invite，做旅程加入
+          if (invite) {
+            const decodedInvite = decodeURIComponent(invite);
+            function getRandomColor() {
+              return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
             }
-            // 回傳註冊成功
+            const color = getRandomColor();
+            const tripSql = 'SELECT t_id, hashedTid, title FROM Trip WHERE hashedTid IS NOT NULL AND hashedTid != ""';
+            connection.query(tripSql, async (tripErr, trips) => {
+              if (tripErr) {
+                console.error('❌ Failed to query Trips:', tripErr);
+                // 不阻斷註冊流程
+                return res.status(200).json({
+                  message: '✅ Signup successful',
+                  redirect: '/profile',
+                  user: {
+                    uid: user.u_id,
+                    img: user.u_img,
+                    name: user.u_name,
+                    email: user.u_email,
+                    password: user.u_password,
+                    account: user.u_account,
+                  }
+                });
+              } else {
+                let joined = false;
+                let joinedTrip = null;
+                for (const trip of trips) {
+                  const match = await bcrypt.compare(String(trip.t_id), decodedInvite);
+                  if (match) {
+                    const joinSql = 'INSERT INTO `Join` (t_id, u_id, color) VALUES (?, ?, ?)';
+                    connection.query(joinSql, [trip.t_id, user.u_id, color], (joinErr) => {
+                      if (joinErr) {
+                        console.error('❌ Failed to insert Join:', joinErr);
+                      }
+                    });
+                    joined = true;
+                    joinedTrip = trip;
+                    break;
+                  }
+                }
+                return res.status(200).json({
+                  message: '✅ Signup successful',
+                  redirect: '/profile',
+                  user: {
+                    uid: user.u_id,
+                    img: user.u_img,
+                    name: user.u_name,
+                    email: user.u_email,
+                    password: user.u_password,
+                    account: user.u_account,
+                    tid: joinedTrip ? joinedTrip.t_id : null,
+                    title: joinedTrip ? joinedTrip.title : null
+                  }
+                });
+              }
+            });
+          } else {
+            // 沒有 invite，正常回傳
             return res.status(200).json({
               message: '✅ Signup successful',
               redirect: '/profile',
@@ -1401,32 +1434,16 @@ app.post('/api/view3_signin', upload.single('avatar'), async (req, res) => {
                 email: user.u_email,
                 password: user.u_password,
                 account: user.u_account,
-                tid: trip.t_id, // 加這行
-                title: trip.title // 如果需要 title
               }
             });
-          });
-        } else {
-          // 沒有 invite，正常回傳
-          return res.status(200).json({
-            message: '✅ Signup successful',
-            redirect: '/profile',
-            user: {
-              uid: user.u_id,
-              img: user.u_img,
-              name: user.u_name,
-              email: user.u_email,
-              password: user.u_password,
-              account: user.u_account,
-            }
-          });
-        }
+          }
+        });
       });
-    });
-  } catch (error) {
-    console.error('❌ Failed to encrypt or other errors:', error);
-    return res.status(500).json({ message: 'Server error' });
-  }
+    } catch (error) {
+      console.error('❌ Failed to encrypt or other errors:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  });
 });
 
 app.post('/api/view3_forgot_password', (req, res) => {

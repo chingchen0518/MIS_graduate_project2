@@ -73,9 +73,13 @@ function Signin() {
                     }
                     setForm(initialState);
                     setErrors([]);
-                    setTimeout(() => {
-                        navigate('/Vistour');
-                    }, 500);
+                        setTimeout(() => {
+                            if (invite) {
+                                navigate('/Vistour');
+                            } else {
+                                navigate('/profile');
+                            }
+                        }, 500);
                 } else {
                     setErrors([data?.message || `Registration failed (Status Code: ${response.status})`]);
                 }

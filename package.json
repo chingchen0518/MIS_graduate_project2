@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -27,6 +27,7 @@
     "leaflet": "^1.9.4",
     "multer": "^2.0.2",
     "mysql2": "^3.14.3",
+    "ngrok": "^5.0.0-beta.2",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.5",
     "re-resizable": "^6.11.2",
@@ -37,6 +38,7 @@
     "react-hot-toast": "^2.6.0",
     "react-rnd": "^10.5.2",
     "react-router-dom": "^7.6.3",
+    "react-scripts": "^5.0.1",
     "rnd": "^1.0.10",
     "seedrandom": "^3.0.5",
     "sequelize": "^6.37.7"

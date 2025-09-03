@@ -30,8 +30,10 @@ if (NGROK_URL && !/:[0-9]+$/.test(NGROK_URL)) {
 // 動態組合允許的 CORS origins，避免 undefined/null
 const allowedOrigins = [
   'http://localhost:3001',
+  'http://localhost:5173',
   'http://140.117.71.132:3001',
-  'https://live-everywhere-indicating-declare.trycloudflare.com'
+  'https://live-everywhere-indicating-declare.trycloudflare.com',
+   NGROK_URL
 ];
 // 設定儲存位置和檔名
 const storage = multer.diskStorage({
@@ -78,7 +80,9 @@ const connection = mysql.createConnection({
   host: host,
   user: 'root',
   password: '20250101',
-  database: 'travel'
+  database: 'travel',
+  allowPublicKeyRetrieval: true,
+  ssl: false
 });
 
 connection.connect(err => {

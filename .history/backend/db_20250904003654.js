@@ -30,7 +30,7 @@ if (NGROK_URL && !/:[0-9]+$/.test(NGROK_URL)) {
 // 動態組合允許的 CORS origins，避免 undefined/null
 const allowedOrigins = [
   'http://localhost:3001',
-  'http://localhost:5173',
+  'http://localhost:3001',
   'http://140.117.71.132:3001',
   'https://live-everywhere-indicating-declare.trycloudflare.com'
 ];

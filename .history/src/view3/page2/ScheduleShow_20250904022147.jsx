@@ -7,7 +7,7 @@ const ScheduleShow = (props) => {
     // 從 localStorage 獲取用戶和行程資料
     const user = JSON.parse(localStorage.getItem('user'));
     const trip = JSON.parse(localStorage.getItem('trip'));
-
+    
     // 使用 localStorage 中的 t_id 和 u_id (如果可用)，否則使用 props 中的值
     const t_id = trip?.tid ? parseInt(trip.tid) : props.t_id;
     const u_id = user?.uid ? parseInt(user.uid) : props.u_id;
@@ -238,7 +238,7 @@ const ScheduleShow = (props) => {
                 console.error('用戶未登入，無法投票');
                 return;
             }
-
+            
             const formattedDate = formatDate(props.date);
 
             // 如果點擊的是已經投過的票，則取消投票

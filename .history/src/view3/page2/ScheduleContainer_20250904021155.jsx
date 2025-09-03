@@ -7,14 +7,11 @@ import DateSelector from './DateSelector.jsx';
 import AttractionConnector from './AttractionConnector.jsx';
 import './ScheduleContainer.css';
 
-const ScheduleContainer = ({ t_id: propsTId, usedAttractions = [], onAttractionUsed, onShowRoute, onHideRoute, onAttractionSelect, filterConditions }) => {
+const ScheduleContainer = ({ t_id, usedAttractions = [], onAttractionUsed, onShowRoute, onHideRoute, onAttractionSelect, filterConditions }) => {
     // 從 localStorage 獲取用戶和行程資料
     const user = JSON.parse(localStorage.getItem('user'));
     const trip = JSON.parse(localStorage.getItem('trip'));
-
-    // 使用從localStorage獲取的t_id，如果沒有則使用props中的t_id
-    const t_id = trip?.tid ? parseInt(trip.tid) : propsTId;
-
+    
     //State
     const [schedules, setSchedules] = useState([]); //儲存DB讀取的schedule
     const [loading, setLoading] = useState(true);
@@ -61,7 +58,7 @@ const ScheduleContainer = ({ t_id: propsTId, usedAttractions = [], onAttractionU
         const schedulesWithDetails = await Promise.all(
             schedulesToSort.map(async (schedule) => {
                 try {
-                    const response = await fetch(`http://localhost:3001/api/view2_schedule_include_show/${schedule.t_id || 1}/${schedule.s_id}`);
+                    const response = await fetch(`http://localhost:3001/api/view2_schedule_include_show/${schedule.t_id || trip?.tid || 1}/${schedule.s_id}`);
                     if (response.ok) {
                         const attractions = await response.json();
 
@@ -137,17 +134,8 @@ const ScheduleContainer = ({ t_id: propsTId, usedAttractions = [], onAttractionU
             setLoading(true);
 
             let api = 'http://localhost:3001/api/view2_schedule_list';
-            let hasParam = false;
-
-            // 添加日期參數
             if (selectedDate) {
                 api += `?date=${encodeURIComponent(selectedDate)}`;
-                hasParam = true;
-            }
-
-            // 添加t_id參數
-            if (t_id) {
-                api += hasParam ? `&t_id=${t_id}` : `?t_id=${t_id}`;
             }
 
             try {
@@ -161,11 +149,11 @@ const ScheduleContainer = ({ t_id: propsTId, usedAttractions = [], onAttractionU
                     // 格式化後端返回的數據
                     const formattedSchedules = data.map(schedule => ({
                         s_id: schedule.s_id,
-                        u_id: schedule.u_id || (user ? user.uid : null),
+                        u_id: schedule.u_id,
                         title: schedule.title || `行程${schedule.s_id}`,
                         day: schedule.day || schedule.s_id,
                         date: schedule.date,
-                        t_id: schedule.t_id || t_id
+                        t_id: schedule.t_id || (trip?.tid || t_id)
                     }));
 
                     // 根據排序方式排序
@@ -265,8 +253,8 @@ const ScheduleContainer = ({ t_id: propsTId, usedAttractions = [], onAttractionU
                             <ScheduleShow
                                 key={'schedule-' + schedule.s_id}
                                 s_id={schedule.s_id}
-                                t_id={t_id}
-                                u_id={schedule.u_id}
+                                t_id={trip?.tid || t_id}
+                                u_id={user?.uid || schedule.u_id}
                                 title={schedule.title}
                                 day={schedule.day}
                                 date={selectedDate}

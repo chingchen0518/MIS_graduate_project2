@@ -11,10 +11,10 @@ const ScheduleContainer = ({ t_id: propsTId, usedAttractions = [], onAttractionU
     // 從 localStorage 獲取用戶和行程資料
     const user = JSON.parse(localStorage.getItem('user'));
     const trip = JSON.parse(localStorage.getItem('trip'));
-
+    
     // 使用從localStorage獲取的t_id，如果沒有則使用props中的t_id
     const t_id = trip?.tid ? parseInt(trip.tid) : propsTId;
-
+    
     //State
     const [schedules, setSchedules] = useState([]); //儲存DB讀取的schedule
     const [loading, setLoading] = useState(true);
@@ -137,17 +137,8 @@ const ScheduleContainer = ({ t_id: propsTId, usedAttractions = [], onAttractionU
             setLoading(true);
 
             let api = 'http://localhost:3001/api/view2_schedule_list';
-            let hasParam = false;
-
-            // 添加日期參數
             if (selectedDate) {
                 api += `?date=${encodeURIComponent(selectedDate)}`;
-                hasParam = true;
-            }
-
-            // 添加t_id參數
-            if (t_id) {
-                api += hasParam ? `&t_id=${t_id}` : `?t_id=${t_id}`;
             }
 
             try {

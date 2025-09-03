@@ -7,7 +7,7 @@ const ScheduleShow = (props) => {
     // 從 localStorage 獲取用戶和行程資料
     const user = JSON.parse(localStorage.getItem('user'));
     const trip = JSON.parse(localStorage.getItem('trip'));
-
+    
     // 使用 localStorage 中的 t_id 和 u_id (如果可用)，否則使用 props 中的值
     const t_id = trip?.tid ? parseInt(trip.tid) : props.t_id;
     const u_id = user?.uid ? parseInt(user.uid) : props.u_id;
@@ -36,8 +36,8 @@ const ScheduleShow = (props) => {
 
     // 檢查使用者是否被選中（相反邏輯：選中的使用者會變透明，沒選中的使用者正常顯示）
     const isUserSelected = useMemo(() => {
-        return selectedUsers.length === 0 || !selectedUsers.includes(u_id);
-    }, [selectedUsers, u_id]);
+        return selectedUsers.length === 0 || !selectedUsers.includes(props.u_id);
+    }, [selectedUsers, props.u_id]);
 
     // 計算透明度 - 若預算不在範圍內或使用者被選中（排除），則變透明
     const getScheduleOpacity = useCallback(() => {
@@ -238,13 +238,13 @@ const ScheduleShow = (props) => {
                 console.error('用戶未登入，無法投票');
                 return;
             }
-
+            
             const formattedDate = formatDate(props.date);
 
             // 如果點擊的是已經投過的票，則取消投票
             const finalVoteType = currentUserVote === voteType ? null : voteType;
 
-            const response = await fetch(`http://localhost:3001/api/schedule_vote/${t_id}/${props.s_id}/${currentUserId}/${formattedDate}`, {
+            const response = await fetch(`http://localhost:3001/api/schedule_vote/${props.t_id}/${props.s_id}/${currentUserId}/${formattedDate}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -254,14 +254,14 @@ const ScheduleShow = (props) => {
 
             if (response.ok) {
                 // 重新獲取用戶投票狀態
-                const userVoteResponse = await fetch(`http://localhost:3001/api/user_vote/${t_id}/${props.s_id}/${currentUserId}`);
+                const userVoteResponse = await fetch(`http://localhost:3001/api/user_vote/${props.t_id}/${props.s_id}/${currentUserId}`);
                 if (userVoteResponse.ok) {
                     const userVoteData = await userVoteResponse.json();
                     setCurrentUserVote(userVoteData.vote_type || null);
                 }
 
                 // 重新獲取投票數據
-                const voteResponse = await fetch(`http://localhost:3001/api/schedule_votes/${t_id}/${props.s_id}/${formattedDate}`);
+                const voteResponse = await fetch(`http://localhost:3001/api/schedule_votes/${props.t_id}/${props.s_id}/${formattedDate}`);
                 if (voteResponse.ok) {
                     const voteData = await voteResponse.json();
                     setVoteData(voteData);
@@ -272,7 +272,7 @@ const ScheduleShow = (props) => {
         } catch (error) {
             // Handle error silently
         }
-    }, [currentUserVote, t_id, props.s_id, props.date, formatDate, user?.uid]); // 添加 user?.uid 到依賴項
+    }, [currentUserVote, props.t_id, props.s_id, props.date, formatDate, user?.uid]); // 添加 user?.uid 到依賴項
 
     // 渲染時間線格線
     const renderGrid = () => {

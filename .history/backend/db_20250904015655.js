@@ -723,13 +723,19 @@ app.get('/api/view2_attraction_list', (req, res) => {
 });
 
 app.get('/api/view2_schedule_list', (req, res) => {
-    const { date, t_id } = req.query;
+    const { date, t_id, u_id } = req.query;
 
     let date_db = date || '2025-08-01';
     let t_id_db = t_id || 1;
 
     let sql = 'SELECT * FROM Schedule WHERE t_id = ? AND date = ?';
     let params = [t_id_db, date_db];
+    
+    // 如果提供了 u_id，則只查詢該使用者的 schedule
+    if (u_id) {
+        sql = 'SELECT * FROM Schedule WHERE t_id = ? AND date = ? AND u_id = ?';
+        params = [t_id_db, date_db, u_id];
+    }
 
     console.log(sql)
 

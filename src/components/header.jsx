@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './header.css';
@@ -56,7 +61,7 @@ function Header() {
   // 取得旅程資料
   const fetchTripData = async () => {
     try {
-      const res = await fetch(`http://localhost:3001/api/trip/${tripId}`);
+        const res = await fetch(`${BASE_URL}/api/trip/${tripId}`);
       const data = await res.json();
 
       setTripId(data.tripId);
@@ -93,7 +98,7 @@ function Header() {
             nowDateTime.getMinutes()
           )}:${pad(nowDateTime.getSeconds())}`;
 
-          const res = await fetch('http://localhost:3001/api/update-stage-date', {
+          const res = await fetch(`${BASE_URL}/api/update-stage-date`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -123,7 +128,7 @@ function Header() {
 
   const handleSendEmail = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/share-trip', {
+  const res = await fetch(`${BASE_URL}/api/share-trip`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, tripId, tripTitle }),

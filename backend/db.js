@@ -701,17 +701,15 @@ app.get('/api/view2_attraction_list', (req, res) => {
 });
 
 app.get('/api/view2_schedule_list', (req, res) => {
-  const { date } = req.query;
+    const { date, t_id } = req.query;
 
-  let sql = 'SELECT * FROM Schedule';
-  let params = [];
+    let date_db = date || '2025-08-01';
+    let t_id_db = t_id || 1;
 
-  // 如果有提供日期參數，則按日期過濾
-  if (date) {
-    sql += ' WHERE date = ?';
-    params.push(date);
-    console.log('📅 按日期過濾 Schedule:', date);
-  }
+    let sql = 'SELECT * FROM Schedule WHERE t_id = ? AND date = ?';
+    let params = [t_id_db, date_db];
+
+    console.log(sql)
 
   // 添加排序：先按日期，再按day欄位排序
   sql += ' ORDER BY date ASC, day ASC';
@@ -741,8 +739,8 @@ app.get('/api/view2_schedule_list', (req, res) => {
 app.post('/api/view2_schedule_list_insert', (req, res) => {
   let { t_id, u_id, title, day, date, attractions } = req.body;
 
-  t_id = 1;//@==@記得換成真的t_id
-  u_id = 1;//@==@記得換成真的u_id
+  t_id = t_id || 1;//如果沒有提供記得換成真的t_id，使用默認值，@==@記得換成真的t_id
+  u_id = u_id || 1;//如果沒有提供u_id，使用默認值，@==@記得換成真的u_id
   var scheduleDate = date || '2025-08-01';// 如果沒有提供日期，使用默認值
 
   // 查詢該日期已有的 Schedule 數量，計算下一個行程編號
@@ -759,10 +757,8 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
     const sql = 'INSERT INTO Schedule (t_id, date, u_id, day, title) VALUES (?, ?, ?, ?, ?)';
     const scheduleTitle = title || `行程${nextDayScheduleNumber}`;
     const scheduleDay = day || nextDayScheduleNumber;
-    // console.log('  - SQL:', sql);
-    // console.log('  - 參數:', [1, scheduleDate, 1, scheduleDay, scheduleTitle]);
 
-    connection.query(sql, [1, scheduleDate, 1, scheduleDay, scheduleTitle], (err, result) => {
+    connection.query(sql, [t_id, scheduleDate, u_id, scheduleDay, scheduleTitle], (err, result) => {
       if (err) {
         console.error('❌ 插入 Schedule 時出錯：', err.message);
         return res.status(500).json({ error: err.message });
@@ -799,7 +795,7 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
 
               // 插入景點關聯到 Schedule_include 表
               const insertSql = 'INSERT INTO Schedule_include (s_id, a_id, t_id, sequence, x, y) VALUES (?, ?, ?, ?, ?, ?)';
-              connection.query(insertSql, [scheduleId, attractionId, 1, index + 1, attraction.position?.x || 0, attraction.position?.y || 0], (insertErr) => {
+              connection.query(insertSql, [scheduleId, attractionId, t_id, index + 1, attraction.position?.x || 0, attraction.position?.y || 0], (insertErr) => {
 
                 if (insertErr) {
                   console.error(`❌ 插入景點關聯 ${attraction.name} 時出錯：`, insertErr.message);
@@ -856,8 +852,6 @@ app.post('/api/view2_schedule_list_insert', (req, res) => {
 //把景點添加到schedule後存入資料庫
 app.post('/api/view2_schedule_include_insert', (req, res) => {
   const { a_id, t_id, s_id, x, y, height, sequence = 1, transport_method = 0 } = req.body;
-
-  // sequence=1;//default value
 
   const query = `INSERT INTO Schedule_include (a_id, t_id, s_id, x, y, height, sequence, transport_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
   const values = [a_id, t_id, s_id, x, y, height, sequence, transport_method];
@@ -958,7 +952,7 @@ app.get('/api/view2_get_transport_time/:a_id/:nextAid', async (req, res) => {
       }
     } else {
       // 找到資料，直接返回
-      console.log(`✅ 找到現有資料:`, results);
+    //   console.log(`✅ 找到現有資料:`, results);
       res.status(200).json(results);
     }
   });
@@ -1022,70 +1016,98 @@ app.get('/api/schedule_votes/:t_id/:s_id/:date', (req, res) => {
   });
 });
 
+// 新增API：獲取特定用戶對行程的投票狀態
+app.get('/api/user_vote/:t_id/:s_id/:u_id', (req, res) => {
+  const { t_id, s_id, u_id } = req.params;
+
+  const query = `SELECT good, bad FROM Evaluate WHERE t_id = ? AND s_id = ? AND u_id = ?`;
+
+  connection.query(query, [t_id, s_id, u_id], (err, results) => {
+    if (err) {
+      console.error('Error fetching user vote:', err);
+      res.status(500).json({ error: 'Failed to fetch user vote' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(200).json({ vote_type: null });
+    } else {
+      const vote = results[0];
+      let vote_type = null;
+      if (vote.good === 1 || vote.good === true) {
+        vote_type = 'like';
+      } else if (vote.bad === 1 || vote.bad === true) {
+        vote_type = 'dislike';
+      }
+      res.status(200).json({ vote_type });
+    }
+  });
+});
+
 
 // 新增API：投票給行程
 app.post('/api/schedule_vote/:t_id/:s_id/:u_id/:date', (req, res) => {
   const { t_id, s_id, u_id, date } = req.params;
-  const { vote_type } = req.body; // 'like' 或 'dislike'
+  const { vote_type } = req.body; // 'like'、'dislike' 或 null (取消投票)
 
-  // 首先驗證Schedule是否存在於指定日期
-  const validateQuery = `SELECT * FROM Schedule WHERE t_id = ? AND s_id = ? AND date = ?`;
+  // 檢查是否已經投票過
+  const checkQuery = `SELECT * FROM Evaluate WHERE u_id = ? AND s_id = ? AND t_id = ?`;
 
-  connection.query(validateQuery, [t_id, s_id, date], (validateErr, scheduleExists) => {
-    if (validateErr) {
-      console.error('Error validating schedule:', validateErr);
-      res.status(500).send('Failed to validate schedule');
+  connection.query(checkQuery, [u_id, s_id, t_id], (err, existing) => {
+    if (err) {
+      console.error('Error checking existing vote:', err);
+      res.status(500).json({ error: 'Failed to check existing vote' });
       return;
     }
 
-    if (scheduleExists.length === 0) {
-      res.status(404).send('Schedule not found for the specified date');
-      return;
-    }
-
-    // 檢查是否已經投票過
-    const checkQuery = `SELECT * FROM Evaluate WHERE u_id = ? AND s_id = ? AND t_id = ?`;
-
-    connection.query(checkQuery, [u_id, s_id, t_id], (err, existing) => {
-      if (err) {
-        console.error('Error checking existing vote:', err);
-        res.status(500).send('Failed to check existing vote');
-        return;
-      }
-
+    // 如果 vote_type 是 null，表示要取消投票
+    if (vote_type === null) {
       if (existing.length > 0) {
-        // 更新現有投票
-        const updateQuery = vote_type === 'like'
-          ? `UPDATE Evaluate SET good = true, bad = false WHERE u_id = ? AND s_id = ? AND t_id = ?`
-          : `UPDATE Evaluate SET good = false, bad = true WHERE u_id = ? AND s_id = ? AND t_id = ?`;
-
-        connection.query(updateQuery, [u_id, s_id, t_id], (err, result) => {
+        const deleteQuery = `DELETE FROM Evaluate WHERE u_id = ? AND s_id = ? AND t_id = ?`;
+        connection.query(deleteQuery, [u_id, s_id, t_id], (err, result) => {
           if (err) {
-            console.error('Error updating vote:', err);
-            res.status(500).send('Failed to update vote');
+            console.error('Error deleting vote:', err);
+            res.status(500).json({ error: 'Failed to delete vote' });
           } else {
-            console.log(`Vote updated for t_id:${t_id}, s_id:${s_id}, u_id:${u_id}, date:${date}, type:${vote_type}`);
-            res.status(200).json({ message: 'Vote updated successfully' });
+            res.status(200).json({ message: 'Vote cancelled successfully' });
           }
         });
       } else {
-        // 插入新投票
-        const insertQuery = `INSERT INTO Evaluate (u_id, s_id, t_id, good, bad) VALUES (?, ?, ?, ?, ?)`;
-        const values = vote_type === 'like'
-          ? [u_id, s_id, t_id, true, false]
-          : [u_id, s_id, t_id, false, true];
-
-        connection.query(insertQuery, values, (err, result) => {
-          if (err) {
-            console.error('Error inserting vote:', err);
-            res.status(500).send('Failed to insert vote');
-          } else {
-            console.log(`New vote created for t_id:${t_id}, s_id:${s_id}, u_id:${u_id}, date:${date}, type:${vote_type}`);
-            res.status(200).json({ message: 'Vote recorded successfully' });
-          }
-        });
+        res.status(200).json({ message: 'No vote to cancel' });
       }
-    });
+      return;
+    }
+
+    if (existing.length > 0) {
+      // 更新現有投票
+      const updateQuery = vote_type === 'like'
+        ? `UPDATE Evaluate SET good = true, bad = false WHERE u_id = ? AND s_id = ? AND t_id = ?`
+        : `UPDATE Evaluate SET good = false, bad = true WHERE u_id = ? AND s_id = ? AND t_id = ?`;
+
+      connection.query(updateQuery, [u_id, s_id, t_id], (err, result) => {
+        if (err) {
+          console.error('Error updating vote:', err);
+          res.status(500).json({ error: 'Failed to update vote' });
+        } else {
+          res.status(200).json({ message: 'Vote updated successfully' });
+        }
+      });
+    } else {
+      // 插入新投票
+      const insertQuery = `INSERT INTO Evaluate (u_id, s_id, t_id, good, bad) VALUES (?, ?, ?, ?, ?)`;
+      const values = vote_type === 'like'
+        ? [u_id, s_id, t_id, true, false]
+        : [u_id, s_id, t_id, false, true];
+
+      connection.query(insertQuery, values, (err, result) => {
+        if (err) {
+          console.error('Error inserting vote:', err);
+          res.status(500).json({ error: 'Failed to insert vote' });
+        } else {
+          res.status(200).json({ message: 'Vote recorded successfully' });
+        }
+      });
+    }
   });
 });
 

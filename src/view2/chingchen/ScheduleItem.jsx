@@ -27,7 +27,7 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
         // 取得 a_id
         draggingAId = isDragging && draggingItem ? draggingItem.a_id : null;
         // 你可以把 draggingAId 傳給子組件或用於 UI
-        console.log('目前拖拽的 a_id:', draggingAId);
+        // console.log('目前拖拽的 a_id:', draggingAId);
     }
 
 
@@ -68,21 +68,6 @@ const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, wid
         setY(d.y);
         onValueChange(heightEdit, d.x, d.y, a_id);
     };
-
-    // useEffect 1:調整字體大學小
-    // useEffect(() => {
-    // function resizeFont() {
-    //     if (nameRef.current) {
-    //         const parentWidth = nameRef.current.parentElement.offsetWidth;
-    //         // 這裡根據寬度自訂縮放規則
-    //         const newFontSize = Math.max(0, Math.min(16, parentWidth / 30));
-    //         setFontSize(newFontSize);
-    //     }
-    //     }
-    //     resizeFont();
-    //     window.addEventListener('resize', resizeFont);
-    //     return () => window.removeEventListener('resize', resizeFont);
-    // }, []);
   
     const handleStyle = {
         height: '8px',

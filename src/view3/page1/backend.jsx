@@ -52,7 +52,7 @@ function Backend() {
                 const formatted_s_time = formatTimeWithSeconds(form.s_time);
                 const formatted_e_time = formatTimeWithSeconds(form.e_time);
 
-                const response = await fetch('/api/trip-create', {
+                const response = await fetch('http://localhost:3001/api/trip-create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

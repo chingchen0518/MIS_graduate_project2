@@ -22,7 +22,7 @@ function Profile() {
 
     useEffect(() => {
         if (user?.uid) {
-            fetch(`/api/user/${user.uid}`)
+            fetch(`http://localhost:3001/api/user/${user.uid}`)
                 .then(res => res.json())
                 .then(data => setProfile(data));
         }

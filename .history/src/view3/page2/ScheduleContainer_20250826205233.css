@@ -1,0 +1,230 @@
+.schedule_container {
+  width: 60%;
+  max-width: 820px;
+  height: 100%;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.schedule_container_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.schedule_container_title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sort-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-selector label {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.sort-dropdown {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.sort-dropdown:hover {
+  border-color: #999;
+}
+
+.sort-dropdown:focus {
+  outline: none;
+  border-color: #007acc;
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+}
+
+.schedule_list {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 6px 0;
+  height: calc(100% - 70px);
+  min-height: 0;
+}
+
+.time_column {
+  width: 40px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-top: 80px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.time_slot {
+  font-size: 7px;
+  color: #666;
+  text-align: center;
+  height: calc((100vh - 200px) / 25);
+  min-height: 18px;
+  max-height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #eee;
+  margin-right: 6px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.schedule_list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.schedule_list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.schedule_list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.schedule_list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.add_schedule_placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 80px; /* 對應時間欄的 padding-top */
+  height: 200px; /* 給定一個合適的高度 */
+}
+
+.add_schedule_column {
+  width: 120px;
+  /* height: calc(100% - 10px); 移除固定高度，使用動態高度 */
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin: 2px;
+  padding: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* 改為頂部對齊 */
+  box-sizing: border-box;
+  min-width: 120px;
+  flex-shrink: 0;
+  position: relative;
+  gap: 8px;
+}
+
+.add_schedule_header {
+  text-align: center;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+  position: relative;
+  height: 42px; /* 與 schedule_header 相同高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add_schedule_content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.add_schedule_button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background-color: #4A90E2;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+  outline: none; /* 移除點擊後的粗線邊框 */
+}
+
+.add_schedule_button:focus {
+  outline: none; /* 確保focus狀態也沒有邊框 */
+}
+
+.add_schedule_button:hover {
+  background-color: #357ABD;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+}
+
+.add_icon {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+}
+
+.add_text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  margin: 4px 0;
+}
+
+.skip_button {
+  padding: 6px 12px;
+  background-color: transparent;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.skip_button:hover {
+  border-color: #999;
+  color: #333;
+}

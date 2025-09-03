@@ -1,0 +1,42 @@
+.bar.bar_collide {
+    /* background-color: red; */
+    border:3px rgb(245, 2, 2) solid;
+    opacity:0.5;
+}
+
+.car{
+    background-color: #ff914d;
+}
+
+.bicycle{
+    background-color: #65cdca;
+}
+
+.bus{
+    background-color: #428cef;
+}
+
+.walk{
+    background-color: #7ed957;
+}
+
+.transport_time {
+    display: flex;
+    justify-content: space-evenly;
+    position: relative;
+    z-index: 1;
+}
+
+.transport_method_bar {
+    position: relative;
+    margin: 0 2px;
+}
+
+.transport_bar {
+    border-radius: 2px;
+    transition: opacity 0.2s ease;
+}
+
+.transport_bar:hover {
+    opacity: 0.8 !important;
+}

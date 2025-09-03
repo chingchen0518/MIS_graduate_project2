@@ -20,7 +20,7 @@ const AttractionContainer = ({
     // 從 localStorage 獲取用戶和行程資料
     const user = JSON.parse(localStorage.getItem('user'));
     const trip = JSON.parse(localStorage.getItem('trip'));
-
+    
     // 使用從localStorage獲取的t_id，如果沒有則使用props中的t_id
     const t_id = trip?.tid ? parseInt(trip.tid) : propsTId;
     //state

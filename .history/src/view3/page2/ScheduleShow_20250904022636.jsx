@@ -1,9 +1,3 @@
-
-let HOST_URL = import.meta.env.VITE_API_URL;
-let NGROK_URL = import.meta.env.VITE_NGROK_URL;
-const PORT = import.meta.env.PORT || 3001;
-let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
-
 //不可編輯的schedule
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import './schedule.css';
@@ -158,8 +152,7 @@ const ScheduleShow = (props) => {
 
     // Use Effect 2:從DB讀取別人的行程的schedule_item，按日期過濾
     useEffect(() => {
-
-        let api = `${BASE_URL}/api/view2_schedule_include_show/${props.t_id}/${props.s_id}`;
+        let api = `http://localhost:3001/api/view2_schedule_include_show/${t_id}/${props.s_id}`;
 
         fetch(api)
             .then((response) => {
@@ -182,7 +175,7 @@ const ScheduleShow = (props) => {
         const fetchBudget = async () => {
             try {
                 const formattedDate = formatDate(props.date);
-                const response = await fetch(`${BASE_URL}/api/schedule_budget/${props.s_id}/${formattedDate}`);
+                const response = await fetch(`http://localhost:3001/api/schedule_budget/${props.s_id}/${formattedDate}`);
                 if (response.ok) {
                     const data = await response.json();
                     setTotalBudget(data.total_budget || 0);
@@ -207,8 +200,7 @@ const ScheduleShow = (props) => {
                 const formattedDate = formatDate(props.date);
 
                 // 獲取總投票數據
-                const response = await fetch(`${BASE_URL}/api/schedule_votes/${props.t_id}/${props.s_id}/${formattedDate}`);
-
+                const response = await fetch(`http://localhost:3001/api/schedule_votes/${t_id}/${props.s_id}/${formattedDate}`);
                 if (response.ok) {
                     const data = await response.json();
                     setVoteData(data);
@@ -218,7 +210,6 @@ const ScheduleShow = (props) => {
                 }
 
                 // 獲取當前用戶的投票狀態
-
                 const currentUserId = user?.uid; // 從 localStorage 獲取用戶 ID
                 if (currentUserId) {
                     const userVoteResponse = await fetch(`http://localhost:3001/api/user_vote/${t_id}/${props.s_id}/${currentUserId}`);
@@ -253,8 +244,7 @@ const ScheduleShow = (props) => {
             // 如果點擊的是已經投過的票，則取消投票
             const finalVoteType = currentUserVote === voteType ? null : voteType;
 
-            const response = await fetch(`${BASE_URL}/api/schedule_vote/${props.t_id}/${props.s_id}/${currentUserId}/${formattedDate}`, {
-
+            const response = await fetch(`http://localhost:3001/api/schedule_vote/${t_id}/${props.s_id}/${currentUserId}/${formattedDate}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -264,16 +254,14 @@ const ScheduleShow = (props) => {
 
             if (response.ok) {
                 // 重新獲取用戶投票狀態
-                const userVoteResponse = await fetch(`${BASE_URL}/api/user_vote/${props.t_id}/${props.s_id}/${currentUserId}`);
-
+                const userVoteResponse = await fetch(`http://localhost:3001/api/user_vote/${t_id}/${props.s_id}/${currentUserId}`);
                 if (userVoteResponse.ok) {
                     const userVoteData = await userVoteResponse.json();
                     setCurrentUserVote(userVoteData.vote_type || null);
                 }
 
                 // 重新獲取投票數據
-                const voteResponse = await fetch(`${BASE_URL}/api/schedule_votes/${props.t_id}/${props.s_id}/${formattedDate}`);
-
+                const voteResponse = await fetch(`http://localhost:3001/api/schedule_votes/${t_id}/${props.s_id}/${formattedDate}`);
                 if (voteResponse.ok) {
                     const voteData = await voteResponse.json();
                     setVoteData(voteData);

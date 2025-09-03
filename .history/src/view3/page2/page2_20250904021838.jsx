@@ -13,7 +13,7 @@ const Page2 = () => {
     // 從 localStorage 獲取用戶和行程資料
     const user = JSON.parse(localStorage.getItem('user'));
     const trip = JSON.parse(localStorage.getItem('trip'));
-
+    
     //state
     const [usedAttractions, setUsedAttractions] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);

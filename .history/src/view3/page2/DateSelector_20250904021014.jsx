@@ -1,8 +1,3 @@
-let HOST_URL = import.meta.env.VITE_API_URL;
-let NGROK_URL = import.meta.env.VITE_NGROK_URL;
-const PORT = import.meta.env.PORT || 3001;
-let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
-
 import React, { useState, useEffect } from 'react';
 import './DateSelector.css';
 
@@ -18,7 +13,8 @@ const DateSelector = ({ t_id, onDateChange }) => {
   useEffect(() => {
     const fetchTripDates = async () => {
       try {
-  const response = await fetch(`${BASE_URL}/api/trip-dates/${t_id}`);
+        // 使用 actualTripId (優先使用 localStorage 中的 trip.tid，如果沒有則使用 props 的 t_id)
+        const response = await fetch(`http://localhost:3001/api/trip-dates/${actualTripId}`);
 
         if (response.ok) {
           const data = await response.json();
@@ -40,7 +36,7 @@ const DateSelector = ({ t_id, onDateChange }) => {
     };
 
     fetchTripDates();
-  }, [t_id]);
+  }, [actualTripId, onDateChange]);
 
   const handleDateChange = (event) => {
     const newDate = event.target.value;

@@ -1,18 +1,10 @@
-let HOST_URL = import.meta.env.VITE_API_URL;
-let NGROK_URL = import.meta.env.VITE_NGROK_URL;
-const PORT = import.meta.env.PORT || 3001;
-let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
-
 import React, { useState, useEffect, useCallback } from 'react';
 import './Filter.css';
 
-const Filter = ({ t_id: propsTId, onCategoryChange, onFilterChange, onAttractionSelect }) => {
-    // 從 localStorage 獲取用戶和行程資料
-    const user = JSON.parse(localStorage.getItem('user'));
+const Filter = ({ t_id, onCategoryChange, onFilterChange, onAttractionSelect }) => {
+    // 從 localStorage 獲取行程資料作為 fallback
     const trip = JSON.parse(localStorage.getItem('trip'));
-
-    // 使用從localStorage獲取的t_id，如果沒有則使用props中的t_id
-    const t_id = trip?.tid ? parseInt(trip.tid) : propsTId;
+    const actualTripId = trip?.tid || t_id;
     const [isExpanded, setIsExpanded] = useState(false);
     const [categories, setCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -34,11 +26,11 @@ const Filter = ({ t_id: propsTId, onCategoryChange, onFilterChange, onAttraction
                 setLoading(true);
 
                 // 獲取指定trip的景點類別
-                const categoriesResponse = await fetch(`${BASE_URL}/api/attraction_categories/${t_id}`);
+                const categoriesResponse = await fetch(`http://localhost:3001/api/attraction_categories/${t_id}`);
                 const categoriesData = await categoriesResponse.json();
 
                 // 獲取該trip的預算範圍
-                const budgetResponse = await fetch(`${BASE_URL}/api/view3_trip_budget_range/${t_id}`);
+                const budgetResponse = await fetch(`http://localhost:3001/api/view3_trip_budget_range/${t_id}`);
                 const budgetData = await budgetResponse.json();
 
                 if (categoriesData.success) {
@@ -56,7 +48,7 @@ const Filter = ({ t_id: propsTId, onCategoryChange, onFilterChange, onAttraction
 
                 // 獲取該trip的所有景點
                 try {
-                    const attractionsResponse = await fetch(`${BASE_URL}/api/view2_attraction_list`);
+                    const attractionsResponse = await fetch(`http://localhost:3001/api/view2_attraction_list`);
                     const attractionsData = await attractionsResponse.json();
 
                     if (attractionsData && Array.isArray(attractionsData)) {
@@ -77,7 +69,7 @@ const Filter = ({ t_id: propsTId, onCategoryChange, onFilterChange, onAttraction
 
                 // 獲取該trip的參與使用者
                 try {
-                    const usersResponse = await fetch(`${BASE_URL}/api/trip_users/${t_id}`);
+                    const usersResponse = await fetch(`http://localhost:3001/api/trip_users/${t_id}`);
                     const usersData = await usersResponse.json();
 
                     if (usersData.success && usersData.users) {
@@ -86,23 +78,12 @@ const Filter = ({ t_id: propsTId, onCategoryChange, onFilterChange, onAttraction
                         setSelectedUsers([]);
                     }
                 } catch (userError) {
-                    // 嘗試使用localStorage中的用戶資料
-                    if (user && user.uid) {
-                        const currentUser = {
-                            u_id: user.uid,
-                            u_name: user.name || '目前用戶',
-                            u_img: user.img || 'avatar.jpg',
-                            color: '#FF5733'
-                        };
-                        setUsers([currentUser]);
-                    } else {
-                        // 設置預設使用者數據
-                        const defaultUsers = [
-                            { u_id: 1, u_name: '使用者1', u_img: 'avatar.jpg', color: '#FF5733' },
-                            { u_id: 2, u_name: '使用者2', u_img: null, color: '#33A1FF' }
-                        ];
-                        setUsers(defaultUsers);
-                    }
+                    // 設置預設使用者數據
+                    const defaultUsers = [
+                        { u_id: 1, u_name: '使用者1', u_img: 'avatar.jpg', color: '#FF5733' },
+                        { u_id: 2, u_name: '使用者2', u_img: null, color: '#33A1FF' }
+                    ];
+                    setUsers(defaultUsers);
                     setSelectedUsers([]); // 初始狀態：沒有使用者被選中
                 }
             } catch (error) {

@@ -1,242 +1,372 @@
-/* 外層 */
-.dice-only-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 24px;
-  min-height: 60vh;
-  background: #fefefe;
+/* ===== 外層與卡片 ===== */
+.dice-only-wrapper{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:24px;
+  min-height:60vh;
+  background:#fefefe;
 }
 
-.panel {
-  position: relative; /* 為了讓倒數 badge 能定位 */
-  width: 100%;
-  max-width: 640px;
-  background: #d6e6f7;           /* 淡藍 */
-  border-radius: 12px;
-  padding: 20px 24px 28px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+.panel.tiebreak-card{
+  position:relative;
+  width:100%;
+  max-width:900px;
+  background:#d6e6f7;                 /* 淡藍 */
+  border-radius:16px;
+  padding:20px 24px 28px;
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
 }
 
-.title {
-  font-size: 28px;
-  font-weight: 800;
-  color: #5078c1;                 /* 主色 */
-  margin-bottom: 14px;
+/* ===== 標題 + 倒數 ===== */
+.card-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.title{
+  margin:0;
+  font-size:28px;
+  font-weight:800;
+  color:#5078c1;                       /* 主色 */
+}
+.timer-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:#fff7e6;                  /* 黃底 */
+  color:#8a5a00;
+  border:1px solid #ffd591;
+  font-weight:700;
+  box-shadow:0 6px 14px rgba(255,202,138,.25);
+}
+.timer-badge .sandglass{font-size:18px;line-height:1}
+
+/* ===== 主／輔 兩欄版面 ===== */
+.main-grid{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:16px;
+  margin-top:16px;
+}
+@media (max-width:860px){
+  .main-grid{grid-template-columns:1fr}
 }
 
-/* 骰子舞台 */
-.dice-stage {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  perspective: 1000px;
-  margin-top: 6px;
+/* ===== 左：主要輸入區 ===== */
+.primary-box{
+  background:#e8f2ff;
+  border:1px solid #e4f0ff;
+  border-radius:12px;
+  padding:16px;
+}
+.field-label{
+  font-weight:800;
+  color:#355a99;
+  margin-bottom:8px;
+}
+.field-row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.roll-input{
+  width:140px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:2px solid #94cae7;
+  background:#fff;
+  color:#5078c1;
+  font-weight:700;
+  outline:none;
+  box-shadow:0 6px 14px rgba(148,202,231,.18) inset;
+}
+.roll-input.big{ width:180px; }
+
+/* 快捷數字 */
+.chips-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.chip{
+  min-width:38px;
+  height:38px;
+  border-radius:10px;
+  border:2px solid #94cae7;
+  background:#fff;
+  color:#355a99;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(148,202,231,.18);
+}
+.chip:hover{ background:#f4fbff; }
+.chip.active{
+  background:#94cae7;
+  color:#1d3b6b;
+}
+.chips-hint{
+  color:#355a99;
+  font-size:14px;
+  margin-left:4px;
 }
 
-.dice {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  transform-style: preserve-3d;
-  transition: transform 0.9s cubic-bezier(.21,.72,.22,.99);
+.submitted-indicator{
+  margin-top:10px;
+  color:#355a99;
+  font-weight:700;
 }
 
-.face {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: inset 0 0 0 3px #e9eef9, 0 8px 18px rgba(0,0,0,0.08);
-  display: grid;
+/* ===== 右：輔助擲骰區 ===== */
+.helper-box{
+  background:#ffffff;
+  border:1px solid #e4f0ff;
+  border-radius:12px;
+  padding:16px;
+  box-shadow:0 6px 14px rgba(148,202,231,.25);
+}
+.helper-title{
+  font-weight:800;
+  color:#5078c1;
+  margin-bottom:8px;
+}
+.mini-hint{
+  margin:8px 0 0 0;
+  font-size:12px;
+  color:#355a99;
 }
 
-/* 六個面的基本定位（距離中心 60px） */
-.face.one  { transform: rotateY(   0deg) translateZ(60px); }
-.face.two  { transform: rotateY(  90deg) translateZ(60px); }
-.face.three{ transform: rotateY( 180deg) translateZ(60px); }
-.face.four { transform: rotateY( -90deg) translateZ(60px); }
-.face.five { transform: rotateX(  90deg) translateZ(60px); }
-.face.six  { transform: rotateX( -90deg) translateZ(60px); }
-
-/* 點數樣式 */
-.pip {
-  width: 18px;
-  height: 18px;
-  background: #5078c1; /* 主色 */
-  border-radius: 50%;
-  position: absolute;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.08);
+/* ===== 共用按鈕 ===== */
+.btn{
+  padding:12px 18px;
+  border:none;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  transition:transform .08s ease, box-shadow .2s ease, background-color .2s ease;
 }
+.btn:disabled{ opacity:.7; cursor:not-allowed; }
+.btn-wide{ min-width:220px; }
 
-.center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-.tl { top: 18px; left: 18px; }
-.tr { top: 18px; right: 18px; }
-.bl { bottom: 18px; left: 18px; }
-.br { bottom: 18px; right: 18px; }
-.ml { top: 50%; left: 18px; transform: translateY(-50%); }
-.mr { top: 50%; right: 18px; transform: translateY(-50%); }
-
-/* 骰子停止時，顯示某面朝上（配合 JS 的 show-1~6） */
-.show-1 { transform: rotateX(0deg) rotateY(0deg); }
-.show-2 { transform: rotateX(0deg) rotateY(-90deg); }
-.show-3 { transform: rotateX(0deg) rotateY(180deg); }
-.show-4 { transform: rotateX(0deg) rotateY(90deg); }
-.show-5 { transform: rotateX(-90deg) rotateY(0deg); }
-.show-6 { transform: rotateX(90deg) rotateY(0deg); }
-
-/* 轉動動畫（在 rolling 狀態下套用） */
-@keyframes diceSpin {
-  0%   { transform: rotateX(0) rotateY(0); }
-  25%  { transform: rotateX(360deg) rotateY(0); }
-  50%  { transform: rotateX(360deg) rotateY(360deg); }
-  75%  { transform: rotateX(720deg) rotateY(360deg); }
-  100% { transform: rotateX(720deg) rotateY(720deg); }
+.btn-primary{
+  background:#5078c1;                 /* 深藍 */
+  color:#fff;
+  box-shadow:0 8px 18px rgba(80,120,193,.28);
 }
-.dice.rolling {
-  animation: diceSpin 1.2s cubic-bezier(.25,.8,.25,1);
+.btn-primary:hover{
+  background:#6a9ae2;
+  transform:translateY(-1px);
+  box-shadow:0 12px 26px rgba(80,120,193,.34);
+}
+.btn-secondary{
+  background:#94cae7;                 /* 淺藍 */
+  color:#1d3b6b;
+  box-shadow:0 8px 18px rgba(148,202,231,.28);
+}
+.btn-secondary:hover{
+  background:#b3d9f1;
+  transform:translateY(-1px);
+  box-shadow:0 12px 26px rgba(148,202,231,.34);
+}
+.btn-cta{
+  background:#355a99;                 /* CTA 藍 */
+  color:#fff;
+  box-shadow:0 8px 18px rgba(53,90,153,.28);
+}
+.btn-cta:hover{
+  background:#416dbd;
+  transform:translateY(-1px);
+  box-shadow:0 12px 26px rgba(53,90,153,.34);
 }
 
-/* 控制區與按鈕 */
-.controls {
-  display: flex;
-  justify-content: center;
-  margin-top: 18px;
-}
-
-.roll-btn {
-  background-color: #5078c1;
-  color: #fff;
-  padding: 12px 22px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform .08s ease, box-shadow .2s ease, background-color .2s ease;
-  box-shadow: 0 8px 18px rgba(80,120,193,0.28);
-}
-
-.roll-btn:hover {
-  background-color: #6a9ae2; /* hover */
-  transform: translateY(-1px);
-  box-shadow: 0 12px 26px rgba(80,120,193,0.34);
-}
-
-.roll-btn:active {
-  transform: translateY(0px);
-}
-
-.roll-btn:disabled {
-  opacity: .7;
-  cursor: not-allowed;
-}
-
-/* 結果徽章 */
-.result-badge {
-  margin: 18px auto 0;
-  width: fit-content;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: #fefefe;
-  color: #5078c1;
-  border: 2px solid #94cae7;
-  box-shadow: 0 6px 14px rgba(148,202,231,0.35);
-  font-weight: 700;
-}
-
-/* 輸入與按鈕的排版列 */
-.input-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.roll-input {
-  width: 120px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 2px solid #94cae7;
-  background: #ffffff;
-  color: #5078c1;
-  font-weight: 700;
-  outline: none;
-  box-shadow: 0 6px 14px rgba(148,202,231,0.18) inset;
-}
-
-.small-btn {
-  background-color: #94cae7;
-  color: #1d3b6b;
-  padding: 10px 14px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform .08s ease, box-shadow .2s ease, background-color .2s ease;
-  box-shadow: 0 8px 18px rgba(148,202,231,0.28);
-}
-.small-btn:hover {
-  background-color: #b3d9f1;
-  transform: translateY(-1px);
-  box-shadow: 0 12px 26px rgba(148,202,231,0.34);
-}
-.small-btn:disabled {
-  opacity: .7;
-  cursor: not-allowed;
-}
-
-/* 送出名單 */
-.submitted-list {
-  max-width: 360px;
-  margin: 14px auto 0;
-  background: #fefefe;
-  border: 1px solid #e4f0ff;
-  border-radius: 12px;
-  padding: 10px 12px;
-  color: #355a99;
-  font-size: 14px;
-}
-.submitted-list h4 {
-  margin: 0 0 6px 0;
-  font-size: 14px;
-  color: #5078c1;
-}
-.submitted-list ul {
-  margin: 0;
-  padding-left: 18px;
-}
-
-/* 右上角倒數 */
-.timer-badge {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: #fff7e6;
-  color: #8a5a00;
-  border: 1px solid #ffd591;
-  font-weight: 700;
-  box-shadow: 0 6px 14px rgba(255, 202, 138, 0.25);
-}
-.timer-badge .sandglass {
-  font-size: 18px;
-  line-height: 1;
+/* ===== 最終決策列 ===== */
+.finalize-row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+  margin-top:16px;
 }
 
 /* 截止提示 */
-.closed-banner {
-  margin: 12px auto 0;
-  width: fit-content;
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: #ffeaea;
-  color: #a8071a;
-  border: 1px solid #ffccc7;
-  font-weight: 700;
+.closed-banner{
+  padding:8px 14px;
+  border-radius:10px;
+  background:#ffeaea;
+  color:#a8071a;
+  border:1px solid #ffccc7;
+  font-weight:700;
 }
+
+/* ===== 骰子（3D 立方體修正版） ===== */
+.dice-stage{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  perspective:1000px;
+  margin:8px 0 12px;
+}
+
+/* 以 CSS 變數統一尺寸與深度（邊長一半） */
+.dice{
+  --size: 120px;
+  --half: calc(var(--size) / 2);
+
+  position:relative;
+  width:var(--size);
+  height:var(--size);
+  transform-style:preserve-3d;        /* 立方體關鍵 */
+  transition:transform .9s cubic-bezier(.21,.72,.22,.99);
+}
+
+/* 小尺寸版本（右側輔助） */
+.dice-stage.compact .dice{ --size:100px; }
+
+/* 每一面 */
+.face{
+  position:absolute;
+  width:var(--size);
+  height:var(--size);
+  background:#ffffff;
+  border-radius:14px;
+  box-shadow:inset 0 0 0 3px #e9eef9, 0 8px 18px rgba(0,0,0,.08);
+  display:grid;
+  backface-visibility:hidden;         /* 防止背面覆蓋 */
+}
+
+/* 面定位（用 --half 當 translateZ 深度） */
+.face.one   { transform: rotateY(  0deg) translateZ(var(--half)); }
+.face.two   { transform: rotateY( 90deg) translateZ(var(--half)); }
+.face.three { transform: rotateY(180deg) translateZ(var(--half)); }
+.face.four  { transform: rotateY(-90deg) translateZ(var(--half)); }
+.face.five  { transform: rotateX( 90deg) translateZ(var(--half)); }
+.face.six   { transform: rotateX(-90deg) translateZ(var(--half)); }
+
+/* 點數 */
+.pip{
+  width:18px; height:18px;
+  background:#5078c1;
+  border-radius:50%;
+  position:absolute;
+  box-shadow:0 2px 0 rgba(0,0,0,.08);
+}
+.center{ top:50%; left:50%; transform:translate(-50%,-50%); }
+.tl{ top:18px; left:18px; } .tr{ top:18px; right:18px; }
+.bl{ bottom:18px; left:18px; } .br{ bottom:18px; right:18px; }
+.ml{ top:50%; left:18px; transform:translateY(-50%); }
+.mr{ top:50%; right:18px; transform:translateY(-50%); }
+
+/* 朝向控制 */
+.show-1{ transform:rotateX(0deg) rotateY(0deg); }
+.show-2{ transform:rotateX(0deg) rotateY(-90deg); }
+.show-3{ transform:rotateX(0deg) rotateY(180deg); }
+.show-4{ transform:rotateX(0deg) rotateY(90deg); }
+.show-5{ transform:rotateX(-90deg) rotateY(0deg); }
+.show-6{ transform:rotateX(90deg) rotateY(0deg); }
+
+/* 轉動動畫 */
+@keyframes diceSpin{
+  0%{   transform:rotateX(0)    rotateY(0)   }
+  25%{  transform:rotateX(360deg) rotateY(0) }
+  50%{  transform:rotateX(360deg) rotateY(360deg) }
+  75%{  transform:rotateX(720deg) rotateY(360deg) }
+  100%{ transform:rotateX(720deg) rotateY(720deg) }
+}
+.dice.rolling{ animation:diceSpin 1.2s cubic-bezier(.25,.8,.25,1); }
+
+/* ===== 結果卡片 ===== */
+.result-card{
+  margin:18px auto 0;
+  width:100%;
+  max-width:540px;
+  background:#ffffff;
+  border:2px solid #94cae7;
+  border-radius:14px;
+  box-shadow:0 8px 18px rgba(148,202,231,.28);
+  padding:14px 18px;
+  text-align:center;
+}
+.result-title{
+  color:#5078c1;
+  font-weight:800;
+  margin-bottom:6px;
+}
+.result-value{
+  font-size:20px;
+  font-weight:900;
+  color:#355a99;
+}
+/* ===== Seed 驗證區 ===== */
+.verify-card{
+  margin:14px auto 0;
+  width:100%;
+  max-width:700px;
+  background:#ffffff;
+  border:2px solid #94cae7;
+  border-radius:14px;
+  box-shadow:0 8px 18px rgba(148,202,231,.22);
+  padding:14px 16px;
+  color:#355a99;
+}
+
+.verify-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+  color:#5078c1;
+  font-weight:800;
+}
+
+.verify-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:6px 0;
+}
+
+.mono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background:#f7fbff;
+  border:1px solid #e4f0ff;
+  padding:4px 6px;
+  border-radius:8px;
+}
+
+.copy-btn{
+  padding:6px 10px;
+  border:none;
+  border-radius:8px;
+  background:#94cae7;
+  color:#1d3b6b;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 6px 12px rgba(148,202,231,.28);
+}
+.copy-btn:hover{ background:#b3d9f1; }
+
+/* 驗證標記 */
+.pill-ok, .pill-bad{
+  padding:4px 10px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:12px;
+}
+.pill-ok{
+  background:#eaffea;
+  color:#137a13;
+  border:1px solid #b7f0b7;
+}
+.pill-bad{
+  background:#ffeaea;
+  color:#a8071a;
+  border:1px solid #ffccc7;
+}
+
+.verify-actions{ margin-top:8px; }

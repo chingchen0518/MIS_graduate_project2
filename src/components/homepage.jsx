@@ -54,6 +54,7 @@ const HomePage = () => {
             <li className="homepage_li"><a href="/page3">page3</a></li>
             <li className="homepage_li"><a href="/Vistour">Vistour</a></li>
             <li className="homepage_li"><a href="/Backend">Backend</a></li>
+            <li className="homepage_li"><a href="/Confirmed">Confirmed</a></li>
         </ul>
 
     </div>

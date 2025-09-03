@@ -33,7 +33,7 @@ const ForgotPassword = () => {
 
             try {
                 setLoading(true);
-                const response = await fetch('/api/view3_forgot_password', {
+                const response = await fetch('http://localhost:3001/api/view3_forgot_password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email }),
@@ -71,7 +71,7 @@ const ForgotPassword = () => {
 
             try {
                 setLoading(true);
-                const response = await fetch('/api/view3_reset_password', {
+                const response = await fetch('http://localhost:3001/api/view3_reset_password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

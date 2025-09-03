@@ -54,6 +54,7 @@ import Profile from './view3/page1/profile.jsx';
 import Page2 from './view3/page2/page2.jsx';
 import Page3 from './view3/page3/Page3.jsx';
 import Backend from './view3/page1/backend.jsx';
+import Confirmed from './view3/page1/Confirmed.jsx';
 
 import HomePage from './components/homepage.jsx'
 import Vistour from './components/vistour.jsx'
@@ -110,6 +111,7 @@ function App() {
 
                     <Route path="/Vistour" element={<Vistour />} />
                     <Route path="/Backend" element={<Backend />} />
+                    <Route path="/Confirmed" element={<Confirmed />} />
 
                 </Routes>
             </Router>

@@ -4,6 +4,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faAddressCard, faPlus, faSignOutAlt, faGlobe, faKey, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+
+const PORT = import.meta.env.PORT || 3001;
+
+let BASE_URL = NGROK_URL|| `http://${HOST_URL}:${PORT}`;
+
 function Profile() {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user'));
@@ -22,7 +29,11 @@ function Profile() {
 
     useEffect(() => {
         if (user?.uid) {
-            fetch(`http://localhost:3001/api/user/${user.uid}`)
+            fetch(`${BASE_URL}/api/user/${user.uid}`, {
+              headers: {
+                'ngrok-skip-browser-warning': 'true'
+              }
+            })
                 .then(res => res.json())
                 .then(data => setProfile(data));
         }

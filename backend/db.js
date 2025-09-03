@@ -1,7 +1,6 @@
 // db.js
 import express from 'express';
 import mysql from 'mysql2';
-
 import cors from 'cors';
 import './syncModels.js';
 import bcrypt from 'bcrypt';
@@ -10,15 +9,21 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// import Schedule from './models/schedule.js';
-// import TransportTime from './models/transportTime.js';
-// import ScheduleInclude from './models/schedule_include.js';
-// import Attraction from './models/attraction.js';
 import { dirname } from 'path';
+import dotenv from 'dotenv';
+
 
 // 取得 __dirname 的方式（ES Module 環境）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+
+//引入.env中的port
+dotenv.config({ path: path.join(__dirname, '../.env') });
+const host = process.env.VITE_API_URL
+
+console.log("host:",host )
+
 
 // 設定儲存位置和檔名
 const storage = multer.diskStorage({
@@ -48,7 +53,7 @@ const port = 3001;
 
 // 建立 connection（自動連線，不要再呼叫 .connect）
 const connection = mysql.createConnection({
-  host: 'localhost',
+  host: host,
   user: 'root',
   password: '20250101',
   database: 'travel'
@@ -72,12 +77,6 @@ function formatDate(dateStr) {
   const day = d.getDate().toString().padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
-
-// API endpoint
-
-// app.get('/api/students/:id', (req, res) => {
-//   const studentId = req.params.id; // 取得 URL 上的 id
-
 
 function formatFullDateTime(dateTimeStr) {
   if (!dateTimeStr) return null;
@@ -2030,9 +2029,9 @@ app.get('/api/schedule-transport-times/:scheduleId', async (req, res) => {
 });
 
 // ==================== 啟動服務器 ====================
-app.listen(port, () => {
-  console.log(`🚀 伺服器正在 http://localhost:${port} 上運行`);
-});
+// app.listen(port, () => {
+//   console.log(`🚀 伺服器正在 http://localhost:${port} 上運行`);
+// });
 
 // 新增測試資料的 API 端點
 app.get('/api/create-test-trip', (req, res) => {
@@ -2502,5 +2501,5 @@ app.post('/api/trip-create', async (req, res) => {
 
 // 不可以刪除！！！
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });

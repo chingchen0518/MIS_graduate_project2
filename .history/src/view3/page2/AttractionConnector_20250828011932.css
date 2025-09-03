@@ -1,0 +1,111 @@
+.attraction-connector-container {
+    position: relative;
+}
+
+.attraction-connector-svg {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: none !important;
+    z-index: 1000 !important;
+    overflow: hidden !important;
+    /* 固定在視窗上，覆蓋整個頁面，隱藏超出部分 */
+}
+
+.attraction-connection {
+    stroke-linejoin: round;
+    transition: all 0.3s ease-in-out;
+}
+
+/* 連線動畫效果 */
+.attraction-connection-glow {
+    filter: url(#glow-filter);
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.attraction-connection-shadow {
+    filter: url(#shadow-filter);
+}
+
+/* 端點標記樣式 */
+.connection-endpoint {
+    transition: all 0.2s ease-in-out;
+}
+
+.connection-endpoint:hover {
+    transform: scale(1.2);
+}
+
+/* 箭頭指示器 */
+.connection-arrow {
+    transition: all 0.3s ease-in-out;
+    animation: arrow-flow 2s linear infinite;
+}
+
+/* 動畫關鍵幀 */
+@keyframes pulse-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 8px currentColor);
+        opacity: 0.8;
+    }
+    50% {
+        filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 15px currentColor);
+        opacity: 1;
+    }
+}
+
+@keyframes arrow-flow {
+    0% {
+        stroke-dashoffset: 0;
+    }
+    100% {
+        stroke-dashoffset: -20;
+    }
+}
+
+@keyframes connection-appear {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes endpoint-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+}
+
+/* 連線懸停效果 */
+.attraction-connection:hover {
+    stroke-width: 3px !important;
+    filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* 連線群組整體效果 */
+.connection-group {
+    animation: connection-appear 0.8s ease-out;
+}
+
+/* 中心引導線樣式 */
+.connection-center-line {
+    stroke-dasharray: 8,4;
+    animation: arrow-flow 3s linear infinite;
+}
+
+/* 端點脈動效果 */
+.connection-endpoint {
+    animation: endpoint-pulse 2s ease-in-out infinite;
+    animation-delay: 0.5s;
+}

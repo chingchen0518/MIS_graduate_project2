@@ -1,0 +1,21 @@
+.bar.bar_collide {
+    /* background-color: red; */
+    border:3px rgb(245, 2, 2) solid;
+    opacity:0.5;
+}
+
+.car{
+    background-color: #ff914d;
+}
+
+.bicycle{
+    background-color: #65cdca;
+}
+
+.bus{
+    background-color: #428cef;
+}
+
+.walk{
+    background-color: #7ed957;
+}

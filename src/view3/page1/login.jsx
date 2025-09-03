@@ -7,11 +7,6 @@ import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-        console.log('已登入使用者：', user.name, '，ID:', user.uid);
-    } else {
-        console.log('尚未登入');
-    }
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -25,20 +20,21 @@ const Login = () => {
         setSuccess('');
 
         if (!email || !password) {
-            setError('請輸入電子郵件和密碼！');
+            setError('Please enter your email and password!');
             return;
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            setError('請輸入有效的電子郵件格式');
+            setError('Please enter a valid email address');
             return;
         }
 
         setLoading(true);
 
         try {
-            const res = await fetch('/api/view3_login', {
+            let api = `http://localhost:3001/api/view3_login`;
+            const res = await fetch(api, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -47,7 +43,7 @@ const Login = () => {
             const data = await res.json();
 
             if (res.ok) {
-                setSuccess(data.message || '登入成功！');
+                setSuccess(data.message || 'Login successful!');
 
                 if (data.user) {
                     localStorage.setItem('user', JSON.stringify(data.user));
@@ -58,10 +54,10 @@ const Login = () => {
                     navigate(data.redirect || '/profile');
                 }, 1500);
             } else {
-                setError(data.message || '登入失敗！');
+                setError(data.message || 'Login failed!');
             }
         } catch (err) {
-            setError('發生錯誤，請稍後再試');
+            setError('An error occurred, please try again later');
         } finally {
             setLoading(false);
         }
@@ -83,7 +79,7 @@ const Login = () => {
                         </div>
                         <h1 className="all_title">Vistour</h1>
                     </div>
-                    <p className="all_subtitle">你的旅遊好幫手</p>
+                    <p className="all_subtitle">Your travel assistant</p>
                 </div>
                 <div className="body">
                     {success && (
@@ -100,7 +96,7 @@ const Login = () => {
                     )}
                     <form onSubmit={handleSubmit} noValidate>
                         <div className="all_form-group">
-                            <label htmlFor="email">電子郵件</label>
+                            <label htmlFor="email">Email</label>
                             <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faEnvelope} />
                                 <input
@@ -108,7 +104,7 @@ const Login = () => {
                                     id="email"
                                     name="email"
                                     className="form-control"
-                                    placeholder="請輸入您的電子郵件地址"
+                                    placeholder="Please enter your email address"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value.trim())}
                                     required
@@ -118,7 +114,7 @@ const Login = () => {
                             </div>
                         </div>
                         <div className="all_form-group">
-                            <label htmlFor="password">密碼</label>
+                            <label htmlFor="password">Password</label>
                             <div className="all_input-with-icon">
                                 <FontAwesomeIcon icon={faLock} />
                                 <input
@@ -126,7 +122,7 @@ const Login = () => {
                                     id="password"
                                     name="password"
                                     className="form-control"
-                                    placeholder="請輸入您的密碼"
+                                    placeholder="Please enter your password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
@@ -136,7 +132,7 @@ const Login = () => {
                         </div>
                         <div className="form-options">
                             <a href="/forgotpassword" className="forgotpassword">
-                                忘記密碼？
+                                Forgot password?
                             </a>
                         </div>
                         <button
@@ -150,7 +146,7 @@ const Login = () => {
                                 <span className="loading" aria-label="Loading" />
                             ) : (
                                 <>
-                                    <span className="all_btn-text">登入</span>
+                                    <span className="all_btn-text">Login</span>
                                     <FontAwesomeIcon icon={faSignInAlt} style={{ marginLeft: '8px' }} />
                                 </>
                             )}
@@ -159,7 +155,7 @@ const Login = () => {
                 </div>
                 <div className="all_footer">
                     <p className="register-link">
-                        還沒有帳號？ <a href="/Signin">立即註冊</a>
+                        Don't have an account? <a href="/Signin">Sign up now</a>
                     </p>
                 </div>
             </div>

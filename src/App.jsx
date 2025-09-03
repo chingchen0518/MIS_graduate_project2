@@ -53,6 +53,7 @@ import Logout from './view3/page1/logout.jsx';
 import Profile from './view3/page1/profile.jsx';
 import Page2 from './view3/page2/page2.jsx';
 import Page3 from './view3/page3/Page3.jsx';
+import Backend from './view3/page1/backend.jsx';
 
 import HomePage from './components/homepage.jsx'
 import Vistour from './components/vistour.jsx'
@@ -60,6 +61,7 @@ import Header from './components/header.jsx'
 import './App.css';
 import GeminiChat from './view2/chingchen/TEST API';
 import TEST_API_GPT from './view2/chingchen/TEST_API_GPT';
+
 
 //create context
 export const MyContext = createContext();
@@ -107,6 +109,7 @@ function App() {
                     <Route path="/ScheduleTest" element={<ScheduleTest />} />
 
                     <Route path="/Vistour" element={<Vistour />} />
+                    <Route path="/Backend" element={<Backend />} />
 
                 </Routes>
             </Router>

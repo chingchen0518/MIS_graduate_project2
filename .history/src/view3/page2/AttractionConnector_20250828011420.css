@@ -1,0 +1,38 @@
+.attraction-connector-container {
+    position: relative;
+}
+
+.attraction-connector-svg {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: none !important;
+    z-index: 1000 !important;
+    overflow: hidden !important;
+    /* 固定在視窗上，覆蓋整個頁面，隱藏超出部分 */
+}
+
+.attraction-connection {
+    stroke-linejoin: round;
+    transition: fill-opacity 0.2s ease, stroke-opacity 0.2s ease;
+}
+
+.attraction-connection:hover {
+    fill-opacity: 0.5 !important;
+    stroke-opacity: 1 !important;
+}
+
+.center-line {
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.6));
+    }
+    to {
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.9));
+    }
+}

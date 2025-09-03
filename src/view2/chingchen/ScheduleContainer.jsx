@@ -8,8 +8,12 @@ import ScheduleInsert from './ScheduleInsert.jsx';
 import ScheduleShow from './ScheduleShow.jsx';
 import DateSelector from '../Liu/DateSelector';
 import './ScheduleContainer.css';
+const user = JSON.parse(localStorage.getItem('user'));
+const trip = JSON.parse(localStorage.getItem('trip'))
+console.log('ScheduleContainer user:', user.uid);
 
 const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShowRoute, onHideRoute }) => {
+    
     //State
     const [schedules, setSchedules] = useState([]); //儲存DB讀取的schedule
     const [loading, setLoading] = useState(true);
@@ -21,6 +25,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
 
     const timeColumnRef = useRef(null);
 
+    // console.log(user, trip)
+    
     // function 1：處理日期選擇變更
     const handleDateChange = (date) => {
         setSelectedDate(date);
@@ -68,12 +74,15 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
     useEffect(() => {
         setLoading(true);
 
-        let api = 'http://localhost:3001/api/view2_schedule_list';
+        let api = `http://localhost:3001/api/view2_schedule_list?t_id=${trip.tid}`;
+        
+        //添加日期
         if (selectedDate) {
-            api += `?date=${encodeURIComponent(selectedDate)}`;
+            api += `&date=${encodeURIComponent(selectedDate)}`;
             // console.log('🔍 按日期載入 Schedule:', selectedDate);
         }
         
+
         fetch(api)
         .then(response => {
             if (!response.ok) {
@@ -142,7 +151,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
                 <h2 className="schedule_container_title">🚩旅遊行程</h2>
                 <div className="date-selector-wrapper">
                 <DateSelector 
-                    t_id={1} //@==@記得改掉@==@
+                    t_id={trip.tid} //@==@記得改掉@==@
                     onDateChange={handleDateChange}
                 />
                 </div>
@@ -164,7 +173,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
             
             {showScheduleInsert && (
                 <ScheduleInsert
-                    t_id={1} //@==@t_id要替換
+                    t_id={trip.tid} //@==@t_id要替換
+                    u_id={user.uid}
                     date = {selectedDate}
                     ScheduleInsertShow={handleShowScheduleInsert}
                     handleNewSchedule={getNewSchedule}
@@ -188,8 +198,9 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
             schedules.map((schedule) => (
                 <ScheduleShow
                     key={'schedule-' + schedule.s_id}
+                    u_id={user.uid}
+                    t_id={trip.tid}
                     s_id={schedule.s_id}
-                    t_id={t_id}
                     title={schedule.title}
                     day={schedule.day}
                     intervalHeight={timeColumnHeight / (timeSlots.length + 1)}

@@ -21,10 +21,18 @@ const __dirname = dirname(__filename);
 //引入.env中的port
 dotenv.config({ path: path.join(__dirname, '../.env') });
 const host = process.env.VITE_API_URL
+let NGROK_URL = process.env.VITE_NGROK_URL;
+// 自動補上 :3001（如果沒有 port）
+if (NGROK_URL && !/:[0-9]+$/.test(NGROK_URL)) {
+  NGROK_URL = NGROK_URL.replace(/\/$/, '') + ':3001';
+}
 
-console.log("host:",host )
-
-
+// 動態組合允許的 CORS origins，避免 undefined/null
+const allowedOrigins = [
+  'http://localhost:3001',
+  'http://140.117.71.132:3001',
+  'https://live-everywhere-indicating-declare.trycloudflare.com'
+];
 // 設定儲存位置和檔名
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -46,7 +54,21 @@ export default upload;  // 如果你用 ES module 的話可以 export
 
 
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // 允許無 origin（如 Postman）或在白名單內
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS: ' + origin));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+  allowedHeaders: ['Content-Type', 'ngrok-skip-browser-warning']
+}));
+
 app.use(express.json());
 
 const port = 3001;
@@ -2489,6 +2511,7 @@ app.post('/api/trip-create', async (req, res) => {
             // Trip 已建立，Join失敗也回傳成功，但可加提示
             return res.status(200).json({ message: 'Trip created, but failed to join', tripId });
           }
+
           res.status(200).json({ message: 'Trip and Join created successfully!', tripId, color });
         });
       }

@@ -2,7 +2,10 @@ import React, { useImperativeHandle, useState,useRef, forwardRef, useEffect } fr
 import { useDrag,useDragLayer } from 'react-dnd';
 import { Rnd } from "react-rnd";
 import TransportTime from './TransportTime.jsx'; // 引入 TransportTime 組件
-
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
 // ScheduleItem 組件：顯示在行程時間軸上的單個景點項目
 const ScheduleItem = React.forwardRef(({ editmode=false,a_id,name, position, width, index, s_id, onMove, editable=false,height,onValueChange,onDragStop,intervalHeight,nextAId,getTransportMethod = () => {} ,transport_method, barRefs, scheduleItemRef, barCollide, maxBarHeight,categoryColor,sequence  }, ref) => {
     // const user = JSON.parse(localStorage.getItem('user'));

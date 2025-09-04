@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import React, { useState, useEffect } from 'react';
 import AttractionCard from './AttractionCard.jsx';
 import AttractionDetail from './AttractionDetail.jsx';
@@ -17,7 +22,7 @@ const AttractionContainer = ({ usedAttractions = [], currentRoute = null }) => {
     // useEffect: 從API獲取景點數據
     useEffect(() => {
         // Fetch data from the API
-        fetch('http://localhost:3001/api/view2_attraction_list')
+        fetch(`${BASE_URL}/api/view2_attraction_list`)
         .then(response => {
             if (!response.ok) {
             throw new Error('Network response was not ok');

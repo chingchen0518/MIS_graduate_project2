@@ -5,6 +5,13 @@ import { faGlobe, faEnvelope, faUser, faLock, faAddressCard } from '@fortawesome
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+
+const PORT = import.meta.env.PORT || 3001;
+
+let BASE_URL = NGROK_URL|| `http://${HOST_URL}:${PORT}`;
+
 const initialState = {
     name: "",
     email: "",
@@ -55,9 +62,12 @@ function Signin() {
                 if (form.avatar) formData.append('avatar', form.avatar);
                 if (invite) formData.append('invite', invite);
 
-                const response = await fetch('http://localhost:3001/api/view3_signin', {
-                    method: 'POST',
-                    body: formData,
+                const response = await fetch(`${BASE_URL}/api/view3_signin`, {
+                        method: 'POST',
+                        headers: {
+                            'ngrok-skip-browser-warning': 'true'
+                        },
+                        body: formData,
                 });
 
                 const data = await response.json();

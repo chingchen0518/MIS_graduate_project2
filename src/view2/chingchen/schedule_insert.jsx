@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import React, { useState, useRef, lazy, Suspense } from 'react';
 import { useDrop, useDragLayer } from 'react-dnd';
 import './schedule.css';
@@ -85,7 +90,7 @@ const Schedule_insert = ({
               
               console.log('📤 發送 API 請求資料:', requestData);
               
-              const response = await fetch('http://localhost:3001/api/calculate-schedule-transport-times', {
+              const response = await fetch(`${BASE_URL}/api/calculate-schedule-transport-times`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json'
@@ -187,7 +192,7 @@ const Schedule_insert = ({
       // 可能有錯---------------------------------------------------------------------------------
       const a_id = item.a_id || 1; // 景點 ID，默認為 1
 
-      fetch('http://localhost:3001/api/view2_schedule_include_insert', {
+  fetch(`${BASE_URL}/api/view2_schedule_include_insert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

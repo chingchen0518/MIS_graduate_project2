@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 //不可編輯的schedule
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useDrop, useDragLayer } from 'react-dnd';
@@ -42,7 +47,7 @@ const ScheduleShow = (props) => {
 
     // Use Effect 2:從DB讀取別人的行程的schedule_item，按日期過濾
     useEffect(() => {
-        let api = `http://localhost:3001/api/view2_schedule_include_show/${props.t_id}/${props.s_id}`;
+        let api = `${BASE_URL}/api/view2_schedule_include_show/${props.t_id}/${props.s_id}`;
 
         console.log('🔍 按日期載入 Schedule:', props.t_id, props.s_id);
 
@@ -115,7 +120,7 @@ const ScheduleShow = (props) => {
           const a_id = item.a_id || 1; // 景點 ID，默認為 1
           const t_id = item.t_id || 1; // 使用 attraction_card 的 ID 作為 trip ID，默認為 1
 
-          fetch('http://localhost:3001/api/view2_schedule_include_insert', {
+          fetch(`${BASE_URL}/api/view2_schedule_include_insert`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ a_id, t_id, s_id: props.s_id, x: correctedX, y: correctedY }),

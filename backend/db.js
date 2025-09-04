@@ -1,7 +1,6 @@
 // db.js
 import express from 'express';
 import mysql from 'mysql2';
-
 import cors from 'cors';
 import './syncModels.js';
 import bcrypt from 'bcrypt';
@@ -10,16 +9,32 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// import Schedule from './models/schedule.js';
-// import TransportTime from './models/transportTime.js';
-// import ScheduleInclude from './models/schedule_include.js';
-// import Attraction from './models/attraction.js';
 import { dirname } from 'path';
+import dotenv from 'dotenv';
+
 
 // 取得 __dirname 的方式（ES Module 環境）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+
+//引入.env中的port
+dotenv.config({ path: path.join(__dirname, '../.env') });
+const host = process.env.VITE_API_URL
+let NGROK_URL = process.env.VITE_NGROK_URL;
+// 自動補上 :3001（如果沒有 port）
+if (NGROK_URL && !/:[0-9]+$/.test(NGROK_URL)) {
+  NGROK_URL = NGROK_URL.replace(/\/$/, '') + ':3001';
+}
+
+// 動態組合允許的 CORS origins，避免 undefined/null
+const allowedOrigins = [
+  'http://localhost:3001',
+  'http://localhost:5173',
+  'http://140.117.71.132:3001',
+  'https://live-everywhere-indicating-declare.trycloudflare.com',
+   NGROK_URL
+];
 // 設定儲存位置和檔名
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -41,17 +56,33 @@ export default upload;  // 如果你用 ES module 的話可以 export
 
 
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // 允許無 origin（如 Postman）或在白名單內
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS: ' + origin));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+  allowedHeaders: ['Content-Type', 'ngrok-skip-browser-warning']
+}));
+
 app.use(express.json());
 
 const port = 3001;
 
 // 建立 connection（自動連線，不要再呼叫 .connect）
 const connection = mysql.createConnection({
-  host: 'localhost',
+  host: host,
   user: 'root',
   password: '20250101',
-  database: 'travel'
+  database: 'travel',
+  allowPublicKeyRetrieval: true,
+  ssl: false
 });
 
 connection.connect(err => {
@@ -72,12 +103,6 @@ function formatDate(dateStr) {
   const day = d.getDate().toString().padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
-
-// API endpoint
-
-// app.get('/api/students/:id', (req, res) => {
-//   const studentId = req.params.id; // 取得 URL 上的 id
-
 
 function formatFullDateTime(dateTimeStr) {
   if (!dateTimeStr) return null;
@@ -2046,9 +2071,9 @@ app.get('/api/schedule-transport-times/:scheduleId', async (req, res) => {
 });
 
 // ==================== 啟動服務器 ====================
-app.listen(port, () => {
-  console.log(`🚀 伺服器正在 http://localhost:${port} 上運行`);
-});
+// app.listen(port, () => {
+//   console.log(`🚀 伺服器正在 http://localhost:${port} 上運行`);
+// });
 
 // 新增測試資料的 API 端點
 app.get('/api/create-test-trip', (req, res) => {
@@ -2467,6 +2492,28 @@ app.post('/api/update-trip-time', (req, res) => {
   });
 });
 
+app.post('/api/view2_change_trip_data', (req, res) => {
+  // 將所有 Trip 資料的指定欄位批次更新為指定值
+  const updateSql = `UPDATE trip SET 
+    s_date = '2025-09-03',
+    e_date = '2025-09-10',
+    s_time = '10:00',
+    e_time = '19:00',
+    stage = 'A',
+    stage_date = '2025-09-03 10:00:00',
+    time = '00:01:00'`;
+  connection.query(updateSql, (err, result) => {
+    if (err) {
+      console.error('❌ Failed to update trip data:', err);
+      return res.status(500).json({ message: 'Server error (Failed to update trip data)' });
+    }
+    res.status(200).json({
+      message: 'All trip data updated successfully',
+      affectedRows: result.affectedRows
+    });
+  });
+});
+
 app.post('/api/trip-create', async (req, res) => {
   try {
     const { title, country, time, s_date, e_date, s_time, e_time, u_id } = req.body;
@@ -2506,6 +2553,7 @@ app.post('/api/trip-create', async (req, res) => {
             // Trip 已建立，Join失敗也回傳成功，但可加提示
             return res.status(200).json({ message: 'Trip created, but failed to join', tripId });
           }
+
           res.status(200).json({ message: 'Trip and Join created successfully!', tripId, color });
         });
       }
@@ -2541,5 +2589,5 @@ app.post('/api/evaluate/max-good-bad', (req, res) => {
 
 // 不可以刪除！！！
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });

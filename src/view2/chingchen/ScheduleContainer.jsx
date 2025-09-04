@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { SelectedScheduleContext } from './page1.jsx';
 import { DndProvider } from 'react-dnd';
@@ -8,12 +13,12 @@ import ScheduleInsert from './ScheduleInsert.jsx';
 import ScheduleShow from './ScheduleShow.jsx';
 import DateSelector from '../Liu/DateSelector';
 import './ScheduleContainer.css';
+
 const user = JSON.parse(localStorage.getItem('user'));
 const trip = JSON.parse(localStorage.getItem('trip'))
 // console.log('ScheduleContainer user:', user.uid);
 
 const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShowRoute, onHideRoute }) => {
-    
     //State
     const [schedules, setSchedules] = useState([]); //儲存DB讀取的schedule
     const [loading, setLoading] = useState(true);
@@ -74,7 +79,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
     useEffect(() => {
         setLoading(true);
 
-        let api = `http://localhost:3001/api/view2_schedule_list?t_id=${trip.tid}`;
+        let api = `${BASE_URL}/api/view2_schedule_list?t_id=${trip.tid}`;
         
         //添加日期
         if (selectedDate) {

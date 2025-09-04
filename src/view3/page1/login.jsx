@@ -5,6 +5,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faSignInAlt, faGlobe, faCheckCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+
+const PORT = import.meta.env.PORT || 3001;
+
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
+// // 如果 BASE_URL 沒有 http 開頭，補上
+// if (BASE_URL && !BASE_URL.startsWith('http')) {
+//   BASE_URL = `http://${BASE_URL}`;
+// }
+// // 如果 PORT 存在且 BASE_URL 沒有冒號，補上 :PORT
+// if (PORT) {
+//   BASE_URL = `${BASE_URL}`;
+// }
+
 const Login = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     const [account, setaccount] = useState('');
@@ -27,11 +43,14 @@ const Login = () => {
         setLoading(true);
 
         try {
-            let api = `http://localhost:3001/api/view3_login`;
+            let api = `${BASE_URL}/api/view3_login`;
             const res = await fetch(api, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ account, password }),
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({ account, password }),
             });
 
             const data = await res.json();

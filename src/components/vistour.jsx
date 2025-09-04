@@ -1,3 +1,8 @@
+let HOST_URL = import.meta.env.VITE_API_URL;
+let NGROK_URL = import.meta.env.VITE_NGROK_URL;
+const PORT = import.meta.env.PORT || 3001;
+let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
+
 import React, { useState, useEffect } from 'react';
 import Header from './header.jsx';
 import Backend from '../view3/page1/Backend.jsx';
@@ -16,7 +21,7 @@ const Vistor = () => {
 
     const fetchTripData = async () => {
         try {
-            const res = await fetch(`http://localhost:3001/api/trip/${tripId}`);
+            const res = await fetch(`${BASE_URL}/api/trip/${tripId}`);
             const data = await res.json();
             setTripId(data.tid || data.tripId);
             setStage(data.stage || '未知');

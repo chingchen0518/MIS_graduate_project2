@@ -453,13 +453,20 @@ const ScheduleInsert = ({
                             '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
                             ];
         const lines = [];
-        const intervalHeight = containerHeight / 25; // 調整為空間/25
+        const intervalHeight = containerHeight*0.9 / 25; // 調整為空間/25
         // console.log(intervalHeight);
         // HourIntervalHeight = intervalHeight;
 
         timeColumn.forEach((time, index) => {
             lines.push(
-                <div key={index} style={{ position: "absolute", top: index * intervalHeight, left: 0, width: "100%", height: "1px", backgroundColor: "lightgray" }} />
+                <div key={index} 
+                    style={{ position: "absolute", 
+                            top: index * intervalHeight, 
+                            left: 0, width: "100%", 
+                            height: "1px", 
+                            backgroundColor: "lightgray" }} 
+                    data-time={time}
+                />
             );
         });
 

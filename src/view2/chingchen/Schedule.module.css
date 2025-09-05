@@ -134,12 +134,13 @@
 }
 
 .schedule_header {
-    height: 5%;
+    height: 10%;
     text-align: center;
     margin-bottom: 8px;
     border-bottom: 1px solid #ddd;
-    padding-bottom: 6px;
+    padding-top: 20%;
     position: relative;
+    
 }
 
 .button_display{

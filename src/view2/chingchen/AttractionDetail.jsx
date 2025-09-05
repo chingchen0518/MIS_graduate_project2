@@ -4,7 +4,8 @@ const PORT = import.meta.env.PORT || 3001;
 let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
 
 import React from 'react';
-import './AttractionDetail.css';
+// import './AttractionDetail.css';
+import styles from './AttractionDetail.module.css';
 
 const AttractionDetail = ({ attraction, onClose }) => {
   if (!attraction) {
@@ -19,67 +20,60 @@ const AttractionDetail = ({ attraction, onClose }) => {
   }
 
   return (
-    // <div className="attraction_details">
-      <div className="attraction_card_layout">
-        <button className="close_button" onClick={onClose}>
-          ×
-        </button>
-        
-        <div className="attraction_image">
-          <img src={`../../img/${attraction.photo}`} alt={attraction.name} />
-        </div>
-        
-        <div className="attraction_info">
-          <div className="attraction_header">
-            <h2 className="attraction_title">{attraction.name}</h2>
-            <div className="action_icon">
-              <span>📝</span>
-            </div>
-          </div>
-          
-          <div className="week_schedule">
-            <div className="week_days">
-              <span className="day">Su</span>
-              <span className="day">Mo</span>
-              <span className="day active">Tu</span>
-              <span className="day">We</span>
-              <span className="day">Th</span>
-              <span className="day">Fr</span>
-              <span className="day">Sa</span>
-            </div>
-          </div>
-          
-          <div className="location_info">
-            <div className="location">
-              <span className="location_icon">📍</span>
-              <span className="address">{attraction.address || '地址未提供'}</span>
-            </div>
-            <div className="hours">
-              <span className="time_icon">🕐</span>
-              <span className="time">{attraction.hours || '營業時間未提供'}</span>
-            </div>
-            <div className="phone">
-              <span className="phone_icon">📞</span>
-              <span className="number">{attraction.phone || '電話未提供'}</span>
-            </div>
-            <div className="category">
-              <span className="category_icon">🏷️</span>
-              <span className="category_text">{attraction.category || '類別未分類'}</span>
-            </div>
-          </div>
-          
-          {/* <div className="price_section">
-            <span className="price_label">預算：</span>
-            <input 
-              type="text" 
-              className="price_input" 
-              placeholder={`$${attraction.budget || 0}`}
-              defaultValue={`$${attraction.budget || 0}`}
-            />
+    <div className={styles.attraction_card_layout}>
+      <button className={styles.close_button} onClick={onClose}>
+        ×
+      </button>
+      <div className={styles.attraction_image}>
+        <img src={`../../img/${attraction.photo}`} alt={attraction.name} />
+      </div>
+      <div className={styles.attraction_info}>
+        <div className={styles.attraction_header}>
+          <h2 className={styles.attraction_title}>{attraction.name}</h2>
+          {/* <div className={styles.action_icon}>
+            <span>📝</span>
           </div> */}
         </div>
+        <div className={styles.week_schedule}>
+          <div className={styles.week_days}>
+            <span className={styles.day}>Su</span>
+            <span className={styles.day}>Mo</span>
+            <span className={`${styles.day} ${styles.active}`}>Tu</span>
+            <span className={styles.day}>We</span>
+            <span className={styles.day}>Th</span>
+            <span className={styles.day}>Fr</span>
+            <span className={styles.day}>Sa</span>
+          </div>
+        </div>
+        <div className={styles.location_info}>
+          <div className={styles.location}>
+            <span className={styles.location_icon}>📍</span>
+            <span className={styles.address}>{attraction.address || '地址未提供'}</span>
+          </div>
+          <div className={styles.hours}>
+            <span className={styles.time_icon}>🕐</span>
+            <span className={styles.time}>{attraction.hours || '營業時間未提供'}</span>
+          </div>
+          <div className={styles.phone}>
+            <span className={styles.phone_icon}>📞</span>
+            <span className={styles.number}>{attraction.phone || '電話未提供'}</span>
+          </div>
+          <div className={styles.category}>
+            <span className={styles.category_icon}>🏷️</span>
+            <span className={styles.category_text}>{attraction.category || '類別未分類'}</span>
+          </div>
+        </div>
+        {/* <div className={styles.price_section}>
+          <span className={styles.price_label}>預算：</span>
+          <input 
+            type="text" 
+            className={styles.price_input} 
+            placeholder={`$${attraction.budget || 0}`}
+            defaultValue={`$${attraction.budget || 0}`}
+          />
+        </div> */}
       </div>
-    // </div>
+    </div>
   );
 };
 

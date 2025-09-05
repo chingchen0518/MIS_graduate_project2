@@ -28,11 +28,14 @@ if (NGROK_URL && !/:[0-9]+$/.test(NGROK_URL)) {
 }
 
 // 動態組合允許的 CORS origins，避免 undefined/null
+// 要允許前端的port，不是後端
+
 const allowedOrigins = [
   'http://localhost:3001',
   'http://localhost:5173',
   'http://140.117.71.132:3001',
-  'https://live-everywhere-indicating-declare.trycloudflare.com',
+  'https://baths-amazing-keyword-deutsche.trycloudflare.com',
+  'https://pointer-nu-participant-billion.trycloudflare.com',
    NGROK_URL
 ];
 // 設定儲存位置和檔名

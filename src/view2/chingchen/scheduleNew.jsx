@@ -7,13 +7,13 @@ const ScheduleItem = lazy(() => import('./ScheduleItem'));
 
 const ScheduleNew = ({
     containerHeight,
-    onAddNewSchedule
+    onAddNewSchedule,
+    isBlinking = false
 }) => {
-
     return (
         <div className="schedule scheduleNew add_schedule_column" style={{ height: containerHeight }}>
             <div className="add_schedule_content">
-                <div className="add_schedule_icon" onClick={() => onAddNewSchedule(true)}>
+                <div className={`add_schedule_icon${isBlinking ? ' blinking' : ''}`} onClick={() => onAddNewSchedule(true)}>
                     <svg className="plus_icon" viewBox="0 0 24 24">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>

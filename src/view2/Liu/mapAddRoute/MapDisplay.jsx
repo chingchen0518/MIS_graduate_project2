@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useContext } from 'react';
 import { SelectedScheduleContext } from '../../chingchen/page1.jsx';
 import { mapService } from './services/MapService.js';
 import { routeService } from './services/RouteCalculationService.js';
-import './MapDisplay.css';
+import styles from './MapDisplay.module.css';
 
 // 交通方式配置（內建）
 const transportModes = {
@@ -413,7 +413,7 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
   };
 
   return (
-    <div className="map-display">
+  <div className={styles['map-display']}>
       {/* <h2>交通方式</h2> */}
       
       {/* 控制按鈕 */}
@@ -437,9 +437,9 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
 
       {/* 交通方式選擇器 */}
       {Object.keys(routeData).length > 0 && (
-        <div className="transport-selector">
+  <div className={styles['transport-selector']}>
           {/* <h3>選擇交通方式：</h3> */}
-          <div className="transport-buttons">
+          <div className={styles['transport-buttons']}>
             {Object.entries(transportModes).map(([key, transport]) => {
               const isActive = activeTransport === key;
               const hasData = routeData[key] && !routeData[key].error;
@@ -450,12 +450,16 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
                   key={key}
                   onClick={() => handleTransportChange(key)}
                   disabled={!hasData}
-                  className={`transport-button ${key} ${isActive ? 'active' : 'inactive'}`}
+                  className={[
+                    styles['transport-button'],
+                    styles[key],
+                    isActive ? styles['active'] : styles['inactive']
+                  ].filter(Boolean).join(' ')}
                 >
-                  <div className="transport-button-content">
-                    <div className="transport-button-name">{transport.name}</div>
+                  <div className={styles['transport-button-content']}>
+                    <div className={styles['transport-button-name']}>{transport.name}</div>
                     {summary && (
-                      <div className="transport-button-duration">
+                      <div className={styles['transport-button-duration']}>
                         {summary.duration} 分鐘
                       </div>
                     )}
@@ -470,25 +474,25 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
       {/* 路線詳細資訊 */}
       {routeSummaries[activeTransport] && (
         <div 
-          className="route-details"
+          className={styles['route-details']}
           style={{ borderColor: transportModes[activeTransport].color }}
         >
           <h4>{transportModes[activeTransport].name} 路線詳情</h4>
-          <div className="route-details-grid">
-            <div className="route-details-item">
+          <div className={styles['route-details-grid']}>
+            <div className={styles['route-details-item']}>
               <strong>時間：</strong>{routeSummaries[activeTransport].duration} 分鐘
             </div>
-            <div className="route-details-item">
+            <div className={styles['route-details-item']}>
               <strong>距離：</strong>{routeSummaries[activeTransport].distance} 公里
             </div>
-            <div className="route-details-item">
+            <div className={styles['route-details-item']}>
               <strong>出發：</strong>{routeSummaries[activeTransport].startTime}
             </div>
-            <div className="route-details-item">
+            <div className={styles['route-details-item']}>
               <strong>抵達：</strong>{routeSummaries[activeTransport].endTime}
             </div>
             {routeSummaries[activeTransport].transfers > 0 && (
-              <div className="route-details-item">
+              <div className={styles['route-details-item']}>
                 <strong>轉乘：</strong>{routeSummaries[activeTransport].transfers} 次
               </div>
             )}
@@ -497,7 +501,7 @@ const MapDisplay = ({ selectedAttraction, currentRoute }) => {
       )}
 
       {/* 地圖容器 */}
-      <div ref={mapRef} className="map-container" />
+  <div ref={mapRef} className={styles['map-container']} />
 
     </div>
   );

@@ -8,7 +8,7 @@ import AttractionCard from './AttractionCard.jsx';
 import AttractionDetail from './AttractionDetail.jsx';
 import MapDisplay from '../Liu/mapAddRoute/MapDisplay.jsx'; // 導入地圖組件
 
-import './AttractionContainer.css';
+import styles from './AttractionContainer.module.css';
 
 const AttractionContainer = ({ usedAttractions = [], currentRoute = null }) => {
     //state
@@ -61,8 +61,8 @@ const AttractionContainer = ({ usedAttractions = [], currentRoute = null }) => {
 //   };
 
     return (
-        <div className="attraction_container">
-            <div className="attraction_cards_wrapper">
+        <div className={styles.attraction_container}>
+            <div className={styles.attraction_cards_wrapper}>
                 {attractions.map(attraction => (
                     <AttractionCard
                     key={`card-${attraction.a_id}`}
@@ -88,7 +88,7 @@ const AttractionContainer = ({ usedAttractions = [], currentRoute = null }) => {
                 ))}
             </div>
 
-            <div className="map_small_container">
+            <div className={styles.map_small_container}>
                 <MapDisplay 
                     selectedAttraction={selectedAttraction} 
                     currentRoute={currentRoute}

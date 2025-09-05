@@ -558,7 +558,7 @@ const CustomDragPreview = () => {
         style={{
             position: 'fixed',
             pointerEvents: 'none',
-            transform: `translate(${x}px, ${y}px)`,
+            transform: `translate(${x}px, ${y-50}px)`,
             // left: `${x - scheduleWidth * 0.45}px`, // 調整 x 坐標，讓鼠標位於預覽圖中心
             // top: `${y - 50}px`, // 調整 y 坐標，讓鼠標位於預覽圖中心
             width: `${scheduleWidth * 0.9}px`, // 基於 schedule 的寬度

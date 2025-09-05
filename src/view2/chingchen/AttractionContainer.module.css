@@ -28,7 +28,7 @@
 
 .map_small_container {
     width: calc(100% - 16px);
-    height: 150px;
+    /* height: 150px; */
     padding: 8px;
     box-sizing: border-box;
     /* border: 1px solid black; */

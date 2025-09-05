@@ -6,6 +6,14 @@ let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
 import React, { useState, useEffect } from 'react';
 import './DateSelector.css';
 
+const trip = JSON.parse(localStorage.getItem('trip'));
+console.log("IN dateselector, trip:", trip);
+if (trip && trip.stageDate) {
+  // 假設 stageDate 是一個陣列，每個元素有 date 屬性
+  const dates = trip.stageDate.map(stage => stage.date);
+  console.log(dates); // 這裡會是一個日期陣列
+}
+
 const DateSelector = ({ t_id = 1, onDateChange }) => {
   const [tripDates, setTripDates] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');

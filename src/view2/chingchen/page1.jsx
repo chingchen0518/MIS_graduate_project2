@@ -7,7 +7,7 @@ import { CustomDragPreview } from './ScheduleInsert.jsx';
 import Header from '../../components/header.jsx'
 // import MapDisplay from '../Liu/mapAddRoute/MapDisplay.jsx'
 
-import './Page1.css';
+import styles from './page1.module.css';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const trip = JSON.parse(localStorage.getItem('trip'))
@@ -58,9 +58,9 @@ const Page1 = () => {
             <CustomDragPreview />
 
             <SelectedScheduleContext.Provider value={{ selectedScheduleId, setSelectedScheduleId }}>
-                <div className="page1">
+                <div className={styles.page1}>
                     {/* <Header /> */}
-                    <div className="page1_content">
+                    <div className={styles.page1_content}>
                         <AttractionContainer usedAttractions={usedAttractions} currentRoute={currentRoute} />
                         <ScheduleContainer
                             t_id={1}//@==@記得改掉@==@

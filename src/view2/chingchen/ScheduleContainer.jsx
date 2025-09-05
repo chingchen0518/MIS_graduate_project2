@@ -8,7 +8,7 @@ import { SelectedScheduleContext } from './page1.jsx';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import ScheduleNew from './scheduleNew.jsx';    
+import ScheduleNew from './scheduleNew.jsx';
 import ScheduleInsert from './ScheduleInsert.jsx';
 import ScheduleShow from './ScheduleShow.jsx';
 import DateSelector from '../Liu/DateSelector';
@@ -173,8 +173,9 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
             </div>
 
             <ScheduleNew 
-                containerHeight = {timeColumnHeight} 
+                containerHeight={timeColumnHeight} 
                 onAddNewSchedule={handleShowScheduleInsert}
+                isBlinking={(!loading && schedules.length === 0)}
             />
             
             {showScheduleInsert && (
@@ -192,10 +193,10 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
             }
 
             {loading ? (
-            <div className="loading-message">載入中...</div>
+            <div className="loading-message">行程載入中...</div>
             ) : schedules.length === 0 ? (
             <div className="empty-message">
-                <p>沒有找到行程</p>
+                <p>目前還沒有行程哦，點擊新增行程</p>
             </div>
             ) : (
 

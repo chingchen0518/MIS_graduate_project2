@@ -37,6 +37,22 @@
   transition: all 0.2s ease;
 }
 
+.add_schedule_icon.blinking {
+  animation: zoom-effect 1s cubic-bezier(0.4,0,0.2,1) 0s 3;
+}
+
+@keyframes zoom-effect {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .add_schedule_icon:hover {
   background-color: #357abd;
   transform: scale(1.1);

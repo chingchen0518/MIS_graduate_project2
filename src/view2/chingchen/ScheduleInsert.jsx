@@ -26,7 +26,7 @@ function throttle(fn, interval) {
 import React, { useState, useRef, lazy, Suspense, useEffect } from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { useDrop, useDragLayer } from 'react-dnd';
-import './schedule.css';
+import styles from './Schedule.module.css';
 import { function1 } from './TransportTime';
 import { fetchAttractions, buildPrompt, scheduleGenerate } from './AI_generate_schedule.js'; 
 import { min } from 'd3';
@@ -470,21 +470,21 @@ const ScheduleInsert = ({
 
     return (
         <ErrorBoundary>
-            <div ref={dropRef} className={`schedule ${isOver ? 'highlight' : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
-            <div className="schedule_header">
+            <div ref={dropRef} className={`${styles.schedule} ${isOver ? styles.highlight : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
+            <div className={styles.schedule_header}>
 
                 {/* <div className="budget_display">$350</div> */}
                 
-                <div className="button_display">
-                    <button className="cancel_btn" onClick={handleCancel}>取消</button>
-                    <button className="confirm_btn" onClick={handleConfirm}>完成</button>
-                    <button className="generate_btn" onClick={handleGenerate}>AI</button>
+                <div className={styles.button_display}>
+                    <button className={styles.cancel_btn} onClick={handleCancel}>取消</button>
+                    <button className={styles.confirm_btn} onClick={handleConfirm}>完成</button>
+                    <button className={styles.generate_btn} onClick={handleGenerate}>AI</button>
                 </div>
 
-                <span className="schedule_date">{title}</span>
+                <span className={styles.schedule_date}>{title}</span>
             </div>
         
-            <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
+            <div className={styles.schedule_timeline} style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
                 {renderGrid()}
                 
                 {/* 顯示景點 - 現在只會在草稿狀態下執行 */}
@@ -524,9 +524,8 @@ const ScheduleInsert = ({
                     })}
                 </Suspense>
                 ) : (
-                <div className="schedule_empty">
+                <div className={styles.schedule_empty}>
                     <span>{loading ? "行程生成中..." : "拖拽景點到這裡"}</span>
-
                 </div>
                 )}
             </div>

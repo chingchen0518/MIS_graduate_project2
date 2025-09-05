@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useContext, useRef, useLayoutEffect } from 'react';
 
 import { SelectedScheduleContext } from './page1.jsx';
-import './schedule.css';
+import styles from './Schedule.module.css';
 import ScheduleItem from './ScheduleItem.jsx'; // 引入 ScheduleItem 組件
 
 let HOST_URL = import.meta.env.VITE_API_URL;
@@ -84,7 +84,7 @@ const ScheduleShow = (props) => {
     const renderGrid = () => {
         const timeColumn = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '23:59'];
         const lines = [];
-        const intervalHeight = props.containerHeight / 25;
+        const intervalHeight = props.containerHeight / 26;
         timeColumn.forEach((time, index) => {
             lines.push(
                 <div
@@ -248,7 +248,12 @@ const ScheduleShow = (props) => {
     return (
         //層級1：單個schedule 
         <div
-            className={`schedule scheduleShow${props.selectedScheduleId === props.s_id ? ' schedule-selected' : ''}${hovered ? ' schedule-hovered' : ''}`}
+            className={[
+                styles.schedule,
+                styles.scheduleShow,
+                props.selectedScheduleId === props.s_id ? styles['schedule-selected'] : '',
+                hovered ? styles['schedule-hovered'] : ''
+            ].filter(Boolean).join(' ')}
             style={{
                 position: 'relative',
                 height: props.containerHeight,
@@ -273,24 +278,24 @@ const ScheduleShow = (props) => {
             onMouseLeave={handleMouseLeave}
         >
             {/* //層級2：schedule的header  */}
-            <div className="schedule_header">
+            <div className={styles.schedule_header}>
 
                     {/* 路線圖標已隱藏 - 現在點擊行程即可顯示路線 */}
                     {/* <div className="route_show" style={{ display: 'none' }}>
                         <img src={routeIcon} alt="Route" />
                     </div> */}
                     
-                    <div className="user_avatar">
+                    <div className={styles.user_avatar}>
                         <img alt="User" src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png"/>
                     </div>
                     
                     {/* <div className="budget_display">$350</div> */}
                     
-                    <span className="schedule_date">{props.title}</span>
+                    <span className={styles.schedule_date}>{props.title}</span>
             </div>
 
             {/* //層級3：schedule放内容的地方 */}
-            <div className="schedule_timeline" style={{ position: 'relative', overflow: 'hidden', maxHeight: props.containerHeight }}>
+            <div className={styles.schedule_timeline} style={{ position: 'relative', overflow: 'hidden', maxHeight: props.containerHeight }}>
                 {renderGrid()}
 
                 {/* 顯示景點（已經在資料庫的） */}

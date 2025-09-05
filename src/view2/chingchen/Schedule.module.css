@@ -101,7 +101,7 @@
 
 .schedule {
   width: 120px;
-  height: calc(100% - 10px);
+  height: calc(200% - 10px);
   background-color: white;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
@@ -134,7 +134,7 @@
 }
 
 .schedule_header {
-    height: 10%;
+    height: 5%;
     text-align: center;
     margin-bottom: 8px;
     border-bottom: 1px solid #ddd;

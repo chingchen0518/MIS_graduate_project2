@@ -12,7 +12,7 @@ import ScheduleNew from './scheduleNew.jsx';
 import ScheduleInsert from './ScheduleInsert.jsx';
 import ScheduleShow from './ScheduleShow.jsx';
 import DateSelector from '../Liu/DateSelector';
-import './ScheduleContainer.css';
+import styles from './ScheduleContainer.module.css';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const trip = JSON.parse(localStorage.getItem('trip'))
@@ -25,10 +25,12 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
     const [selectedDate, setSelectedDate] = useState(''); // 儲存目前選擇的Date
     const [timeColumnHeight, setTimeColumnHeight] = useState(0); // 儲存時間欄的高度
     const [showScheduleInsert, setShowScheduleInsert] = useState(false); //要不要顯示ScheduleInsert
+    const [scheduleListHeight, setScheduleListHeight] = useState(0); // schedule_list高度
     // 從 Context 取得 selectedScheduleId 狀態
     const { selectedScheduleId, setSelectedScheduleId } = useContext(SelectedScheduleContext);
 
     const timeColumnRef = useRef(null);
+    const scheduleListRef = useRef(null);
 
     // console.log(user, trip)
     
@@ -52,25 +54,34 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
         }
     }
 
-    //【useEffect 1】計算timeColumn的高度+更新到State
+    //【useEffect 1】計算timeColumn的高度+schedule_list高度+更新到State
     useEffect(() => {
-        const updateTimeColumnHeight = () => {
+        const updateHeights = () => {
             if (timeColumnRef.current) {
                 setTimeColumnHeight(timeColumnRef.current.scrollHeight);
             }
+            if (scheduleListRef.current) {
+                setScheduleListHeight(scheduleListRef.current.offsetHeight);
+            }
         };
 
-        updateTimeColumnHeight();
+        updateHeights();
 
         // Optional: Add a resize observer to handle dynamic changes
-        const resizeObserver = new ResizeObserver(updateTimeColumnHeight);
+        const resizeObserver = new ResizeObserver(updateHeights);
         if (timeColumnRef.current) {
             resizeObserver.observe(timeColumnRef.current);
+        }
+        if (scheduleListRef.current) {
+            resizeObserver.observe(scheduleListRef.current);
         }
 
         return () => {
             if (timeColumnRef.current) {
                 resizeObserver.unobserve(timeColumnRef.current);
+            }
+            if (scheduleListRef.current) {
+                resizeObserver.unobserve(scheduleListRef.current);
             }
         };
     }, []);
@@ -148,13 +159,14 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
     ];
 
 
-
+    // 讓latestTimeColumnHeight等於schedule_list的高度
+    const latestScheduleListHeight = scheduleListHeight*1.5;
     //components的最終return
     return (
-        <div className="schedule_container">
-            <div className="schedule_container_header">
-                <h2 className="schedule_container_title">🚩旅遊行程</h2>
-                <div className="date-selector-wrapper">
+    <div className={styles.schedule_container}>
+            <div className={styles.schedule_container_header}>
+                <h2 className={styles.schedule_container_title}>🚩旅遊行程</h2>
+                <div className={styles['date-selector-wrapper']}>
                 <DateSelector 
                     t_id={trip.tid} //@==@記得改掉@==@
                     onDateChange={handleDateChange}
@@ -162,17 +174,17 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
                 </div>
             </div>
 
-            <div className="schedule_list">
-                <div className="time_column" ref={timeColumnRef} style={{ height: timeColumnHeight}}>
+            <div className={styles.schedule_list} ref={scheduleListRef}>
+                <div className={styles.time_column} ref={timeColumnRef} style={{ height: latestScheduleListHeight }}>
                 {timeSlots.map((time) => (
-                    <div key={time} className="time_slot">
+                    <div key={time} className={styles.time_slot}>
                         {time}
                     </div>
                 ))}
-            </div>
+                </div>
 
             <ScheduleNew 
-                containerHeight={timeColumnHeight} 
+                containerHeight={latestScheduleListHeight} 
                 onAddNewSchedule={handleShowScheduleInsert}
                 isBlinking={(!loading && schedules.length === 0)}
             />
@@ -184,8 +196,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
                     date = {selectedDate}
                     ScheduleInsertShow={handleShowScheduleInsert}
                     handleNewSchedule={getNewSchedule}
-                    containerHeight={timeColumnHeight}
-                    intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
+                    containerHeight={latestScheduleListHeight}
+                    intervalHeight={latestScheduleListHeight / (timeSlots.length + 1)}
                     //用於告訴attraction_container哪一些景點已被使用
                     onAttractionUsed={onAttractionUsed} 
                 />)
@@ -209,8 +221,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
                     s_id={schedule.s_id}
                     title={schedule.title}
                     day={schedule.day}
-                    intervalHeight={timeColumnHeight / (timeSlots.length + 1)}
-                    containerHeight={timeColumnHeight}
+                    intervalHeight={latestScheduleListHeight / (timeSlots.length + 1)}
+                    containerHeight={latestScheduleListHeight}
                     onShowRoute={onShowRoute}
                     onHideRoute={onHideRoute}
                     selectedScheduleId={selectedScheduleId}

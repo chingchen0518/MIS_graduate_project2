@@ -168,11 +168,8 @@ const ScheduleShow = (props) => {
                     // console.log("barRect",barRect);
                     // if (isRectOverlap(itemRect, barRect)){
                     if (isRectOverlap(itemRect, barRect)){    
-
-                        console.log("abcdefg");
                         // 碰撞時
                         if (barRef.current.children[0]) {
-                            console.log("abcdefg");
                             barRef.current.children[0].classList.add('bar_collide');
                             // 如需高度調整可加上：
                             barRef.current.children[0].style.height = updateBarHeights(barRect, itemRect, 99999) + 'px';

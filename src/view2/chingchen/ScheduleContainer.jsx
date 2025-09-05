@@ -158,6 +158,43 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
         '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00','23:59'
     ];
 
+    // 參考 ScheduleInsert.jsx 的 renderGrid 寫法
+    const renderTimeColumnGrid = () => {
+        const lines = [];
+        const intervalHeight = latestScheduleListHeight / (timeSlots.length + 1);
+        timeSlots.forEach((time, index) => {
+            lines.push(
+                <div key={time} style={{
+                    position: 'absolute',
+                    top: index * intervalHeight,
+                    left: 0,
+                    width: '100%',
+                    height: '1px',
+                    backgroundColor: 'lightgray',
+                    display: 'flex',
+                    alignItems: 'center',
+                    zIndex: 1
+                }}>
+                    <span style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: '-10px',
+                        fontSize: '12px',
+                        color: '#888',
+                        background: '#fff',
+                        padding: '0 2px',
+                        zIndex: 2
+                    }}>{time}</span>
+                </div>
+            );
+        });
+        return (
+            <div style={{ position: 'relative', height: latestScheduleListHeight, width: '100%' }}>
+                {lines}
+            </div>
+        );
+    };
+
 
     // 讓latestTimeColumnHeight等於schedule_list的高度
     const latestScheduleListHeight = scheduleListHeight*1.5;
@@ -176,11 +213,8 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
 
             <div className={styles.schedule_list} ref={scheduleListRef}>
                 <div className={styles.time_column} ref={timeColumnRef} style={{ height: latestScheduleListHeight }}>
-                {timeSlots.map((time) => (
-                    <div key={time} className={styles.time_slot}>
-                        {time}
-                    </div>
-                ))}
+                    <div style={{ height: "10%" }} className="nothing"></div>
+                    {renderTimeColumnGrid()}
                 </div>
 
             <ScheduleNew 

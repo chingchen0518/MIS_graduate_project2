@@ -171,7 +171,7 @@ function ShowTimeModal({ tripId, deadline, time, stage_date, onClose }) {
     // 儲存按鈕事件
     const handleSave = async () => {
         try {
-            await fetch('/api/update-trip-time', {
+            await fetch('http://localhost:3001/api/update-trip-time', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

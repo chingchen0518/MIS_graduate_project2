@@ -101,8 +101,6 @@ const Page2 = () => {
             <CustomDragPreview />
 
             <div className="page2">
-                {/* <Header /> */}
-
                 <div className="page2_content">
                     <AttractionContainer
                         usedAttractions={usedAttractions}

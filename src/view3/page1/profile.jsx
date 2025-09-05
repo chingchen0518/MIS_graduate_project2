@@ -18,6 +18,7 @@ function Profile() {
     const [profile, setProfile] = useState(null);
     const [editing, setEditing] = useState(false);
     const [form, setForm] = useState(user);
+    console.log('User:', user);
 
     useEffect(() => {
         if (!user) {
@@ -218,7 +219,7 @@ function Profile() {
                 </div>
                 <div className="all_footer">
                     <p className="register-link">
-                        <a href="/">回首頁</a>
+                        <a href="/">Back to Homepage</a>
                     </p>
                 </div>
             </div>

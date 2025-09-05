@@ -5,7 +5,7 @@ let BASE_URL = NGROK_URL || `http://${HOST_URL}:${PORT}`;
 
 import React, { useState, useEffect } from 'react';
 import Header from './header.jsx';
-import Part1 from '../view1/part1.jsx';
+import Backend from '../view3/page1/Backend.jsx';
 import ChooseAttraction from '../view1/part2.jsx';
 import Page1 from '../view2/chingchen/page1.jsx';
 import Page2 from '../view3/page2/page2.jsx';
@@ -42,7 +42,7 @@ const Vistor = () => {
 
 
     let content;
-    if (stage === 'A') content = <Part1 />;
+    if (stage === 'A') content = <Backend />;
     else if (stage === 'B') content = <ChooseAttraction />;
     else if (stage === 'C') content = <Page1 />;
     else if (stage === 'D') content = <Page2 />;

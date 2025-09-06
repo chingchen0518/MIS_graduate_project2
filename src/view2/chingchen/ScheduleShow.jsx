@@ -88,7 +88,7 @@ const ScheduleShow = (props) => {
         // console.log("inverval height in schedule SHOW",props.intervalHeight);
         // console.log("containerHeight in schedule SHOW",props.containerHeight);
         // console.log("intervalHeight in schedule SHOW",props.intervalHeight);
-        console.log("✅props.containerHeight",props.containerHeight,"*0.9 / 25 = ",intervalHeight);
+        // console.log("✅props.containerHeight",props.containerHeight,"*0.9 / 25 = ",intervalHeight);
 
         timeColumn.forEach((time, index) => {
             lines.push(

@@ -384,7 +384,7 @@ const ScheduleInsert = ({
             return;
         }
 
-        const dropTarget = dropRef.current.querySelector('.schedule_timeline');
+        const dropTarget = dropRef.current.querySelector('.drop_target_schedule_timeline');
         if (!dropTarget) {
             console.error("Drop target element not found!");
             return;
@@ -473,11 +473,9 @@ const ScheduleInsert = ({
         return lines;
     };
 
-    // console.log("🚖attractions:", attractions);
-
     return (
         <ErrorBoundary>
-            <div ref={dropRef} className={`${styles.schedule} ${isOver ? styles.highlight : ''}`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
+            <div ref={dropRef} className={`${styles.schedule} ${isOver ? styles.highlight : ''} schedule_target`} style={{ position: 'relative', height: containerHeight, overflow: 'hidden', maxHeight: containerHeight, overflowY: 'hidden', overflowX: 'hidden' }}>
             <div className={styles.schedule_header}>
 
                 {/* <div className="budget_display">$350</div> */}
@@ -491,7 +489,7 @@ const ScheduleInsert = ({
                 <span className={styles.schedule_date}>{title}</span>
             </div>
         
-            <div className={styles.schedule_timeline} style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
+            <div className={`${styles.schedule_timeline} drop_target_schedule_timeline`} style={{ position: 'relative', overflow: 'hidden', maxHeight: containerHeight }}>
                 {renderGrid()}
                 
                 {/* 顯示景點 - 現在只會在草稿狀態下執行 */}
@@ -542,23 +540,24 @@ const ScheduleInsert = ({
 };
 
 const CustomDragPreview = () => {
+    
     const { item, currentOffset, isDragging } = useDragLayer((monitor) => ({
         item: monitor.getItem(),
         currentOffset: monitor.getClientOffset(),
         isDragging: monitor.isDragging(),
     }));
     
-    const scheduleRef = document.querySelector('.schedule');
+    const scheduleRef = document.querySelector('.schedule_target');
     const scheduleWidth = scheduleRef ? scheduleRef.offsetWidth : 0;
-
+    
     if (!isDragging || !currentOffset || scheduleWidth === 0) {
         return null;
     }
-
+    
     // 移除預覽的水平偏移
     const x = currentOffset.x - (scheduleWidth / 2);
     const y = currentOffset.y;
-
+    
     return (
         <div
         style={{
@@ -567,13 +566,14 @@ const CustomDragPreview = () => {
             transform: `translate(${x}px, ${y-50}px)`,
             // left: `${x - scheduleWidth * 0.45}px`, // 調整 x 坐標，讓鼠標位於預覽圖中心
             // top: `${y - 50}px`, // 調整 y 坐標，讓鼠標位於預覽圖中心
+            // height: 50,
             width: `${scheduleWidth * 0.9}px`, // 基於 schedule 的寬度
             backgroundColor: '#f0f0f0',
             border: '1px solid black',
             borderRadius: '5px',
             padding: '10px',
             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-            zIndex: 100,
+            zIndex: 1000,
         }}
         >
             <div className="attraction_name" style={{ fontWeight: 'bold', color: '#333' }}>

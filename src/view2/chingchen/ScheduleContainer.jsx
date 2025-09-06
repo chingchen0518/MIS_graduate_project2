@@ -165,7 +165,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
         let intervalHeight1 = latestScheduleListHeight*0.9 / 25;
         // console.log("latestScheduleListHeight in schedule Container",latestScheduleListHeight);
         // console.log("interval height in schedule Container",intervalHeight);
-        console.log("🅰️latestScheduleListHeight",latestScheduleListHeight,"*0.9 / 25 = ",intervalHeight1);
+        // console.log("🅰️latestScheduleListHeight",latestScheduleListHeight,"*0.9 / 25 = ",intervalHeight1);
 
 
         timeSlots.forEach((time, index) => {

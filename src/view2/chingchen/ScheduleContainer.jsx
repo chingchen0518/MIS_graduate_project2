@@ -13,6 +13,7 @@ import ScheduleInsert from './ScheduleInsert.jsx';
 import ScheduleShow from './ScheduleShow.jsx';
 import DateSelector from '../Liu/DateSelector';
 import styles from './ScheduleContainer.module.css';
+import scheduleStyles from './Schedule.module.css';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const trip = JSON.parse(localStorage.getItem('trip'))
@@ -159,14 +160,19 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
     ];
 
     // 參考 ScheduleInsert.jsx 的 renderGrid 寫法
-    const renderTimeColumnGrid = () => {
+    const renderTimeColumnGrid = (latestScheduleListHeight) => {
         const lines = [];
-        const intervalHeight = latestScheduleListHeight / (timeSlots.length + 1);
+        let intervalHeight1 = latestScheduleListHeight*0.9 / 25;
+        // console.log("latestScheduleListHeight in schedule Container",latestScheduleListHeight);
+        // console.log("interval height in schedule Container",intervalHeight);
+        console.log("🅰️latestScheduleListHeight",latestScheduleListHeight,"*0.9 / 25 = ",intervalHeight1);
+
+
         timeSlots.forEach((time, index) => {
             lines.push(
                 <div key={time} style={{
                     position: 'absolute',
-                    top: index * intervalHeight,
+                    top: index * intervalHeight1,
                     left: 0,
                     width: '100%',
                     height: '1px',
@@ -212,16 +218,18 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
             </div>
 
             <div className={styles.schedule_list} ref={scheduleListRef}>
-                <div className={styles.time_column} ref={timeColumnRef} style={{ height: latestScheduleListHeight }}>
-                    <div style={{ height: "10%" }} className="nothing"></div>
-                    {renderTimeColumnGrid()}
+                <div className={styles.time_column} ref={timeColumnRef} style={{ height: latestScheduleListHeight, top: '10%' }}>
+                    <div style={{ height: "10%", marginTop: "10px" }} className={`${scheduleStyles.schedule_header} nothing`}></div>
+                    {renderTimeColumnGrid(latestScheduleListHeight)}
+
+                    {/* <div className="time_grid"></div> */}
                 </div>
 
-            <ScheduleNew 
-                containerHeight={latestScheduleListHeight} 
-                onAddNewSchedule={handleShowScheduleInsert}
-                isBlinking={(!loading && schedules.length === 0)}
-            />
+                <ScheduleNew 
+                    containerHeight={latestScheduleListHeight} 
+                    onAddNewSchedule={handleShowScheduleInsert}
+                    isBlinking={(!loading && schedules.length === 0)}
+                />
             
             {showScheduleInsert && (
                 <ScheduleInsert

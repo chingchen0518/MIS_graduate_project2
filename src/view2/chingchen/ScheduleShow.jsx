@@ -18,7 +18,7 @@ const ScheduleShow = (props) => {
     const [scheduleWidths, setScheduleWidths] = useState(0);
 
     const [hovered, setHovered] = useState(false);
-
+    
     var HourIntervalHeight = props.intervalHeight/60;
 
     // 新增：建立 refs 陣列（效仿 ScheduleInsert）
@@ -85,6 +85,11 @@ const ScheduleShow = (props) => {
         const timeColumn = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '23:59'];
         const lines = [];
         const intervalHeight = props.containerHeight*0.9 / 25;
+        // console.log("inverval height in schedule SHOW",props.intervalHeight);
+        // console.log("containerHeight in schedule SHOW",props.containerHeight);
+        // console.log("intervalHeight in schedule SHOW",props.intervalHeight);
+        console.log("✅props.containerHeight",props.containerHeight,"*0.9 / 25 = ",intervalHeight);
+
         timeColumn.forEach((time, index) => {
             lines.push(
                 <div

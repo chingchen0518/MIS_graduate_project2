@@ -480,11 +480,14 @@ const ScheduleInsert = ({
 
                 {/* <div className="budget_display">$350</div> */}
                 
-                <div className={styles.button_display}>
-                    <button className={styles.cancel_btn} onClick={handleCancel}>取消</button>
-                    <button className={styles.confirm_btn} onClick={handleConfirm}>完成</button>
-                    <button className={styles.generate_btn} onClick={handleGenerate}>AI</button>
+
+                <div className={styles.btn_display}>
+                    <button className={styles.confirm_btn} onClick={handleConfirm}>Save</button>
+                    <button className={styles.cancel_btn} onClick={handleCancel}>Cancel</button>
                 </div>
+
+                <button className={styles.generate_btn} onClick={handleGenerate}>AI</button>
+
 
                 <span className={styles.schedule_date}>{title}</span>
             </div>

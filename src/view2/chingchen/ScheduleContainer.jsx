@@ -176,7 +176,7 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
                     left: 0,
                     width: '100%',
                     height: '1px',
-                    backgroundColor: 'lightgray',
+                    // backgroundColor: 'lightgray',
                     display: 'flex',
                     alignItems: 'center',
                     zIndex: 1
@@ -185,9 +185,9 @@ const ScheduleContainer = ({ t_id,usedAttractions = [], onAttractionUsed, onShow
                         position: 'absolute',
                         left: 0,
                         top: '-10px',
-                        fontSize: '12px',
+                        fontSize: '15px',
                         color: '#888',
-                        background: '#fff',
+                        // background: '#E7F1FF',
                         padding: '0 2px',
                         zIndex: 2
                     }}>{time}</span>
